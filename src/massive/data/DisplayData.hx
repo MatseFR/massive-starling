@@ -1,0 +1,38 @@
+package data;
+import starling.errors.AbstractMethodError;
+
+/**
+ * ...
+ * @author Matse
+ */
+abstract class DisplayData
+{
+	public var x:Float = 0;
+	public var y:Float = 0;
+	public var rotation:Float = 0;
+	public var scaleX:Float = 1;
+	public var scaleY:Float = 1;
+	
+	public var colorRed:Float = 1;
+	public var colorGreen:Float = 1;
+	public var colorBlue:Float = 1;
+	public var colorAlpha:Float = 1;
+	
+	public var visible:Bool = true;
+	
+	public function new() 
+	{
+		
+	}
+	
+	public function alignPivot(horizontalAlign:String, verticalAlign:String):Void
+	{
+		throw new AbstractMethodError();
+	}
+	
+	public function setPivot(pivotX:Float, pivotY:Float):Void
+	{
+		throw new AbstractMethodError();
+	}
+	
+}

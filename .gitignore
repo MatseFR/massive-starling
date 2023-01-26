@@ -1,0 +1,26 @@
+#################
+## Matse
+#################
+*.swf
+*.ipa
+*.apk
+*.exe
+*.air
+bin/
+*.tmp
+*.bak
+*.old
+
+############
+## Windows
+############
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Mac crap
+.DS_Store
+

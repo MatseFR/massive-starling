@@ -1,0 +1,53 @@
+package animation;
+import data.Frame;
+import data.ImageData;
+import display.MassiveImageLayer;
+
+/**
+ * ...
+ * @author Matse
+ */
+class Animator 
+{
+
+	public static function animateImageDataList(datas:Array<ImageData>, time:Float, layer:MassiveImageLayer):Void
+	{	
+		for (data in datas)
+		{
+			if (!data.animate) continue;
+			
+			data.frameTime += time;
+			if (data.frameTime >= data.frameTimings[data.frameIndex])
+			{
+				if (data.frameIndex < data.frameCount)
+				{
+					data.frameIndex++;
+				}
+				else if (data.loop)
+				{
+					data.frameTime -= data.frameTimings[data.frameIndex];
+					data.frameIndex = 0;
+				}
+			}
+		}
+		
+	}
+	
+	public static function generateTimings(frameList:Array<Frame>, frameRate:Float = 24):Array<Float>
+	{
+		var timings:Array<Float> = new Array<Float>();
+		
+		var frameTime:Float = 1.0 / frameRate;
+		var total:Float = 0;
+		var count:Int = frameList.length;
+		
+		for (i in 0...count)
+		{
+			total += frameTime;
+			timings[i] = total;
+		}
+		
+		return timings;
+	}
+	
+}

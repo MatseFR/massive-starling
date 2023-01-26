@@ -1,0 +1,15 @@
+{
+	"name": "massive-starling",
+	"url": "https://github.com/MatseFR/massive-starling",
+	"license": "MIT",
+	"tags": [ "openfl", "starling", "flash", "air", "js", "web", "cpp" ],
+	"description": "custom starling DisplayObject for heavy rendering",
+	"version": "1.0.0",
+	"releasenote": "initial release",
+	"contributors": [ "matse" ],
+	"dependencies": {
+		"openfl":""
+		"starling":""
+	},
+	"classPath": "src"
+}
