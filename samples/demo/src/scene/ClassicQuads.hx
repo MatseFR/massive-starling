@@ -3,7 +3,6 @@ package scene;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
 import starling.display.Quad;
-import starling.display.Sprite;
 import starling.events.Event;
 import starling.utils.Color;
 
@@ -11,7 +10,7 @@ import starling.utils.Color;
  * ...
  * @author Matse
  */
-class ClassicQuads extends Sprite implements IAnimatable
+class ClassicQuads extends Scene implements IAnimatable
 {
 	public var numQuads:Int = 2000;
 	public var useAlpha:Bool = false;
@@ -21,12 +20,6 @@ class ClassicQuads extends Sprite implements IAnimatable
 	private var _quadHeight:Float = 20;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
-	
-	private var _top:Float;
-	private var _bottom:Float;
-	private var _left:Float;
-	private var _right:Float;
-	private var _space:Float = 20;
 	
 	public function new() 
 	{
@@ -41,10 +34,7 @@ class ClassicQuads extends Sprite implements IAnimatable
 		var stageWidth:Float = stage.stageWidth;
 		var stageHeight:Float = stage.stageHeight;
 		
-		_top = -_space;
-		_bottom = stageHeight + _space;
-		_left = -_space;
-		_right = stageWidth + _space;
+		updateBounds();
 		
 		_quads = new Array<MovingQuad>();
 		var quad:MovingQuad;

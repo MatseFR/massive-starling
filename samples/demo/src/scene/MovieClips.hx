@@ -3,17 +3,14 @@ import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
 import starling.display.MovieClip;
-import starling.display.Sprite;
 import starling.events.Event;
 import starling.textures.Texture;
-import starling.textures.TextureAtlas;
-import starling.utils.Color;
 
 /**
  * ...
  * @author Matse
  */
-class MovieClips extends Sprite implements IAnimatable
+class MovieClips extends Scene implements IAnimatable
 {
 	public var numClips:Int = 1000;
 	public var textures:Vector<Texture>;
@@ -22,12 +19,6 @@ class MovieClips extends Sprite implements IAnimatable
 	private var _clips:Array<Clip>;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
-	
-	private var _top:Float;
-	private var _bottom:Float;
-	private var _left:Float;
-	private var _right:Float;
-	private var _space:Float = 20;
 
 	public function new() 
 	{
@@ -43,10 +34,7 @@ class MovieClips extends Sprite implements IAnimatable
 		var stageWidth:Float = stage.stageWidth;
 		var stageHeight:Float = stage.stageHeight;
 		
-		_top = -_space;
-		_bottom = stageHeight + _space;
-		_left = -_space;
-		_right = stageWidth + _space;
+		updateBounds();
 		
 		_clips = new Array<Clip>();
 		var clip:Clip;
@@ -69,7 +57,6 @@ class MovieClips extends Sprite implements IAnimatable
 			
 			_clips[i] = clip;
 			addChild(clip);
-			//Starling.currentJuggler.add(clip);
 		}
 		
 		Starling.currentJuggler.add(this);
@@ -77,10 +64,6 @@ class MovieClips extends Sprite implements IAnimatable
 	
 	override public function dispose():Void 
 	{
-		//for (clip in _clips)
-		//{
-			//Starling.currentJuggler.remove(clip);
-		//}
 		Starling.currentJuggler.remove(this);
 		
 		super.dispose();

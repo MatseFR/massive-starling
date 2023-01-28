@@ -8,17 +8,15 @@ import massive.display.MassiveImageLayer;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
-import starling.display.Sprite;
 import starling.events.Event;
 import starling.textures.Texture;
-import starling.textures.TextureAtlas;
 import starling.utils.Align;
 
 /**
  * ...
  * @author Matse
  */
-class MassiveImages extends Sprite implements IAnimatable
+class MassiveImages extends Scene implements IAnimatable
 {
 	public var numImages:Int = 1000;
 	public var useByteArray:Bool = true;
@@ -35,12 +33,6 @@ class MassiveImages extends Sprite implements IAnimatable
 	private var _imgList:Array<Img>;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
-	
-	private var _top:Float;
-	private var _bottom:Float;
-	private var _left:Float;
-	private var _right:Float;
-	private var _space:Float = 20;
 	
 	public function new() 
 	{
@@ -59,10 +51,7 @@ class MassiveImages extends Sprite implements IAnimatable
 		var stageWidth:Float = stage.stageWidth;
 		var stageHeight:Float = stage.stageHeight;
 		
-		_top = -_space;
-		_bottom = stageHeight + _space;
-		_left = -_space;
-		_right = stageWidth + _space;
+		updateBounds();
 		
 		_display = new MassiveDisplay();
 		_display.touchable = false;
