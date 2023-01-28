@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:60dd6bfb817b8a417856ed5a13c22d4e:bc54b7015ad131e42ee3bde4750e82f7:f6d8a779a3b1ce89ec80914d18849553$ -->
+<TextureAtlas imagePath="zombi_walk.png">
+    <SubTexture name="character_zombie_walk0" x="80" y="2" width="76" height="102" frameX="-6" frameY="-25" frameWidth="96" frameHeight="128"/>
+    <SubTexture name="character_zombie_walk1" x="158" y="104" width="68" height="100" frameX="-11" frameY="-28" frameWidth="96" frameHeight="128"/>
+    <SubTexture name="character_zombie_walk2" x="2" y="212" width="60" height="102" frameX="-17" frameY="-26" frameWidth="96" frameHeight="128"/>
+    <SubTexture name="character_zombie_walk3" x="70" y="106" width="66" height="104" frameX="-10" frameY="-24" frameWidth="96" frameHeight="128"/>
+    <SubTexture name="character_zombie_walk4" x="2" y="2" width="76" height="102" frameX="-6" frameY="-26" frameWidth="96" frameHeight="128"/>
+    <SubTexture name="character_zombie_walk5" x="158" y="2" width="68" height="100" frameX="-11" frameY="-28" frameWidth="96" frameHeight="128"/>
+    <SubTexture name="character_zombie_walk6" x="138" y="206" width="60" height="102" frameX="-17" frameY="-26" frameWidth="96" frameHeight="128"/>
+    <SubTexture name="character_zombie_walk7" x="2" y="106" width="66" height="104" frameX="-11" frameY="-24" frameWidth="96" frameHeight="128"/>
+</TextureAtlas>

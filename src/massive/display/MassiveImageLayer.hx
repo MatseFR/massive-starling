@@ -1,9 +1,9 @@
-package display;
-import animation.Animator;
-import data.Frame;
-import data.ImageData;
-import data.LookUp;
-import data.MassiveConstants;
+package massive.display;
+import massive.animation.Animator;
+import massive.data.Frame;
+import massive.data.ImageData;
+import massive.data.LookUp;
+import massive.data.MassiveConstants;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 
@@ -50,7 +50,7 @@ class MassiveImageLayer extends MassiveLayer
 	
 	override public function dispose():Void 
 	{
-		
+		this._datas = null;
 	}
 	
 	public function addImage(data:ImageData):Void
@@ -115,11 +115,13 @@ class MassiveImageLayer extends MassiveLayer
 		
 		if (this.useColor)
 		{
-			byteData.length += _numDatas * 128;
+			//byteData.length += _numDatas * 128;
+			byteData.length += _numDatas << 7;
 		}
 		else
 		{
-			byteData.length += _numDatas * 64;
+			//byteData.length += _numDatas * 64;
+			byteData.length += _numDatas << 6;
 		}
 		
 		for (data in _datas)
@@ -290,8 +292,18 @@ class MassiveImageLayer extends MassiveLayer
 	{
 		if (this._datas == null) return 0;
 		
-		var vertexID:Int;
+		var vertexID:Int = offset << 2;
 		var position:Int;
+		
+		if (useColor)
+		{
+			position = vertexID << 3;
+		}
+		else
+		{
+			position = vertexID << 2;
+		}
+		
 		var quadsWritten:Int = -1;
 		
 		var x:Float, y:Float;
@@ -327,7 +339,7 @@ class MassiveImageLayer extends MassiveLayer
 		{
 			if (!data.visible) continue;
 			
-			vertexID = (offset + ++quadsWritten) << 2;
+			quadsWritten++;
 			
 			x = data.x;
 			y = data.y;
@@ -368,8 +380,6 @@ class MassiveImageLayer extends MassiveLayer
 			rightOffset = frame.rightWidth * data.scaleX;
 			topOffset = frame.topHeight * data.scaleY;
 			bottomOffset = frame.bottomHeight * data.scaleY;
-			
-			position = vertexID << 3;
 			
 			if (rotation != 0)
 			{
@@ -484,6 +494,7 @@ class MassiveImageLayer extends MassiveLayer
 					vectorData[++position] = alpha;
 				}
 			}
+			position++;
 		}
 		
 		return ++quadsWritten;

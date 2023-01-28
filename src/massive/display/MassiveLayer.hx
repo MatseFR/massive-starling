@@ -1,4 +1,4 @@
-package display;
+package massive.display;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 import starling.errors.AbstractMethodError;

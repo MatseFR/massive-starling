@@ -1,4 +1,4 @@
-package data;
+package massive.data;
 import openfl.errors.ArgumentError;
 import starling.utils.Align;
 

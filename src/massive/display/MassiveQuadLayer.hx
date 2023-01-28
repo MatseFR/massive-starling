@@ -1,7 +1,7 @@
-package display;
-import data.LookUp;
-import data.MassiveConstants;
-import data.QuadData;
+package massive.display;
+import massive.data.LookUp;
+import massive.data.MassiveConstants;
+import massive.data.QuadData;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 
@@ -108,7 +108,8 @@ class MassiveQuadLayer extends MassiveLayer
 		}
 		else
 		{
-			byteData.length += _numDatas * 32;
+			//byteData.length += _numDatas * 32;
+			byteData.length += _numDatas << 5;
 		}
 		
 		for (data in _datas)
@@ -240,8 +241,18 @@ class MassiveQuadLayer extends MassiveLayer
 	{
 		if (this._datas == null) return 0;
 		
-		var vertexID:Int;
+		var vertexID:Int = offset << 2;
 		var position:Int;
+		
+		if (useColor)
+		{
+			position = vertexID << 3;
+		}
+		else
+		{
+			position = vertexID << 2;
+		}
+		
 		var quadsWritten:Int = -1;
 		
 		var x:Float, y:Float;
@@ -270,7 +281,7 @@ class MassiveQuadLayer extends MassiveLayer
 		{
 			if (!data.visible) continue;
 			
-			vertexID = (offset + ++quadsWritten) << 2;
+			quadsWritten++;
 			
 			x = data.x;
 			y = data.y;
@@ -288,8 +299,6 @@ class MassiveQuadLayer extends MassiveLayer
 			rightOffset = data.rightWidth * data.scaleX;
 			topOffset = data.topHeight * data.scaleY;
 			bottomOffset = data.bottomHeight * data.scaleY;
-			
-			position = vertexID << 3;
 			
 			if (rotation != 0)
 			{
@@ -388,6 +397,7 @@ class MassiveQuadLayer extends MassiveLayer
 					vectorData[++position] = alpha;
 				}
 			}
+			position++;
 		}
 		
 		return ++quadsWritten;

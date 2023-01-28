@@ -1,4 +1,4 @@
-package data;
+package massive.data;
 import starling.errors.AbstractMethodError;
 
 /**

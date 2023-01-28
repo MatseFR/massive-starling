@@ -1,4 +1,4 @@
-package data;
+package massive.data;
 
 /**
  * ...
@@ -16,7 +16,7 @@ class ImageData extends DisplayData
 	public var frameTime:Float;
 	public var frameTimings:Array<Float>;
 	public var frameCount:Int;
-	//public var frameDelta:Float;
+	public var frameDelta:Float = 1;
 	public var frameList:Array<Frame>;
 	public var frameEventList:Array<String>;
 	public var frameIndex:Int = 0;

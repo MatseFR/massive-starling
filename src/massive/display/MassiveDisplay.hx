@@ -1,6 +1,6 @@
-package display;
+package massive.display;
 
-import data.MassiveConstants;
+import massive.data.MassiveConstants;
 import openfl.Vector;
 import openfl.display3D.Context3D;
 import openfl.display3D.Context3DBufferUsage;
@@ -20,7 +20,7 @@ import starling.rendering.Painter;
 import starling.rendering.Program;
 import starling.textures.Texture;
 import starling.utils.RenderUtil;
-import util.ReverseIterator;
+import massive.util.ReverseIterator;
 
 /**
  * ...
@@ -84,7 +84,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 * @default 2
 	 */
 	public var numBuffers(get, set):Int;
-	private var _numBuffers:Int = 2;
+	private var _numBuffers:Int = 3;
 	private function get_numBuffers():Int { return this._numBuffers; }
 	private function set_numBuffers(value:Int):Int
 	{

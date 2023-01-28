@@ -1,7 +1,7 @@
-package animation;
-import data.Frame;
-import data.ImageData;
-import display.MassiveImageLayer;
+package massive.animation;
+import massive.data.Frame;
+import massive.data.ImageData;
+import massive.display.MassiveImageLayer;
 
 /**
  * ...
@@ -10,13 +10,13 @@ import display.MassiveImageLayer;
 class Animator 
 {
 
-	public static function animateImageDataList(datas:Array<ImageData>, time:Float, layer:MassiveImageLayer):Void
+	inline public static function animateImageDataList(datas:Array<ImageData>, time:Float, layer:MassiveImageLayer):Void
 	{	
 		for (data in datas)
 		{
 			if (!data.animate) continue;
 			
-			data.frameTime += time;
+			data.frameTime += time * data.frameDelta;
 			if (data.frameTime >= data.frameTimings[data.frameIndex])
 			{
 				if (data.frameIndex < data.frameCount)
