@@ -3,6 +3,7 @@ package massive.display;
 import massive.data.MassiveConstants;
 import openfl.Vector;
 import openfl.display3D.Context3D;
+import openfl.display3D.Context3DBlendFactor;
 import openfl.display3D.Context3DBufferUsage;
 import openfl.display3D.Context3DProgramType;
 import openfl.display3D.Context3DVertexBufferFormat;
@@ -13,6 +14,7 @@ import openfl.utils.Endian;
 import starling.animation.IAnimatable;
 import starling.animation.Juggler;
 import starling.core.Starling;
+import starling.display.BlendMode;
 import starling.display.DisplayObject;
 import starling.errors.MissingContextError;
 import starling.events.Event;
@@ -95,6 +97,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			createBuffers(value, this._bufferSize);
 		}
 		return this._numBuffers = value;
+	}
+	
+	override function set_blendMode(value:String):String 
+	{
+		if (this.__blendMode == value) return value;
+		this.__blendMode = value;
+		updateBlendMode();
+		return this.__blendMode;
 	}
 	
 	public var colorAlpha(get, set):Float;
@@ -195,6 +205,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._premultipliedAlpha = value.premultipliedAlpha;
 		}
 		this._texture = value;
+		updateBlendMode();
 		updateElements();
 		return this._texture;
 	}
@@ -266,6 +277,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function new() 
 	{
 		super();
+		this.__blendMode = BlendMode.NORMAL;
 		this.touchable = false;
 		this.addEventListener(Event.ADDED_TO_STAGE, addedToStage);
 		updateElements();
@@ -623,6 +635,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		++painter.drawCount;
 		
 		painter.prepareToDraw();
+		if (this._texture != null)
+		{
+			context.setTextureAt(0, this._texture.base);
+			RenderUtil.setSamplerStateAt(0, this._texture.mipMapping, this._textureSmoothing, this._textureRepeat);
+		}
 		this._program.activate(context);
 		
 		this._vertexBufferIndex = ++this._vertexBufferIndex % this._numBuffers;
@@ -672,12 +689,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
 		
-		if (this._texture != null)
-		{
-			context.setTextureAt(0, this._texture.base);
-			RenderUtil.setSamplerStateAt(0, this._texture.mipMapping, this._textureSmoothing, this._textureRepeat);
-		}
-		
 		context.drawTriangles(this._indexBuffer, 0, numQuads * 2);
 		
 		for (i in new ReverseIterator(contextBufferIndex-1, 0))
@@ -688,6 +699,22 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._texture != null)
 		{
 			context.setTextureAt(0, null);
+		}
+	}
+	
+	private function updateBlendMode():Void
+	{
+		if (this.__blendMode == BlendMode.NORMAL)
+		{
+			var pma:Bool = this._texture != null ? this._texture.premultipliedAlpha : true;
+			if (pma)
+			{
+				this.__blendMode = Context3DBlendFactor.SOURCE_ALPHA + ", " + Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
+				if (!BlendMode.isRegistered(this.__blendMode))
+				{
+					BlendMode.register(this.__blendMode, Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
+				}
+			}
 		}
 	}
 	
