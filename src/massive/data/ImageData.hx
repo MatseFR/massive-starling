@@ -6,7 +6,48 @@ package massive.data;
  */
 class ImageData extends DisplayData
 {
-	static private var _POOL:Array<ImageData> = new Array<ImageData>();
+	private static var POOL:Array<ImageData> = new Array<ImageData>();
+	
+	public static function fromPool():ImageData
+	{
+		if (POOL.length != 0) return POOL.pop();
+		return new ImageData();
+	}
+	
+	public static function fromPoolArray(numImages:Int, imgList:Array<ImageData> = null):Array<ImageData>
+	{
+		if (imgList == null) imgList = new Array<ImageData>();
+		
+		while (numImages != 0)
+		{
+			if (POOL.length == 0) break;
+			imgList.push(POOL.pop());
+			numImages--;
+		}
+		
+		while (numImages != 0)
+		{
+			imgList.push(new ImageData());
+			numImages--;
+		}
+		
+		return imgList;
+	}
+	
+	public static function toPool(img:ImageData):Void
+	{
+		img.clear();
+		POOL.push(img);
+	}
+	
+	public static function toPoolArray(imgList:Array<ImageData>):Void
+	{
+		for (img in imgList)
+		{
+			img.clear();
+			POOL.push(img);
+		}
+	}
 	
 	/* inverts display on horizontal axis */
 	public var invertX:Bool = false;
@@ -30,11 +71,30 @@ class ImageData extends DisplayData
 		super();
 	}
 	
-	public function setFrames(frames:Array<Frame>, timings:Array<Float>, frameIndex:Int = 0, animate:Bool = true, loop:Bool = true, hasEvents:Bool = false, frameEvents:Array<String> = null):Void
+	public function clear():Void
+	{
+		this.invertX = false;
+		this.invertY = false;
+		this.frameDelta = 1;
+		this.animate = false;
+		this.loop = true;
+		this.hasEvents = false;
+		clearFrames();
+	}
+	
+	public function clearFrames():Void
+	{
+		this.frameList = null;
+		this.frameTimings = null;
+		this.frameCount = 0;
+		this.frameEventList = null;
+	}
+	
+	public function setFrames(frames:Array<Frame>, frameIndex:Int = 0, animate:Bool = false, timings:Array<Float> = null, loop:Bool = true, hasEvents:Bool = false, frameEvents:Array<String> = null):Void
 	{
 		this.frameList = frames;
 		this.frameTimings = timings;
-		this.frameCount = this.frameTimings.length - 1;
+		this.frameCount = this.frameTimings == null ? this.frameList.length - 1 : this.frameTimings.length - 1;
 		this.frameIndex = frameIndex;
 		this.animate = animate;
 		this.loop = loop;

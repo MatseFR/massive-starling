@@ -8,6 +8,47 @@ import starling.utils.Align;
  */
 class QuadData extends DisplayData
 {
+	private static var POOL:Array<QuadData> = new Array<QuadData>();
+	
+	public static function fromPool():QuadData
+	{
+		if (POOL.length != 0) return POOL.pop();
+		return new QuadData();
+	}
+	
+	public static function fromPoolArray(numQuads:Int, quadList:Array<QuadData> = null):Array<QuadData>
+	{
+		if (quadList == null) quadList = new Array<QuadData>();
+		
+		while (numQuads != 0)
+		{
+			if (POOL.length == 0) break;
+			quadList.push(POOL.pop());
+			numQuads--;
+		}
+		
+		while (numQuads != 0)
+		{
+			quadList.push(new QuadData());
+			numQuads--;
+		}
+		
+		return quadList;
+	}
+	
+	public static function toPool(quad:QuadData):Void
+	{
+		POOL.push(quad);
+	}
+	
+	public static function toPoolArray(quadList:Array<QuadData>):Void
+	{
+		for (quad in quadList)
+		{
+			POOL.push(quad);
+		}
+	}
+	
 	public var leftWidth:Float;
 	public var rightWidth:Float;
 	public var topHeight:Float;
