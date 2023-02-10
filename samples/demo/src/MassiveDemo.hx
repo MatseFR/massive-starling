@@ -15,6 +15,8 @@ import starling.display.Quad;
 import starling.display.Sprite;
 import starling.events.Event;
 import starling.events.ResizeEvent;
+import starling.text.TextField;
+import starling.text.TextFieldAutoSize;
 import starling.textures.RenderTexture;
 import starling.textures.Texture;
 import starling.textures.TextureAtlas;
@@ -33,7 +35,12 @@ class MassiveDemo extends Sprite
 	private var backButton:Button;
 	
 	private var useByteArray:Bool = false;
-	private var useColor:Bool = false;
+	private var useColor:Bool = true;
+	private var useRandomAlpha:Bool = false;
+	private var useRandomColor:Bool = false;
+	
+	private var buttonTextureON:Texture;
+	private var buttonTextureOFF:Texture;
 	
 	public function new() 
 	{
@@ -73,23 +80,63 @@ class MassiveDemo extends Sprite
 		var textureOVER:RenderTexture = new RenderTexture(Std.int(quad.width), Std.int(quad.height));
 		textureOVER.draw(quad);
 		
+		buttonTextureON = textureOVER;
+		buttonTextureOFF = textureUP;
+		
 		var btn:Button;
+		var tf:TextField;
 		var gap:Float = 8;
 		var tY:Float = 0;
 		
 		menuSprite = new Sprite();
-		//btn = new Button(textureUP, "1000 Massive birds (scale 0.2)", null, textureOVER);
-		//btn.y = tY;
-		//btn.addEventListener(Event.TRIGGERED, massiveBirds);
-		//menuSprite.addChild(btn);
-		//
-		//tY += btn.height + gap;
-		//btn = new Button(textureUP, "1000 MovieClip birds (scale 0.2)", null, textureOVER);
-		//btn.y = tY;
-		//btn.addEventListener(Event.TRIGGERED, mcBirds);
-		//menuSprite.addChild(btn);
 		
-		//tY += btn.height + gap;
+		tf = new TextField(0, 0, "Options");
+		tf.format.color = 0xffffff;
+		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf.y = tY;
+		tf.x = (textureUP.width - tf.width) / 2;
+		menuSprite.addChild(tf);
+		tY += tf.height + gap;
+		
+		btn = new Button(textureUP, "randomize alpha", null, textureOVER);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleRandomAlpha);
+		menuSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(textureUP, "randomize color", null, textureOVER);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleRandomColor);
+		menuSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(textureUP, "use ByteArray (Massive)", null, textureOVER);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleByteArray);
+		menuSprite.addChild(btn);
+		
+		tY += btn.height + gap * 4;
+		
+		tf = new TextField(0, 0, "Demos");
+		tf.format.color = 0xffffff;
+		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf.y = tY;
+		tf.x = (textureUP.width - tf.width) / 2;
+		menuSprite.addChild(tf);
+		tY += tf.height + gap;
+		
+		btn = new Button(textureUP, "1000 Massive birds (scale 0.2)", null, textureOVER);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, massiveBirds);
+		menuSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(textureUP, "1000 MovieClip birds (scale 0.2)", null, textureOVER);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, mcBirds);
+		menuSprite.addChild(btn);
+		
+		tY += btn.height + gap;
 		btn = new Button(textureUP, "4000 Massive zombies", null, textureOVER);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, massiveZombies);
@@ -137,6 +184,14 @@ class MassiveDemo extends Sprite
 		btn.addEventListener(Event.TRIGGERED, classicQuads);
 		menuSprite.addChild(btn);
 		
+		tY += btn.height + gap;
+		tf = new TextField(0, 0, "zombi assets from www.kenney.nl");
+		tf.format.color = 0xffffff;
+		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf.y = tY;
+		tf.x = (textureUP.width - tf.width) / 2;
+		menuSprite.addChild(tf);
+		
 		quad.width = 100;
 		quad.color = colorUP;
 		textureUP = new RenderTexture(Std.int(quad.width), Std.int(quad.height));
@@ -153,20 +208,10 @@ class MassiveDemo extends Sprite
 		
 		updateUIPositions();
 		showMenu();
-		
-		//for (i in 0...4)
-		//{
-			//trace(i + " << 2 = " + (i << 2));
-			//trace(i + " << 3 = " + (i << 3));
-			//trace(i + " << 4 = " + (i << 4));
-			//trace(i + " << 5 = " + (i << 5));
-			//trace(i + " << 6 = " + (i << 6));
-		//}
 	}
 	
 	private function stageResizeHandler(evt:ResizeEvent):Void
 	{
-		//trace("resize");
 		updateViewPort(evt.width, evt.height);
 		updateUIPositions();
 		
@@ -233,6 +278,48 @@ class MassiveDemo extends Sprite
 		showMenu();
 	}
 	
+	private function toggleByteArray(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.useByteArray = !this.useByteArray;
+		if (this.useByteArray)
+		{
+			btn.upState = buttonTextureON;
+		}
+		else
+		{
+			btn.upState = buttonTextureOFF;
+		}
+	}
+	
+	private function toggleRandomAlpha(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.useRandomAlpha = !this.useRandomAlpha;
+		if (this.useRandomAlpha)
+		{
+			btn.upState = buttonTextureON;
+		}
+		else
+		{
+			btn.upState = buttonTextureOFF;
+		}
+	}
+	
+	private function toggleRandomColor(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.useRandomColor = !this.useRandomColor;
+		if (this.useRandomColor)
+		{
+			btn.upState = buttonTextureON;
+		}
+		else
+		{
+			btn.upState = buttonTextureOFF;
+		}
+	}
+	
 	private function massiveBirds(evt:Event):Void
 	{
 		var atlas:TextureAtlas = assetManager.getTextureAtlas("starling_bird");
@@ -243,8 +330,10 @@ class MassiveDemo extends Sprite
 		birds.textures = textures;
 		birds.numImages = 1000;
 		birds.imgScale = 0.2;
-		birds.useColor = useColor;
 		birds.useByteArray = useByteArray;
+		birds.useColor = useColor;
+		birds.useRandomAlpha = useRandomAlpha;
+		birds.useRandomColor = useRandomColor;
 		showSceneList([birds]);
 	}
 	
@@ -257,8 +346,10 @@ class MassiveDemo extends Sprite
 		zombies.atlasTexture = atlas.texture;
 		zombies.textures = textures;
 		zombies.numImages = 4000;
-		zombies.useColor = useColor;
 		zombies.useByteArray = useByteArray;
+		zombies.useColor = useColor;
+		zombies.useRandomAlpha = useRandomAlpha;
+		zombies.useRandomColor = useRandomColor;
 		showSceneList([zombies]);
 	}
 	
@@ -272,8 +363,10 @@ class MassiveDemo extends Sprite
 		zombies.textures = textures;
 		zombies.numImages = 8000;
 		zombies.imgScale = 0.5;
-		zombies.useColor = useColor;
 		zombies.useByteArray = useByteArray;
+		zombies.useColor = useColor;
+		zombies.useRandomAlpha = useRandomAlpha;
+		zombies.useRandomColor = useRandomColor;
 		showSceneList([zombies]);
 	}
 	
@@ -282,6 +375,8 @@ class MassiveDemo extends Sprite
 		var quads:MassiveQuads = new MassiveQuads();
 		quads.numQuads = 8000;
 		quads.useByteArray = useByteArray;
+		quads.useRandomAlpha = useRandomAlpha;
+		quads.useRandomColor = useRandomColor;
 		showSceneList([quads]);
 	}
 	
@@ -290,6 +385,8 @@ class MassiveDemo extends Sprite
 		var quads:MassiveQuads = new MassiveQuads();
 		quads.numQuads = 16000;
 		quads.useByteArray = useByteArray;
+		quads.useRandomAlpha = useRandomAlpha;
+		quads.useRandomColor = useRandomColor;
 		showSceneList([quads]);
 	}
 	
@@ -302,6 +399,8 @@ class MassiveDemo extends Sprite
 		birds.textures = textures;
 		birds.numClips = 1000;
 		birds.clipScale = 0.2;
+		birds.useRandomAlpha = useRandomAlpha;
+		birds.useRandomColor = useRandomColor;
 		showSceneList([birds]);
 	}
 	
@@ -313,6 +412,8 @@ class MassiveDemo extends Sprite
 		var zombies:MovieClips = new MovieClips();
 		zombies.textures = textures;
 		zombies.numClips = 4000;
+		zombies.useRandomAlpha = useRandomAlpha;
+		zombies.useRandomColor = useRandomColor;
 		showSceneList([zombies]);
 	}
 	
@@ -325,6 +426,8 @@ class MassiveDemo extends Sprite
 		zombies.textures = textures;
 		zombies.numClips = 8000;
 		zombies.clipScale = 0.5;
+		zombies.useRandomAlpha = useRandomAlpha;
+		zombies.useRandomColor = useRandomColor;
 		showSceneList([zombies]);
 	}
 	
@@ -332,6 +435,8 @@ class MassiveDemo extends Sprite
 	{
 		var quads:ClassicQuads = new ClassicQuads();
 		quads.numQuads = 8000;
+		quads.useRandomAlpha = useRandomAlpha;
+		quads.useRandomColor = useRandomColor;
 		showSceneList([quads]);
 	}
 	
@@ -339,6 +444,8 @@ class MassiveDemo extends Sprite
 	{
 		var quads:ClassicQuads = new ClassicQuads();
 		quads.numQuads = 16000;
+		quads.useRandomAlpha = useRandomAlpha;
+		quads.useRandomColor = useRandomColor;
 		showSceneList([quads]);
 	}
 	

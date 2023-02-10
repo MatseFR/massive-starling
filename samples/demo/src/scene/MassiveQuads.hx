@@ -16,7 +16,8 @@ import starling.utils.Align;
 class MassiveQuads extends Scene implements IAnimatable
 {
 	public var numQuads:Int = 2000;
-	public var useAlpha:Bool = false;
+	public var useRandomAlpha:Bool = false;
+	public var useRandomColor:Bool;
 	public var useByteArray:Bool = true;
 	
 	private var _display:MassiveDisplay;
@@ -67,10 +68,13 @@ class MassiveQuads extends Scene implements IAnimatable
 			quad.height = _quadHeight;
 			quad.rotation = Math.random() * Math.PI;
 			
-			if (useAlpha) quad.colorAlpha = Math.random();
-			quad.colorRed = Math.random();
-			quad.colorGreen = Math.random();
-			quad.colorBlue = Math.random();
+			if (useRandomAlpha) quad.colorAlpha = Math.random();
+			if (useRandomColor)
+			{
+				quad.colorRed = Math.random();
+				quad.colorGreen = Math.random();
+				quad.colorBlue = Math.random();
+			}
 			
 			speedVariance = Math.random();
 			velocity = _velocityBase + speedVariance * _velocityRange;
@@ -88,6 +92,8 @@ class MassiveQuads extends Scene implements IAnimatable
 	
 	override public function dispose():Void 
 	{
+		Starling.currentJuggler.remove(this);
+		
 		super.dispose();
 	}
 	

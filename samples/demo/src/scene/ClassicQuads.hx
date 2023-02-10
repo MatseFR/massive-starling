@@ -13,7 +13,8 @@ import starling.utils.Color;
 class ClassicQuads extends Scene implements IAnimatable
 {
 	public var numQuads:Int = 2000;
-	public var useAlpha:Bool = false;
+	public var useRandomAlpha:Bool = false;
+	public var useRandomColor:Bool;
 	
 	private var _quads:Array<MovingQuad>;
 	private var _quadWidth:Float = 20;
@@ -41,8 +42,9 @@ class ClassicQuads extends Scene implements IAnimatable
 		var velocity:Float;
 		for (i in 0...numQuads)
 		{
-			quad = new MovingQuad(_quadWidth, _quadHeight, Color.rgb(Std.random(256), Std.random(256), Std.random(256)));
-			if (useAlpha) quad.alpha = Math.random();
+			quad = new MovingQuad(_quadWidth, _quadHeight);
+			if (useRandomAlpha) quad.alpha = Math.random();
+			if (useRandomColor) quad.color = Color.rgb(Std.random(256), Std.random(256), Std.random(256));
 			quad.touchable = false;
 			quad.alignPivot();
 			

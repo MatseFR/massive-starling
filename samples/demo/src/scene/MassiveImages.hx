@@ -21,6 +21,8 @@ class MassiveImages extends Scene implements IAnimatable
 	public var numImages:Int = 1000;
 	public var useByteArray:Bool = true;
 	public var useColor:Bool = true;
+	public var useRandomAlpha:Bool;
+	public var useRandomColor:Bool;
 	public var imgScale:Float = 1;
 	public var atlasTexture:Texture;
 	public var textures:Vector<Texture>;
@@ -71,11 +73,19 @@ class MassiveImages extends Scene implements IAnimatable
 		for (i in 0...numImages)
 		{
 			img = new Img();
-			img.setFrames(_frames, _timings, Std.random(frameCount));
+			img.setFrames(_frames, Std.random(frameCount), true, _timings);
 			img.x = Math.random() * stageWidth;
 			img.y = Math.random() * stageHeight;
 			img.scaleX = img.scaleY = imgScale;
 			img.rotation = Math.random() * Math.PI;
+			
+			if (useRandomAlpha) img.colorAlpha = Math.random();
+			if (useRandomColor)
+			{
+				img.colorRed = Math.random();
+				img.colorGreen = Math.random();
+				img.colorBlue = Math.random();
+			}
 			
 			speedVariance = Math.random();
 			img.frameDelta = 0.5 + speedVariance * 5;
@@ -93,6 +103,8 @@ class MassiveImages extends Scene implements IAnimatable
 	
 	override public function dispose():Void 
 	{
+		Starling.currentJuggler.remove(this);
+		
 		super.dispose();
 	}
 	

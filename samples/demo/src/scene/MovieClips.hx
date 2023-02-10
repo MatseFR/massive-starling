@@ -5,6 +5,7 @@ import starling.core.Starling;
 import starling.display.MovieClip;
 import starling.events.Event;
 import starling.textures.Texture;
+import starling.utils.Color;
 
 /**
  * ...
@@ -15,6 +16,8 @@ class MovieClips extends Scene implements IAnimatable
 	public var numClips:Int = 1000;
 	public var textures:Vector<Texture>;
 	public var clipScale:Float = 1;
+	public var useRandomAlpha:Bool;
+	public var useRandomColor:Bool;
 	
 	private var _clips:Array<Clip>;
 	private var _velocityBase:Float = 30;
@@ -45,7 +48,8 @@ class MovieClips extends Scene implements IAnimatable
 			clip.currentFrame = Std.random(frameCount);
 			clip.touchable = false;
 			clip.alignPivot();
-			//clip.color = Color.rgb(Std.random(256), Std.random(256), Std.random(256));
+			if (useRandomAlpha) clip.alpha = Math.random();
+			if (useRandomColor) clip.color = Color.rgb(Std.random(256), Std.random(256), Std.random(256));
 			clip.x = Math.random() * stageWidth;
 			clip.y = Math.random() * stageHeight;
 			clip.scaleX = clip.scaleY = clipScale;
