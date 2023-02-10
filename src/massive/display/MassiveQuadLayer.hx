@@ -69,6 +69,44 @@ class MassiveQuadLayer extends MassiveLayer
 		}
 	}
 	
+	/**
+	 * 
+	 * @param	data
+	 */
+	public function removeQuad(data:QuadData):Void
+	{
+		var index:Int = _datas.indexOf(data);
+		if (index != -1)
+		{
+			_datas.splice(index, 1);
+			_numDatas--;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param	datas
+	 */
+	public function removeQuadArray(datas:Array<QuadData>):Void
+	{
+		var index:Int;
+		for (data in datas)
+		{
+			index = _datas.indexOf(data);
+			if (index != -1)
+			{
+				_datas.splice(index, 1);
+				_numDatas--;
+			}
+		}
+	}
+	
+	override public function removeAllData():Void 
+	{
+		_datas.resize(0);
+		_numDatas = 0;
+	}
+	
 	override public function writeDataBytes(byteData:ByteArray, offset:Int):Int 
 	{
 		if (this._datas == null) return 0;

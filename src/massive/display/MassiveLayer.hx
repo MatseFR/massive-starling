@@ -26,6 +26,14 @@ abstract class MassiveLayer
 	
 	/**
 	 * 
+	 */
+	public function removeAllData():Void
+	{
+		throw new AbstractMethodError();
+	}
+	
+	/**
+	 * 
 	 * @param	byteData
 	 * @param	offset
 	 * @return

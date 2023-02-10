@@ -53,12 +53,20 @@ class MassiveImageLayer extends MassiveLayer
 		this._datas = null;
 	}
 	
+	/**
+	 * 
+	 * @param	data
+	 */
 	public function addImage(data:ImageData):Void
 	{
 		_datas.push(data);
 		_numDatas++;
 	}
 	
+	/**
+	 * 
+	 * @param	datas
+	 */
 	public function addImageArray(datas:Array<ImageData>):Void
 	{
 		for (data in datas)
@@ -66,6 +74,44 @@ class MassiveImageLayer extends MassiveLayer
 			_datas.push(data);
 			_numDatas++;
 		}
+	}
+	
+	/**
+	 * 
+	 * @param	data
+	 */
+	public function removeImage(data:ImageData):Void
+	{
+		var index:Int = _datas.indexOf(data);
+		if (index != -1)
+		{
+			_datas.splice(index, 1);
+			_numDatas--;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param	datas
+	 */
+	public function removeImageArray(datas:Array<ImageData>):Void
+	{
+		var index:Int;
+		for (data in datas)
+		{
+			index = _datas.indexOf(data);
+			if (index != -1)
+			{
+				_datas.splice(index, 1);
+				_numDatas--;
+			}
+		}
+	}
+	
+	override public function removeAllData():Void 
+	{
+		_datas.resize(0);
+		_numDatas = 0;
 	}
 	
 	override public function advanceTime(time:Float):Void 
