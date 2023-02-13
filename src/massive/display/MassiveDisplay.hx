@@ -9,6 +9,8 @@ import openfl.display3D.Context3DProgramType;
 import openfl.display3D.Context3DVertexBufferFormat;
 import openfl.display3D.IndexBuffer3D;
 import openfl.display3D.VertexBuffer3D;
+import openfl.geom.Matrix;
+import openfl.geom.Point;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
 import openfl.utils.Endian;
@@ -22,6 +24,7 @@ import starling.events.Event;
 import starling.rendering.Painter;
 import starling.rendering.Program;
 import starling.textures.Texture;
+import starling.utils.MatrixUtil;
 import starling.utils.RenderUtil;
 import massive.util.ReverseIterator;
 
@@ -36,6 +39,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 * If left null it will default to Starling.currentJuggler
 	 */
 	static public var defaultJuggler:Juggler;
+	
+	static private var _helperMatrix:Matrix = new Matrix();
+	static private var _helperPoint:Point = new Point();
 	
 	/**
 	 * If set to true, the MassiveDisplay instancce will automatically add itself to the juggler 
@@ -196,6 +202,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _elementsPerVertex:Int;
 	private function get_elementsPerVertex():Int { return this._elementsPerVertex; }
 	
+	public var numQuads(get, never):Int;
+	private var _numQuads:Int = 0;
+	private function get_numQuads():Int { return this._numQuads; }
+	
 	public var texture(get, set):Texture;
 	private var _texture:Texture;
 	private function get_texture():Texture { return this._texture; }
@@ -272,7 +282,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	//private var _isInitialized:Bool = false;
 	private var _zeroBytes:ByteArray;
 	
-	private var _boundsRect:Rectangle;
+	private var _boundsRect:Rectangle = new Rectangle();
 	
 	/**
 	 * Constructor
@@ -631,7 +641,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			throw new MissingContextError();
 		}
 		
-		var numQuads:Int = 0;
+		this._numQuads = 0;
 		var contextBufferIndex:Int = 0;
 		
 		painter.finishMeshBatch();
@@ -646,54 +656,53 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._program.activate(context);
 		
 		this._vertexBufferIndex = ++this._vertexBufferIndex % this._numBuffers;
-		_vertexBuffer = _vertexBuffers[_vertexBufferIndex];
+		this._vertexBuffer = this._vertexBuffers[this._vertexBufferIndex];
 		
 		if (this._useByteArray)
 		{
-			_byteData.length = 0;
+			this._byteData.length = 0;
 			for (layer in this._layers)
 			{
-				numQuads += layer.writeDataBytes(_byteData, numQuads);
+				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads);
 			}
 			
-			this._vertexBuffer.uploadFromByteArray(_byteData, 0, 0, numQuads * MassiveConstants.VERTICES_PER_QUAD);
+			this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
 		}
 		else
 		{
 			for (layer in this._layers)
 			{
-				numQuads += layer.writeDataVector(_vectorData, numQuads);
+				this._numQuads += layer.writeDataVector(this._vectorData, this._numQuads);
 			}
 			
-			this._vertexBuffer.uploadFromVector(_vectorData, 0, numQuads * MassiveConstants.VERTICES_PER_QUAD);
+			this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
 		}
-		context.setVertexBufferAt(contextBufferIndex, _vertexBuffer, _positionOffset, Context3DVertexBufferFormat.FLOAT_2);
+		context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
 		contextBufferIndex++;
 		if (this._texture != null)
 		{
-			context.setVertexBufferAt(contextBufferIndex, _vertexBuffer, _uvOffset, Context3DVertexBufferFormat.FLOAT_2);
+			context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._uvOffset, Context3DVertexBufferFormat.FLOAT_2);
 			contextBufferIndex++;
 		}
 		
-		//context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
-		if (_useColor)
+		if (this._useColor)
 		{
-			context.setVertexBufferAt(contextBufferIndex, _vertexBuffer, _colorOffset, Context3DVertexBufferFormat.FLOAT_4);
+			context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
 			contextBufferIndex++;
 			
-			if (_useByteArray)
+			if (this._useByteArray)
 			{
-				context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, _colorOffset, 1, _byteColor, 0);
+				context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorOffset, 1, this._byteColor, 0);
 			}
 			else
 			{
-				context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, _colorOffset, _vectorColor, 1);
+				context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorOffset, this._vectorColor, 1);
 			}
 		}
 		
 		context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
 		
-		context.drawTriangles(this._indexBuffer, 0, numQuads * 2);
+		context.drawTriangles(this._indexBuffer, 0, this._numQuads * 2);
 		
 		for (i in new ReverseIterator(contextBufferIndex-1, 0))
 		{
@@ -703,6 +712,29 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._texture != null)
 		{
 			context.setTextureAt(0, null);
+		}
+	}
+	
+	/**
+	 * call this before calling updateExactBounds if needed. This does *NOT* render anything
+	 */
+	public function renderData():Void
+	{
+		_numQuads = 0;
+		if (this.useByteArray)
+		{
+			_byteData.length = 0;
+			for (layer in this._layers)
+			{
+				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads);
+			}
+		}
+		else
+		{
+			for (layer in this._layers)
+			{
+				this._numQuads += layer.writeDataVector(this._vectorData, this._numQuads);
+			}
 		}
 	}
 	
@@ -724,13 +756,181 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	override public function getBounds(targetSpace:DisplayObject, out:Rectangle = null):Rectangle 
 	{
-		if (out == null)
+		if (targetSpace == this || targetSpace == null)
 		{
-			out = new Rectangle();
+			if (this._boundsRect != null)
+			{
+				return this._boundsRect;
+			}
+			else if (stage != null)
+			{
+				// return full stage size to support filters ... may be expensive, but we have no other options, do we?
+				if (out == null) out = new Rectangle();
+				out.setTo(0, 0, stage.stageWidth, stage.stageHeight);
+				return out;
+			}
+			else
+			{
+				getTransformationMatrix(targetSpace, _helperMatrix);
+				MatrixUtil.transformCoords(_helperMatrix, 0, 0, _helperPoint);
+				if (out == null) out = new Rectangle();
+				out.setTo(_helperPoint.x, _helperPoint.y, 0, 0);
+				return out;
+			}
 		}
-		out.width = stage.stageWidth;
-		out.height = stage.stageHeight;
-		return out;
+		else if (targetSpace != null)
+		{
+			if (out == null) out = new Rectangle();
+			
+			if (this._boundsRect != null)
+			{
+				getTransformationMatrix(targetSpace, _helperMatrix);
+				MatrixUtil.transformCoords(_helperMatrix, this._boundsRect.x, this._boundsRect.y, _helperPoint);
+				out.x = _helperPoint.x;
+				out.y = _helperPoint.y;
+				MatrixUtil.transformCoords(_helperMatrix, this._boundsRect.width, this._boundsRect.height, _helperPoint);
+				out.width = _helperPoint.x;
+				out.height = _helperPoint.y;
+			}
+			else if (stage != null)
+			{
+				// return full stage size to support filters ... may be pretty expensive
+				out.setTo(0, 0, stage.stageWidth, stage.stageHeight);
+			}
+			else
+			{
+				getTransformationMatrix(targetSpace, _helperMatrix);
+				MatrixUtil.transformCoords(_helperMatrix, 0, 0, _helperPoint);
+				out.setTo(_helperPoint.x, _helperPoint.y, 0, 0);
+			}
+			
+			return out;
+		}
+		else
+		{
+			return out == null ? new Rectangle() : out;
+		}
+	}
+	
+	public function updateExactBounds():Void
+	{
+		if (_boundsRect == null) _boundsRect = new Rectangle();
+		
+		if (this._numQuads == 0)
+		{
+			this._boundsRect.x = this.__x;
+			this._boundsRect.y = this.__y;
+			this._boundsRect.width = 0;
+			this._boundsRect.height = 0;
+			return;
+		}
+		
+		var quadPos:Int;
+		var pos:Int;
+		
+		var minX:Float = MassiveConstants.FLOAT_MAX;
+		var maxX:Float = MassiveConstants.FLOAT_MIN;
+		var minY:Float = MassiveConstants.FLOAT_MAX;
+		var maxY:Float = MassiveConstants.FLOAT_MIN;
+		
+		var tX:Float;
+		var tY:Float;
+		
+		if (this._useByteArray)
+		{
+			for (i in 0...this._numQuads)
+			{
+				quadPos = i * this._elementsPerQuad << 2;
+				
+				pos = quadPos;
+				this._byteData.position = pos;
+				tX = this._byteData.readFloat();
+				tY = this._byteData.readFloat();
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+				
+				pos += this._elementsPerVertex << 2;
+				this._byteData.position = pos;
+				tX = this._byteData.readFloat();
+				tY = this._byteData.readFloat();
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+				
+				pos += this._elementsPerVertex << 2;
+				this._byteData.position = pos;
+				tX = this._byteData.readFloat();
+				tY = this._byteData.readFloat();
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+				
+				pos += this._elementsPerVertex << 2;
+				this._byteData.position = pos;
+				tX = this._byteData.readFloat();
+				tY = this._byteData.readFloat();
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+			}
+		}
+		else
+		{
+			for (i in 0...this._numQuads)
+			{
+				quadPos = i * this._elementsPerQuad;
+				
+				pos = quadPos;
+				tX = this._vectorData[pos];
+				tY = this._vectorData[pos + 1];
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+				
+				pos += this._elementsPerVertex;
+				tX = this._vectorData[pos];
+				tY = this._vectorData[pos + 1];
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+				
+				pos += this._elementsPerVertex;
+				tX = this._vectorData[pos];
+				tY = this._vectorData[pos + 1];
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+				
+				pos += this._elementsPerVertex;
+				tX = this._vectorData[pos];
+				tY = this._vectorData[pos + 1];
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+			}
+		}
+		
+		this._boundsRect.x = this.__x + minX;
+		this._boundsRect.y = this.__y + minY;
+		this._boundsRect.width = maxX - minX;
+		this._boundsRect.height = maxY - minY;
 	}
 	
 }
