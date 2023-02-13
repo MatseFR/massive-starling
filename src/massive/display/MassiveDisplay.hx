@@ -24,6 +24,7 @@ import starling.events.Event;
 import starling.rendering.Painter;
 import starling.rendering.Program;
 import starling.textures.Texture;
+import starling.textures.TextureSmoothing;
 import starling.utils.MatrixUtil;
 import starling.utils.RenderUtil;
 import massive.util.ReverseIterator;
@@ -230,7 +231,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	}
 	
 	public var textureSmoothing(get, set):String;
-	private var _textureSmoothing:String;
+	private var _textureSmoothing:String = TextureSmoothing.BILINEAR;
 	private function get_textureSmoothing():String { return this._textureSmoothing; }
 	private function set_textureSmoothing(value:String):String
 	{
