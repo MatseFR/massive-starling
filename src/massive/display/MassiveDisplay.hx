@@ -9,6 +9,7 @@ import openfl.display3D.Context3DProgramType;
 import openfl.display3D.Context3DVertexBufferFormat;
 import openfl.display3D.IndexBuffer3D;
 import openfl.display3D.VertexBuffer3D;
+import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
 import openfl.utils.Endian;
 import starling.animation.IAnimatable;
@@ -107,24 +108,24 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this.__blendMode;
 	}
 	
-	public var colorAlpha(get, set):Float;
-	private var _colorAlpha:Float = 1;
-	private function get_colorAlpha():Float { return this._colorAlpha; }
-	private function set_colorAlpha(value:Float):Float
+	override function set_alpha(value:Float):Float 
 	{
-		if (_useByteArray)
+		super.set_alpha(value);
+		
+		if (this._useByteArray)
 		{
-			if (_byteColor != null)
+			if (this._byteColor != null)
 			{
-				_byteColor.position = 12;
-				_byteColor.writeFloat(value);
+				this._byteColor.position = 12;
+				this._byteColor.writeFloat(this.__alpha);
 			}
 		}
-		else if (_vectorColor != null)
+		else if (this._vectorColor != null)
 		{
-			_vectorColor[3] = value;
+			this._vectorColor[3] = this.__alpha;
 		}
-		return this._colorAlpha = value;
+		
+		return this.__alpha;
 	}
 	
 	public var colorBlue(get, set):Float;
@@ -271,6 +272,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	//private var _isInitialized:Bool = false;
 	private var _zeroBytes:ByteArray;
 	
+	private var _boundsRect:Rectangle;
+	
 	/**
 	 * Constructor
 	 */
@@ -315,7 +318,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				_byteColor.writeFloat(this._colorRed);
 				_byteColor.writeFloat(this._colorGreen);
 				_byteColor.writeFloat(this._colorBlue);
-				_byteColor.writeFloat(this._colorAlpha);
+				_byteColor.writeFloat(this.__alpha);
 			}
 			
 			if (_byteData == null)
@@ -332,7 +335,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				_vectorColor[0] = this._colorRed;
 				_vectorColor[1] = this._colorGreen;
 				_vectorColor[2] = this._colorBlue;
-				_vectorColor[3] = this._colorAlpha;
+				_vectorColor[3] = this.__alpha;
 			}
 			
 			if (_vectorData == null)
@@ -672,6 +675,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			contextBufferIndex++;
 		}
 		
+		//context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
 		if (_useColor)
 		{
 			context.setVertexBufferAt(contextBufferIndex, _vertexBuffer, _colorOffset, Context3DVertexBufferFormat.FLOAT_4);
@@ -716,6 +720,17 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				}
 			}
 		}
+	}
+	
+	override public function getBounds(targetSpace:DisplayObject, out:Rectangle = null):Rectangle 
+	{
+		if (out == null)
+		{
+			out = new Rectangle();
+		}
+		out.width = stage.stageWidth;
+		out.height = stage.stageHeight;
+		return out;
 	}
 	
 }
