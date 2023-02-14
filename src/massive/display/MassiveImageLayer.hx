@@ -119,7 +119,7 @@ class MassiveImageLayer extends MassiveLayer
 		Animator.animateImageDataList(_datas, time, this);
 	}
 	
-	override public function writeDataBytes(byteData:ByteArray, offset:Int):Int
+	override public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -176,8 +176,8 @@ class MassiveImageLayer extends MassiveLayer
 			
 			quadsWritten++;
 			
-			x = data.x;
-			y = data.y;
+			x = data.x + renderOffsetX;
+			y = data.y + renderOffsetY;
 			rotation = data.rotation;
 			
 			if (this.useColor)
@@ -334,7 +334,7 @@ class MassiveImageLayer extends MassiveLayer
 		return ++quadsWritten;
 	}
 	
-	override public function writeDataVector(vectorData:Vector<Float>, offset:Int):Int
+	override public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -387,8 +387,8 @@ class MassiveImageLayer extends MassiveLayer
 			
 			quadsWritten++;
 			
-			x = data.x;
-			y = data.y;
+			x = data.x + data.offsetX + renderOffsetX;
+			y = data.y + data.offsetY + renderOffsetY;
 			rotation = data.rotation;
 			
 			if (this.useColor)

@@ -207,6 +207,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _numQuads:Int = 0;
 	private function get_numQuads():Int { return this._numQuads; }
 	
+	public var renderOffsetX:Float = 0;
+	public var renderOffsetY:Float = 0;
+	
 	public var texture(get, set):Texture;
 	private var _texture:Texture;
 	private function get_texture():Texture { return this._texture; }
@@ -664,7 +667,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._byteData.length = 0;
 			for (layer in this._layers)
 			{
-				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads);
+				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 			
 			this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
@@ -673,7 +676,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			for (layer in this._layers)
 			{
-				this._numQuads += layer.writeDataVector(this._vectorData, this._numQuads);
+				this._numQuads += layer.writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 			
 			this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
@@ -727,14 +730,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			_byteData.length = 0;
 			for (layer in this._layers)
 			{
-				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads);
+				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 		}
 		else
 		{
 			for (layer in this._layers)
 			{
-				this._numQuads += layer.writeDataVector(this._vectorData, this._numQuads);
+				this._numQuads += layer.writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 		}
 	}
@@ -928,8 +931,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			}
 		}
 		
-		this._boundsRect.x = this.__x + minX;
-		this._boundsRect.y = this.__y + minY;
+		this._boundsRect.x = this.__x + minX - this.renderOffsetX;
+		this._boundsRect.y = this.__y + minY - this.renderOffsetY;
 		this._boundsRect.width = maxX - minX;
 		this._boundsRect.height = maxY - minY;
 	}

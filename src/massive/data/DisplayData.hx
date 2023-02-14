@@ -9,6 +9,8 @@ abstract class DisplayData
 {
 	public var x:Float = 0;
 	public var y:Float = 0;
+	public var offsetX:Float = 0;
+	public var offsetY:Float = 0;
 	public var rotation:Float = 0;
 	public var scaleX:Float = 1;
 	public var scaleY:Float = 1;

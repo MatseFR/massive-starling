@@ -38,7 +38,7 @@ abstract class MassiveLayer
 	 * @param	offset
 	 * @return
 	 */
-	public function writeDataBytes(byteData:ByteArray, offset:Int):Int
+	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		throw new AbstractMethodError();
 	}
@@ -49,7 +49,7 @@ abstract class MassiveLayer
 	 * @param	offset
 	 * @return
 	 */
-	public function writeDataVector(vectorData:Vector<Float>, offset:Int):Int
+	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		throw new AbstractMethodError();
 	}
