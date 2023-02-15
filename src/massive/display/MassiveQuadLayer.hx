@@ -156,8 +156,8 @@ class MassiveQuadLayer extends MassiveLayer
 			
 			quadsWritten++;
 			
-			x = data.x + renderOffsetX;
-			y = data.y + renderOffsetY;
+			x = data.x + data.offsetX + renderOffsetX;
+			y = data.y + data.offsetY + renderOffsetY;
 			rotation = data.rotation;
 			
 			if (this.useColor)
