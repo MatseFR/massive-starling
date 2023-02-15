@@ -294,7 +294,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function new() 
 	{
 		super();
-		this.__blendMode = BlendMode.NORMAL;
+		this.blendMode = BlendMode.NORMAL;
 		this.touchable = false;
 		this.addEventListener(Event.ADDED_TO_STAGE, addedToStage);
 		updateElements();
