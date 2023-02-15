@@ -652,12 +652,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		++painter.drawCount;
 		
 		painter.prepareToDraw();
+		
+		this._program.activate(context);
 		if (this._texture != null)
 		{
 			context.setTextureAt(0, this._texture.base);
 			RenderUtil.setSamplerStateAt(0, this._texture.mipMapping, this._textureSmoothing, this._textureRepeat);
 		}
-		this._program.activate(context);
 		
 		this._vertexBufferIndex = ++this._vertexBufferIndex % this._numBuffers;
 		this._vertexBuffer = this._vertexBuffers[this._vertexBufferIndex];
