@@ -215,9 +215,12 @@ class MassiveDemo extends Sprite
 		updateViewPort(evt.width, evt.height);
 		updateUIPositions();
 		
-		for (scene in _sceneList)
+		if (_sceneList != null)
 		{
-			scene.updateBounds();
+			for (scene in _sceneList)
+			{
+				scene.updateBounds();
+			}
 		}
 	}
 	
@@ -272,6 +275,7 @@ class MassiveDemo extends Sprite
 		{
 			scene.removeFromParent(true);
 		}
+		_sceneList = null;
 		
 		backButton.removeFromParent();
 		
