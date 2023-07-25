@@ -15,9 +15,13 @@ abstract class DisplayData
 	public var scaleX:Float = 1;
 	public var scaleY:Float = 1;
 	
+	/* -1 to 10 */
 	public var colorRed:Float = 1;
+	/* -1 to 10 */
 	public var colorGreen:Float = 1;
+	/* -1 to 10 */
 	public var colorBlue:Float = 1;
+	/* 0 to 1 */
 	public var colorAlpha:Float = 1;
 	
 	public var visible:Bool = true;

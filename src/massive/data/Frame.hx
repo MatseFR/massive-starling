@@ -262,7 +262,7 @@ class Frame
 	/**
 	 * 
 	 */
-	private function pivotUpdate():Void
+	public function pivotUpdate():Void
 	{
 		leftWidth = pivotX;
 		rightWidth = width - pivotX;

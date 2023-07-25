@@ -10,8 +10,17 @@ import starling.errors.AbstractMethodError;
 abstract class MassiveLayer
 {
 	public var name:String;
+	/**
+	   @private
+	**/
 	public var useDynamicData:Bool;
+	/**
+	   @private
+	**/
 	public var animate:Bool;
+	/**
+	   @private
+	**/
 	public var useColor:Bool;
 	
 	public var display:MassiveDisplay;

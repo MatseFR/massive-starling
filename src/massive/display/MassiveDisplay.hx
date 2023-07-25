@@ -45,7 +45,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	static private var _helperPoint:Point = new Point();
 	
 	/**
-	 * If set to true, the MassiveDisplay instancce will automatically add itself to the juggler 
+	 * If set to true, the MassiveDisplay instance will automatically add itself to the juggler 
 	 * when added to stage and remove itself when removed from stage. Default is true.
 	 * @default true
 	 */
@@ -571,6 +571,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		layer.display = this;
 		layer.useColor = this._useColor;
 		this._layers.push(layer);
+	}
+	
+	public function addLayerAt(layer:MassiveLayer, index:Int):Void
+	{
+		layer.display = this;
+		layer.useColor = this._useColor;
+		this._layers.insert(index, layer);
 	}
 	
 	public function getLayer(name:String):MassiveLayer
