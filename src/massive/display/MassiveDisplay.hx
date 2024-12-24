@@ -9,6 +9,7 @@ import openfl.display3D.Context3DProgramType;
 import openfl.display3D.Context3DVertexBufferFormat;
 import openfl.display3D.IndexBuffer3D;
 import openfl.display3D.VertexBuffer3D;
+import openfl.errors.Error;
 import openfl.geom.Matrix;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
@@ -50,6 +51,37 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 * @default true
 	 */
 	public var autoHandleJuggler(get, set):Bool;
+	
+	/**
+	 * The Juggler instance that this MassiveDisplay object will use if autoHandleJuggler is true.
+	 * If null, MassiveDisplay.defaultJuggler will be used.
+	 */
+	public var juggler(get, set):Juggler;
+	
+	/**
+	 * @default 16383
+	 */
+	public var bufferSize(get, set):Int;
+	
+	/**
+	 * @default 2
+	 */
+	public var numBuffers(get, set):Int;
+	
+	public var colorBlue(get, set):Float;
+	public var colorGreen(get, set):Float;
+	public var colorRed(get, set):Float;
+	public var elementsPerQuad(get, never):Int;
+	public var elementsPerVertex(get, never):Int;
+	public var numQuads(get, never):Int;
+	public var renderOffsetX:Float = 0;
+	public var renderOffsetY:Float = 0;
+	public var texture(get, set):Texture;
+	public var textureRepeat(get, set):Bool;
+	public var textureSmoothing(get, set):String;
+	public var useByteArray(get, set):Bool;
+	public var useColor(get, set):Bool;
+	
 	private var _autoHandleJuggler:Bool = true;
 	private function get_autoHandleJuggler():Bool { return this._autoHandleJuggler; }
 	private function set_autoHandleJuggler(value:Bool):Bool
@@ -57,11 +89,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._autoHandleJuggler = value;
 	}
 	
-	/**
-	 * The Juggler instance that this MassiveDisplay object will use if autoHandleJuggler is true.
-	 * If null, MassiveDisplay.defaultJuggler will be used.
-	 */
-	public var juggler(get, set):Juggler;
 	private var _juggler:Juggler;
 	private function get_juggler():Juggler { return this._juggler; }
 	private function set_juggler(value:Juggler):Juggler
@@ -69,10 +96,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._juggler = value;
 	}
 	
-	/**
-	 * @default 16383
-	 */
-	public var bufferSize(get, set):Int;
 	private var _bufferSize:Int = MassiveConstants.MAX_QUADS;
 	private function get_bufferSize():Int { return this._bufferSize; }
 	private function set_bufferSize(value:Int):Int
@@ -90,11 +113,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._bufferSize = value;
 	}
 	
-	/**
-	 * @default 2
-	 */
-	public var numBuffers(get, set):Int;
-	private var _numBuffers:Int = 3;
+	private var _numBuffers:Int = 2;
 	private function get_numBuffers():Int { return this._numBuffers; }
 	private function set_numBuffers(value:Int):Int
 	{
@@ -135,82 +154,72 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this.__alpha;
 	}
 	
-	public var colorBlue(get, set):Float;
 	private var _colorBlue:Float = 1;
 	private function get_colorBlue():Float { return this._colorBlue; }
 	private function set_colorBlue(value:Float):Float
 	{
-		if (_useByteArray)
+		if (this._useByteArray)
 		{
-			if (_byteColor != null)
+			if (this._byteColor != null)
 			{
-				_byteColor.position = 8;
-				_byteColor.writeFloat(value);
+				this._byteColor.position = 8;
+				this._byteColor.writeFloat(value);
 			}
 		}
-		else if (_vectorColor != null)
+		else if (this._vectorColor != null)
 		{
-			_vectorColor[2] = value;
+			this._vectorColor[2] = value;
 		}
 		return this._colorBlue = value;
 	}
 	
-	public var colorGreen(get, set):Float;
 	private var _colorGreen:Float = 1;
 	private function get_colorGreen():Float { return this._colorGreen; }
 	private function set_colorGreen(value:Float):Float
 	{
-		if (_useByteArray)
+		if (this._useByteArray)
 		{
-			if (_byteColor != null)
+			if (this._byteColor != null)
 			{
-				_byteColor.position = 4;
-				_byteColor.writeFloat(value);
+				this._byteColor.position = 4;
+				this._byteColor.writeFloat(value);
 			}
 		}
-		else if (_vectorColor != null)
+		else if (this._vectorColor != null)
 		{
-			_vectorColor[1] = value;
+			this._vectorColor[1] = value;
 		}
 		return this._colorGreen = value;
 	}
 	
-	public var colorRed(get, set):Float;
 	private var _colorRed:Float = 1;
 	private function get_colorRed():Float { return this._colorRed; }
 	private function set_colorRed(value:Float):Float
 	{
-		if (_useByteArray)
+		if (this._useByteArray)
 		{
-			if (_byteColor != null)
+			if (this._byteColor != null)
 			{
-				_byteColor.position = 0;
-				_byteColor.writeFloat(value);
+				this._byteColor.position = 0;
+				this._byteColor.writeFloat(value);
 			}
 		}
-		else if (_vectorColor != null)
+		else if (this._vectorColor != null)
 		{
-			_vectorColor[0] = value;
+			this._vectorColor[0] = value;
 		}
 		return this._colorRed = value;
 	}
 	
-	public var elementsPerQuad(get, never):Int;
 	private var _elementsPerQuad:Int;
 	private function get_elementsPerQuad():Int { return this._elementsPerQuad; }
 	
-	public var elementsPerVertex(get, never):Int;
 	private var _elementsPerVertex:Int;
 	private function get_elementsPerVertex():Int { return this._elementsPerVertex; }
 	
-	public var numQuads(get, never):Int;
 	private var _numQuads:Int = 0;
 	private function get_numQuads():Int { return this._numQuads; }
 	
-	public var renderOffsetX:Float = 0;
-	public var renderOffsetY:Float = 0;
-	
-	public var texture(get, set):Texture;
 	private var _texture:Texture;
 	private function get_texture():Texture { return this._texture; }
 	private function set_texture(value:Texture):Texture
@@ -225,7 +234,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._texture;
 	}
 	
-	public var textureRepeat(get, set):Bool;
 	private var _textureRepeat:Bool = false;
 	private function get_textureRepeat():Bool { return this._textureRepeat; }
 	private function set_textureRepeat(value:Bool):Bool
@@ -233,7 +241,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._textureRepeat = value;
 	}
 	
-	public var textureSmoothing(get, set):String;
 	private var _textureSmoothing:String = TextureSmoothing.BILINEAR;
 	private function get_textureSmoothing():String { return this._textureSmoothing; }
 	private function set_textureSmoothing(value:String):String
@@ -241,7 +248,15 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._textureSmoothing = value;
 	}
 	
-	public var useByteArray(get, set):Bool;
+	override function set_touchable(value:Bool):Bool 
+	{
+		if (value)
+		{
+			throw new Error("MassiveDisplay cannot be touchable");
+		}
+		return value;
+	}
+	
 	private var _useByteArray:Bool = true;
 	private function get_useByteArray():Bool { return this._useByteArray; }
 	private function set_useByteArray(value:Bool):Bool
@@ -249,7 +264,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._useByteArray = value;
 	}
 	
-	public var useColor(get, set):Bool;
 	private var _useColor:Bool = true;
 	private function get_useColor():Bool { return this._useColor; }
 	private function set_useColor(value:Bool):Bool
@@ -300,7 +314,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		updateElements();
 		
 		if (defaultJuggler == null) defaultJuggler = Starling.currentJuggler;
-		if (_juggler == null) _juggler = defaultJuggler;
+		if (this._juggler == null) this._juggler = defaultJuggler;
 		
 		_zeroBytes = new ByteArray();
 	}
@@ -323,44 +337,44 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		this.addEventListener(Event.CONTEXT3D_CREATE, contextCreated);
 		
-		if (_useByteArray)
+		if (this._useByteArray)
 		{
-			if (_byteColor == null)
+			if (this._byteColor == null)
 			{
-				_byteColor = new ByteArray(16);
-				_byteColor.endian = Endian.LITTLE_ENDIAN;
-				_byteColor.writeFloat(this._colorRed);
-				_byteColor.writeFloat(this._colorGreen);
-				_byteColor.writeFloat(this._colorBlue);
-				_byteColor.writeFloat(this.__alpha);
+				this._byteColor = new ByteArray(16);
+				this._byteColor.endian = Endian.LITTLE_ENDIAN;
+				this._byteColor.writeFloat(this._colorRed);
+				this._byteColor.writeFloat(this._colorGreen);
+				this._byteColor.writeFloat(this._colorBlue);
+				this._byteColor.writeFloat(this.__alpha);
 			}
 			
-			if (_byteData == null)
+			if (this._byteData == null)
 			{
-				_byteData = new ByteArray();
-				_byteData.endian = Endian.LITTLE_ENDIAN;
+				this._byteData = new ByteArray();
+				this._byteData.endian = Endian.LITTLE_ENDIAN;
 			}
 		}
 		else
 		{
-			if (_vectorColor == null)
+			if (this._vectorColor == null)
 			{
-				_vectorColor = new Vector<Float>();
-				_vectorColor[0] = this._colorRed;
-				_vectorColor[1] = this._colorGreen;
-				_vectorColor[2] = this._colorBlue;
-				_vectorColor[3] = this.__alpha;
+				this._vectorColor = new Vector<Float>();
+				this._vectorColor[0] = this._colorRed;
+				this._vectorColor[1] = this._colorGreen;
+				this._vectorColor[2] = this._colorBlue;
+				this._vectorColor[3] = this.__alpha;
 			}
 			
-			if (_vectorData == null)
+			if (this._vectorData == null)
 			{
-				_vectorData = new Vector<Float>();
+				this._vectorData = new Vector<Float>();
 			}
 		}
 		
-		if (!_buffersCreated) createBuffers(_numBuffers, _bufferSize);
-		if (_program == null) createProgram();
-		if (_autoHandleJuggler) _juggler.add(this);
+		if (!this._buffersCreated) createBuffers(this._numBuffers, this._bufferSize);
+		if (this._program == null) createProgram();
+		if (this._autoHandleJuggler) this._juggler.add(this);
 	}
 	
 	/**
@@ -374,7 +388,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		this.removeEventListener(Event.CONTEXT3D_CREATE, contextCreated);
 		
-		if (_autoHandleJuggler) _juggler.remove(this);
+		if (this._autoHandleJuggler) this._juggler.remove(this);
 	}
 	
 	/**
@@ -383,7 +397,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 */
 	private function contextCreated(evt:Event):Void
 	{
-		createBuffers(_numBuffers, _bufferSize);
+		createBuffers(this._numBuffers, this._bufferSize);
 	}
 	
 	
@@ -395,12 +409,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			vertexShader = 
 			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
 			"mov v0, va1      \n" ; // pass texture coordinates to fragment program
-			if (_useColor) 
+			if (this._useColor) 
 			{
 				vertexShader += "mul v1, va2, vc4 \n";  // multiply alpha (vc4) with color (va2), pass to fp
 			}
 			
-			if (_useColor)
+			if (this._useColor)
 			{
 				fragmentShader = RenderUtil.createAGALTexOperation("ft0", "v0", 0, this._texture) ; // read texel color
 				fragmentShader += "mul oc, ft0, v1  \n";  // multiply color with texel color
@@ -413,7 +427,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		else
 		{
 			vertexShader = "m44 op, va0, vc0 \n" ; // 4x4 matrix transform to output clip-space
-			if (_useColor)
+			if (this._useColor)
 			{
 				vertexShader += "mul v0, va1, vc4 \n";  // multiply alpha (vc4) with color (va1)
 			}
@@ -425,8 +439,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				"mov oc, v0";       // output color
 		}
 		
-		_program = Program.fromSource(vertexShader, fragmentShader);
-		return _program;
+		this._program = Program.fromSource(vertexShader, fragmentShader);
+		return this._program;
 	}
 	
 	/**
@@ -444,49 +458,48 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			throw new MissingContextError();
 		}
 		
-		if (_vertexBuffers == null)
+		if (this._vertexBuffers == null)
 		{
-			_vertexBuffers = new Array<VertexBuffer3D>();
+			this._vertexBuffers = new Array<VertexBuffer3D>();
 		}
 		
-		_bufferSize = bufferSize;
-		_numBuffers = numBuffers;
-		_vertexBufferIndex = -1;
+		this._bufferSize = bufferSize;
+		this._numBuffers = numBuffers;
+		this._vertexBufferIndex = -1;
 		
-		_zeroBytes.length = _bufferSize * MassiveConstants.VERTICES_PER_QUAD * _elementsPerQuad;
+		this._zeroBytes.length = this._bufferSize * MassiveConstants.VERTICES_PER_QUAD * this._elementsPerQuad;
 		
-		for (i in 0..._numBuffers)
+		for (i in 0...this._numBuffers)
 		{
-			_vertexBuffers[i] = context.createVertexBuffer(_bufferSize * MassiveConstants.VERTICES_PER_QUAD,
-				_elementsPerVertex, Context3DBufferUsage.DYNAMIC_DRAW);
-			_vertexBuffers[i].uploadFromByteArray(_zeroBytes, 0, 0, _bufferSize * MassiveConstants.VERTICES_PER_QUAD);
+			this._vertexBuffers[i] = context.createVertexBuffer(this._bufferSize * MassiveConstants.VERTICES_PER_QUAD, this._elementsPerVertex, Context3DBufferUsage.DYNAMIC_DRAW);
+			this._vertexBuffers[i].uploadFromByteArray(this._zeroBytes, 0, 0, this._bufferSize * MassiveConstants.VERTICES_PER_QUAD);
 		}
 		
-		_indexBuffer = context.createIndexBuffer(_bufferSize * 6);
+		this._indexBuffer = context.createIndexBuffer(this._bufferSize * 6);
 		
 		var numVertices:Int = 0;
-		if (_useByteArray)
+		if (this._useByteArray)
 		{
-			if (_byteIndices == null)
+			if (this._byteIndices == null)
 			{
-				_byteIndices = new ByteArray();
-				_byteIndices.endian = Endian.LITTLE_ENDIAN;
+				this._byteIndices = new ByteArray();
+				this._byteIndices.endian = Endian.LITTLE_ENDIAN;
 				
 				for (i in 0...MassiveConstants.MAX_QUADS)
 				{
-					_byteIndices.writeShort(numVertices);
-					_byteIndices.writeShort(numVertices + 1);
-					_byteIndices.writeShort(numVertices + 2);
+					this._byteIndices.writeShort(numVertices);
+					this._byteIndices.writeShort(numVertices + 1);
+					this._byteIndices.writeShort(numVertices + 2);
 					
-					_byteIndices.writeShort(numVertices + 1);
-					_byteIndices.writeShort(numVertices + 2);
-					_byteIndices.writeShort(numVertices + 3);
+					this._byteIndices.writeShort(numVertices + 1);
+					this._byteIndices.writeShort(numVertices + 2);
+					this._byteIndices.writeShort(numVertices + 3);
 					
 					numVertices += MassiveConstants.VERTICES_PER_QUAD;
 				}
 			}
 			
-			_indexBuffer.uploadFromByteArray(_byteIndices, 0, 0, _bufferSize * 6);
+			this._indexBuffer.uploadFromByteArray(this._byteIndices, 0, 0, this._bufferSize * 6);
 		}
 		else
 		{
@@ -497,22 +510,22 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				var position:Int = -1;
 				for (i in 0...MassiveConstants.MAX_QUADS)
 				{
-					_vectorIndices[++position] = numVertices;
-					_vectorIndices[++position] = numVertices + 1;
-					_vectorIndices[++position] = numVertices + 2;
+					this._vectorIndices[++position] = numVertices;
+					this._vectorIndices[++position] = numVertices + 1;
+					this._vectorIndices[++position] = numVertices + 2;
 					
-					_vectorIndices[++position] = numVertices + 1;
-					_vectorIndices[++position] = numVertices + 2;
-					_vectorIndices[++position] = numVertices + 3;
+					this._vectorIndices[++position] = numVertices + 1;
+					this._vectorIndices[++position] = numVertices + 2;
+					this._vectorIndices[++position] = numVertices + 3;
 					
 					numVertices += MassiveConstants.VERTICES_PER_QUAD;
 				}
 			}
 			
-			_indexBuffer.uploadFromVector(_vectorIndices, 0, _bufferSize * 6);
+			this._indexBuffer.uploadFromVector(this._vectorIndices, 0, this._bufferSize * 6);
 		}
 		
-		_buffersCreated = true;
+		this._buffersCreated = true;
 	}
 	
 	/**
@@ -520,22 +533,22 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 */
 	public function disposeBuffers():Void
 	{
-		if (_indexBuffer != null)
+		if (this._indexBuffer != null)
 		{
-			_indexBuffer.dispose();
-			_indexBuffer = null;
+			this._indexBuffer.dispose();
+			this._indexBuffer = null;
 		}
 		
-		if (_vertexBuffers != null)
+		if (this._vertexBuffers != null)
 		{
-			for (vBuffer in _vertexBuffers)
+			for (vBuffer in this._vertexBuffers)
 			{
 				vBuffer.dispose();
 			}
-			_vertexBuffers.resize(0);
+			this._vertexBuffers.resize(0);
 		}
 		
-		_buffersCreated = false;
+		this._buffersCreated = false;
 	}
 	
 	/**
@@ -543,27 +556,27 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 */
 	private function updateElements():Void
 	{
-		_elementsPerVertex = 2;
-		if (_texture != null) 
+		this._elementsPerVertex = 2;
+		if (this._texture != null) 
 		{
-			_elementsPerVertex += 2;
-			_uvOffset = 2;
+			this._elementsPerVertex += 2;
+			this._uvOffset = 2;
 		}
 		else
 		{
-			_uvOffset = 0;
+			this._uvOffset = 0;
 		}
-		if (_useColor) 
+		if (this._useColor) 
 		{
-			_elementsPerVertex += 4;
-			_colorOffset = _uvOffset + 2;
+			this._elementsPerVertex += 4;
+			this._colorOffset = _uvOffset + 2;
 		}
 		else
 		{
-			_colorOffset = 0;
+			this._colorOffset = 0;
 		}
 		
-		_elementsPerQuad = MassiveConstants.VERTICES_PER_QUAD * _elementsPerVertex;
+		this._elementsPerQuad = MassiveConstants.VERTICES_PER_QUAD * this._elementsPerVertex;
 	}
 	
 	public function addLayer(layer:MassiveLayer):Void
@@ -582,7 +595,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function getLayer(name:String):MassiveLayer
 	{
-		for (layer in _layers)
+		for (layer in this._layers)
 		{
 			if (layer.name == name) return layer;
 		}
@@ -607,8 +620,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function removeLayerAt(index:Int, dispose:Bool = false):MassiveLayer
 	{
-		var layer:MassiveLayer = _layers[index];
-		_layers.splice(index, 1);
+		var layer:MassiveLayer = this._layers[index];
+		this._layers.splice(index, 1);
 		layer.display = null;
 		if (dispose) layer.dispose();
 		return layer;
@@ -617,13 +630,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function removeLayerWithName(name:String, dispose:Bool = false):MassiveLayer
 	{
 		var layer:MassiveLayer;
-		var count:Int = _layers.length;
+		var count:Int = this._layers.length;
 		for (i in 0...count)
 		{
-			if (_layers[i].name == name)
+			if (this._layers[i].name == name)
 			{
-				layer = _layers[i];
-				_layers.splice(i, 1);
+				layer = this._layers[i];
+				this._layers.splice(i, 1);
 				layer.display = null;
 				if (dispose) layer.dispose();
 				return layer;
@@ -634,7 +647,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
-		for (layer in _layers)
+		for (layer in this._layers)
 		{
 			if (layer.animate) layer.advanceTime(time);
 		}
@@ -732,10 +745,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 */
 	public function renderData():Void
 	{
-		_numQuads = 0;
+		this._numQuads = 0;
 		if (this.useByteArray)
 		{
-			_byteData.length = 0;
+			this._byteData.length = 0;
 			for (layer in this._layers)
 			{
 				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
@@ -826,7 +839,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function updateExactBounds():Void
 	{
-		if (_boundsRect == null) _boundsRect = new Rectangle();
+		if (this._boundsRect == null) this._boundsRect = new Rectangle();
 		
 		if (this._numQuads == 0)
 		{

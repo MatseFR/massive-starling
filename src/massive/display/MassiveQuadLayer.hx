@@ -46,14 +46,19 @@ class MassiveQuadLayer extends MassiveLayer
 		SIN = LookUp.SIN;
 	}
 	
+	public function dispose():Void
+	{
+		this._datas = null;
+	}
+	
 	/**
 	 * 
 	 * @param	data
 	 */
 	public function addQuad(data:QuadData):Void
 	{
-		_datas.push(data);
-		_numDatas++;
+		this._datas[this._datas.length] = data;
+		this._numDatas++;
 	}
 	
 	/**
@@ -64,8 +69,8 @@ class MassiveQuadLayer extends MassiveLayer
 	{
 		for (data in datas)
 		{
-			_datas.push(data);
-			_numDatas++;
+			this._datas[this._datas.length] = data;
+			this._numDatas++;
 		}
 	}
 	
@@ -75,11 +80,11 @@ class MassiveQuadLayer extends MassiveLayer
 	 */
 	public function removeQuad(data:QuadData):Void
 	{
-		var index:Int = _datas.indexOf(data);
+		var index:Int = this._datas.indexOf(data);
 		if (index != -1)
 		{
-			_datas.splice(index, 1);
-			_numDatas--;
+			this._datas.splice(index, 1);
+			this._numDatas--;
 		}
 	}
 	
@@ -92,22 +97,27 @@ class MassiveQuadLayer extends MassiveLayer
 		var index:Int;
 		for (data in datas)
 		{
-			index = _datas.indexOf(data);
+			index = this._datas.indexOf(data);
 			if (index != -1)
 			{
-				_datas.splice(index, 1);
-				_numDatas--;
+				this._datas.splice(index, 1);
+				this._numDatas--;
 			}
 		}
 	}
 	
-	override public function removeAllData():Void 
+	public function removeAllData():Void 
 	{
-		_datas.resize(0);
-		_numDatas = 0;
+		this._datas.resize(0);
+		this._numDatas = 0;
 	}
 	
-	override public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
+	public function advanceTime(time:Float):Void 
+	{
+		
+	}
+	
+	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
 	{
 		if (this._datas == null) return 0;
 		
@@ -173,7 +183,7 @@ class MassiveQuadLayer extends MassiveLayer
 			topOffset = data.topHeight * data.scaleY;
 			bottomOffset = data.bottomHeight * data.scaleY;
 			
-			if (rotation != 0)
+			if (rotation != 0.0)
 			{
 				angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 				cos = COS[angle];
@@ -275,7 +285,7 @@ class MassiveQuadLayer extends MassiveLayer
 		return ++quadsWritten;
 	}
 	
-	override public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
+	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
 	{
 		if (this._datas == null) return 0;
 		

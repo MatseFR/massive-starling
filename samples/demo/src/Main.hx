@@ -36,7 +36,7 @@ class Main extends Sprite
 	private function start():Void
 	{
 		_starling = new Starling(MassiveDemo, stage, null, null, Context3DRenderMode.AUTO, "auto");
-		_starling.enableErrorChecking = Capabilities.isDebugger;
+		//_starling.enableErrorChecking = Capabilities.isDebugger;
 		_starling.showStats = true;//Capabilities.isDebugger;
 		_starling.skipUnchangedFrames = true;
 		_starling.supportBrowserZoom = true;

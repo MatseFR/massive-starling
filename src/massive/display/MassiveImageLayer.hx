@@ -48,7 +48,7 @@ class MassiveImageLayer extends MassiveLayer
 		SIN = LookUp.SIN;
 	}
 	
-	override public function dispose():Void 
+	public function dispose():Void 
 	{
 		this._datas = null;
 	}
@@ -59,8 +59,8 @@ class MassiveImageLayer extends MassiveLayer
 	 */
 	public function addImage(data:ImageData):Void
 	{
-		_datas.push(data);
-		_numDatas++;
+		this._datas[this._datas.length] = data;
+		this._numDatas++;
 	}
 	
 	/**
@@ -71,8 +71,8 @@ class MassiveImageLayer extends MassiveLayer
 	{
 		for (data in datas)
 		{
-			_datas.push(data);
-			_numDatas++;
+			this._datas[this._datas.length] = data;
+			this._numDatas++;
 		}
 	}
 	
@@ -82,11 +82,11 @@ class MassiveImageLayer extends MassiveLayer
 	 */
 	public function removeImage(data:ImageData):Void
 	{
-		var index:Int = _datas.indexOf(data);
+		var index:Int = this._datas.indexOf(data);
 		if (index != -1)
 		{
-			_datas.splice(index, 1);
-			_numDatas--;
+			this._datas.splice(index, 1);
+			this._numDatas--;
 		}
 	}
 	
@@ -99,27 +99,27 @@ class MassiveImageLayer extends MassiveLayer
 		var index:Int;
 		for (data in datas)
 		{
-			index = _datas.indexOf(data);
+			index = this._datas.indexOf(data);
 			if (index != -1)
 			{
-				_datas.splice(index, 1);
-				_numDatas--;
+				this._datas.splice(index, 1);
+				this._numDatas--;
 			}
 		}
 	}
 	
-	override public function removeAllData():Void 
+	public function removeAllData():Void 
 	{
-		_datas.resize(0);
-		_numDatas = 0;
+		this._datas.resize(0);
+		this._numDatas = 0;
 	}
 	
-	override public function advanceTime(time:Float):Void 
+	public function advanceTime(time:Float):Void 
 	{
-		Animator.animateImageDataList(_datas, time, this);
+		Animator.animateImageDataList(this._datas, time, this);
 	}
 	
-	override public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
+	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -170,7 +170,7 @@ class MassiveImageLayer extends MassiveLayer
 			byteData.length += _numDatas << 6;
 		}
 		
-		for (data in _datas)
+		for (data in this._datas)
 		{
 			if (!data.visible) continue;
 			
@@ -216,7 +216,7 @@ class MassiveImageLayer extends MassiveLayer
 			topOffset = frame.topHeight * data.scaleY;
 			bottomOffset = frame.bottomHeight * data.scaleY;
 			
-			if (rotation != 0)
+			if (rotation != 0.0)
 			{
 				angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 				cos = COS[angle];
@@ -334,7 +334,7 @@ class MassiveImageLayer extends MassiveLayer
 		return ++quadsWritten;
 	}
 	
-	override public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
+	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -381,7 +381,7 @@ class MassiveImageLayer extends MassiveLayer
 		var v1:Float;
 		var v2:Float;
 		
-		for (data in _datas)
+		for (data in this._datas)
 		{
 			if (!data.visible) continue;
 			
@@ -427,7 +427,7 @@ class MassiveImageLayer extends MassiveLayer
 			topOffset = frame.topHeight * data.scaleY;
 			bottomOffset = frame.bottomHeight * data.scaleY;
 			
-			if (rotation != 0)
+			if (rotation != 0.0)
 			{
 				angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 				cos = COS[angle];

@@ -19,7 +19,7 @@ class MovieClips extends Scene implements IAnimatable
 	public var useRandomAlpha:Bool;
 	public var useRandomColor:Bool;
 	
-	private var _clips:Array<Clip>;
+	private var _clips:Array<MovingClip>;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
 
@@ -33,33 +33,33 @@ class MovieClips extends Scene implements IAnimatable
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 		
-		var frameCount:Int = textures.length - 1;
-		var stageWidth:Float = stage.stageWidth;
-		var stageHeight:Float = stage.stageHeight;
+		var frameCount:Int = this.textures.length;
+		var stageWidth:Float = this.stage.stageWidth;
+		var stageHeight:Float = this.stage.stageHeight;
 		
 		updateBounds();
 		
-		_clips = new Array<Clip>();
-		var clip:Clip;
+		this._clips = new Array<MovingClip>();
+		var clip:MovingClip;
 		var velocity:Float;
-		for (i in 0...numClips)
+		for (i in 0...this.numClips)
 		{
-			clip = new Clip(textures, 12 + Std.random(48));
+			clip = new MovingClip(this.textures, 12 + Std.random(48));
 			clip.currentFrame = Std.random(frameCount);
 			clip.touchable = false;
 			clip.alignPivot();
-			if (useRandomAlpha) clip.alpha = Math.random();
-			if (useRandomColor) clip.color = Color.rgb(Std.random(256), Std.random(256), Std.random(256));
+			if (this.useRandomAlpha) clip.alpha = Math.random();
+			if (this.useRandomColor) clip.color = Color.rgb(Std.random(256), Std.random(256), Std.random(256));
 			clip.x = Math.random() * stageWidth;
 			clip.y = Math.random() * stageHeight;
-			clip.scaleX = clip.scaleY = clipScale;
+			clip.scaleX = clip.scaleY = this.clipScale;
 			clip.rotation = Math.random() * Math.PI;
 			
-			velocity = _velocityBase + Math.random() * _velocityRange;
+			velocity = this._velocityBase + Math.random() * _velocityRange;
 			clip.velocityX = Math.cos(clip.rotation) * velocity;
 			clip.velocityY = Math.sin(clip.rotation) * velocity;
 			
-			_clips[i] = clip;
+			this._clips[i] = clip;
 			addChild(clip);
 		}
 		
@@ -75,27 +75,27 @@ class MovieClips extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
-		for (clip in _clips)
+		for (clip in this._clips)
 		{
 			clip.x += clip.velocityX * time;
 			clip.y += clip.velocityY * time;
 			
-			if (clip.x < _left)
+			if (clip.x < this._left)
 			{
-				clip.x = _right;
+				clip.x = this._right;
 			}
-			else if (clip.x > _right)
+			else if (clip.x > this._right)
 			{
-				clip.x = _left;
+				clip.x = this._left;
 			}
 			
-			if (clip.y < _top)
+			if (clip.y < this._top)
 			{
-				clip.y = _bottom;
+				clip.y = this._bottom;
 			}
-			else if (clip.y > _bottom)
+			else if (clip.y > this._bottom)
 			{
-				clip.y = _top;
+				clip.y = this._top;
 			}
 			clip.advanceTime(time);
 		}
@@ -103,7 +103,7 @@ class MovieClips extends Scene implements IAnimatable
 	
 }
 
-class Clip extends MovieClip
+class MovingClip extends MovieClip
 {
 	public var velocityX:Float;
 	public var velocityY:Float;

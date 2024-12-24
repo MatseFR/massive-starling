@@ -39,23 +39,23 @@ class MassiveQuads extends Scene implements IAnimatable
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 		
-		var stageWidth:Float = stage.stageWidth;
-		var stageHeight:Float = stage.stageHeight;
+		var stageWidth:Float = this.stage.stageWidth;
+		var stageHeight:Float = this.stage.stageHeight;
 		
 		updateBounds();
 		
-		_display = new MassiveDisplay();
-		_display.blendMode = BlendMode.NORMAL;
-		_display.touchable = false;
-		_display.bufferSize = numQuads;
-		_display.useByteArray = useByteArray;
-		//_display.useColor = false;
-		addChild(_display);
+		this._display = new MassiveDisplay();
+		this._display.blendMode = BlendMode.NORMAL;
+		this._display.touchable = false;
+		this._display.bufferSize = numQuads;
+		this._display.useByteArray = useByteArray;
+		//this._display.useColor = false;
+		addChild(this._display);
 		
-		_layer = new MassiveQuadLayer();
-		_display.addLayer(_layer);
+		this._layer = new MassiveQuadLayer();
+		this._display.addLayer(this._layer);
 		
-		_quads = new Array<MassiveQuad>();
+		this._quads = new Array<MassiveQuad>();
 		var quad:MassiveQuad;
 		var speedVariance:Float;
 		var velocity:Float;
@@ -64,12 +64,12 @@ class MassiveQuads extends Scene implements IAnimatable
 			quad = new MassiveQuad();
 			quad.x = Math.random() * stageWidth;
 			quad.y = Math.random() * stageHeight;
-			quad.width = _quadWidth;
-			quad.height = _quadHeight;
-			quad.rotation = Math.random() * Math.PI;
+			quad.width = this._quadWidth;
+			quad.height = this._quadHeight;
+			quad.rotation = Math.random() * (Math.PI * 2);
 			
-			if (useRandomAlpha) quad.colorAlpha = Math.random();
-			if (useRandomColor)
+			if (this.useRandomAlpha) quad.colorAlpha = Math.random();
+			if (this.useRandomColor)
 			{
 				quad.colorRed = Math.random();
 				quad.colorGreen = Math.random();
@@ -77,14 +77,14 @@ class MassiveQuads extends Scene implements IAnimatable
 			}
 			
 			speedVariance = Math.random();
-			velocity = _velocityBase + speedVariance * _velocityRange;
+			velocity = this._velocityBase + speedVariance * this._velocityRange;
 			quad.velocityX = Math.cos(quad.rotation) * velocity;
 			quad.velocityY = Math.sin(quad.rotation) * velocity;
 			
 			quad.alignPivot(Align.CENTER, Align.CENTER);
 			
-			_quads[i] = quad;
-			_layer.addQuad(quad);
+			this._quads[i] = quad;
+			this._layer.addQuad(quad);
 		}
 		
 		Starling.currentJuggler.add(this);
@@ -99,27 +99,27 @@ class MassiveQuads extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
-		for (quad in _quads)
+		for (quad in this._quads)
 		{
 			quad.x += quad.velocityX * time;
 			quad.y += quad.velocityY * time;
 			
-			if (quad.x < _left)
+			if (quad.x < this._left)
 			{
-				quad.x = _right;
+				quad.x = this._right;
 			}
-			else if (quad.x > _right)
+			else if (quad.x > this._right)
 			{
-				quad.x = _left;
+				quad.x = this._left;
 			}
 			
-			if (quad.y < _top)
+			if (quad.y < this._top)
 			{
-				quad.y = _bottom;
+				quad.y = this._bottom;
 			}
-			else if (quad.y > _bottom)
+			else if (quad.y > this._bottom)
 			{
-				quad.y = _top;
+				quad.y = this._top;
 			}
 		}
 	}

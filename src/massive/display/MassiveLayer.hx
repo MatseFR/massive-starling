@@ -1,7 +1,6 @@
 package massive.display;
 import openfl.Vector;
 import openfl.utils.ByteArray;
-import starling.errors.AbstractMethodError;
 
 /**
  * ...
@@ -28,18 +27,12 @@ abstract class MassiveLayer
 	/**
 	 * 
 	 */
-	public function dispose():Void
-	{
-		throw new AbstractMethodError();
-	}
+	abstract public function dispose():Void;
 	
 	/**
 	 * 
 	 */
-	public function removeAllData():Void
-	{
-		throw new AbstractMethodError();
-	}
+	abstract public function removeAllData():Void;
 	
 	/**
 	 * 
@@ -47,10 +40,7 @@ abstract class MassiveLayer
 	 * @param	offset
 	 * @return
 	 */
-	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
-	{
-		throw new AbstractMethodError();
-	}
+	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int;
 	
 	/**
 	 * 
@@ -58,17 +48,12 @@ abstract class MassiveLayer
 	 * @param	offset
 	 * @return
 	 */
-	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
-	{
-		throw new AbstractMethodError();
-	}
+	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int;
 	
 	/**
 	 * 
 	 * @param	time
 	 */
-	public function advanceTime(time:Float):Void
-	{
-		throw new AbstractMethodError();
-	}
+	abstract public function advanceTime(time:Float):Void;
+	
 }

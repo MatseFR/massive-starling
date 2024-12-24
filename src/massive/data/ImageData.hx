@@ -21,13 +21,13 @@ class ImageData extends DisplayData
 		while (numImages != 0)
 		{
 			if (POOL.length == 0) break;
-			imgList.push(POOL.pop());
+			imgList[imgList.length] = POOL.pop();
 			numImages--;
 		}
 		
 		while (numImages != 0)
 		{
-			imgList.push(new ImageData());
+			imgList[imgList.length] = new ImageData();
 			numImages--;
 		}
 		
@@ -37,7 +37,7 @@ class ImageData extends DisplayData
 	public static function toPool(img:ImageData):Void
 	{
 		img.clear();
-		POOL.push(img);
+		POOL[POOL.length] = img;
 	}
 	
 	public static function toPoolArray(imgList:Array<ImageData>):Void
@@ -45,7 +45,7 @@ class ImageData extends DisplayData
 		for (img in imgList)
 		{
 			img.clear();
-			POOL.push(img);
+			POOL[POOL.length] = img;
 		}
 	}
 	
@@ -54,15 +54,23 @@ class ImageData extends DisplayData
 	/* inverts display on vertical axis */
 	public var invertY:Bool = false;
 	
+	/* time elapsed on current frame */
 	public var frameTime:Float;
+	/* duration of each frame */
 	public var frameTimings:Array<Float>;
+	/* how many frames */
 	public var frameCount:Int;
+	/* playback speed */
 	public var frameDelta:Float = 1;
+	/* lists all frames */
 	public var frameList:Array<Frame>;
 	public var frameEventList:Array<String>;
+	/* index of the current frame */
 	public var frameIndex:Int = 0;
 	
+	/* tells whether the ImageData is animated (if it has frames) or not */
 	public var animate:Bool = false;
+	/* tells whether to loop frames */
 	public var loop:Bool = true;
 	public var hasEvents:Bool = false;
 	
@@ -71,15 +79,21 @@ class ImageData extends DisplayData
 		super();
 	}
 	
-	public function clear():Void
+	override public function clear():Void
 	{
-		this.invertX = false;
-		this.invertY = false;
+		this.invertX = this.invertY = this.animate = this.hasEvents = false;
 		this.frameDelta = 1;
-		this.animate = false;
 		this.loop = true;
-		this.hasEvents = false;
+		
 		clearFrames();
+		
+		super.clear();
+	}
+	
+	public function pool():Void
+	{
+		clear();
+		POOL[POOL.length] = this;
 	}
 	
 	public function clearFrames():Void

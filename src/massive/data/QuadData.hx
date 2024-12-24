@@ -23,13 +23,13 @@ class QuadData extends DisplayData
 		while (numQuads != 0)
 		{
 			if (POOL.length == 0) break;
-			quadList.push(POOL.pop());
+			quadList[quadList.length] = POOL.pop();
 			numQuads--;
 		}
 		
 		while (numQuads != 0)
 		{
-			quadList.push(new QuadData());
+			quadList[quadList.length] = new QuadData();
 			numQuads--;
 		}
 		
@@ -38,20 +38,25 @@ class QuadData extends DisplayData
 	
 	public static function toPool(quad:QuadData):Void
 	{
-		POOL.push(quad);
+		quad.clear();
+		POOL[POOL.length] = quad;
 	}
 	
 	public static function toPoolArray(quadList:Array<QuadData>):Void
 	{
 		for (quad in quadList)
 		{
-			POOL.push(quad);
+			quad.pool();
 		}
 	}
 	
+	/* size from left border to pivotX */
 	public var leftWidth:Float;
+	/* size from pivotX to right border */
 	public var rightWidth:Float;
+	/* size from top border to pivotY */
 	public var topHeight:Float;
+	/* size from pivotY to bottom border */
 	public var bottomHeight:Float;
 	
 	public var width:Float;
@@ -65,7 +70,18 @@ class QuadData extends DisplayData
 		super();
 	}
 	
-	override public function alignPivot(horizontalAlign:String, verticalAlign:String):Void 
+	override public function clear():Void 
+	{
+		super.clear();
+	}
+	
+	public function pool():Void 
+	{
+		clear();
+		POOL[POOL.length] = this;
+	}
+	
+	public function alignPivot(horizontalAlign:String, verticalAlign:String):Void 
 	{
 		if (horizontalAlign == Align.LEFT) pivotX = 0;
 		else if (horizontalAlign == Align.CENTER) pivotX = width / 2;
@@ -80,7 +96,7 @@ class QuadData extends DisplayData
 		pivotUpdate();
 	}
 	
-	override public function setPivot(pivotX:Float, pivotY:Float):Void 
+	public function setPivot(pivotX:Float, pivotY:Float):Void 
 	{
 		this.pivotX = pivotX;
 		this.pivotY = pivotY;

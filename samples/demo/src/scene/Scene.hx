@@ -25,10 +25,10 @@ class Scene extends Sprite
 		var stageWidth:Float = stage.stageWidth;
 		var stageHeight:Float = stage.stageHeight;
 		
-		_top = -_space;
-		_bottom = stageHeight + _space;
-		_left = -_space;
-		_right = stageWidth + _space;
+		this._top = -this._space;
+		this._bottom = stageHeight + this._space;
+		this._left = -this._space;
+		this._right = stageWidth + this._space;
 	}
 	
 }

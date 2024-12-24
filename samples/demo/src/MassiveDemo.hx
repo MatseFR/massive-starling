@@ -32,6 +32,8 @@ class MassiveDemo extends Sprite
 	private var _sceneList:Array<Scene>;
 	
 	private var menuSprite:Sprite;
+	private var classicSprite:Sprite;
+	private var massiveSprite:Sprite;
 	private var backButton:Button;
 	
 	private var useByteArray:Bool = false;
@@ -127,7 +129,7 @@ class MassiveDemo extends Sprite
 		
 		btn = new Button(textureUP, "8000 Massive birds (scale 0.2)", null, textureOVER);
 		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveBirds);
+		btn.addEventListener(Event.TRIGGERED, massiveBirds8k);
 		menuSprite.addChild(btn);
 		
 		tY += btn.height + gap;
@@ -139,7 +141,7 @@ class MassiveDemo extends Sprite
 		tY += btn.height + gap;
 		btn = new Button(textureUP, "8000 Massive zombies", null, textureOVER);
 		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveZombies);
+		btn.addEventListener(Event.TRIGGERED, massiveZombies8k);
 		menuSprite.addChild(btn);
 		
 		tY += btn.height + gap;
@@ -151,7 +153,7 @@ class MassiveDemo extends Sprite
 		tY += btn.height + gap;
 		btn = new Button(textureUP, "16000 Massive zombies (scale 0.5)", null, textureOVER);
 		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveZombies2);
+		btn.addEventListener(Event.TRIGGERED, massiveZombies16k);
 		menuSprite.addChild(btn);
 		
 		tY += btn.height + gap;
@@ -161,9 +163,27 @@ class MassiveDemo extends Sprite
 		menuSprite.addChild(btn);
 		
 		tY += btn.height + gap;
+		btn = new Button(textureUP, "32000 Massive zombies (scale 0.5)", null, textureOVER);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, massiveZombies32k);
+		menuSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(textureUP, "64000 Massive zombies (scale 0.5)", null, textureOVER);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, massiveZombies64k);
+		menuSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(textureUP, "128000 Massive zombies (scale 0.5)", null, textureOVER);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, massiveZombies128k);
+		menuSprite.addChild(btn);
+		
+		tY += btn.height + gap;
 		btn = new Button(textureUP, "16000 Massive quads", null, textureOVER);
 		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveQuads);
+		btn.addEventListener(Event.TRIGGERED, massiveQuads16k);
 		menuSprite.addChild(btn);
 		
 		tY += btn.height + gap;
@@ -312,7 +332,7 @@ class MassiveDemo extends Sprite
 		}
 	}
 	
-	private function massiveBirds(evt:Event):Void
+	private function massiveBirds8k(evt:Event):Void
 	{
 		var atlas:TextureAtlas = assetManager.getTextureAtlas("starling_bird");
 		var textures:Vector<Texture> = atlas.getTextures("0");
@@ -329,7 +349,7 @@ class MassiveDemo extends Sprite
 		showSceneList([birds]);
 	}
 	
-	private function massiveZombies(evt:Event):Void
+	private function massiveZombies8k(evt:Event):Void
 	{
 		var atlas:TextureAtlas = assetManager.getTextureAtlas("zombi_walk");
 		var textures:Vector<Texture> = atlas.getTextures("character");
@@ -345,7 +365,7 @@ class MassiveDemo extends Sprite
 		showSceneList([zombies]);
 	}
 	
-	private function massiveZombies2(evt:Event):Void
+	private function massiveZombies16k(evt:Event):Void
 	{
 		var atlas:TextureAtlas = assetManager.getTextureAtlas("zombi_walk");
 		var textures:Vector<Texture> = atlas.getTextures("character");
@@ -362,7 +382,82 @@ class MassiveDemo extends Sprite
 		showSceneList([zombies]);
 	}
 	
-	private function massiveQuads(evt:Event):Void
+	private function massiveZombies32k(evt:Event):Void
+	{
+		var atlas:TextureAtlas = assetManager.getTextureAtlas("zombi_walk");
+		var textures:Vector<Texture> = atlas.getTextures("character");
+		
+		var scenes:Array<Scene> = [];
+		
+		var zombies:MassiveImages;
+		
+		for (i in 0...2)
+		{
+			zombies = new MassiveImages();
+			zombies.atlasTexture = atlas.texture;
+			zombies.textures = textures;
+			zombies.numImages = 16000;
+			zombies.imgScale = 0.5;
+			zombies.useByteArray = useByteArray;
+			zombies.useColor = useColor;
+			zombies.useRandomAlpha = useRandomAlpha;
+			zombies.useRandomColor = useRandomColor;
+			scenes[scenes.length] = zombies;
+		}
+		showSceneList(scenes);
+	}
+	
+	private function massiveZombies64k(evt:Event):Void
+	{
+		var atlas:TextureAtlas = assetManager.getTextureAtlas("zombi_walk");
+		var textures:Vector<Texture> = atlas.getTextures("character");
+		
+		var scenes:Array<Scene> = [];
+		
+		var zombies:MassiveImages;
+		
+		for (i in 0...4)
+		{
+			zombies = new MassiveImages();
+			zombies.atlasTexture = atlas.texture;
+			zombies.textures = textures;
+			zombies.numImages = 16000;
+			zombies.imgScale = 0.5;
+			zombies.useByteArray = useByteArray;
+			zombies.useColor = useColor;
+			zombies.useRandomAlpha = useRandomAlpha;
+			zombies.useRandomColor = useRandomColor;
+			scenes[scenes.length] = zombies;
+		}
+		showSceneList(scenes);
+	}
+	
+	private function massiveZombies128k(evt:Event):Void
+	{
+		var atlas:TextureAtlas = assetManager.getTextureAtlas("zombi_walk");
+		var textures:Vector<Texture> = atlas.getTextures("character");
+		
+		var scenes:Array<Scene> = [];
+		
+		var zombies:MassiveImages;
+		
+		for (i in 0...8)
+		{
+			zombies = new MassiveImages();
+			zombies.atlasTexture = atlas.texture;
+			zombies.textures = textures;
+			zombies.numImages = 16000;
+			zombies.imgScale = 0.5;
+			zombies.useByteArray = useByteArray;
+			zombies.useColor = useColor;
+			zombies.useRandomAlpha = useRandomAlpha;
+			zombies.useRandomColor = useRandomColor;
+			scenes[scenes.length] = zombies;
+		}
+		showSceneList(scenes);
+	}
+	
+	private function massiveQuads16k(evt:Event):Void
 	{
 		var quads:MassiveQuads = new MassiveQuads();
 		quads.numQuads = 16000;

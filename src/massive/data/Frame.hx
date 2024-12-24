@@ -77,7 +77,7 @@ class Frame
 		for (texture in textures)
 		{
 			frame = fromTexture(texture);
-			frameList.push(frame);
+			frameList[frameList.length] = frame;
 		}
 		
 		return frameList;
@@ -101,7 +101,7 @@ class Frame
 		for (texture in textures)
 		{
 			frame = fromTextureWithAlign(texture, horizontalAlign, verticalAlign);
-			frameList.push(frame);
+			frameList[frameList.length] = frame;
 		}
 		
 		return frameList;
@@ -124,7 +124,7 @@ class Frame
 		for (texture in textures)
 		{
 			frame = fromTextureWithPivot(texture, pivotX, pivotY);
-			frameList.push(frame);
+			frameList[frameList.length] = frame;
 		}
 		
 		return frameList;
@@ -145,7 +145,7 @@ class Frame
 		for (texture in textures)
 		{
 			frame = fromTexture(texture);
-			frameList.push(frame);
+			frameList[frameList.length] = frame;
 		}
 		
 		return frameList;
@@ -169,7 +169,7 @@ class Frame
 		for (texture in textures)
 		{
 			frame = fromTextureWithAlign(texture, horizontalAlign, verticalAlign);
-			frameList.push(frame);
+			frameList[frameList.length] = frame;
 		}
 		
 		return frameList;
@@ -192,7 +192,7 @@ class Frame
 		for (texture in textures)
 		{
 			frame = fromTextureWithPivot(texture, pivotX, pivotY);
-			frameList.push(frame);
+			frameList[frameList.length] = frame;
 		}
 		
 		return frameList;
@@ -234,7 +234,6 @@ class Frame
 		
 		this.setPivot(0, 0);
 	}
-	
 	
 	public function alignPivot(horizontalAlign:String, verticalAlign:String):Void 
 	{

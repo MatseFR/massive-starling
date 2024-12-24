@@ -45,4 +45,9 @@ class LookUp
 		_initDone = true;
 	}
 	
+	inline static public function getAngle(angle:Float):Int
+	{
+		return Std.int(angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+	}
+	
 }
