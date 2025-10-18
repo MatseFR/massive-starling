@@ -114,7 +114,7 @@ class MassiveQuadLayer extends MassiveLayer
 	
 	public function advanceTime(time:Float):Void 
 	{
-		
+		// nothing
 	}
 	
 	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
@@ -152,15 +152,15 @@ class MassiveQuadLayer extends MassiveLayer
 		
 		if (this.useColor)
 		{
-			byteData.length += _numDatas * 96;
+			byteData.length += this._numDatas * 96;
 		}
 		else
 		{
 			//byteData.length += _numDatas * 32;
-			byteData.length += _numDatas << 5;
+			byteData.length += this._numDatas << 5;
 		}
 		
-		for (data in _datas)
+		for (data in this._datas)
 		{
 			if (!data.visible) continue;
 			
@@ -289,10 +289,15 @@ class MassiveQuadLayer extends MassiveLayer
 	{
 		if (this._datas == null) return 0;
 		
+		if (this.useDynamicData)
+		{
+			this._numDatas = this._datas.length;
+		}
+		
 		var vertexID:Int = offset << 2;
 		var position:Int;
 		
-		if (useColor)
+		if (this.useColor)
 		{
 			position = vertexID << 3;
 		}
@@ -325,7 +330,7 @@ class MassiveQuadLayer extends MassiveLayer
 		var sinTop:Float;
 		var sinBottom:Float;
 		
-		for (data in _datas)
+		for (data in this._datas)
 		{
 			if (!data.visible) continue;
 			

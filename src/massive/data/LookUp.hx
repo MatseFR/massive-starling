@@ -26,8 +26,8 @@ class LookUp
 		return _SIN;
 	}
 	
-	private static inline var COSINUS_CONSTANT:Float = 0.00306796157577128245943617517898;
-	private static inline var SINUS_CONSTANT:Float = 0.00306796157577128245943617517898;
+	static private inline var COSINUS_CONSTANT:Float = 0.00306796157577128245943617517898;
+	static private inline var SINUS_CONSTANT:Float = 0.00306796157577128245943617517898;
 	
 	static public function init():Void
 	{
@@ -45,7 +45,7 @@ class LookUp
 		_initDone = true;
 	}
 	
-	inline static public function getAngle(angle:Float):Int
+	static public inline function getAngle(angle:Float):Int
 	{
 		return Std.int(angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 	}

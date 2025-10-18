@@ -254,7 +254,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			throw new Error("MassiveDisplay cannot be touchable");
 		}
-		return value;
+		return super.set_touchable(value);
 	}
 	
 	private var _useByteArray:Bool = true;
@@ -316,7 +316,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (defaultJuggler == null) defaultJuggler = Starling.currentJuggler;
 		if (this._juggler == null) this._juggler = defaultJuggler;
 		
-		_zeroBytes = new ByteArray();
+		this._zeroBytes = new ByteArray();
 	}
 	
 	override public function dispose():Void 
@@ -503,9 +503,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		else
 		{
-			if (_vectorIndices == null)
+			if (this._vectorIndices == null)
 			{
-				_vectorIndices = new Vector<UInt>();
+				this._vectorIndices = new Vector<UInt>();
 				
 				var position:Int = -1;
 				for (i in 0...MassiveConstants.MAX_QUADS)
@@ -569,7 +569,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._useColor) 
 		{
 			this._elementsPerVertex += 4;
-			this._colorOffset = _uvOffset + 2;
+			this._colorOffset = this._uvOffset + 2;
 		}
 		else
 		{
@@ -671,6 +671,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		painter.finishMeshBatch();
 		++painter.drawCount;
 		
+		painter.setupContextDefaults();
+		painter.state.blendMode = this.__blendMode;
 		painter.prepareToDraw();
 		
 		this._program.activate(context);
@@ -765,18 +767,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	private function updateBlendMode():Void
 	{
-		if (this.__blendMode == BlendMode.NORMAL)
-		{
-			var pma:Bool = this._texture != null ? this._texture.premultipliedAlpha : true;
-			if (pma)
-			{
-				this.__blendMode = Context3DBlendFactor.SOURCE_ALPHA + ", " + Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
-				if (!BlendMode.isRegistered(this.__blendMode))
-				{
-					BlendMode.register(this.__blendMode, Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
-				}
-			}
-		}
+		//if (this.__blendMode == BlendMode.NORMAL)
+		//{
+			//var pma:Bool = this._texture != null ? this._texture.premultipliedAlpha : true;
+			//if (pma)
+			//{
+				//this.__blendMode = Context3DBlendFactor.SOURCE_ALPHA + ", " + Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
+				//if (!BlendMode.isRegistered(this.__blendMode))
+				//{
+					//BlendMode.register(this.__blendMode, Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
+				//}
+			//}
+		//}
 	}
 	
 	override public function getBounds(targetSpace:DisplayObject, out:Rectangle = null):Rectangle 
@@ -787,11 +789,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			{
 				return this._boundsRect;
 			}
-			else if (stage != null)
+			else if (this.stage != null)
 			{
 				// return full stage size to support filters ... may be expensive, but we have no other options, do we?
 				if (out == null) out = new Rectangle();
-				out.setTo(0, 0, stage.stageWidth, stage.stageHeight);
+				out.setTo(0, 0, this.stage.stageWidth, this.stage.stageHeight);
 				return out;
 			}
 			else
@@ -817,7 +819,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				out.width = _helperPoint.x;
 				out.height = _helperPoint.y;
 			}
-			else if (stage != null)
+			else if (this.stage != null)
 			{
 				// return full stage size to support filters ... may be pretty expensive
 				out.setTo(0, 0, stage.stageWidth, stage.stageHeight);

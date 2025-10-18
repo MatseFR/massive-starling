@@ -357,7 +357,7 @@ class MassiveDemo extends Sprite
 		var zombies:MassiveImages = new MassiveImages();
 		zombies.atlasTexture = atlas.texture;
 		zombies.textures = textures;
-		zombies.numImages = 8000;
+		zombies.numImages = 50;// 8000;
 		zombies.useByteArray = useByteArray;
 		zombies.useColor = useColor;
 		zombies.useRandomAlpha = useRandomAlpha;

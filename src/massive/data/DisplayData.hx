@@ -33,7 +33,7 @@ abstract class DisplayData
 	public function clear():Void
 	{
 		this.x = this.y = this.offsetX = this.offsetY = this.rotation = 0;
-		this.scaleX = this.scaleY = this.colorRed = this.colorGreen = this.colorBlue = this.colorAlpha = 0;
+		this.scaleX = this.scaleY = this.colorRed = this.colorGreen = this.colorBlue = this.colorAlpha = 1;
 		this.visible = true;
 	}
 	

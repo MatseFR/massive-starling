@@ -8,6 +8,7 @@ import massive.display.MassiveImageLayer;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
+import starling.display.BlendMode;
 import starling.events.Event;
 import starling.textures.Texture;
 import starling.utils.Align;
@@ -56,6 +57,7 @@ class MassiveImages extends Scene implements IAnimatable
 		updateBounds();
 		
 		this._display = new MassiveDisplay();
+		//this._display.blendMode = BlendMode.SCREEN;
 		this._display.touchable = false;
 		this._display.useColor = this.useColor;
 		this._display.texture = this.atlasTexture;
@@ -79,7 +81,7 @@ class MassiveImages extends Scene implements IAnimatable
 			img.scaleX = img.scaleY = this.imgScale;
 			img.rotation = Math.random() * (Math.PI * 2);
 			
-			if (this.useRandomAlpha) img.colorAlpha = Math.random();
+			if (this.useRandomAlpha) img.colorAlpha = 0.1;//Math.random();
 			if (this.useRandomColor)
 			{
 				img.colorRed = Math.random();

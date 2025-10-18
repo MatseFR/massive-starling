@@ -218,18 +218,18 @@ class Frame
 	public var bottomHeight:Float;
 	
 	public function new(nativeTextureWidth:Float, nativeTextureHeight:Float, x:Float, y:Float,
-		width:Float, height:Float, rotated:Bool) 
+						width:Float, height:Float, rotated:Bool) 
 	{
-		u1 = x / nativeTextureWidth;
-		v1 = y / nativeTextureHeight;
-		u2 = (x + width) / nativeTextureWidth;
-		v2 = (y + height) / nativeTextureHeight;
+		this.u1 = x / nativeTextureWidth;
+		this.v1 = y / nativeTextureHeight;
+		this.u2 = (x + width) / nativeTextureWidth;
+		this.v2 = (y + height) / nativeTextureHeight;
 		
 		this.width = width;
 		this.height = height;
 		
-		halfWidth = width / 2;
-		halfHeight = height / 2;
+		this.halfWidth = width / 2;
+		this.halfHeight = height / 2;
 		this.rotated = rotated;
 		
 		this.setPivot(0, 0);
@@ -237,14 +237,14 @@ class Frame
 	
 	public function alignPivot(horizontalAlign:String, verticalAlign:String):Void 
 	{
-		if (horizontalAlign == Align.LEFT) pivotX = 0;
-		else if (horizontalAlign == Align.CENTER) pivotX = width / 2;
-		else if (horizontalAlign == Align.RIGHT) pivotX = width;
+		if (horizontalAlign == Align.LEFT) this.pivotX = 0;
+		else if (horizontalAlign == Align.CENTER) this.pivotX = width / 2;
+		else if (horizontalAlign == Align.RIGHT) this.pivotX = width;
 		else throw new ArgumentError("Invalid horizontal alignment : " + horizontalAlign);
 		
-		if (verticalAlign == Align.TOP) pivotY = 0;
-		else if (verticalAlign == Align.CENTER) pivotY = height / 2;
-		else if (verticalAlign == Align.BOTTOM) pivotY = height;
+		if (verticalAlign == Align.TOP) this.pivotY = 0;
+		else if (verticalAlign == Align.CENTER) this.pivotY = height / 2;
+		else if (verticalAlign == Align.BOTTOM) this.pivotY = height;
 		else throw new ArgumentError("Invalid vertical alignment : " + verticalAlign);
 		
 		pivotUpdate();
@@ -263,10 +263,10 @@ class Frame
 	 */
 	public function pivotUpdate():Void
 	{
-		leftWidth = pivotX;
-		rightWidth = width - pivotX;
-		topHeight = pivotY;
-		bottomHeight = height - pivotY;
+		this.leftWidth = this.pivotX;
+		this.rightWidth = this.width - this.pivotX;
+		this.topHeight = this.pivotY;
+		this.bottomHeight = this.height - this.pivotY;
 	}
 	
 }

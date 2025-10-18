@@ -8,22 +8,22 @@ import starling.utils.Align;
  */
 class QuadData extends DisplayData
 {
-	private static var POOL:Array<QuadData> = new Array<QuadData>();
+	static private var _POOL:Array<QuadData> = new Array<QuadData>();
 	
-	public static function fromPool():QuadData
+	static public function fromPool():QuadData
 	{
-		if (POOL.length != 0) return POOL.pop();
+		if (_POOL.length != 0) return _POOL.pop();
 		return new QuadData();
 	}
 	
-	public static function fromPoolArray(numQuads:Int, quadList:Array<QuadData> = null):Array<QuadData>
+	static public function fromPoolArray(numQuads:Int, quadList:Array<QuadData> = null):Array<QuadData>
 	{
 		if (quadList == null) quadList = new Array<QuadData>();
 		
 		while (numQuads != 0)
 		{
-			if (POOL.length == 0) break;
-			quadList[quadList.length] = POOL.pop();
+			if (_POOL.length == 0) break;
+			quadList[quadList.length] = _POOL.pop();
 			numQuads--;
 		}
 		
@@ -36,13 +36,13 @@ class QuadData extends DisplayData
 		return quadList;
 	}
 	
-	public static function toPool(quad:QuadData):Void
+	static public function toPool(quad:QuadData):Void
 	{
 		quad.clear();
-		POOL[POOL.length] = quad;
+		_POOL[_POOL.length] = quad;
 	}
 	
-	public static function toPoolArray(quadList:Array<QuadData>):Void
+	static public function toPoolArray(quadList:Array<QuadData>):Void
 	{
 		for (quad in quadList)
 		{
@@ -78,19 +78,19 @@ class QuadData extends DisplayData
 	public function pool():Void 
 	{
 		clear();
-		POOL[POOL.length] = this;
+		_POOL[_POOL.length] = this;
 	}
 	
 	public function alignPivot(horizontalAlign:String, verticalAlign:String):Void 
 	{
-		if (horizontalAlign == Align.LEFT) pivotX = 0;
-		else if (horizontalAlign == Align.CENTER) pivotX = width / 2;
-		else if (horizontalAlign == Align.RIGHT) pivotX = width;
+		if (horizontalAlign == Align.LEFT) this.pivotX = 0;
+		else if (horizontalAlign == Align.CENTER) this.pivotX = this.width / 2;
+		else if (horizontalAlign == Align.RIGHT) this.pivotX = this.width;
 		else throw new ArgumentError("Invalid horizontal alignment : " + horizontalAlign);
 		
-		if (verticalAlign == Align.TOP) pivotY = 0;
-		else if (verticalAlign == Align.CENTER) pivotY = height / 2;
-		else if (verticalAlign == Align.BOTTOM) pivotY = height;
+		if (verticalAlign == Align.TOP) this.pivotY = 0;
+		else if (verticalAlign == Align.CENTER) this.pivotY = this.height / 2;
+		else if (verticalAlign == Align.BOTTOM) this.pivotY = this.height;
 		else throw new ArgumentError("Invalid vertical alignment : " + verticalAlign);
 		
 		pivotUpdate();
@@ -109,10 +109,10 @@ class QuadData extends DisplayData
 	 */
 	public function pivotUpdate():Void
 	{
-		leftWidth = pivotX;
-		rightWidth = width - pivotX;
-		topHeight = pivotY;
-		bottomHeight = height - pivotY;
+		this.leftWidth = this.pivotX;
+		this.rightWidth = this.width - this.pivotX;
+		this.topHeight = this.pivotY;
+		this.bottomHeight = this.height - this.pivotY;
 	}
 	
 }

@@ -10,7 +10,7 @@ import massive.display.MassiveImageLayer;
 class Animator 
 {
 
-	inline public static function animateImageDataList(datas:Array<ImageData>, time:Float, layer:MassiveImageLayer):Void
+	static public inline function animateImageDataList(datas:Array<ImageData>, time:Float, layer:MassiveImageLayer):Void
 	{	
 		for (data in datas)
 		{
@@ -33,9 +33,9 @@ class Animator
 		
 	}
 	
-	public static function generateTimings(frameList:Array<Frame>, frameRate:Float = 24):Array<Float>
+	static public function generateTimings(frameList:Array<Frame>, frameRate:Float = 24, timings:Array<Float> = null):Array<Float>
 	{
-		var timings:Array<Float> = new Array<Float>();
+		if (timings == null) timings = new Array<Float>();
 		
 		var frameTime:Float = 1.0 / frameRate;
 		var total:Float = 0;

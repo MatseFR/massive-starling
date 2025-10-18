@@ -6,22 +6,22 @@ package massive.data;
  */
 class ImageData extends DisplayData
 {
-	private static var POOL:Array<ImageData> = new Array<ImageData>();
+	static private var _POOL:Array<ImageData> = new Array<ImageData>();
 	
-	public static function fromPool():ImageData
+	static public function fromPool():ImageData
 	{
-		if (POOL.length != 0) return POOL.pop();
+		if (_POOL.length != 0) return _POOL.pop();
 		return new ImageData();
 	}
 	
-	public static function fromPoolArray(numImages:Int, imgList:Array<ImageData> = null):Array<ImageData>
+	static public function fromPoolArray(numImages:Int, imgList:Array<ImageData> = null):Array<ImageData>
 	{
 		if (imgList == null) imgList = new Array<ImageData>();
 		
 		while (numImages != 0)
 		{
-			if (POOL.length == 0) break;
-			imgList[imgList.length] = POOL.pop();
+			if (_POOL.length == 0) break;
+			imgList[imgList.length] = _POOL.pop();
 			numImages--;
 		}
 		
@@ -34,18 +34,17 @@ class ImageData extends DisplayData
 		return imgList;
 	}
 	
-	public static function toPool(img:ImageData):Void
+	static public function toPool(img:ImageData):Void
 	{
 		img.clear();
-		POOL[POOL.length] = img;
+		_POOL[_POOL.length] = img;
 	}
 	
-	public static function toPoolArray(imgList:Array<ImageData>):Void
+	static public function toPoolArray(imgList:Array<ImageData>):Void
 	{
 		for (img in imgList)
 		{
-			img.clear();
-			POOL[POOL.length] = img;
+			img.pool();
 		}
 	}
 	
@@ -93,7 +92,7 @@ class ImageData extends DisplayData
 	public function pool():Void
 	{
 		clear();
-		POOL[POOL.length] = this;
+		_POOL[_POOL.length] = this;
 	}
 	
 	public function clearFrames():Void

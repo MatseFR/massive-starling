@@ -162,12 +162,12 @@ class MassiveImageLayer extends MassiveLayer
 		if (this.useColor)
 		{
 			//byteData.length += _numDatas * 128;
-			byteData.length += _numDatas << 7;
+			byteData.length += this._numDatas << 7;
 		}
 		else
 		{
 			//byteData.length += _numDatas * 64;
-			byteData.length += _numDatas << 6;
+			byteData.length += this._numDatas << 6;
 		}
 		
 		for (data in this._datas)
@@ -182,10 +182,11 @@ class MassiveImageLayer extends MassiveLayer
 			
 			if (this.useColor)
 			{
-				red = data.colorRed;
-				green = data.colorGreen;
-				blue = data.colorBlue;
 				alpha = data.colorAlpha;
+				red = data.colorRed * alpha;
+				green = data.colorGreen * alpha;
+				blue = data.colorBlue * alpha;
+				
 			}
 			
 			frame = data.frameList[data.frameIndex];
@@ -337,6 +338,11 @@ class MassiveImageLayer extends MassiveLayer
 	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
+		
+		if (this.useDynamicData)
+		{
+			this._numDatas = this._datas.length;
+		}
 		
 		var vertexID:Int = offset << 2;
 		var position:Int;
