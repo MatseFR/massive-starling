@@ -48,30 +48,51 @@ class ImageData extends DisplayData
 		}
 	}
 	
-	/* inverts display on horizontal axis */
-	public var invertX:Bool = false;
-	/* inverts display on vertical axis */
-	public var invertY:Bool = false;
-	
+	/* tells whether the ImageData is animated (if it has frames) or not */
+	public var animate:Bool = false;
+	/* how many frames */
+	public var frameCount:Int;
+	public var frameCurrent(get, never):Frame
+	/* playback speed */
+	public var frameDelta:Float = 1;
+	/* index of the current frame */
+	public var frameIndex:Int = 0;
+	/* lists all frames */
+	public var frameList:Array<Frame>;
+	public var frameEventList:Array<String>;
 	/* time elapsed on current frame */
 	public var frameTime:Float;
 	/* duration of each frame */
 	public var frameTimings:Array<Float>;
-	/* how many frames */
-	public var frameCount:Int;
-	/* playback speed */
-	public var frameDelta:Float = 1;
-	/* lists all frames */
-	public var frameList:Array<Frame>;
-	public var frameEventList:Array<String>;
-	/* index of the current frame */
-	public var frameIndex:Int = 0;
-	
-	/* tells whether the ImageData is animated (if it has frames) or not */
-	public var animate:Bool = false;
+	public var hasEvents:Bool = false;
+	public var height(get, set):Float;
+	/* inverts display on horizontal axis */
+	public var invertX:Bool = false;
+	/* inverts display on vertical axis */
+	public var invertY:Bool = false;
 	/* tells whether to loop frames */
 	public var loop:Bool = true;
-	public var hasEvents:Bool = false;
+	/* tells how many loops have been done */
+	public var loopCount:Int = 0;
+	/* how many loops, 0 == infinite */
+	public var numLoops:Int = 0;
+	public var width(get, set):Float;
+	
+	private function get_frameCurrent():Frame { return this.frameList[this.frameIndex]; }
+	
+	private function get_height():Float { return this.frameList[this.frameIndex].height * this.scaleY; }
+	private function set_height(value:Float):Float
+	{
+		this.scaleY = value / this.frameList[this.frameIndex].height;
+		return value;
+	}
+	
+	private function get_width():Float { return this.frameList[this.frameIndex].width * this.scaleX; }
+	private function set_width(value:Float):Float
+	{
+		this.scaleX = value / this.frameList[this.frameIndex].width;
+		return value;
+	}
 	
 	public function new() 
 	{
@@ -82,7 +103,9 @@ class ImageData extends DisplayData
 	{
 		this.invertX = this.invertY = this.animate = this.hasEvents = false;
 		this.frameDelta = 1;
+		this.frameTime = 0;
 		this.loop = true;
+		this.loopCount = this.numLoops = 0;
 		
 		clearFrames();
 		
@@ -125,6 +148,12 @@ class ImageData extends DisplayData
 				this.frameTime = this.frameTimings[this.frameIndex - 1];
 			}
 		}
+	}
+	
+	public function setFrameTimings(timings:Array<Float>):Void
+	{
+		this.frameTimings = timings;
+		this.frameCount = this.frameTimings == null ? this.frameList.length - 1 : this.frameTimings.length - 1;
 	}
 	
 }

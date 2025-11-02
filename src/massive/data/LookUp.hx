@@ -50,4 +50,14 @@ class LookUp
 		return Std.int(angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 	}
 	
+	static public inline function cos(angle:Float):Float
+	{
+		return _COS[Std.int(angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2];
+	}
+	
+	static public inline function sin(angle:Float):Float
+	{
+		return _SIN[Std.int(angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2];
+	}
+	
 }

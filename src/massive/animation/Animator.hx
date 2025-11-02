@@ -23,17 +23,18 @@ class Animator
 				{
 					data.frameIndex++;
 				}
-				else if (data.loop)
+				else if (data.loop && (data.numLoops == 0 || data.loopCount < data.numLoops))
 				{
 					data.frameTime -= data.frameTimings[data.frameIndex];
 					data.frameIndex = 0;
+					data.loopCount++;
 				}
 			}
 		}
 		
 	}
 	
-	static public function generateTimings(frameList:Array<Frame>, frameRate:Float = 24, timings:Array<Float> = null):Array<Float>
+	static public function generateTimings(frameList:Array<Frame>, frameRate:Float = 60, timings:Array<Float> = null):Array<Float>
 	{
 		if (timings == null) timings = new Array<Float>();
 		

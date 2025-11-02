@@ -51,28 +51,25 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 * @default true
 	 */
 	public var autoHandleJuggler(get, set):Bool;
-	
-	/**
-	 * The Juggler instance that this MassiveDisplay object will use if autoHandleJuggler is true.
-	 * If null, MassiveDisplay.defaultJuggler will be used.
-	 */
-	public var juggler(get, set):Juggler;
-	
 	/**
 	 * @default 16383
 	 */
 	public var bufferSize(get, set):Int;
-	
-	/**
-	 * @default 2
-	 */
-	public var numBuffers(get, set):Int;
-	
 	public var colorBlue(get, set):Float;
 	public var colorGreen(get, set):Float;
 	public var colorRed(get, set):Float;
 	public var elementsPerQuad(get, never):Int;
 	public var elementsPerVertex(get, never):Int;
+	/**
+	 * The Juggler instance that this MassiveDisplay object will use if autoHandleJuggler is true.
+	 * If null, MassiveDisplay.defaultJuggler will be used.
+	 */
+	public var juggler(get, set):Juggler;
+	/**
+	 * @default 2
+	 */
+	public var numBuffers(get, set):Int;
+	public var numLayers(get, never):Int;
 	public var numQuads(get, never):Int;
 	public var renderOffsetX:Float = 0;
 	public var renderOffsetY:Float = 0;
@@ -81,58 +78,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public var textureSmoothing(get, set):String;
 	public var useByteArray(get, set):Bool;
 	public var useColor(get, set):Bool;
-	
-	private var _autoHandleJuggler:Bool = true;
-	private function get_autoHandleJuggler():Bool { return this._autoHandleJuggler; }
-	private function set_autoHandleJuggler(value:Bool):Bool
-	{
-		return this._autoHandleJuggler = value;
-	}
-	
-	private var _juggler:Juggler;
-	private function get_juggler():Juggler { return this._juggler; }
-	private function set_juggler(value:Juggler):Juggler
-	{
-		return this._juggler = value;
-	}
-	
-	private var _bufferSize:Int = MassiveConstants.MAX_QUADS;
-	private function get_bufferSize():Int { return this._bufferSize; }
-	private function set_bufferSize(value:Int):Int
-	{
-		if (this._bufferSize == value) return value;
-		if (value > MassiveConstants.MAX_QUADS)
-		{
-			value = MassiveConstants.MAX_QUADS;
-		}
-		if (this._buffersCreated)
-		{
-			// TODO : better buffer resizing
-			createBuffers(this._numBuffers, value);
-		}
-		return this._bufferSize = value;
-	}
-	
-	private var _numBuffers:Int = 2;
-	private function get_numBuffers():Int { return this._numBuffers; }
-	private function set_numBuffers(value:Int):Int
-	{
-		if (this._numBuffers == value) return value;
-		if (this._buffersCreated)
-		{
-			// TODO : better buffer creation/destruction
-			createBuffers(value, this._bufferSize);
-		}
-		return this._numBuffers = value;
-	}
-	
-	override function set_blendMode(value:String):String 
-	{
-		if (this.__blendMode == value) return value;
-		this.__blendMode = value;
-		updateBlendMode();
-		return this.__blendMode;
-	}
 	
 	override function set_alpha(value:Float):Float 
 	{
@@ -152,6 +97,38 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		
 		return this.__alpha;
+	}
+	
+	private var _autoHandleJuggler:Bool = true;
+	private function get_autoHandleJuggler():Bool { return this._autoHandleJuggler; }
+	private function set_autoHandleJuggler(value:Bool):Bool
+	{
+		return this._autoHandleJuggler = value;
+	}
+	
+	override function set_blendMode(value:String):String 
+	{
+		if (this.__blendMode == value) return value;
+		this.__blendMode = value;
+		updateBlendMode();
+		return this.__blendMode;
+	}
+	
+	private var _bufferSize:Int = MassiveConstants.MAX_QUADS;
+	private function get_bufferSize():Int { return this._bufferSize; }
+	private function set_bufferSize(value:Int):Int
+	{
+		if (this._bufferSize == value) return value;
+		if (value > MassiveConstants.MAX_QUADS)
+		{
+			value = MassiveConstants.MAX_QUADS;
+		}
+		if (this._buffersCreated)
+		{
+			// TODO : better buffer resizing
+			createBuffers(this._numBuffers, value);
+		}
+		return this._bufferSize = value;
 	}
 	
 	private var _colorBlue:Float = 1;
@@ -216,6 +193,28 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	private var _elementsPerVertex:Int;
 	private function get_elementsPerVertex():Int { return this._elementsPerVertex; }
+	
+	private var _juggler:Juggler;
+	private function get_juggler():Juggler { return this._juggler; }
+	private function set_juggler(value:Juggler):Juggler
+	{
+		return this._juggler = value;
+	}
+	
+	private var _numBuffers:Int = 2;
+	private function get_numBuffers():Int { return this._numBuffers; }
+	private function set_numBuffers(value:Int):Int
+	{
+		if (this._numBuffers == value) return value;
+		if (this._buffersCreated)
+		{
+			// TODO : better buffer creation/destruction
+			createBuffers(value, this._bufferSize);
+		}
+		return this._numBuffers = value;
+	}
+	
+	private function get_numLayers():Int { return this._layers.length; }
 	
 	private var _numQuads:Int = 0;
 	private function get_numQuads():Int { return this._numQuads; }
