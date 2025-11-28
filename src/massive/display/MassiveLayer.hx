@@ -1,28 +1,44 @@
 package massive.display;
 import openfl.Vector;
 import openfl.utils.ByteArray;
+import starling.events.EventDispatcher;
 
 /**
  * ...
  * @author Matse
  */
-abstract class MassiveLayer
+abstract class MassiveLayer extends EventDispatcher
 {
+	/**
+	   
+	**/
 	public var name:String;
 	/**
-	   @private
-	**/
-	public var useDynamicData:Bool;
-	/**
-	   @private
+	   
 	**/
 	public var animate:Bool;
 	/**
-	   @private
+	   
+	**/
+	public var autoHandleNumDatas:Bool = true;
+	/**
+	   
+	**/
+	public var display:MassiveDisplay;
+	/**
+	   
+	**/
+	public var numDatas:Int = 0;
+	/**
+	   
+	**/
+	public var totalDatas(get, never):Int;
+	/**
+	   
 	**/
 	public var useColor:Bool;
 	
-	public var display:MassiveDisplay;
+	abstract private function get_totalDatas():Int;
 	
 	/**
 	 * 

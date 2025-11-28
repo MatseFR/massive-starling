@@ -9,38 +9,29 @@ import openfl.utils.ByteArray;
  * ...
  * @author Matse
  */
-class MassiveQuadLayer extends MassiveLayer 
+class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer 
 {
-	public var datas(get, set):Array<QuadData>;
-	private var _datas:Array<QuadData>;
-	private function get_datas():Array<QuadData> { return this._datas; }
-	private function set_datas(value:Array<QuadData>):Array<QuadData>
+	
+	public var datas(get, set):Array<T>;
+	
+	private var _datas:Array<T>;
+	private function get_datas():Array<T> { return this._datas; }
+	private function set_datas(value:Array<T>):Array<T>
 	{
-		if (value == this._datas) return value;
-		this.useDynamicData = true;
-		this._numDatas = value != null ? value.length : 0;
 		return this._datas = value;
 	}
 	
-	public var numDatas(get, never):Int;
-	private var _numDatas:Int = 0;
-	private function get_numDatas():Int { return this._numDatas; }
+	private function get_totalDatas():Int { return this._datas == null ? 0 : this._datas.length; }
 	
 	private var COS:Array<Float>;
 	private var SIN:Array<Float>;
 	
-	public function new(useDynamicData:Bool = false, datas:Array<QuadData> = null) 
+	public function new(datas:Array<T> = null) 
 	{
-		this.useDynamicData = useDynamicData;
-		if (this.useDynamicData)
-		{
-			this._datas = datas;
-			if (this._datas != null) this._numDatas = this._datas.length;
-		}
-		else
-		{
-			this._datas = new Array<QuadData>();
-		}
+		super();
+		
+		this._datas = datas;
+		if (this._datas == null) this._datas = new Array<T>();
 		this.animate = false;
 		COS = LookUp.COS;
 		SIN = LookUp.SIN;
@@ -55,22 +46,21 @@ class MassiveQuadLayer extends MassiveLayer
 	 * 
 	 * @param	data
 	 */
-	public function addQuad(data:QuadData):Void
+	public function addQuad(data:T):Void
 	{
 		this._datas[this._datas.length] = data;
-		this._numDatas++;
 	}
 	
 	/**
 	 * 
 	 * @param	datas
 	 */
-	public function addQuadArray(datas:Array<QuadData>):Void
+	public function addQuadArray(datas:Array<T>):Void
 	{
-		for (data in datas)
+		var count:Int = datas.length;
+		for (i in 0...count)
 		{
-			this._datas[this._datas.length] = data;
-			this._numDatas++;
+			this._datas[this._datas.length] = datas[i];
 		}
 	}
 	
@@ -78,13 +68,12 @@ class MassiveQuadLayer extends MassiveLayer
 	 * 
 	 * @param	data
 	 */
-	public function removeQuad(data:QuadData):Void
+	public function removeQuad(data:T):Void
 	{
 		var index:Int = this._datas.indexOf(data);
 		if (index != -1)
 		{
 			this._datas.splice(index, 1);
-			this._numDatas--;
 		}
 	}
 	
@@ -92,16 +81,16 @@ class MassiveQuadLayer extends MassiveLayer
 	 * 
 	 * @param	datas
 	 */
-	public function removeQuadArray(datas:Array<QuadData>):Void
+	public function removeQuadArray(datas:Array<T>):Void
 	{
 		var index:Int;
-		for (data in datas)
+		var count:Int = datas.length;
+		for (i in 0...count)
 		{
-			index = this._datas.indexOf(data);
+			index = this._datas.indexOf(datas[i]);
 			if (index != -1)
 			{
 				this._datas.splice(index, 1);
-				this._numDatas--;
 			}
 		}
 	}
@@ -109,7 +98,6 @@ class MassiveQuadLayer extends MassiveLayer
 	public function removeAllData():Void 
 	{
 		this._datas.resize(0);
-		this._numDatas = 0;
 	}
 	
 	public function advanceTime(time:Float):Void 
@@ -121,12 +109,7 @@ class MassiveQuadLayer extends MassiveLayer
 	{
 		if (this._datas == null) return 0;
 		
-		if (this.useDynamicData)
-		{
-			this._numDatas = this._datas.length;
-		}
-		
-		var quadsWritten:Int = -1;
+		var quadsWritten:Int = 0;
 		
 		var x:Float, y:Float;
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
@@ -150,21 +133,25 @@ class MassiveQuadLayer extends MassiveLayer
 		var sinTop:Float;
 		var sinBottom:Float;
 		
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
 		if (this.useColor)
 		{
-			byteData.length += this._numDatas * 96;
+			byteData.length += this.numDatas * 96;
 		}
 		else
 		{
-			//byteData.length += _numDatas * 32;
-			byteData.length += this._numDatas << 5;
+			//byteData.length += this.numDatas * 32;
+			byteData.length += this.numDatas << 5;
 		}
 		
-		for (data in this._datas)
+		var data:T;
+		for (i in 0...this.numDatas)
 		{
+			data = this._datas[i];
 			if (!data.visible) continue;
 			
-			quadsWritten++;
+			++quadsWritten;
 			
 			x = data.x + data.offsetX + renderOffsetX;
 			y = data.y + data.offsetY + renderOffsetY;
@@ -282,17 +269,12 @@ class MassiveQuadLayer extends MassiveLayer
 			}
 		}
 		
-		return ++quadsWritten;
+		return quadsWritten;
 	}
 	
 	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
 	{
 		if (this._datas == null) return 0;
-		
-		if (this.useDynamicData)
-		{
-			this._numDatas = this._datas.length;
-		}
 		
 		var vertexID:Int = offset << 2;
 		var position:Int;
@@ -306,7 +288,7 @@ class MassiveQuadLayer extends MassiveLayer
 			position = vertexID << 2;
 		}
 		
-		var quadsWritten:Int = -1;
+		var quadsWritten:Int = 0;
 		
 		var x:Float, y:Float;
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
@@ -330,11 +312,15 @@ class MassiveQuadLayer extends MassiveLayer
 		var sinTop:Float;
 		var sinBottom:Float;
 		
-		for (data in this._datas)
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
+		var data:T;
+		for (i in 0...this.numDatas)
 		{
+			data = this._datas[i];
 			if (!data.visible) continue;
 			
-			quadsWritten++;
+			++quadsWritten;
 			
 			x = data.x + data.offsetX + renderOffsetX;
 			y = data.y + data.offsetY + renderOffsetY;
@@ -450,10 +436,10 @@ class MassiveQuadLayer extends MassiveLayer
 					vectorData[++position] = alpha;
 				}
 			}
-			position++;
+			++position;
 		}
 		
-		return ++quadsWritten;
+		return quadsWritten;
 	}
 	
 }

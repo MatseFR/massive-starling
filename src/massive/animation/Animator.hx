@@ -1,7 +1,6 @@
 package massive.animation;
 import massive.data.Frame;
 import massive.data.ImageData;
-import massive.display.MassiveImageLayer;
 
 /**
  * ...
@@ -9,11 +8,14 @@ import massive.display.MassiveImageLayer;
  */
 class Animator 
 {
-
-	static public inline function animateImageDataList(datas:Array<ImageData>, time:Float, layer:MassiveImageLayer):Void
-	{	
-		for (data in datas)
+	
+	static public inline function animateImageDataList<T:ImageData>(datas:Array<T>, time:Float):Void
+	{
+		var count:Int = datas.length;
+		var data:T;
+		for (i in 0...count)
 		{
+			data = datas[i];
 			if (!data.animate) continue;
 			
 			data.frameTime += time * data.frameDelta;

@@ -11,38 +11,29 @@ import openfl.utils.ByteArray;
  * ...
  * @author Matse
  */
-class MassiveImageLayer extends MassiveLayer 
+class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer 
 {
-	public var datas(get, set):Array<ImageData>;
-	private var _datas:Array<ImageData>;
-	private function get_datas():Array<ImageData> { return this._datas; }
-	private function set_datas(value:Array<ImageData>):Array<ImageData>
+	public var datas(get, set):Array<T>;
+	public var textureAnimation:Bool = true;
+	
+	private var _datas:Array<T>;
+	private function get_datas():Array<T> { return this._datas; }
+	private function set_datas(value:Array<T>):Array<T>
 	{
-		if (value == this._datas) return value;
-		this.useDynamicData = true;
-		this._numDatas = value != null ? value.length : 0;
 		return this._datas = value;
 	}
 	
-	public var numDatas(get, never):Int;
-	private var _numDatas:Int = 0;
-	private function get_numDatas():Int { return this._numDatas; }
+	private function get_totalDatas():Int { return this._datas == null ? 0 : this._datas.length; }
 	
 	private var COS:Array<Float>;
 	private var SIN:Array<Float>;
 	
-	public function new(useDynamicData:Bool = false, datas:Array<ImageData> = null) 
+	public function new(datas:Array<T> = null) 
 	{
-		this.useDynamicData = useDynamicData;
-		if (this.useDynamicData)
-		{
-			this._datas = datas;
-			if (this._datas != null) this._numDatas = this._datas.length;
-		}
-		else
-		{
-			this._datas = new Array<ImageData>();
-		}
+		super();
+		
+		this._datas = datas;
+		if (this._datas == null) this._datas = new Array<T>();
 		this.animate = true;
 		COS = LookUp.COS;
 		SIN = LookUp.SIN;
@@ -57,22 +48,21 @@ class MassiveImageLayer extends MassiveLayer
 	 * 
 	 * @param	data
 	 */
-	public function addImage(data:ImageData):Void
+	public function addImage(data:T):Void
 	{
 		this._datas[this._datas.length] = data;
-		this._numDatas++;
 	}
 	
 	/**
 	 * 
 	 * @param	datas
 	 */
-	public function addImageArray(datas:Array<ImageData>):Void
+	public function addImageArray(datas:Array<T>):Void
 	{
-		for (data in datas)
+		var count:Int = datas.length;
+		for (i in 0...count)
 		{
-			this._datas[this._datas.length] = data;
-			this._numDatas++;
+			this._datas[this._datas.length] = datas[i];
 		}
 	}
 	
@@ -80,30 +70,34 @@ class MassiveImageLayer extends MassiveLayer
 	 * 
 	 * @param	data
 	 */
-	public function removeImage(data:ImageData):Void
+	public function removeImage(data:T):Void
 	{
 		var index:Int = this._datas.indexOf(data);
 		if (index != -1)
 		{
-			this._datas.splice(index, 1);
-			this._numDatas--;
+			removeImageAt(index);
 		}
+	}
+	
+	public function removeImageAt(index:Int):Void
+	{
+		this._datas.splice(index, 1);
 	}
 	
 	/**
 	 * 
 	 * @param	datas
 	 */
-	public function removeImageArray(datas:Array<ImageData>):Void
+	public function removeImageArray(datas:Array<T>):Void
 	{
 		var index:Int;
-		for (data in datas)
+		var count:Int = datas.length;
+		for (i in 0...count)
 		{
-			index = this._datas.indexOf(data);
+			index = this._datas.indexOf(datas[i]);
 			if (index != -1)
 			{
-				this._datas.splice(index, 1);
-				this._numDatas--;
+				removeImageAt(index);
 			}
 		}
 	}
@@ -111,24 +105,18 @@ class MassiveImageLayer extends MassiveLayer
 	public function removeAllData():Void 
 	{
 		this._datas.resize(0);
-		this._numDatas = 0;
 	}
 	
 	public function advanceTime(time:Float):Void 
 	{
-		Animator.animateImageDataList(this._datas, time, this);
+		if (this.textureAnimation) Animator.animateImageDataList(this._datas, time);
 	}
 	
 	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
 		
-		if (this.useDynamicData)
-		{
-			this._numDatas = this._datas.length;
-		}
-		
-		var quadsWritten:Int = -1;
+		var quadsWritten:Int = 0;
 		
 		var x:Float, y:Float;
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
@@ -159,22 +147,26 @@ class MassiveImageLayer extends MassiveLayer
 		var v1:Float;
 		var v2:Float;
 		
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
 		if (this.useColor)
 		{
-			//byteData.length += _numDatas * 128;
-			byteData.length += this._numDatas << 7;
+			//byteData.length += numDatas * 128;
+			byteData.length += this.numDatas << 7;
 		}
 		else
 		{
-			//byteData.length += _numDatas * 64;
-			byteData.length += this._numDatas << 6;
+			//byteData.length += numDatas * 64;
+			byteData.length += this.numDatas << 6;
 		}
 		
-		for (data in this._datas)
+		var data:T;
+		for (i in 0...this.numDatas)
 		{
+			data = this._datas[i];
 			if (!data.visible) continue;
 			
-			quadsWritten++;
+			++quadsWritten;
 			
 			x = data.x + data.offsetX + renderOffsetX;
 			y = data.y + data.offsetY + renderOffsetY;
@@ -332,22 +324,17 @@ class MassiveImageLayer extends MassiveLayer
 			}
 		}
 		
-		return ++quadsWritten;
+		return quadsWritten;
 	}
 	
 	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
 		
-		if (this.useDynamicData)
-		{
-			this._numDatas = this._datas.length;
-		}
-		
 		var vertexID:Int = offset << 2;
 		var position:Int;
 		
-		if (useColor)
+		if (this.useColor)
 		{
 			position = vertexID << 3;
 		}
@@ -356,7 +343,7 @@ class MassiveImageLayer extends MassiveLayer
 			position = vertexID << 2;
 		}
 		
-		var quadsWritten:Int = -1;
+		var quadsWritten:Int = 0;
 		
 		var x:Float, y:Float;
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
@@ -387,11 +374,15 @@ class MassiveImageLayer extends MassiveLayer
 		var v1:Float;
 		var v2:Float;
 		
-		for (data in this._datas)
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
+		var data:T;
+		for (i in 0...this.numDatas)
 		{
+			data = this._datas[i];
 			if (!data.visible) continue;
 			
-			quadsWritten++;
+			++quadsWritten;
 			
 			x = data.x + data.offsetX + renderOffsetX;
 			y = data.y + data.offsetY + renderOffsetY;
@@ -546,10 +537,10 @@ class MassiveImageLayer extends MassiveLayer
 					vectorData[++position] = alpha;
 				}
 			}
-			position++;
+			++position;
 		}
 		
-		return ++quadsWritten;
+		return quadsWritten;
 	}
 	
 }

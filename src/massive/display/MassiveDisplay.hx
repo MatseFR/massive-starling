@@ -1,6 +1,7 @@
 package massive.display;
 
 import massive.data.MassiveConstants;
+import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.display3D.Context3D;
 import openfl.display3D.Context3DBlendFactor;
@@ -71,6 +72,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public var numBuffers(get, set):Int;
 	public var numLayers(get, never):Int;
 	public var numQuads(get, never):Int;
+	public var program(get, set):Program;
 	public var renderOffsetX:Float = 0;
 	public var renderOffsetY:Float = 0;
 	public var texture(get, set):Texture;
@@ -219,14 +221,21 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _numQuads:Int = 0;
 	private function get_numQuads():Int { return this._numQuads; }
 	
+	private var _program:Program;
+	private function get_program():Program { return this._program; }
+	private function set_program(value:Program):Program
+	{
+		if (value == null && this._program != null)
+		{
+			this._program.dispose();
+		}
+		return this._program = value;
+	}
+	
 	private var _texture:Texture;
 	private function get_texture():Texture { return this._texture; }
 	private function set_texture(value:Texture):Texture
 	{
-		if (value != null)
-		{
-			this._premultipliedAlpha = value.premultipliedAlpha;
-		}
 		this._texture = value;
 		updateBlendMode();
 		updateElements();
@@ -256,7 +265,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return super.set_touchable(value);
 	}
 	
-	private var _useByteArray:Bool = true;
+	private var _useByteArray:Bool = false;
 	private function get_useByteArray():Bool { return this._useByteArray; }
 	private function set_useByteArray(value:Bool):Bool
 	{
@@ -272,7 +281,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._useColor;
 	}
 	
+	#if flash
+	private var _layers:Vector<MassiveLayer> = new Vector<MassiveLayer>();
+	#else
 	private var _layers:Array<MassiveLayer> = new Array<MassiveLayer>();
+	#end
+	private var _numLayers:Int;
 	
 	private var _buffersCreated:Bool = false;
 	
@@ -288,9 +302,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _vectorIndices:Vector<UInt>;
 	private var _byteIndices:ByteArray;
 	
-	private var _premultipliedAlpha:Bool;
-	
-	private var _program:Program;
+	private var _realBlendMode:String;
 	
 	private var _positionOffset:Int = 0;
 	private var _colorOffset:Int;
@@ -321,6 +333,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	override public function dispose():Void 
 	{
 		disposeBuffers();
+		if (this._program != null)
+		{
+			this._program.dispose();
+			this._program = null;
+		}
+		this._texture = null;
 		
 		super.dispose();
 	}
@@ -582,21 +600,26 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		layer.display = this;
 		layer.useColor = this._useColor;
-		this._layers.push(layer);
+		this._layers[this._layers.length] = layer;
 	}
 	
 	public function addLayerAt(layer:MassiveLayer, index:Int):Void
 	{
 		layer.display = this;
 		layer.useColor = this._useColor;
+		#if flash
+		this._layers.insertAt(index, layer);
+		#else
 		this._layers.insert(index, layer);
+		#end
 	}
 	
 	public function getLayer(name:String):MassiveLayer
 	{
-		for (layer in this._layers)
+		this._numLayers = this._layers.length;
+		for (i in 0...this._numLayers)
 		{
-			if (layer.name == name) return layer;
+			if (this._layers[i].name == name) return this._layers[i];
 		}
 		return null;
 	}
@@ -608,8 +631,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function removeLayer(layer:MassiveLayer, dispose:Bool = false):MassiveLayer
 	{
-		if (this._layers.remove(layer))
+		var index:Int = this._layers.indexOf(layer);
+		if (index != -1)
 		{
+			#if flash
+			this._layers.removeAt(index);
+			#else
+			this._layers.splice(index, 1);
+			#end
 			layer.display = null;
 			if (dispose) layer.dispose();
 			return layer;
@@ -620,7 +649,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function removeLayerAt(index:Int, dispose:Bool = false):MassiveLayer
 	{
 		var layer:MassiveLayer = this._layers[index];
+		#if flash
+		this._layers.removeAt(index);
+		#else
 		this._layers.splice(index, 1);
+		#end
 		layer.display = null;
 		if (dispose) layer.dispose();
 		return layer;
@@ -628,17 +661,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function removeLayerWithName(name:String, dispose:Bool = false):MassiveLayer
 	{
-		var layer:MassiveLayer;
-		var count:Int = this._layers.length;
-		for (i in 0...count)
+		this._numLayers = this._layers.length;
+		for (i in 0...this._numLayers)
 		{
 			if (this._layers[i].name == name)
 			{
-				layer = this._layers[i];
-				this._layers.splice(i, 1);
-				layer.display = null;
-				if (dispose) layer.dispose();
-				return layer;
+				return removeLayerAt(i, dispose);
 			}
 		}
 		return null;
@@ -646,9 +674,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
-		for (layer in this._layers)
+		this._numLayers = this._layers.length;
+		for (i in 0...this._numLayers)
 		{
-			if (layer.animate) layer.advanceTime(time);
+			if (this._layers[i].animate) this._layers[i].advanceTime(time);
 		}
 		
 		setRequiresRedraw();
@@ -656,6 +685,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	override public function render(painter:Painter):Void 
 	{
+		this._numLayers = this._layers.length;
+		if (this._numLayers == 0) return;
+		
 		painter.excludeFromCache(this);
 		
 		var context:Context3D = Starling.currentContext;
@@ -671,7 +703,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		++painter.drawCount;
 		
 		painter.setupContextDefaults();
-		painter.state.blendMode = this.__blendMode;
+		painter.state.blendMode = this._realBlendMode;
 		painter.prepareToDraw();
 		
 		this._program.activate(context);
@@ -687,18 +719,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._useByteArray)
 		{
 			this._byteData.length = 0;
-			for (layer in this._layers)
+			for (i in 0...this._numLayers)
 			{
-				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 			
 			this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
 		}
 		else
 		{
-			for (layer in this._layers)
+			for (i in 0...this._numLayers)
 			{
-				this._numQuads += layer.writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 			
 			this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
@@ -747,37 +779,46 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function renderData():Void
 	{
 		this._numQuads = 0;
+		this._numLayers = this._layers.length;
 		if (this.useByteArray)
 		{
 			this._byteData.length = 0;
-			for (layer in this._layers)
+			for (i in 0...this._numLayers)
 			{
-				this._numQuads += layer.writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 		}
 		else
 		{
-			for (layer in this._layers)
+			for (i in 0...this._numLayers)
 			{
-				this._numQuads += layer.writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 		}
 	}
 	
 	private function updateBlendMode():Void
 	{
-		//if (this.__blendMode == BlendMode.NORMAL)
-		//{
-			//var pma:Bool = this._texture != null ? this._texture.premultipliedAlpha : true;
-			//if (pma)
-			//{
-				//this.__blendMode = Context3DBlendFactor.SOURCE_ALPHA + ", " + Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
-				//if (!BlendMode.isRegistered(this.__blendMode))
-				//{
-					//BlendMode.register(this.__blendMode, Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
-				//}
-			//}
-		//}
+		if (this.__blendMode == BlendMode.NORMAL)
+		{
+			var pma:Bool = this._texture != null ? this._texture.premultipliedAlpha : true;
+			if (pma)
+			{
+				this._realBlendMode = Context3DBlendFactor.SOURCE_ALPHA + ", " + Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
+				if (!BlendMode.isRegistered(this._realBlendMode))
+				{
+					BlendMode.register(this._realBlendMode, Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
+				}
+			}
+			else
+			{
+				this._realBlendMode = this.__blendMode;
+			}
+		}
+		else
+		{
+			this._realBlendMode = this.__blendMode;
+		}
 	}
 	
 	override public function getBounds(targetSpace:DisplayObject, out:Rectangle = null):Rectangle 
@@ -854,10 +895,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		var quadPos:Int;
 		var pos:Int;
 		
-		var minX:Float = MassiveConstants.FLOAT_MAX;
-		var maxX:Float = MassiveConstants.FLOAT_MIN;
-		var minY:Float = MassiveConstants.FLOAT_MAX;
-		var maxY:Float = MassiveConstants.FLOAT_MIN;
+		var minX:Float = MathUtils.FLOAT_MAX;
+		var maxX:Float = MathUtils.FLOAT_MIN;
+		var minY:Float = MathUtils.FLOAT_MAX;
+		var maxY:Float = MathUtils.FLOAT_MIN;
 		
 		var tX:Float;
 		var tY:Float;

@@ -52,19 +52,17 @@ class ImageData extends DisplayData
 	public var animate:Bool = false;
 	/* how many frames */
 	public var frameCount:Int;
-	public var frameCurrent(get, never):Frame
+	public var frameCurrent(get, never):Frame;
 	/* playback speed */
 	public var frameDelta:Float = 1;
 	/* index of the current frame */
 	public var frameIndex:Int = 0;
 	/* lists all frames */
 	public var frameList:Array<Frame>;
-	public var frameEventList:Array<String>;
 	/* time elapsed on current frame */
 	public var frameTime:Float;
 	/* duration of each frame */
 	public var frameTimings:Array<Float>;
-	public var hasEvents:Bool = false;
 	public var height(get, set):Float;
 	/* inverts display on horizontal axis */
 	public var invertX:Bool = false;
@@ -101,7 +99,7 @@ class ImageData extends DisplayData
 	
 	override public function clear():Void
 	{
-		this.invertX = this.invertY = this.animate = this.hasEvents = false;
+		this.invertX = this.invertY = this.animate = false;
 		this.frameDelta = 1;
 		this.frameTime = 0;
 		this.loop = true;
@@ -123,19 +121,17 @@ class ImageData extends DisplayData
 		this.frameList = null;
 		this.frameTimings = null;
 		this.frameCount = 0;
-		this.frameEventList = null;
 	}
 	
-	public function setFrames(frames:Array<Frame>, frameIndex:Int = 0, animate:Bool = false, timings:Array<Float> = null, loop:Bool = true, hasEvents:Bool = false, frameEvents:Array<String> = null):Void
+	public function setFrames(frames:Array<Frame>, timings:Array<Float> = null, loop:Bool = true, numLoops:Int = 0, frameIndex:Int = 0, animate:Bool = true):Void
 	{
 		this.frameList = frames;
 		this.frameTimings = timings;
-		this.frameCount = this.frameTimings == null ? this.frameList.length - 1 : this.frameTimings.length - 1;
+		this.frameCount = this.frameTimings == null ? this.frameList != null ? this.frameList.length - 1 : 0 : this.frameTimings.length - 1;
+		this.loop = loop;
+		this.numLoops = numLoops;
 		this.frameIndex = frameIndex;
 		this.animate = animate;
-		this.loop = loop;
-		this.hasEvents = hasEvents;
-		this.frameEventList = frameEvents;
 		
 		if (this.animate)
 		{
