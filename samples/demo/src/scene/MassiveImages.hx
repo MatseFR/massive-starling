@@ -8,7 +8,6 @@ import massive.display.MassiveImageLayer;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
-import starling.display.BlendMode;
 import starling.events.Event;
 import starling.textures.Texture;
 import starling.utils.Align;
@@ -29,7 +28,7 @@ class MassiveImages extends Scene implements IAnimatable
 	public var textures:Vector<Texture>;
 	
 	private var _display:MassiveDisplay;
-	private var _layer:MassiveImageLayer;
+	private var _layer:MassiveImageLayer<ImageData>;
 	private var _frames:Array<Frame>;
 	private var _timings:Array<Float>;
 	
@@ -57,7 +56,6 @@ class MassiveImages extends Scene implements IAnimatable
 		updateBounds();
 		
 		this._display = new MassiveDisplay();
-		//this._display.blendMode = BlendMode.SCREEN;
 		this._display.touchable = false;
 		this._display.useColor = this.useColor;
 		this._display.texture = this.atlasTexture;
@@ -65,7 +63,7 @@ class MassiveImages extends Scene implements IAnimatable
 		this._display.useByteArray = this.useByteArray;
 		addChild(this._display);
 		
-		this._layer = new MassiveImageLayer();
+		this._layer = new MassiveImageLayer<ImageData>();
 		this._display.addLayer(this._layer);
 		
 		this._imgList = new Array<MassiveImage>();
@@ -75,13 +73,13 @@ class MassiveImages extends Scene implements IAnimatable
 		for (i in 0...this.numImages)
 		{
 			img = new MassiveImage();
-			img.setFrames(this._frames, Std.random(frameCount), true, this._timings);
+			img.setFrames(this._frames, this._timings, true, 0, Std.random(frameCount));
 			img.x = Math.random() * stageWidth;
 			img.y = Math.random() * stageHeight;
 			img.scaleX = img.scaleY = this.imgScale;
 			img.rotation = Math.random() * (Math.PI * 2);
 			
-			if (this.useRandomAlpha) img.colorAlpha = 0.1;//Math.random();
+			if (this.useRandomAlpha) img.colorAlpha = Math.random();
 			if (this.useRandomColor)
 			{
 				img.colorRed = Math.random();

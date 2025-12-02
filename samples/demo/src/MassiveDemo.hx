@@ -54,6 +54,8 @@ class MassiveDemo extends Sprite
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 		
+		this.stage.color = 0x444444;
+		
 		assetManager = new AssetManager();
 		assetManager.verbose = Capabilities.isDebugger;
 		assetManager.enqueue([
@@ -357,7 +359,7 @@ class MassiveDemo extends Sprite
 		var zombies:MassiveImages = new MassiveImages();
 		zombies.atlasTexture = atlas.texture;
 		zombies.textures = textures;
-		zombies.numImages = 50;// 8000;
+		zombies.numImages = 8000;
 		zombies.useByteArray = useByteArray;
 		zombies.useColor = useColor;
 		zombies.useRandomAlpha = useRandomAlpha;
