@@ -1,6 +1,7 @@
 package massive.animation;
 import massive.data.Frame;
 import massive.data.ImageData;
+import openfl.Vector;
 
 /**
  * ...
@@ -9,7 +10,7 @@ import massive.data.ImageData;
 class Animator 
 {
 	
-	static public inline function animateImageDataList<T:ImageData>(datas:Array<T>, time:Float):Void
+	static public inline function animateImageDataList<T:ImageData>(datas:#if flash Vector<T> #else Array<T>#end, time:Float):Void
 	{
 		var count:Int = datas.length;
 		var data:T;

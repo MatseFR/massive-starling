@@ -11,29 +11,52 @@ import openfl.utils.ByteArray;
  * ...
  * @author Matse
  */
+@:generic
 class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer 
 {
+	#if flash
+	public var datas(get, set):Vector<T>;
+	#else
 	public var datas(get, set):Array<T>;
+	#end
 	public var textureAnimation:Bool = true;
 	
+	#if flash
+	private var _datas:Vector<T>;
+	private function get_datas():Vector<T> { return this._datas; }
+	private function set_datas(value:Vector<T>):Vector<T>
+	{
+		return this._datas = value;
+	}
+	#else
 	private var _datas:Array<T>;
 	private function get_datas():Array<T> { return this._datas; }
 	private function set_datas(value:Array<T>):Array<T>
 	{
 		return this._datas = value;
 	}
+	#end
 	
 	private function get_totalDatas():Int { return this._datas == null ? 0 : this._datas.length; }
 	
+	//#if flash
+	//private var COS:Vector<Float>;
+	//private var SIN:Vector<Float>;
+	//#else
 	private var COS:Array<Float>;
 	private var SIN:Array<Float>;
+	//#end
 	
-	public function new(datas:Array<T> = null) 
+	public function new(datas:#if flash Vector<T> #else Array<T>#end = null) 
 	{
 		super();
 		
 		this._datas = datas;
+		#if flash
+		if (this._datas == null) this._datas = new Vector<T>();
+		#else
 		if (this._datas == null) this._datas = new Array<T>();
+		#end
 		this.animate = true;
 		COS = LookUp.COS;
 		SIN = LookUp.SIN;
@@ -81,7 +104,11 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	
 	public function removeImageAt(index:Int):Void
 	{
+		#if flash
+		this._datas.removeAt(index);
+		#else
 		this._datas.splice(index, 1);
+		#end
 	}
 	
 	/**
@@ -104,7 +131,11 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	
 	public function removeAllData():Void 
 	{
+		#if flash
+		this._datas.length = 0;
+		#else
 		this._datas.resize(0);
+		#end
 	}
 	
 	public function advanceTime(time:Float):Void 

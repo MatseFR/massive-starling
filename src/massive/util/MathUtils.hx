@@ -13,6 +13,7 @@ class MathUtils
 	inline static public var FLOAT_MIN:Float = -1.79769313486231e+308; // from flambe.math.FMath
 	inline static public var INT_MAX:Float = 2147483647; // from flambe.math.FMath
 	inline static public var INT_MIN:Float = -2147483648; // from flambe.math.FMath
+	inline static public var PI2:Float = 6.283185307179586476925286766559;
 	inline static public var RAD2DEG:Float = 57.295779513082320876798154814105;
 	static public var RANDOM_SEED:Int = 1;
 	

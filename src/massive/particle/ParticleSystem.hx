@@ -2,8 +2,6 @@ package massive.particle;
 
 import massive.animation.Animator;
 import massive.data.Frame;
-import massive.data.ImageData;
-import massive.data.LookUp;
 import massive.data.MassiveConstants;
 import massive.display.MassiveImageLayer;
 import massive.util.MathUtils;
@@ -17,18 +15,25 @@ import starling.extensions.ColorArgb;
  * ...
  * @author Matse
  */
+@:generic
 class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 {
-	static public var AUTO_CLEAR_ON_COMPLETE:Bool = true;
-	static public inline var EMITTER_TYPE_GRAVITY:Int = 0;
-	static public inline var EMITTER_TYPE_RADIAL:Int = 1;
-	static public inline var PI2:Float = 6.283185307179586476925286766559;
-	static public var RANDOM_SEED:Int = 1;
+	//static public var AUTO_CLEAR_ON_COMPLETE:Bool = true;
+	//static public inline var EMITTER_TYPE_GRAVITY:Int = 0;
+	//static public inline var EMITTER_TYPE_RADIAL:Int = 1;
+	//static public inline var PI2:Float = 6.283185307179586476925286766559;
+	//static public var RANDOM_SEED:Int = 1;
 	
-	public var autoClearOnComplete:Bool = AUTO_CLEAR_ON_COMPLETE;
+	public var autoClearOnComplete:Bool = ParticleSystemDefaults.AUTO_CLEAR_ON_COMPLETE;
+	public var randomSeed:Int = ParticleSystemDefaults.RANDOM_SEED;
 	
+	#if flash
+	public var particlesFromPoolFunction:Int->Vector<T>->Vector<T>;
+	public var particlesToPoolFunction:Vector<T>->Void;
+	#else
 	public var particlesFromPoolFunction:Int->Array<T>->Array<T>;
 	public var particlesToPoolFunction:Array<T>->Void;
+	#end
 	
 	//##################################################
 	// EMITTER
@@ -39,7 +44,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	   - 1 for radial
 	   @default 0
 	**/
-	public var emitterType:Int = EMITTER_TYPE_GRAVITY;
+	public var emitterType:Int = EmitterType.GRAVITY;
 	
 	/**
 	   Maximum number of particles used by the system
@@ -1045,7 +1050,11 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	/**
 	   @default null
 	**/
+	#if flash
+	public var customFunction:Vector<T>->Int->Void;
+	#else
 	public var customFunction:Array<T>->Int->Void;
+	#end
 	
 	/**
 	   
@@ -1075,7 +1084,11 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	
 	private var _completed:Bool = false;
 	private var _frameTime:Float = 0.0;
+	#if flash
+	private var _particles:Vector<T>;
+	#else
 	private var _particles:Array<T>;
+	#end
 	private var _particleTotal:Int = 0;
 	private var _regularSorting:Bool = true;
 	private var _updateEmitter:Bool = false;
@@ -1174,7 +1187,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	
 	inline private function getRandomRatio():Float
 	{
-		return (((RANDOM_SEED = (RANDOM_SEED * 16807) & 0x7FFFFFFF) / 0x40000000) - 1.0);
+		return (((this.randomSeed = (this.randomSeed * 16807) & 0x7FFFFFFF) / 0x40000000) - 1.0);
 	}
 	
 	private var __angle:Float;
@@ -1270,7 +1283,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		
 		if (this._useEmitterRadius)
 		{
-			this.__angle = MathUtils.random() * PI2;
+			this.__angle = MathUtils.random() * MathUtils.PI2;
 			this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 			this.__radiusMin = this._emitterRadiusMin + this._emitterRadiusMinVariance * getRandomRatio();
 			this.__radiusMax = this._emitterRadiusMax + this._emitterRadiusMaxVariance * getRandomRatio();
@@ -1338,7 +1351,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 			particle.oscillationPositionFrequency = this.oscillationPositionFrequency + this.oscillationPositionFrequencyVariance * getRandomRatio();
 			if (this.oscillationPositionFrequencyRandomized)
 			{
-				particle.oscillationPositionStep = MathUtils.random() * PI2;
+				particle.oscillationPositionStep = MathUtils.random() * MathUtils.PI2;
 			}
 			else
 			{
@@ -1357,7 +1370,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 			particle.oscillationPosition2Frequency = this.oscillationPosition2Frequency + this.oscillationPosition2FrequencyVariance * getRandomRatio();
 			if (this.oscillationPosition2FrequencyRandomized)
 			{
-				particle.oscillationPosition2Step = MathUtils.random() * PI2;
+				particle.oscillationPosition2Step = MathUtils.random() * MathUtils.PI2;
 			}
 			else
 			{
@@ -1493,7 +1506,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		
 		this.__velocityAngleCalculated = false;
 		
-		if (this.emitterType == EMITTER_TYPE_RADIAL)
+		if (this.emitterType == EmitterType.RADIAL)
 		{
 			// RADIAL
 			particle.emitRotation += particle.emitRotationDelta * passedTime;
@@ -1741,7 +1754,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		
 		if (this._updateEmitter)
 		{
-			this._emitterObject.advanceSystem(this, time);
+			//this._emitterObject.advanceSystem(this, time);
 		}
 		
 		var particleIndex:Int = 0;
@@ -1792,7 +1805,11 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 						++currentIndex;
 					}
 				}
+				#if flash
+				this._particles.length = this._maxNumParticles;
+				#else
 				this._particles.resize(this._maxNumParticles);
+				#end
 			}
 		}
 		else
@@ -2006,7 +2023,11 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 					this._particles[i].pool();
 				}
 			}
+			#if flash
+			this._particles.length = 0;
+			#else
 			this._particles.resize(0);
+			#end
 		}
 	}
 	

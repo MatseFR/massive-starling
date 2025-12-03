@@ -17,6 +17,38 @@ class Particle extends ImageData
 		return new Particle();
 	}
 	
+	#if flash
+	static public function fromPoolVector(numParticles:Int, particles:Vector<Particle> = null):Vector<Particle>
+	{
+		if (particles == null) particles = new Vector<Particle>();
+		
+		var count:Int = _POOL.length;
+		var particleIndex:Int = particles.length;
+		var poolIndex:Int = count - 1;
+		if (count > numParticles) count = numParticles;
+		for (i in 0...count)
+		{
+			particles[particleIndex++] = _POOL[poolIndex--];
+		}
+		_POOL.resize(_POOL.length - count);
+		count = numParticles - count;
+		for (i in 0...count)
+		{
+			particles[particleIndex++] = new Particle();
+		}
+		
+		return particles;
+	}
+	
+	static public function toPoolVector(particles:Vector<Particle>):Void
+	{
+		var count:Int = particles.length;
+		for (i in 0...count)
+		{
+			particles[i].pool();
+		}
+	}
+	#else
 	static public function fromPoolArray(numParticles:Int, particles:Array<Particle> = null):Array<Particle>
 	{
 		if (particles == null) particles = new Array<Particle>();
@@ -47,6 +79,7 @@ class Particle extends ImageData
 			particles[i].pool();
 		}
 	}
+	#end
 	
 	public var timeCurrent:Float;
 	public var timeTotal:Float;

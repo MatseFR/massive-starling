@@ -23,8 +23,13 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	
 	private function get_totalDatas():Int { return this._datas == null ? 0 : this._datas.length; }
 	
+	//#if flash
+	//private var COS:Vector<Float>;
+	//private var SIN:Vector<Float>;
+	//#else
 	private var COS:Array<Float>;
 	private var SIN:Array<Float>;
+	//#end
 	
 	public function new(datas:Array<T> = null) 
 	{
