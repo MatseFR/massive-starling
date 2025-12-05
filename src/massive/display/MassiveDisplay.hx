@@ -352,7 +352,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this.removeEventListener(Event.ADDED_TO_STAGE, addedToStage);
 		this.addEventListener(Event.REMOVED_FROM_STAGE, removedFromStage);
 		
-		this.addEventListener(Event.CONTEXT3D_CREATE, contextCreated);
+		Starling.current.addEventListener(Event.CONTEXT3D_CREATE, contextCreated);
 		
 		if (this._useByteArray)
 		{
@@ -403,7 +403,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this.removeEventListener(Event.REMOVED_FROM_STAGE, removedFromStage);
 		this.addEventListener(Event.ADDED_TO_STAGE, addedToStage);
 		
-		this.removeEventListener(Event.CONTEXT3D_CREATE, contextCreated);
+		Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, contextCreated);
 		
 		if (this._autoHandleJuggler) this._juggler.remove(this);
 	}
