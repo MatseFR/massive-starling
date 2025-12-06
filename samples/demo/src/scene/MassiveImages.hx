@@ -3,8 +3,10 @@ package scene;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
+import massive.data.LookUp;
 import massive.display.MassiveDisplay;
 import massive.display.MassiveImageLayer;
+import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
@@ -18,11 +20,15 @@ import starling.utils.Align;
  */
 class MassiveImages extends Scene implements IAnimatable
 {
+	public var frameDeltaBase:Float = 0.1;
+	public var frameDeltaVariance:Float = 0.5;
+	public var numBuffers:Int = 2;
 	public var numImages:Int = 1000;
 	public var useByteArray:Bool = true;
 	public var useColor:Bool = true;
 	public var useRandomAlpha:Bool;
 	public var useRandomColor:Bool;
+	public var useRandomRotation:Bool;
 	public var imgScale:Float = 1;
 	public var atlasTexture:Texture;
 	public var textures:Vector<Texture>;
@@ -57,10 +63,11 @@ class MassiveImages extends Scene implements IAnimatable
 		
 		this._display = new MassiveDisplay();
 		this._display.touchable = false;
-		this._display.useColor = this.useColor;
 		this._display.texture = this.atlasTexture;
 		this._display.bufferSize = this.numImages;
+		this._display.numBuffers = this.numBuffers;
 		this._display.useByteArray = this.useByteArray;
+		this._display.useColor = this.useColor;
 		addChild(this._display);
 		
 		this._layer = new MassiveImageLayer<ImageData>();
@@ -74,31 +81,46 @@ class MassiveImages extends Scene implements IAnimatable
 		{
 			img = new MassiveImage();
 			img.setFrames(this._frames, this._timings, true, 0, Std.random(frameCount));
-			img.x = Math.random() * stageWidth;
-			img.y = Math.random() * stageHeight;
+			img.x = MathUtils.random() * stageWidth;
+			img.y = MathUtils.random() * stageHeight;
 			img.scaleX = img.scaleY = this.imgScale;
-			img.rotation = Math.random() * (Math.PI * 2);
+			if (this.useRandomRotation) img.rotation = MathUtils.random() * MathUtils.PI2;
 			
 			if (this.useRandomAlpha) img.colorAlpha = Math.random();
 			if (this.useRandomColor)
 			{
-				img.colorRed = Math.random();
-				img.colorGreen = Math.random();
-				img.colorBlue = Math.random();
+				img.colorRed = MathUtils.random();
+				img.colorGreen = MathUtils.random();
+				img.colorBlue = MathUtils.random();
 			}
 			
-			speedVariance = Math.random();
-			img.frameDelta = 0.5 + speedVariance * 5;
+			speedVariance = MathUtils.random();
+			img.frameDelta = this.frameDeltaBase + speedVariance * this.frameDeltaVariance;
 			
 			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			img.velocityX = Math.cos(img.rotation) * velocity;
-			img.velocityY = Math.sin(img.rotation) * velocity;
+			img.velocityX = LookUp.cos(img.rotation) * velocity;
+			img.velocityY = LookUp.sin(img.rotation) * velocity;
 			
 			this._imgList[i] = img;
 			this._layer.addImage(img);
 		}
 		
 		Starling.currentJuggler.add(this);
+	}
+	
+	override public function updateBounds():Void 
+	{
+		super.updateBounds();
+		
+		if (!this.useRandomRotation && this._imgList != null)
+		{
+			var stageHeight:Float = this.stage.stageHeight;
+			
+			for (i in 0...this.numImages)
+			{
+				this._imgList[i].y = MathUtils.random() * stageHeight;
+			}
+		}
 	}
 	
 	override public function dispose():Void 
@@ -110,8 +132,10 @@ class MassiveImages extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
-		for (img in this._imgList)
+		var img:MassiveImage;
+		for (i in 0...this.numImages)
 		{
+			img = this._imgList[i];
 			img.x += img.velocityX * time;
 			img.y += img.velocityY * time;
 			

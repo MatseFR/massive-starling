@@ -1,4 +1,6 @@
 package scene;
+import massive.data.LookUp;
+import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
@@ -13,11 +15,14 @@ import starling.utils.Color;
  */
 class MovieClips extends Scene implements IAnimatable
 {
+	public var frameRateBase:Int = 6;
+	public var frameRateVariance:Int = 30;
 	public var numClips:Int = 1000;
 	public var textures:Vector<Texture>;
 	public var clipScale:Float = 1;
 	public var useRandomAlpha:Bool;
 	public var useRandomColor:Bool;
+	public var useRandomRotation:Bool;
 	
 	private var _clips:Array<MovingClip>;
 	private var _velocityBase:Float = 30;
@@ -41,29 +46,46 @@ class MovieClips extends Scene implements IAnimatable
 		
 		this._clips = new Array<MovingClip>();
 		var clip:MovingClip;
+		var speedVariance:Float;
 		var velocity:Float;
 		for (i in 0...this.numClips)
 		{
-			clip = new MovingClip(this.textures, 12 + Std.random(48));
+			speedVariance = MathUtils.random();
+			clip = new MovingClip(this.textures, this.frameRateBase + Std.int(this.frameRateVariance * speedVariance));
 			clip.currentFrame = Std.random(frameCount);
 			clip.touchable = false;
 			clip.alignPivot();
-			if (this.useRandomAlpha) clip.alpha = Math.random();
+			if (this.useRandomAlpha) clip.alpha = MathUtils.random();
 			if (this.useRandomColor) clip.color = Color.rgb(Std.random(256), Std.random(256), Std.random(256));
-			clip.x = Math.random() * stageWidth;
-			clip.y = Math.random() * stageHeight;
+			clip.x = MathUtils.random() * stageWidth;
+			clip.y = MathUtils.random() * stageHeight;
 			clip.scaleX = clip.scaleY = this.clipScale;
-			clip.rotation = Math.random() * Math.PI;
+			if (this.useRandomRotation)	clip.rotation = MathUtils.random() * MathUtils.PI2;
 			
-			velocity = this._velocityBase + Math.random() * _velocityRange;
-			clip.velocityX = Math.cos(clip.rotation) * velocity;
-			clip.velocityY = Math.sin(clip.rotation) * velocity;
+			velocity = this._velocityBase + speedVariance * this._velocityRange;
+			clip.velocityX = LookUp.cos(clip.rotation) * velocity;
+			clip.velocityY = LookUp.sin(clip.rotation) * velocity;
 			
 			this._clips[i] = clip;
 			addChild(clip);
 		}
 		
 		Starling.currentJuggler.add(this);
+	}
+	
+	override public function updateBounds():Void 
+	{
+		super.updateBounds();
+		
+		if (!this.useRandomRotation && this._clips != null)
+		{
+			var stageHeight:Float = this.stage.stageHeight;
+			
+			for (i in 0...this.numClips)
+			{
+				this._clips[i].y = MathUtils.random() * stageHeight;
+			}
+		}
 	}
 	
 	override public function dispose():Void 
@@ -75,8 +97,10 @@ class MovieClips extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
-		for (clip in this._clips)
+		var clip:MovingClip;
+		for (i in 0...this.numClips)
 		{
+			clip = this._clips[i];
 			clip.x += clip.velocityX * time;
 			clip.y += clip.velocityY * time;
 			

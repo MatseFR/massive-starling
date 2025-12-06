@@ -32,7 +32,7 @@
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="True" />
-    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro haxe.macro.Compiler.addMetadata(&quot;@:autoBuild(lime._internal.macros.AssetsMacro.embedBytes())&quot;, &quot;haxe.io.Bytes&quot;)&#xA;--macro openfl.utils._internal.ExtraParamsMacro.include()&#xA;--macro allowPackage('sys')&#xA;-swf-version 17&#xA;-debug " />
+    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro haxe.macro.Compiler.addMetadata(&quot;@:autoBuild(lime._internal.macros.AssetsMacro.embedBytes())&quot;, &quot;haxe.io.Bytes&quot;)&#xA;--macro openfl.utils._internal.ExtraParamsMacro.include()&#xA;--macro allowPackage('sys')&#xA;-swf-version 17" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

@@ -1,8 +1,10 @@
 package scene;
 
+import massive.data.LookUp;
 import massive.data.QuadData;
 import massive.display.MassiveDisplay;
 import massive.display.MassiveQuadLayer;
+import massive.util.MathUtils;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
 import starling.display.BlendMode;
@@ -15,17 +17,21 @@ import starling.utils.Align;
  */
 class MassiveQuads extends Scene implements IAnimatable
 {
+	public var displayScale:Float;
+	public var numBuffers:Int = 2;
 	public var numQuads:Int = 2000;
+	public var useColor:Bool;
 	public var useRandomAlpha:Bool = false;
 	public var useRandomColor:Bool;
+	public var useRandomRotation:Bool;
 	public var useByteArray:Bool = true;
 	
 	private var _display:MassiveDisplay;
 	private var _layer:MassiveQuadLayer;
 	
 	private var _quads:Array<MassiveQuad>;
-	private var _quadWidth:Float = 20;
-	private var _quadHeight:Float = 20;
+	private var _quadWidth:Float = 100;
+	private var _quadHeight:Float = 100;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
 	
@@ -47,9 +53,10 @@ class MassiveQuads extends Scene implements IAnimatable
 		this._display = new MassiveDisplay();
 		this._display.blendMode = BlendMode.NORMAL;
 		this._display.touchable = false;
-		this._display.bufferSize = numQuads;
-		this._display.useByteArray = useByteArray;
-		//this._display.useColor = false;
+		this._display.bufferSize = this.numQuads;
+		this._display.numBuffers = this.numBuffers;
+		this._display.useByteArray = this.useByteArray;
+		this._display.useColor = this.useColor;
 		addChild(this._display);
 		
 		this._layer = new MassiveQuadLayer();
@@ -59,27 +66,28 @@ class MassiveQuads extends Scene implements IAnimatable
 		var quad:MassiveQuad;
 		var speedVariance:Float;
 		var velocity:Float;
-		for (i in 0...numQuads)
+		for (i in 0...this.numQuads)
 		{
 			quad = new MassiveQuad();
-			quad.x = Math.random() * stageWidth;
-			quad.y = Math.random() * stageHeight;
+			quad.x = MathUtils.random() * stageWidth;
+			quad.y = MathUtils.random() * stageHeight;
 			quad.width = this._quadWidth;
 			quad.height = this._quadHeight;
-			quad.rotation = Math.random() * (Math.PI * 2);
+			quad.scaleX = quad.scaleY = this.displayScale;
+			if (this.useRandomRotation) quad.rotation = MathUtils.random() * MathUtils.PI2;
 			
-			if (this.useRandomAlpha) quad.colorAlpha = Math.random();
+			if (this.useRandomAlpha) quad.colorAlpha = MathUtils.random();
 			if (this.useRandomColor)
 			{
-				quad.colorRed = Math.random();
-				quad.colorGreen = Math.random();
-				quad.colorBlue = Math.random();
+				quad.colorRed = MathUtils.random();
+				quad.colorGreen = MathUtils.random();
+				quad.colorBlue = MathUtils.random();
 			}
 			
-			speedVariance = Math.random();
+			speedVariance = MathUtils.random();
 			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			quad.velocityX = Math.cos(quad.rotation) * velocity;
-			quad.velocityY = Math.sin(quad.rotation) * velocity;
+			quad.velocityX = LookUp.cos(quad.rotation) * velocity;
+			quad.velocityY = LookUp.sin(quad.rotation) * velocity;
 			
 			quad.alignPivot(Align.CENTER, Align.CENTER);
 			
@@ -88,6 +96,21 @@ class MassiveQuads extends Scene implements IAnimatable
 		}
 		
 		Starling.currentJuggler.add(this);
+	}
+	
+	override public function updateBounds():Void 
+	{
+		super.updateBounds();
+		
+		if (!this.useRandomRotation && this._quads != null)
+		{
+			var stageHeight:Float = this.stage.stageHeight;
+			
+			for (i in 0...this.numQuads)
+			{
+				this._quads[i].y = MathUtils.random() * stageHeight;
+			}
+		}
 	}
 	
 	override public function dispose():Void 
@@ -99,8 +122,10 @@ class MassiveQuads extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
-		for (quad in this._quads)
+		var quad:MassiveQuad;
+		for (i in 0...this.numQuads)
 		{
+			quad = this._quads[i];
 			quad.x += quad.velocityX * time;
 			quad.y += quad.velocityY * time;
 			
