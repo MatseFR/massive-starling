@@ -9,7 +9,7 @@ import openfl.Vector;
  */
 class Animator 
 {
-	
+	@:generic
 	static public inline function animateImageDataList<T:ImageData>(datas:#if flash Vector<T> #else Array<T>#end, time:Float):Void
 	{
 		var count:Int = datas.length;
