@@ -5,7 +5,9 @@ import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
 import starling.display.MovieClip;
+import starling.display.Sprite3D;
 import starling.events.Event;
+import starling.filters.BlurFilter;
 import starling.textures.Texture;
 import starling.utils.Color;
 
@@ -20,13 +22,17 @@ class MovieClips extends Scene implements IAnimatable
 	public var numClips:Int = 1000;
 	public var textures:Vector<Texture>;
 	public var clipScale:Float = 1;
+	public var useBlurFilter:Bool;
 	public var useRandomAlpha:Bool;
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
+	public var useSprite3D:Bool;
 	
 	private var _clips:#if flash Vector<MovingClip> #else Array<MovingClip> #end;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
+	
+	private var _sprite3D:Sprite3D;
 
 	public function new() 
 	{
@@ -43,6 +49,16 @@ class MovieClips extends Scene implements IAnimatable
 		var stageHeight:Float = this.stage.stageHeight;
 		
 		updateBounds();
+		
+		if (this.useSprite3D)
+		{
+			this._sprite3D = new Sprite3D();
+			this._sprite3D.pivotX = this.stage.stageWidth / 2;
+			this._sprite3D.pivotY = this.stage.stageHeight / 2;
+			this._sprite3D.x = this._sprite3D.pivotX;
+			this._sprite3D.y = this._sprite3D.pivotY;
+			addChild(this._sprite3D);
+		}
 		
 		#if flash
 		this._clips = new Vector<MovingClip>();
@@ -71,7 +87,19 @@ class MovieClips extends Scene implements IAnimatable
 			clip.velocityY = LookUp.sin(clip.rotation) * velocity;
 			
 			this._clips[i] = clip;
-			addChild(clip);
+			if (this.useSprite3D)
+			{
+				this._sprite3D.addChild(clip);
+			}
+			else
+			{
+				addChild(clip);
+			}
+		}
+		
+		if (this.useBlurFilter)
+		{
+			this.filter = new BlurFilter();
 		}
 		
 		Starling.currentJuggler.add(this);
@@ -80,6 +108,14 @@ class MovieClips extends Scene implements IAnimatable
 	override public function updateBounds():Void 
 	{
 		super.updateBounds();
+		
+		if (this._sprite3D != null)
+		{
+			this._sprite3D.pivotX = this.stage.stageWidth / 2;
+			this._sprite3D.pivotY = this.stage.stageHeight / 2;
+			this._sprite3D.x = this._sprite3D.pivotX;
+			this._sprite3D.y = this._sprite3D.pivotY;
+		}
 		
 		if (!this.useRandomRotation && this._clips != null)
 		{
@@ -101,6 +137,11 @@ class MovieClips extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
+		if (this.useSprite3D)
+		{
+			this._sprite3D.rotationY += 0.01;
+		}
+		
 		var clip:MovingClip;
 		for (i in 0...this.numClips)
 		{

@@ -10,7 +10,9 @@ import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
+import starling.display.Sprite3D;
 import starling.events.Event;
+import starling.filters.BlurFilter;
 import starling.textures.Texture;
 import starling.utils.Align;
 
@@ -24,6 +26,7 @@ class MassiveImages extends Scene implements IAnimatable
 	public var frameDeltaVariance:Float = 0.5;
 	public var numBuffers:Int = 2;
 	public var numImages:Int = 1000;
+	public var useBlurFilter:Bool;
 	public var useByteArray:Bool;
 	#if !flash
 	public var useFloat32Array:Bool;
@@ -32,6 +35,7 @@ class MassiveImages extends Scene implements IAnimatable
 	public var useRandomAlpha:Bool;
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
+	public var useSprite3D:Bool;
 	public var imgScale:Float = 1;
 	public var atlasTexture:Texture;
 	public var textures:Vector<Texture>;
@@ -44,6 +48,8 @@ class MassiveImages extends Scene implements IAnimatable
 	private var _imgList:#if flash Vector<MassiveImage> #else Array<MassiveImage> #end;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
+	
+	private var _sprite3D:Sprite3D;
 	
 	public function new() 
 	{
@@ -64,6 +70,16 @@ class MassiveImages extends Scene implements IAnimatable
 		
 		updateBounds();
 		
+		if (this.useSprite3D)
+		{
+			this._sprite3D = new Sprite3D();
+			this._sprite3D.pivotX = this.stage.stageWidth / 2;
+			this._sprite3D.pivotY = this.stage.stageHeight / 2;
+			this._sprite3D.x = this._sprite3D.pivotX;
+			this._sprite3D.y = this._sprite3D.pivotY;
+			addChild(this._sprite3D);
+		}
+		
 		this._display = new MassiveDisplay();
 		this._display.touchable = false;
 		this._display.texture = this.atlasTexture;
@@ -74,7 +90,18 @@ class MassiveImages extends Scene implements IAnimatable
 		this._display.useFloat32Array = this.useFloat32Array;
 		#end
 		this._display.useColor = this.useColor;
-		addChild(this._display);
+		if (this.useBlurFilter)
+		{
+			this._display.filter = new BlurFilter();
+		}
+		if (this.useSprite3D)
+		{
+			this._sprite3D.addChild(this._display);
+		}
+		else
+		{
+			addChild(this._display);
+		}
 		
 		this._layer = new MassiveImageLayer<ImageData>();
 		this._display.addLayer(this._layer);
@@ -122,6 +149,14 @@ class MassiveImages extends Scene implements IAnimatable
 	{
 		super.updateBounds();
 		
+		if (this._sprite3D != null)
+		{
+			this._sprite3D.pivotX = this.stage.stageWidth / 2;
+			this._sprite3D.pivotY = this.stage.stageHeight / 2;
+			this._sprite3D.x = this._sprite3D.pivotX;
+			this._sprite3D.y = this._sprite3D.pivotY;
+		}
+		
 		if (!this.useRandomRotation && this._imgList != null)
 		{
 			var stageHeight:Float = this.stage.stageHeight;
@@ -142,6 +177,11 @@ class MassiveImages extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
+		if (this.useSprite3D)
+		{
+			this._sprite3D.rotationY += 0.01;
+		}
+		
 		var img:MassiveImage;
 		for (i in 0...this.numImages)
 		{

@@ -9,7 +9,9 @@ import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
 import starling.display.BlendMode;
+import starling.display.Sprite3D;
 import starling.events.Event;
+import starling.filters.BlurFilter;
 import starling.utils.Align;
 
 /**
@@ -21,6 +23,7 @@ class MassiveQuads extends Scene implements IAnimatable
 	public var displayScale:Float;
 	public var numBuffers:Int = 2;
 	public var numQuads:Int = 2000;
+	public var useBlurFilter:Bool;
 	public var useColor:Bool;
 	public var useRandomAlpha:Bool = false;
 	public var useRandomColor:Bool;
@@ -29,6 +32,7 @@ class MassiveQuads extends Scene implements IAnimatable
 	#if !flash
 	public var useFloat32Array:Bool;
 	#end
+	public var useSprite3D:Bool;
 	
 	private var _display:MassiveDisplay;
 	private var _layer:MassiveQuadLayer;
@@ -38,6 +42,8 @@ class MassiveQuads extends Scene implements IAnimatable
 	private var _quadHeight:Float = 100;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
+	
+	private var _sprite3D:Sprite3D;
 	
 	public function new() 
 	{
@@ -54,6 +60,16 @@ class MassiveQuads extends Scene implements IAnimatable
 		
 		updateBounds();
 		
+		if (this.useSprite3D)
+		{
+			this._sprite3D = new Sprite3D();
+			this._sprite3D.pivotX = this.stage.stageWidth / 2;
+			this._sprite3D.pivotY = this.stage.stageHeight / 2;
+			this._sprite3D.x = this._sprite3D.pivotX;
+			this._sprite3D.y = this._sprite3D.pivotY;
+			addChild(this._sprite3D);
+		}
+		
 		this._display = new MassiveDisplay();
 		this._display.blendMode = BlendMode.NORMAL;
 		this._display.touchable = false;
@@ -64,7 +80,18 @@ class MassiveQuads extends Scene implements IAnimatable
 		this._display.useFloat32Array = this.useFloat32Array;
 		#end
 		this._display.useColor = this.useColor;
-		addChild(this._display);
+		if (this.useBlurFilter)
+		{
+			this._display.filter = new BlurFilter();
+		}
+		if (this.useSprite3D)
+		{
+			this._sprite3D.addChild(this._display);
+		}
+		else
+		{
+			addChild(this._display);
+		}
 		
 		this._layer = new MassiveQuadLayer();
 		this._display.addLayer(this._layer);
@@ -113,6 +140,14 @@ class MassiveQuads extends Scene implements IAnimatable
 	{
 		super.updateBounds();
 		
+		if (this._sprite3D != null)
+		{
+			this._sprite3D.pivotX = this.stage.stageWidth / 2;
+			this._sprite3D.pivotY = this.stage.stageHeight / 2;
+			this._sprite3D.x = this._sprite3D.pivotX;
+			this._sprite3D.y = this._sprite3D.pivotY;
+		}
+		
 		if (!this.useRandomRotation && this._quads != null)
 		{
 			var stageHeight:Float = this.stage.stageHeight;
@@ -133,6 +168,11 @@ class MassiveQuads extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
+		if (this.useSprite3D)
+		{
+			this._sprite3D.rotationY += 0.01;
+		}
+		
 		var quad:MassiveQuad;
 		for (i in 0...this.numQuads)
 		{

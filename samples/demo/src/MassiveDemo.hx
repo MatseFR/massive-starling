@@ -54,6 +54,7 @@ class MassiveDemo extends Sprite
 	private var frameRateVariance:Int;
 	private var numBuffers:Int = 2;
 	private var numObjects:Int;
+	private var useBlurFilter:Bool = false;
 	private var useByteArray:Bool = false;
 	#if !flash
 	private var useFloat32Array:Bool = #if html5 false #else true #end;
@@ -62,6 +63,7 @@ class MassiveDemo extends Sprite
 	private var useRandomAlpha:Bool = false;
 	private var useRandomColor:Bool = false;
 	private var useRandomRotation:Bool = true;
+	private var useSprite3D:Bool = false;
 	
 	private var buttonTextureON:RenderTexture;
 	private var buttonTextureOFF:RenderTexture;
@@ -286,6 +288,18 @@ class MassiveDemo extends Sprite
 		btn.addEventListener(Event.TRIGGERED, toggleDisplayScale);
 		this.scaleButtons.push(btn);
 		this.scaleSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(this.useSprite3D ? this.buttonTextureON : this.buttonTextureOFF, "Sprite3D", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleSprite3D);
+		this.menuSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(this.useBlurFilter ? this.buttonTextureON : this.buttonTextureOFF, "BlurFilter", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleBlurFilter);
+		this.menuSprite.addChild(btn);
 		
 		this.scaleSprite.x = (this.buttonTextureOFF.width - this.scaleSprite.width) / 2;
 		
@@ -687,6 +701,20 @@ class MassiveDemo extends Sprite
 		}
 	}
 	
+	private function toggleBlurFilter(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.useBlurFilter = !this.useBlurFilter;
+		if (this.useBlurFilter)
+		{
+			btn.upState = this.buttonTextureON;
+		}
+		else
+		{
+			btn.upState = this.buttonTextureOFF;
+		}
+	}
+	
 	private function toggleBuffers(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
@@ -739,15 +767,6 @@ class MassiveDemo extends Sprite
 				btn.upState = this.useFloat32Array ? this.buttonTextureON : this.buttonTextureOFF;
 			#end
 		}
-		//this.useByteArray = !this.useByteArray;
-		//if (this.useByteArray)
-		//{
-			//btn.upState = this.buttonTextureON;
-		//}
-		//else
-		//{
-			//btn.upState = this.buttonTextureOFF;
-		//}
 	}
 	
 	private function toggleDisplayScale(evt:Event):Void
@@ -805,6 +824,20 @@ class MassiveDemo extends Sprite
 		}
 	}
 	
+	private function toggleSprite3D(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.useSprite3D = !this.useSprite3D;
+		if (this.useSprite3D)
+		{
+			btn.upState = this.buttonTextureON;
+		}
+		else
+		{
+			btn.upState = this.buttonTextureOFF;
+		}
+	}
+	
 	private function startMassiveImages():Void
 	{
 		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
@@ -819,6 +852,7 @@ class MassiveDemo extends Sprite
 			massive.imgScale = this.displayScale;
 			massive.numBuffers = this.numBuffers;
 			massive.numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
+			massive.useBlurFilter = this.useBlurFilter;
 			massive.useByteArray = this.useByteArray;
 			#if !flash
 			massive.useFloat32Array = this.useFloat32Array;
@@ -827,6 +861,7 @@ class MassiveDemo extends Sprite
 			massive.useRandomAlpha = this.useRandomAlpha;
 			massive.useRandomColor = this.useRandomColor;
 			massive.useRandomRotation = this.useRandomRotation;
+			massive.useSprite3D = this.useSprite3D;
 			scenes[scenes.length] = massive;
 		}
 		showSceneList(scenes);
@@ -844,6 +879,7 @@ class MassiveDemo extends Sprite
 			massive.displayScale = this.displayScale;
 			massive.numBuffers = this.numBuffers;
 			massive.numQuads = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
+			massive.useBlurFilter = this.useBlurFilter;
 			massive.useByteArray = this.useByteArray;
 			#if !flash
 			massive.useFloat32Array = this.useFloat32Array;
@@ -852,6 +888,7 @@ class MassiveDemo extends Sprite
 			massive.useRandomAlpha = this.useRandomAlpha;
 			massive.useRandomColor = this.useRandomColor;
 			massive.useRandomRotation = this.useRandomRotation;
+			massive.useSprite3D = this.useSprite3D;
 			scenes[scenes.length] = massive;
 		}
 		showSceneList(scenes);
@@ -863,9 +900,11 @@ class MassiveDemo extends Sprite
 		clips.textures = this.textures;
 		clips.numClips = this.numObjects;
 		clips.clipScale = this.displayScale;
+		clips.useBlurFilter = this.useBlurFilter;
 		clips.useRandomAlpha = this.useRandomAlpha;
 		clips.useRandomColor = this.useRandomColor;
 		clips.useRandomRotation = this.useRandomRotation;
+		clips.useSprite3D = this.useSprite3D;
 		showSceneList([clips]);
 	}
 	
@@ -874,9 +913,11 @@ class MassiveDemo extends Sprite
 		var quads:ClassicQuads = new ClassicQuads();
 		quads.numQuads = this.numObjects;
 		quads.displayScale = this.displayScale;
+		quads.useBlurFilter = this.useBlurFilter;
 		quads.useRandomAlpha = this.useRandomAlpha;
 		quads.useRandomColor = this.useRandomColor;
 		quads.useRandomRotation = this.useRandomRotation;
+		quads.useSprite3D = this.useSprite3D;
 		showSceneList([quads]);
 	}
 	

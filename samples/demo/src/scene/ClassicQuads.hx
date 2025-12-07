@@ -6,7 +6,9 @@ import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
 import starling.display.Quad;
+import starling.display.Sprite3D;
 import starling.events.Event;
+import starling.filters.BlurFilter;
 import starling.utils.Color;
 
 /**
@@ -17,15 +19,19 @@ class ClassicQuads extends Scene implements IAnimatable
 {
 	public var displayScale:Float;
 	public var numQuads:Int = 2000;
+	public var useBlurFilter:Bool;
 	public var useRandomAlpha:Bool = false;
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
+	public var useSprite3D:Bool;
 	
 	private var _quads:#if flash Vector<MovingQuad> #else Array<MovingQuad> #end;
 	private var _quadWidth:Float = 100;
 	private var _quadHeight:Float = 100;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
+	
+	private var _sprite3D:Sprite3D;
 	
 	public function new() 
 	{
@@ -41,6 +47,16 @@ class ClassicQuads extends Scene implements IAnimatable
 		var stageHeight:Float = this.stage.stageHeight;
 		
 		updateBounds();
+		
+		if (this.useSprite3D)
+		{
+			this._sprite3D = new Sprite3D();
+			this._sprite3D.pivotX = this.stage.stageWidth / 2;
+			this._sprite3D.pivotY = this.stage.stageHeight / 2;
+			this._sprite3D.x = this._sprite3D.pivotX;
+			this._sprite3D.y = this._sprite3D.pivotY;
+			addChild(this._sprite3D);
+		}
 		
 		#if flash
 		this._quads = new Vector<MovingQuad>();
@@ -67,7 +83,19 @@ class ClassicQuads extends Scene implements IAnimatable
 			quad.velocityY = LookUp.sin(quad.rotation) * velocity;
 			
 			this._quads[i] = quad;
-			addChild(quad);
+			if (this.useSprite3D)
+			{
+				this._sprite3D.addChild(quad);
+			}
+			else
+			{
+				addChild(quad);
+			}
+		}
+		
+		if (this.useBlurFilter)
+		{
+			this.filter = new BlurFilter();
 		}
 		
 		Starling.currentJuggler.add(this);
@@ -76,6 +104,14 @@ class ClassicQuads extends Scene implements IAnimatable
 	override public function updateBounds():Void 
 	{
 		super.updateBounds();
+		
+		if (this._sprite3D != null)
+		{
+			this._sprite3D.pivotX = this.stage.stageWidth / 2;
+			this._sprite3D.pivotY = this.stage.stageHeight / 2;
+			this._sprite3D.x = this._sprite3D.pivotX;
+			this._sprite3D.y = this._sprite3D.pivotY;
+		}
 		
 		if (!this.useRandomRotation && this._quads != null)
 		{
@@ -97,6 +133,11 @@ class ClassicQuads extends Scene implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
+		if (this.useSprite3D)
+		{
+			this._sprite3D.rotationY += 0.01;
+		}
+		
 		var quad:MovingQuad;
 		for (i in 0...this.numQuads)
 		{
