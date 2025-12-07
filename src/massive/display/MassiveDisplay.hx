@@ -16,6 +16,7 @@ import openfl.geom.Point;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
 import openfl.utils.Endian;
+import openfl.utils._internal.Float32Array;
 import starling.animation.IAnimatable;
 import starling.animation.Juggler;
 import starling.core.Starling;
@@ -37,24 +38,26 @@ import massive.util.ReverseIterator;
  */
 class MassiveDisplay extends DisplayObject implements IAnimatable
 {
+	
 	/**
-	 * The default Juggler instance to use for all MassiveDisplay objects when their juggler property is null.
-	 * If left null it will default to Starling.currentJuggler
-	 */
+	   The default Juggler instance to use for all MassiveDisplay objects when their juggler property is null.
+	   If left null it will default to Starling.currentJuggler
+	**/
 	static public var defaultJuggler:Juggler;
 	
 	static private var _helperMatrix:Matrix = new Matrix();
 	static private var _helperPoint:Point = new Point();
 	
 	/**
-	 * If set to true, the MassiveDisplay instance will automatically add itself to the juggler 
-	 * when added to stage and remove itself when removed from stage. Default is true.
-	 * @default true
-	 */
+	   If set to true, the MassiveDisplay instance will automatically add itself to the juggler 
+	   when added to stage and remove itself when removed from stage. Default is true.
+	   @default true
+	**/
 	public var autoHandleJuggler(get, set):Bool;
 	/**
-	 * @default 16383
-	 */
+	   How many quads/images the MassiveDisplay instance should be prepared to draw, max is 16383 per instance.
+	   @default 16383
+	**/
 	public var bufferSize(get, set):Int;
 	public var colorBlue(get, set):Float;
 	public var colorGreen(get, set):Float;
@@ -62,13 +65,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public var elementsPerQuad(get, never):Int;
 	public var elementsPerVertex(get, never):Int;
 	/**
-	 * The Juggler instance that this MassiveDisplay object will use if autoHandleJuggler is true.
-	 * If null, MassiveDisplay.defaultJuggler will be used.
-	 */
+	   The Juggler instance that this MassiveDisplay object will use if autoHandleJuggler is true.
+	   If null, MassiveDisplay.defaultJuggler will be used.
+	**/
 	public var juggler(get, set):Juggler;
 	/**
-	 * @default 2
-	 */
+	   @default 2
+	**/
 	public var numBuffers(get, set):Int;
 	public var numLayers(get, never):Int;
 	public var numQuads(get, never):Int;
@@ -80,6 +83,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public var textureSmoothing(get, set):String;
 	public var useByteArray(get, set):Bool;
 	public var useColor(get, set):Bool;
+	#if !flash
+	public var useFloat32Array(get, set):Bool;
+	#end
 	
 	override function set_alpha(value:Float):Float 
 	{
@@ -281,6 +287,15 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._useColor;
 	}
 	
+	#if !flash
+	private var _useFloat32Array:Bool = true;
+	private function get_useFloat32Array():Bool { return this._useFloat32Array; }
+	private function set_useFloat32Array(value:Bool):Bool
+	{
+		return this._useFloat32Array = value;
+	}
+	#end
+	
 	#if flash
 	private var _layers:Vector<MassiveLayer> = new Vector<MassiveLayer>();
 	#else
@@ -299,6 +314,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _byteColor:ByteArray;
 	private var _vectorData:Vector<Float>;
 	private var _byteData:ByteArray;
+	#if !flash
+	private var _float32Data:Float32Array;
+	#end
 	private var _vectorIndices:Vector<UInt>;
 	private var _byteIndices:ByteArray;
 	
@@ -383,10 +401,27 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				this._vectorColor[3] = this.__alpha;
 			}
 			
+			#if flash
 			if (this._vectorData == null)
 			{
 				this._vectorData = new Vector<Float>();
 			}
+			#else
+			if (this._useFloat32Array)
+			{
+				if (this._float32Data == null)
+				{
+					this._float32Data = new Float32Array(this._bufferSize * MassiveConstants.VERTICES_PER_QUAD * this._elementsPerQuad);
+				}
+			}
+			else
+			{
+				if (this._vectorData == null)
+				{
+					this._vectorData = new Vector<Float>();
+				}
+			}
+			#end
 		}
 		
 		if (!this._buffersCreated) createBuffers(this._numBuffers, this._bufferSize);
@@ -728,12 +763,35 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		else
 		{
+			#if flash
 			for (i in 0...this._numLayers)
 			{
 				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
 			}
 			
 			this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
+			#else
+			if (this._useFloat32Array)
+			{
+				//trace("Float32Array");
+				for (i in 0...this._numLayers)
+				{
+					this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				}
+				
+				this._vertexBuffer.uploadFromTypedArray(this._float32Data);
+			}
+			else
+			{
+				//trace("Vector");
+				for (i in 0...this._numLayers)
+				{
+					this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				}
+				
+				this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
+			}
+			#end
 		}
 		context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
 		contextBufferIndex++;

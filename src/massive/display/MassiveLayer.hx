@@ -1,6 +1,9 @@
 package massive.display;
 import openfl.Vector;
 import openfl.utils.ByteArray;
+#if !flash
+import openfl.utils._internal.Float32Array;
+#end
 import starling.events.EventDispatcher;
 
 /**
@@ -51,19 +54,35 @@ abstract class MassiveLayer extends EventDispatcher
 	abstract public function removeAllData():Void;
 	
 	/**
-	 * 
-	 * @param	byteData
-	 * @param	offset
-	 * @return
-	 */
+	   
+	   @param	byteData
+	   @param	offset
+	   @param	renderOffsetX
+	   @param	renderOffsetY
+	   @return
+	**/
 	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int;
 	
+	#if !flash
 	/**
-	 * 
-	 * @param	vectorData
-	 * @param	offset
-	 * @return
-	 */
+	   
+	   @param	floatData
+	   @param	offset
+	   @param	renderOffsetX
+	   @param	renderOffsetY
+	   @return
+	**/
+	abstract public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int;
+	#end
+	
+	/**
+	   
+	   @param	vectorData
+	   @param	offset
+	   @param	renderOffsetX
+	   @param	renderOffsetY
+	   @return
+	**/
 	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int;
 	
 	/**
