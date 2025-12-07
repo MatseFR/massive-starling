@@ -67,20 +67,20 @@ class Frame
 	 * @param	textures
 	 * @return
 	 */
-	static public function fromTextureArray(textures:Array<Texture>):Array<Frame>
+	static public function fromTextureArray(textures:Array<Texture>, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
 	{
 		if (textures == null || textures.length == 0) return null;
+		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
 		var frame:Frame;
-		var frameList:Array<Frame> = new Array<Frame>();
 		
 		for (texture in textures)
 		{
 			frame = fromTexture(texture);
-			frameList[frameList.length] = frame;
+			frames[frames.length] = frame;
 		}
 		
-		return frameList;
+		return frames;
 	}
 	
 	/**
@@ -90,21 +90,21 @@ class Frame
 	 * @param	verticalAlign
 	 * @return
 	 */
-	static public function fromTextureArrayWithAlign(textures:Array<Texture>, horizontalAlign:String,
-		verticalAlign:String):Array<Frame>
+	static public function fromTextureArrayWithAlign(textures:Array<Texture>, horizontalAlign:String, 
+		verticalAlign:String, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
 	{
 		if (textures == null || textures.length == 0) return null;
+		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
 		var frame:Frame;
-		var frameList:Array<Frame> = new Array<Frame>();
 		
 		for (texture in textures)
 		{
 			frame = fromTextureWithAlign(texture, horizontalAlign, verticalAlign);
-			frameList[frameList.length] = frame;
+			frames[frames.length] = frame;
 		}
 		
-		return frameList;
+		return frames;
 	}
 	
 	/**
@@ -114,20 +114,20 @@ class Frame
 	 * @param	pivotY
 	 * @return
 	 */
-	static public function fromTextureArrayWithPivot(textures:Array<Texture>, pivotX:Float, pivotY:Float):Array<Frame>
+	static public function fromTextureArrayWithPivot(textures:Array<Texture>, pivotX:Float, pivotY:Float, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
 	{
 		if (textures == null || textures.length == 0) return null;
+		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
 		var frame:Frame;
-		var frameList:Array<Frame> = new Array<Frame>();
 		
 		for (texture in textures)
 		{
 			frame = fromTextureWithPivot(texture, pivotX, pivotY);
-			frameList[frameList.length] = frame;
+			frames[frames.length] = frame;
 		}
 		
-		return frameList;
+		return frames;
 	}
 	
 	/**
@@ -135,20 +135,20 @@ class Frame
 	 * @param	textures
 	 * @return
 	 */
-	static public function fromTextureVector(textures:Vector<Texture>):Array<Frame>
+	static public function fromTextureVector(textures:Vector<Texture>, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
 	{
 		if (textures == null || textures.length == 0) return null;
+		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
 		var frame:Frame;
-		var frameList:Array<Frame> = new Array<Frame>();
 		
 		for (texture in textures)
 		{
 			frame = fromTexture(texture);
-			frameList[frameList.length] = frame;
+			frames[frames.length] = frame;
 		}
 		
-		return frameList;
+		return frames;
 	}
 	
 	/**
@@ -159,20 +159,20 @@ class Frame
 	 * @return
 	 */
 	static public function fromTextureVectorWithAlign(textures:Vector<Texture>, horizontalAlign:String,
-		verticalAlign:String):Array<Frame>
+		verticalAlign:String, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
 	{
 		if (textures == null || textures.length == 0) return null;
+		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
 		var frame:Frame;
-		var frameList:Array<Frame> = new Array<Frame>();
 		
 		for (texture in textures)
 		{
 			frame = fromTextureWithAlign(texture, horizontalAlign, verticalAlign);
-			frameList[frameList.length] = frame;
+			frames[frames.length] = frame;
 		}
 		
-		return frameList;
+		return frames;
 	}
 	
 	/**
@@ -182,20 +182,20 @@ class Frame
 	 * @param	pivotY
 	 * @return
 	 */
-	static public function fromTextureVectorWithPivot(textures:Vector<Texture>, pivotX:Float, pivotY:Float):Array<Frame>
+	static public function fromTextureVectorWithPivot(textures:Vector<Texture>, pivotX:Float, pivotY:Float, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
 	{
 		if (textures == null || textures.length == 0) return null;
+		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
 		var frame:Frame;
-		var frameList:Array<Frame> = new Array<Frame>();
 		
 		for (texture in textures)
 		{
 			frame = fromTextureWithPivot(texture, pivotX, pivotY);
-			frameList[frameList.length] = frame;
+			frames[frames.length] = frame;
 		}
 		
-		return frameList;
+		return frames;
 	}
 	
 	public var halfWidth:Float;

@@ -1,4 +1,5 @@
 package massive.data;
+import openfl.Vector;
 
 /**
  * ...
@@ -58,7 +59,7 @@ class ImageData extends DisplayData
 	/* index of the current frame */
 	public var frameIndex:Int = 0;
 	/* lists all frames */
-	public var frameList:Array<Frame>;
+	public var frameList:#if flash Vector<Frame> #else Array<Frame> #end;
 	/* time elapsed on current frame */
 	public var frameTime:Float;
 	/* duration of each frame */
@@ -123,7 +124,7 @@ class ImageData extends DisplayData
 		this.frameCount = 0;
 	}
 	
-	public function setFrames(frames:Array<Frame>, timings:Array<Float> = null, loop:Bool = true, numLoops:Int = 0, frameIndex:Int = 0, animate:Bool = true):Void
+	public function setFrames(frames:#if flash Vector<Frame> #else Array<Frame> #end, timings:Array<Float> = null, loop:Bool = true, numLoops:Int = 0, frameIndex:Int = 0, animate:Bool = true):Void
 	{
 		this.frameList = frames;
 		this.frameTimings = timings;

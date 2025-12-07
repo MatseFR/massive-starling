@@ -1,7 +1,9 @@
 package massive.animation;
 import massive.data.Frame;
 import massive.data.ImageData;
+#if flash
 import openfl.Vector;
+#end
 
 /**
  * ...
@@ -37,7 +39,7 @@ class Animator
 		
 	}
 	
-	static public function generateTimings(frameList:Array<Frame>, frameRate:Float = 60, timings:Array<Float> = null):Array<Float>
+	static public function generateTimings(frameList:#if flash Vector<Frame> #else Array<Frame> #end, frameRate:Float = 60, timings:Array<Float> = null):Array<Float>
 	{
 		if (timings == null) timings = new Array<Float>();
 		
