@@ -5,6 +5,7 @@ import massive.data.QuadData;
 import massive.display.MassiveDisplay;
 import massive.display.MassiveQuadLayer;
 import massive.util.MathUtils;
+import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
 import starling.display.BlendMode;
@@ -24,12 +25,15 @@ class MassiveQuads extends Scene implements IAnimatable
 	public var useRandomAlpha:Bool = false;
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
-	public var useByteArray:Bool = true;
+	public var useByteArray:Bool;
+	#if !flash
+	public var useFloat32Array:Bool;
+	#end
 	
 	private var _display:MassiveDisplay;
 	private var _layer:MassiveQuadLayer;
 	
-	private var _quads:Array<MassiveQuad>;
+	private var _quads:#if flash Vector<MassiveQuad> #else Array<MassiveQuad> #end;
 	private var _quadWidth:Float = 100;
 	private var _quadHeight:Float = 100;
 	private var _velocityBase:Float = 30;
@@ -56,13 +60,20 @@ class MassiveQuads extends Scene implements IAnimatable
 		this._display.bufferSize = this.numQuads;
 		this._display.numBuffers = this.numBuffers;
 		this._display.useByteArray = this.useByteArray;
+		#if !flash
+		this._display.useFloat32Array = this.useFloat32Array;
+		#end
 		this._display.useColor = this.useColor;
 		addChild(this._display);
 		
 		this._layer = new MassiveQuadLayer();
 		this._display.addLayer(this._layer);
 		
+		#if flash
+		this._quads = new Vector<MassiveQuad>();
+		#else
 		this._quads = new Array<MassiveQuad>();
+		#end
 		var quad:MassiveQuad;
 		var speedVariance:Float;
 		var velocity:Float;

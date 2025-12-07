@@ -24,7 +24,7 @@ class MovieClips extends Scene implements IAnimatable
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
 	
-	private var _clips:Array<MovingClip>;
+	private var _clips:#if flash Vector<MovingClip> #else Array<MovingClip> #end;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
 
@@ -44,7 +44,11 @@ class MovieClips extends Scene implements IAnimatable
 		
 		updateBounds();
 		
+		#if flash
+		this._clips = new Vector<MovingClip>();
+		#else
 		this._clips = new Array<MovingClip>();
+		#end
 		var clip:MovingClip;
 		var speedVariance:Float;
 		var velocity:Float;

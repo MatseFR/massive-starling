@@ -2,6 +2,7 @@ package scene;
 
 import massive.data.LookUp;
 import massive.util.MathUtils;
+import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
 import starling.display.Quad;
@@ -20,7 +21,7 @@ class ClassicQuads extends Scene implements IAnimatable
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
 	
-	private var _quads:Array<MovingQuad>;
+	private var _quads:#if flash Vector<MovingQuad> #else Array<MovingQuad> #end;
 	private var _quadWidth:Float = 100;
 	private var _quadHeight:Float = 100;
 	private var _velocityBase:Float = 30;
@@ -41,7 +42,11 @@ class ClassicQuads extends Scene implements IAnimatable
 		
 		updateBounds();
 		
+		#if flash
+		this._quads = new Vector<MovingQuad>();
+		#else
 		this._quads = new Array<MovingQuad>();
+		#end
 		var quad:MovingQuad;
 		var velocity:Float;
 		for (i in 0...this.numQuads)

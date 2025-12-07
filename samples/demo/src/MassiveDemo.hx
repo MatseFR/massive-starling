@@ -55,6 +55,9 @@ class MassiveDemo extends Sprite
 	private var numBuffers:Int = 2;
 	private var numObjects:Int;
 	private var useByteArray:Bool = false;
+	#if !flash
+	private var useFloat32Array:Bool = #if html5 false #else true #end;
+	#end
 	private var useColor:Bool = true;
 	private var useRandomAlpha:Bool = false;
 	private var useRandomColor:Bool = false;
@@ -70,6 +73,7 @@ class MassiveDemo extends Sprite
 	private var atlasButtons:Array<Button> = new Array<Button>();
 	private var scaleButtons:Array<Button> = new Array<Button>();
 	private var buffersButtons:Array<Button> = new Array<Button>();
+	private var dataModeButtons:Array<Button> = new Array<Button>();
 	
 	public function new() 
 	{
@@ -108,7 +112,7 @@ class MassiveDemo extends Sprite
 		var quad:Quad = new Quad(250, 20);
 		var mediumQuad:Quad = new Quad(90, 20);
 		var miniQuad:Quad = new Quad(36, 20);
-		var backQuad:Quad = new Quad(100, 20);
+		//var backQuad:Quad = new Quad(100, 20);
 		
 		quad.color = colorUP;
 		this.buttonTextureOFF = new RenderTexture(Std.int(quad.width), Std.int(quad.height));
@@ -302,8 +306,18 @@ class MassiveDemo extends Sprite
 		tY += btn.height + gap;
 		btn = new Button(this.useByteArray ? this.buttonTextureON : this.buttonTextureOFF, "use ByteArray", null, this.buttonTextureON);
 		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, toggleByteArray);
+		btn.addEventListener(Event.TRIGGERED, toggleDataMode);
+		this.dataModeButtons.push(btn);
 		this.menuSprite.addChild(btn);
+		
+		#if !flash
+		tY += btn.height + gap;
+		btn = new Button(this.useFloat32Array ? this.buttonTextureON : this.buttonTextureOFF, "use Float32Array", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleDataMode);
+		this.dataModeButtons.push(btn);
+		this.menuSprite.addChild(btn);
+		#end
 		
 		tY += btn.height + gap;
 		this.bufferSprite = new Sprite();
@@ -686,20 +700,6 @@ class MassiveDemo extends Sprite
 		btn.upState = this.miniButtonTextureON;
 	}
 	
-	private function toggleByteArray(evt:Event):Void
-	{
-		var btn:Button = cast evt.target;
-		this.useByteArray = !this.useByteArray;
-		if (this.useByteArray)
-		{
-			btn.upState = this.buttonTextureON;
-		}
-		else
-		{
-			btn.upState = this.buttonTextureOFF;
-		}
-	}
-	
 	private function toggleColor(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
@@ -712,6 +712,42 @@ class MassiveDemo extends Sprite
 		{
 			btn.upState = this.buttonTextureOFF;
 		}
+	}
+	
+	private function toggleDataMode(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		for (otherBtn in this.dataModeButtons)
+		{
+			if (otherBtn == btn) continue;
+			otherBtn.upState = this.buttonTextureOFF;
+		}
+		
+		switch (btn.text)
+		{
+			case "use ByteArray" :
+				this.useByteArray = !this.useByteArray;
+				#if !flash
+				this.useFloat32Array = false;
+				#end
+				btn.upState = this.useByteArray ? this.buttonTextureON : this.buttonTextureOFF;
+			
+			#if !flash
+			case "use Float32Array" :
+				this.useFloat32Array = !this.useFloat32Array;
+				this.useByteArray = false;
+				btn.upState = this.useFloat32Array ? this.buttonTextureON : this.buttonTextureOFF;
+			#end
+		}
+		//this.useByteArray = !this.useByteArray;
+		//if (this.useByteArray)
+		//{
+			//btn.upState = this.buttonTextureON;
+		//}
+		//else
+		//{
+			//btn.upState = this.buttonTextureOFF;
+		//}
 	}
 	
 	private function toggleDisplayScale(evt:Event):Void
@@ -784,6 +820,9 @@ class MassiveDemo extends Sprite
 			massive.numBuffers = this.numBuffers;
 			massive.numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			massive.useByteArray = this.useByteArray;
+			#if !flash
+			massive.useFloat32Array = this.useFloat32Array;
+			#end
 			massive.useColor = this.useColor;
 			massive.useRandomAlpha = this.useRandomAlpha;
 			massive.useRandomColor = this.useRandomColor;
@@ -806,6 +845,9 @@ class MassiveDemo extends Sprite
 			massive.numBuffers = this.numBuffers;
 			massive.numQuads = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			massive.useByteArray = this.useByteArray;
+			#if !flash
+			massive.useFloat32Array = this.useFloat32Array;
+			#end
 			massive.useColor = this.useColor;
 			massive.useRandomAlpha = this.useRandomAlpha;
 			massive.useRandomColor = this.useRandomColor;

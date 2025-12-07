@@ -24,7 +24,10 @@ class MassiveImages extends Scene implements IAnimatable
 	public var frameDeltaVariance:Float = 0.5;
 	public var numBuffers:Int = 2;
 	public var numImages:Int = 1000;
-	public var useByteArray:Bool = true;
+	public var useByteArray:Bool;
+	#if !flash
+	public var useFloat32Array:Bool;
+	#end
 	public var useColor:Bool = true;
 	public var useRandomAlpha:Bool;
 	public var useRandomColor:Bool;
@@ -35,10 +38,10 @@ class MassiveImages extends Scene implements IAnimatable
 	
 	private var _display:MassiveDisplay;
 	private var _layer:MassiveImageLayer<ImageData>;
-	private var _frames:Array<Frame>;
+	private var _frames:#if flash Vector<Frame> #else Array<Frame> #end;
 	private var _timings:Array<Float>;
 	
-	private var _imgList:Array<MassiveImage>;
+	private var _imgList:#if flash Vector<MassiveImage> #else Array<MassiveImage> #end;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
 	
@@ -67,13 +70,20 @@ class MassiveImages extends Scene implements IAnimatable
 		this._display.bufferSize = this.numImages;
 		this._display.numBuffers = this.numBuffers;
 		this._display.useByteArray = this.useByteArray;
+		#if !flash
+		this._display.useFloat32Array = this.useFloat32Array;
+		#end
 		this._display.useColor = this.useColor;
 		addChild(this._display);
 		
 		this._layer = new MassiveImageLayer<ImageData>();
 		this._display.addLayer(this._layer);
 		
+		#if flash
+		this._imgList = new Vector<MassiveImage>();
+		#else
 		this._imgList = new Array<MassiveImage>();
+		#end
 		var img:MassiveImage;
 		var speedVariance:Float;
 		var velocity:Float;
