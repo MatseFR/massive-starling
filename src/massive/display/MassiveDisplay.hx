@@ -16,7 +16,9 @@ import openfl.geom.Point;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
 import openfl.utils.Endian;
+#if !flash
 import openfl.utils._internal.Float32Array;
+#end
 import starling.animation.IAnimatable;
 import starling.animation.Juggler;
 import starling.core.Starling;
@@ -55,17 +57,36 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var autoHandleJuggler(get, set):Bool;
 	/**
+	   @default null
+	**/
+	public var boundsRect:Rectangle;
+	/**
 	   How many quads/images the MassiveDisplay instance should be prepared to draw, max is 16383 per instance.
 	   @default 16383
 	**/
 	public var bufferSize(get, set):Int;
+	/**
+	   @default 1
+	**/
 	public var colorBlue(get, set):Float;
+	/**
+	   @default 1
+	**/
 	public var colorGreen(get, set):Float;
+	/**
+	   @default 1
+	**/
 	public var colorRed(get, set):Float;
+	/**
+	   
+	**/
 	public var elementsPerQuad(get, never):Int;
+	/**
+	   
+	**/
 	public var elementsPerVertex(get, never):Int;
 	/**
-	   The Juggler instance that this MassiveDisplay object will use if autoHandleJuggler is true.
+	   The Juggler instance that this MassiveDisplay instance will use if autoHandleJuggler is true.
 	   If null, MassiveDisplay.defaultJuggler will be used.
 	**/
 	public var juggler(get, set):Juggler;
@@ -73,17 +94,32 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @default 2
 	**/
 	public var numBuffers(get, set):Int;
+	/**
+	   Tells how many layers this MassiveDisplay instance currently has.
+	**/
 	public var numLayers(get, never):Int;
 	public var numQuads(get, never):Int;
 	public var program(get, set):Program;
+	/**
+	   @default 0
+	**/
 	public var renderOffsetX:Float = 0;
+	/**
+	   @default 0
+	**/
 	public var renderOffsetY:Float = 0;
 	public var texture(get, set):Texture;
 	public var textureRepeat(get, set):Bool;
 	public var textureSmoothing(get, set):String;
 	public var useByteArray(get, set):Bool;
+	/**
+	   
+	**/
 	public var useColor(get, set):Bool;
 	#if !flash
+	/**
+	   
+	**/
 	public var useFloat32Array(get, set):Bool;
 	#end
 	
@@ -326,10 +362,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _colorOffset:Int;
 	private var _uvOffset:Int;
 	
-	//private var _isInitialized:Bool = false;
 	private var _zeroBytes:ByteArray;
-	
-	private var _boundsRect:Rectangle = new Rectangle();
 	
 	/**
 	 * Constructor
@@ -883,9 +916,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		if (targetSpace == this || targetSpace == null)
 		{
-			if (this._boundsRect != null)
+			if (this.boundsRect != null)
 			{
-				return this._boundsRect;
+				return this.boundsRect;
 			}
 			else if (this.stage != null)
 			{
@@ -907,13 +940,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			if (out == null) out = new Rectangle();
 			
-			if (this._boundsRect != null)
+			if (this.boundsRect != null)
 			{
 				getTransformationMatrix(targetSpace, _helperMatrix);
-				MatrixUtil.transformCoords(_helperMatrix, this._boundsRect.x, this._boundsRect.y, _helperPoint);
+				MatrixUtil.transformCoords(_helperMatrix, this.boundsRect.x, this.boundsRect.y, _helperPoint);
 				out.x = _helperPoint.x;
 				out.y = _helperPoint.y;
-				MatrixUtil.transformCoords(_helperMatrix, this._boundsRect.width, this._boundsRect.height, _helperPoint);
+				MatrixUtil.transformCoords(_helperMatrix, this.boundsRect.width, this.boundsRect.height, _helperPoint);
 				out.width = _helperPoint.x;
 				out.height = _helperPoint.y;
 			}
@@ -939,14 +972,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function updateExactBounds():Void
 	{
-		if (this._boundsRect == null) this._boundsRect = new Rectangle();
+		if (this.boundsRect == null) this.boundsRect = new Rectangle();
 		
 		if (this._numQuads == 0)
 		{
-			this._boundsRect.x = this.__x;
-			this._boundsRect.y = this.__y;
-			this._boundsRect.width = 0;
-			this._boundsRect.height = 0;
+			this.boundsRect.x = this.__x;
+			this.boundsRect.y = this.__y;
+			this.boundsRect.width = 0;
+			this.boundsRect.height = 0;
 			return;
 		}
 		
@@ -1052,10 +1085,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			}
 		}
 		
-		this._boundsRect.x = this.__x + minX - this.renderOffsetX;
-		this._boundsRect.y = this.__y + minY - this.renderOffsetY;
-		this._boundsRect.width = maxX - minX;
-		this._boundsRect.height = maxY - minY;
+		this.boundsRect.x = this.__x + minX - this.renderOffsetX;
+		this.boundsRect.y = this.__y + minY - this.renderOffsetY;
+		this.boundsRect.width = maxX - minX;
+		this.boundsRect.height = maxY - minY;
 	}
 	
 }
