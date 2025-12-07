@@ -4,6 +4,7 @@ import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
 import massive.data.LookUp;
+import massive.data.MassiveConstants;
 import massive.display.MassiveDisplay;
 import massive.display.MassiveImageLayer;
 import massive.util.MathUtils;
@@ -25,7 +26,7 @@ class MassiveImages extends Scene implements IAnimatable
 	public var frameDeltaBase:Float = 0.1;
 	public var frameDeltaVariance:Float = 0.5;
 	public var numBuffers:Int = 2;
-	public var numImages:Int = 1000;
+	public var numObjects:Int = 1000;
 	public var useBlurFilter:Bool;
 	public var useByteArray:Bool;
 	#if !flash
@@ -40,8 +41,7 @@ class MassiveImages extends Scene implements IAnimatable
 	public var atlasTexture:Texture;
 	public var textures:Vector<Texture>;
 	
-	private var _display:MassiveDisplay;
-	private var _layer:MassiveImageLayer<ImageData>;
+	private var _displayList:Array<MassiveDisplay> = new Array<MassiveDisplay>();
 	private var _frames:#if flash Vector<Frame> #else Array<Frame> #end;
 	private var _timings:Array<Float>;
 	
@@ -80,32 +80,10 @@ class MassiveImages extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		this._display = new MassiveDisplay();
-		this._display.touchable = false;
-		this._display.texture = this.atlasTexture;
-		this._display.bufferSize = this.numImages;
-		this._display.numBuffers = this.numBuffers;
-		this._display.useByteArray = this.useByteArray;
-		#if !flash
-		this._display.useFloat32Array = this.useFloat32Array;
-		#end
-		this._display.useColor = this.useColor;
-		if (this.useBlurFilter)
-		{
-			this._display.filter = new BlurFilter();
-		}
-		if (this.useSprite3D)
-		{
-			this._sprite3D.addChild(this._display);
-		}
-		else
-		{
-			addChild(this._display);
-		}
-		
-		this._layer = new MassiveImageLayer<ImageData>();
-		this._display.addLayer(this._layer);
-		
+		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
+		var display:MassiveDisplay;
+		var layer:MassiveImageLayer;
+		var numImages:Int;
 		#if flash
 		this._imgList = new Vector<MassiveImage>();
 		#else
@@ -114,32 +92,64 @@ class MassiveImages extends Scene implements IAnimatable
 		var img:MassiveImage;
 		var speedVariance:Float;
 		var velocity:Float;
-		for (i in 0...this.numImages)
+		for (i in 0...numDisplays)
 		{
-			img = new MassiveImage();
-			img.setFrames(this._frames, this._timings, true, 0, Std.random(frameCount));
-			img.x = MathUtils.random() * stageWidth;
-			img.y = MathUtils.random() * stageHeight;
-			img.scaleX = img.scaleY = this.imgScale;
-			if (this.useRandomRotation) img.rotation = MathUtils.random() * MathUtils.PI2;
+			numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			
-			if (this.useRandomAlpha) img.colorAlpha = Math.random();
-			if (this.useRandomColor)
+			display = new MassiveDisplay();
+			display.texture = this.atlasTexture;
+			display.bufferSize = numImages;
+			display.numBuffers = this.numBuffers;
+			display.useByteArray = this.useByteArray;
+			display.useColor = this.useColor;
+			#if !flash
+			display.useFloat32Array = this.useFloat32Array;
+			#end
+			
+			layer = new MassiveImageLayer();
+			display.addLayer(layer);
+			
+			for (j in 0...numImages)
 			{
-				img.colorRed = MathUtils.random();
-				img.colorGreen = MathUtils.random();
-				img.colorBlue = MathUtils.random();
+				img = new MassiveImage();
+				img.setFrames(this._frames, this._timings, true, 0, Std.random(frameCount));
+				img.x = MathUtils.random() * stageWidth;
+				img.y = MathUtils.random() * stageHeight;
+				img.scaleX = img.scaleY = this.imgScale;
+				if (this.useRandomRotation) img.rotation = MathUtils.random() * MathUtils.PI2;
+				
+				if (this.useRandomAlpha) img.colorAlpha = Math.random();
+				if (this.useRandomColor)
+				{
+					img.colorRed = MathUtils.random();
+					img.colorGreen = MathUtils.random();
+					img.colorBlue = MathUtils.random();
+				}
+				
+				speedVariance = MathUtils.random();
+				img.frameDelta = this.frameDeltaBase + speedVariance * this.frameDeltaVariance;
+				
+				velocity = this._velocityBase + speedVariance * this._velocityRange;
+				img.velocityX = LookUp.cos(img.rotation) * velocity;
+				img.velocityY = LookUp.sin(img.rotation) * velocity;
+				
+				this._imgList[this._imgList.length] = img;
+				layer.addImage(img);
 			}
 			
-			speedVariance = MathUtils.random();
-			img.frameDelta = this.frameDeltaBase + speedVariance * this.frameDeltaVariance;
-			
-			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			img.velocityX = LookUp.cos(img.rotation) * velocity;
-			img.velocityY = LookUp.sin(img.rotation) * velocity;
-			
-			this._imgList[i] = img;
-			this._layer.addImage(img);
+			if (this.useSprite3D)
+			{
+				this._sprite3D.addChild(display);
+			}
+			else
+			{
+				addChild(display);
+			}
+		}
+		
+		if (this.useBlurFilter)
+		{
+			this.filter = new BlurFilter();
 		}
 		
 		Starling.currentJuggler.add(this);
@@ -161,7 +171,7 @@ class MassiveImages extends Scene implements IAnimatable
 		{
 			var stageHeight:Float = this.stage.stageHeight;
 			
-			for (i in 0...this.numImages)
+			for (i in 0...this.numObjects)
 			{
 				this._imgList[i].y = MathUtils.random() * stageHeight;
 			}
@@ -183,7 +193,7 @@ class MassiveImages extends Scene implements IAnimatable
 		}
 		
 		var img:MassiveImage;
-		for (i in 0...this.numImages)
+		for (i in 0...this.numObjects)
 		{
 			img = this._imgList[i];
 			img.x += img.velocityX * time;

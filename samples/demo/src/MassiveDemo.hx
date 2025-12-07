@@ -840,58 +840,44 @@ class MassiveDemo extends Sprite
 	
 	private function startMassiveImages():Void
 	{
-		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
-		var scenes:Array<Scene> = [];
-		var massive:MassiveImages;
+		var massive:MassiveImages = new MassiveImages();
+		massive.atlasTexture = this.atlas.texture;
+		massive.textures = this.textures;
+		massive.imgScale = this.displayScale;
+		massive.numBuffers = this.numBuffers;
+		massive.numObjects = this.numObjects;
+		massive.useBlurFilter = this.useBlurFilter;
+		massive.useByteArray = this.useByteArray;
+		#if !flash
+		massive.useFloat32Array = this.useFloat32Array;
+		#end
+		massive.useColor = this.useColor;
+		massive.useRandomAlpha = this.useRandomAlpha;
+		massive.useRandomColor = this.useRandomColor;
+		massive.useRandomRotation = this.useRandomRotation;
+		massive.useSprite3D = this.useSprite3D;
 		
-		for (i in 0...numDisplays)
-		{
-			massive = new MassiveImages();
-			massive.atlasTexture = this.atlas.texture;
-			massive.textures = this.textures;
-			massive.imgScale = this.displayScale;
-			massive.numBuffers = this.numBuffers;
-			massive.numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
-			massive.useBlurFilter = this.useBlurFilter;
-			massive.useByteArray = this.useByteArray;
-			#if !flash
-			massive.useFloat32Array = this.useFloat32Array;
-			#end
-			massive.useColor = this.useColor;
-			massive.useRandomAlpha = this.useRandomAlpha;
-			massive.useRandomColor = this.useRandomColor;
-			massive.useRandomRotation = this.useRandomRotation;
-			massive.useSprite3D = this.useSprite3D;
-			scenes[scenes.length] = massive;
-		}
-		showSceneList(scenes);
+		showSceneList([massive]);
 	}
 	
 	private function startMassiveQuads():Void
 	{
-		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
-		var scenes:Array<Scene> = [];
-		var massive:MassiveQuads;
+		var massive:MassiveQuads = new MassiveQuads();
+		massive.displayScale = this.displayScale;
+		massive.numBuffers = this.numBuffers;
+		massive.numObjects = this.numObjects;
+		massive.useBlurFilter = this.useBlurFilter;
+		massive.useByteArray = this.useByteArray;
+		#if !flash
+		massive.useFloat32Array = this.useFloat32Array;
+		#end
+		massive.useColor = this.useColor;
+		massive.useRandomAlpha = this.useRandomAlpha;
+		massive.useRandomColor = this.useRandomColor;
+		massive.useRandomRotation = this.useRandomRotation;
+		massive.useSprite3D = this.useSprite3D;
 		
-		for (i in 0...numDisplays)
-		{
-			massive = new MassiveQuads();
-			massive.displayScale = this.displayScale;
-			massive.numBuffers = this.numBuffers;
-			massive.numQuads = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
-			massive.useBlurFilter = this.useBlurFilter;
-			massive.useByteArray = this.useByteArray;
-			#if !flash
-			massive.useFloat32Array = this.useFloat32Array;
-			#end
-			massive.useColor = this.useColor;
-			massive.useRandomAlpha = this.useRandomAlpha;
-			massive.useRandomColor = this.useRandomColor;
-			massive.useRandomRotation = this.useRandomRotation;
-			massive.useSprite3D = this.useSprite3D;
-			scenes[scenes.length] = massive;
-		}
-		showSceneList(scenes);
+		showSceneList([massive]);
 	}
 	
 	private function startMovieClips():Void

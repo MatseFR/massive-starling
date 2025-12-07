@@ -1,6 +1,7 @@
 package scene;
 
 import massive.data.LookUp;
+import massive.data.MassiveConstants;
 import massive.data.QuadData;
 import massive.display.MassiveDisplay;
 import massive.display.MassiveQuadLayer;
@@ -8,7 +9,6 @@ import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
-import starling.display.BlendMode;
 import starling.display.Sprite3D;
 import starling.events.Event;
 import starling.filters.BlurFilter;
@@ -22,7 +22,7 @@ class MassiveQuads extends Scene implements IAnimatable
 {
 	public var displayScale:Float;
 	public var numBuffers:Int = 2;
-	public var numQuads:Int = 2000;
+	public var numObjects:Int = 2000;
 	public var useBlurFilter:Bool;
 	public var useColor:Bool;
 	public var useRandomAlpha:Bool = false;
@@ -34,8 +34,7 @@ class MassiveQuads extends Scene implements IAnimatable
 	#end
 	public var useSprite3D:Bool;
 	
-	private var _display:MassiveDisplay;
-	private var _layer:MassiveQuadLayer;
+	private var _displayList:Array<MassiveDisplay> = new Array<MassiveDisplay>();
 	
 	private var _quads:#if flash Vector<MassiveQuad> #else Array<MassiveQuad> #end;
 	private var _quadWidth:Float = 100;
@@ -70,32 +69,10 @@ class MassiveQuads extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		this._display = new MassiveDisplay();
-		this._display.blendMode = BlendMode.NORMAL;
-		this._display.touchable = false;
-		this._display.bufferSize = this.numQuads;
-		this._display.numBuffers = this.numBuffers;
-		this._display.useByteArray = this.useByteArray;
-		#if !flash
-		this._display.useFloat32Array = this.useFloat32Array;
-		#end
-		this._display.useColor = this.useColor;
-		if (this.useBlurFilter)
-		{
-			this._display.filter = new BlurFilter();
-		}
-		if (this.useSprite3D)
-		{
-			this._sprite3D.addChild(this._display);
-		}
-		else
-		{
-			addChild(this._display);
-		}
-		
-		this._layer = new MassiveQuadLayer();
-		this._display.addLayer(this._layer);
-		
+		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
+		var display:MassiveDisplay;
+		var layer:MassiveQuadLayer;
+		var numQuads:Int;
 		#if flash
 		this._quads = new Vector<MassiveQuad>();
 		#else
@@ -104,33 +81,64 @@ class MassiveQuads extends Scene implements IAnimatable
 		var quad:MassiveQuad;
 		var speedVariance:Float;
 		var velocity:Float;
-		for (i in 0...this.numQuads)
+		for (i in 0...numDisplays)
 		{
-			quad = new MassiveQuad();
-			quad.x = MathUtils.random() * stageWidth;
-			quad.y = MathUtils.random() * stageHeight;
-			quad.width = this._quadWidth;
-			quad.height = this._quadHeight;
-			quad.scaleX = quad.scaleY = this.displayScale;
-			if (this.useRandomRotation) quad.rotation = MathUtils.random() * MathUtils.PI2;
+			numQuads = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			
-			if (this.useRandomAlpha) quad.colorAlpha = MathUtils.random();
-			if (this.useRandomColor)
+			display = new MassiveDisplay();
+			display.bufferSize = numQuads;
+			display.numBuffers = this.numBuffers;
+			display.useByteArray = this.useByteArray;
+			display.useColor = this.useColor;
+			#if !flash
+			display.useFloat32Array = this.useFloat32Array;
+			#end
+			
+			layer = new MassiveQuadLayer();
+			display.addLayer(layer);
+			
+			for (j in 0...numQuads)
 			{
-				quad.colorRed = MathUtils.random();
-				quad.colorGreen = MathUtils.random();
-				quad.colorBlue = MathUtils.random();
+				quad = new MassiveQuad();
+				quad.x = MathUtils.random() * stageWidth;
+				quad.y = MathUtils.random() * stageHeight;
+				quad.width = this._quadWidth;
+				quad.height = this._quadHeight;
+				quad.scaleX = quad.scaleY = this.displayScale;
+				if (this.useRandomRotation) quad.rotation = MathUtils.random() * MathUtils.PI2;
+				
+				if (this.useRandomAlpha) quad.colorAlpha = MathUtils.random();
+				if (this.useRandomColor)
+				{
+					quad.colorRed = MathUtils.random();
+					quad.colorGreen = MathUtils.random();
+					quad.colorBlue = MathUtils.random();
+				}
+				
+				speedVariance = MathUtils.random();
+				velocity = this._velocityBase + speedVariance * this._velocityRange;
+				quad.velocityX = LookUp.cos(quad.rotation) * velocity;
+				quad.velocityY = LookUp.sin(quad.rotation) * velocity;
+				
+				quad.alignPivot(Align.CENTER, Align.CENTER);
+				
+				this._quads[this._quads.length] = quad;
+				layer.addQuad(quad);
 			}
 			
-			speedVariance = MathUtils.random();
-			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			quad.velocityX = LookUp.cos(quad.rotation) * velocity;
-			quad.velocityY = LookUp.sin(quad.rotation) * velocity;
-			
-			quad.alignPivot(Align.CENTER, Align.CENTER);
-			
-			this._quads[i] = quad;
-			this._layer.addQuad(quad);
+			if (this.useSprite3D)
+			{
+				this._sprite3D.addChild(display);
+			}
+			else
+			{
+				addChild(display);
+			}
+		}
+		
+		if (this.useBlurFilter)
+		{
+			this.filter = new BlurFilter();
 		}
 		
 		Starling.currentJuggler.add(this);
@@ -152,7 +160,7 @@ class MassiveQuads extends Scene implements IAnimatable
 		{
 			var stageHeight:Float = this.stage.stageHeight;
 			
-			for (i in 0...this.numQuads)
+			for (i in 0...this.numObjects)
 			{
 				this._quads[i].y = MathUtils.random() * stageHeight;
 			}
@@ -174,7 +182,7 @@ class MassiveQuads extends Scene implements IAnimatable
 		}
 		
 		var quad:MassiveQuad;
-		for (i in 0...this.numQuads)
+		for (i in 0...this.numObjects)
 		{
 			quad = this._quads[i];
 			quad.x += quad.velocityX * time;
