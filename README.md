@@ -2,7 +2,7 @@
 Massive is a high performance DisplayObject for Starling ( [https://github.com/openfl/starling](https://github.com/openfl/starling) ), meant to render lots of quads (textured, animated) very efficiently.
 
 ## Demos
-Benchmark - compare Massive performance with classic Starling Quad and MovieClip https://matse.skwatt.com/haxe/starling/massive/demo/
+Benchmark - compare Massive performance with classic Starling Quad and MovieClip https://matse.skwatt.com/haxe/starling/massive/demo/ (more info in the demo's [README](https://github.com/MatseFR/massive-starling/tree/main/samples/demo)
 
 Hex Map - display only a part of a huge hexagon map and interact with it (link coming soon)
 
