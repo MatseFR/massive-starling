@@ -1,4 +1,5 @@
-package massive.data;
+package massive.util;
+import massive.data.MassiveConstants;
 import openfl.Vector;
 
 /**

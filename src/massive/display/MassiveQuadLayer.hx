@@ -1,5 +1,5 @@
 package massive.display;
-import massive.data.LookUp;
+import massive.util.LookUp;
 import massive.data.MassiveConstants;
 import massive.data.QuadData;
 import openfl.Vector;

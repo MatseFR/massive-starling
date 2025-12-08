@@ -1,6 +1,6 @@
 package;
 
-import massive.data.LookUp;
+import massive.util.LookUp;
 import openfl.Vector;
 import openfl.system.Capabilities;
 import openfl.utils.Assets;

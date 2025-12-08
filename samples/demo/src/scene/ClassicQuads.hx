@@ -1,6 +1,6 @@
 package scene;
 
-import massive.data.LookUp;
+import massive.util.LookUp;
 import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;

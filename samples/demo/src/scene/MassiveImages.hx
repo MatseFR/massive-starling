@@ -3,7 +3,7 @@ package scene;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
-import massive.data.LookUp;
+import massive.util.LookUp;
 import massive.data.MassiveConstants;
 import massive.display.MassiveDisplay;
 import massive.display.MassiveImageLayer;
