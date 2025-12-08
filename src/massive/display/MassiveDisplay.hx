@@ -36,6 +36,8 @@ import massive.util.ReverseIterator;
 
 /**
  * MassiveDisplay is a starling DisplayObject
+ * setup should be done before adding it to stage
+ * in order to display anything you need to add at least a layer to it, and then add data to that layer
  * @author Matse
  */
 class MassiveDisplay extends DisplayObject implements IAnimatable
@@ -85,11 +87,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var colorRed(get, set):Float;
 	/**
-	   
+	   How many 32bit values per quad
 	**/
 	public var elementsPerQuad(get, never):Int;
 	/**
-	   
+	   How many 32bit values per vertex
 	**/
 	public var elementsPerVertex(get, never):Int;
 	/**
@@ -98,36 +100,58 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var juggler(get, set):Juggler;
 	/**
-	   @default 2
+	   Tells how many VertexBuffer3D to use : if more than one, the MassiveDisplay instance will use a different one on each render.
+	   @default 1
 	**/
 	public var numBuffers(get, set):Int;
 	/**
 	   Tells how many layers this MassiveDisplay instance currently has.
 	**/
 	public var numLayers(get, never):Int;
+	/**
+	   Tells how many quads were rendered on the last render call
+	**/
 	public var numQuads(get, never):Int;
+	/**
+	   The shader used by this MassiveDisplay instance
+	**/
 	public var program(get, set):Program;
 	/**
-	   
+	   Offsets all layers by the specified amount on x axis when rendering
 	   @default 0
 	**/
 	public var renderOffsetX:Float = 0;
 	/**
-	   
+	   Offsets all layers by the specified amount on y axis when rendering
 	   @default 0
 	**/
 	public var renderOffsetY:Float = 0;
+	/**
+	   The texture used by this MassiveDisplay instance, typically from a TextureAtlas.
+	**/
 	public var texture(get, set):Texture;
+	/**
+	   Tells whether texture should repeat or not
+	   @default false
+	**/
 	public var textureRepeat(get, set):Bool;
+	/**
+	   Tells which texture smoothing value to use
+	   @default TextureSmoothing.BILINEAR
+	**/
 	public var textureSmoothing(get, set):String;
+	/**
+	   Tells the MassiveDisplay instance to use a ByteArray to store and upload vertex data. This seems to result in faster upload on flash/air target, but at a higher cpu cost.
+	**/
 	public var useByteArray(get, set):Bool;
 	/**
-	   
+	   Tells whether to have color data for tinting/colorizing, this results in bigger vertex data and more complex shader so disabling it is a good idea if you don't need it
+	   @default true
 	**/
 	public var useColor(get, set):Bool;
 	#if !flash
 	/**
-	   
+	   Tells the MassiveDisplay instance to use a Float32Array to store and upload vertex data, this offers the best performance on non-flash targets
 	**/
 	public var useFloat32Array(get, set):Bool;
 	#end
@@ -254,7 +278,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._juggler = value;
 	}
 	
-	private var _numBuffers:Int = 2;
+	private var _numBuffers:Int = 1;
 	private function get_numBuffers():Int { return this._numBuffers; }
 	private function set_numBuffers(value:Int):Int
 	{
