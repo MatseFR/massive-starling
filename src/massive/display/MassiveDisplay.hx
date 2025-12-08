@@ -35,7 +35,7 @@ import starling.utils.RenderUtil;
 import massive.util.ReverseIterator;
 
 /**
- * ...
+ * MassiveDisplay is a starling DisplayObject
  * @author Matse
  */
 class MassiveDisplay extends DisplayObject implements IAnimatable
@@ -57,6 +57,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var autoHandleJuggler(get, set):Bool;
 	/**
+	   By default a MassiveDisplay instance will use stage bounds, set this if you need different bounds.
 	   @default null
 	**/
 	public var boundsRect:Rectangle;
@@ -66,14 +67,20 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var bufferSize(get, set):Int;
 	/**
+	   Amount of blue tinting applied to the whole MassiveDisplay instance, from -1 to 10.
+	   This has no effect when useColor is turned off.
 	   @default 1
 	**/
 	public var colorBlue(get, set):Float;
 	/**
+	   Amount of green tinting applied to the whole MassiveDisplay instance, from -1 to 10.
+	   This has no effect when useColor is turned off.
 	   @default 1
 	**/
 	public var colorGreen(get, set):Float;
 	/**
+	   Amount of red tinting applied to the whole MassiveDisplay instance, from -1 to 10.
+	   This has no effect when useColor is turned off.
 	   @default 1
 	**/
 	public var colorRed(get, set):Float;
@@ -101,10 +108,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public var numQuads(get, never):Int;
 	public var program(get, set):Program;
 	/**
+	   
 	   @default 0
 	**/
 	public var renderOffsetX:Float = 0;
 	/**
+	   
 	   @default 0
 	**/
 	public var renderOffsetY:Float = 0;
@@ -362,8 +371,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _colorOffset:Int;
 	private var _uvOffset:Int;
 	
-	private var _zeroBytes:ByteArray;
-	
 	/**
 	 * Constructor
 	 */
@@ -377,8 +384,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		if (defaultJuggler == null) defaultJuggler = Starling.currentJuggler;
 		if (this._juggler == null) this._juggler = defaultJuggler;
-		
-		this._zeroBytes = new ByteArray();
 	}
 	
 	override public function dispose():Void 
@@ -444,7 +449,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			{
 				if (this._float32Data == null)
 				{
-					this._float32Data = new Float32Array(this._bufferSize * MassiveConstants.VERTICES_PER_QUAD * this._elementsPerQuad);
+					this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
 				}
 			}
 			else
@@ -552,12 +557,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._numBuffers = numBuffers;
 		this._vertexBufferIndex = -1;
 		
-		this._zeroBytes.length = this._bufferSize * MassiveConstants.VERTICES_PER_QUAD * this._elementsPerQuad;
-		
 		for (i in 0...this._numBuffers)
 		{
 			this._vertexBuffers[i] = context.createVertexBuffer(this._bufferSize * MassiveConstants.VERTICES_PER_QUAD, this._elementsPerVertex, Context3DBufferUsage.DYNAMIC_DRAW);
-			this._vertexBuffers[i].uploadFromByteArray(this._zeroBytes, 0, 0, this._bufferSize * MassiveConstants.VERTICES_PER_QUAD);
 		}
 		
 		this._indexBuffer = context.createIndexBuffer(this._bufferSize * 6);
