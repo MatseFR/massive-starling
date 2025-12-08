@@ -13,7 +13,7 @@ Massive is not available on haxelib yet, you can either use haxelib to install i
 ```sh
 haxelib git massive https://github.com/MatseFR/massive-starling
 ```
-or fork the Massive repo and then use haxelib to install it
+or download the Massive repo and then use haxelib to install it
 ```sh
 haxelib dev massive path/to/massive
 ```
@@ -21,3 +21,5 @@ To include Massive in an OpenFL project, add this line to your [_project.xml_](h
 ```xml
 <haxelib name="massive" />
 ```
+
+You can look at the benchmark demo's [MassiveImages](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveImages.hx) and [MassiveQuads](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveQuads.hx) for starters
