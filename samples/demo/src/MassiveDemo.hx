@@ -1,8 +1,6 @@
 package;
 
 import massive.data.LookUp;
-import massive.data.MassiveConstants;
-import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.system.Capabilities;
 import openfl.utils.Assets;
@@ -52,12 +50,12 @@ class MassiveDemo extends Sprite
 	private var frameDeltaVariance:Float;
 	private var frameRateBase:Int;
 	private var frameRateVariance:Int;
-	private var numBuffers:Int = 2;
+	private var numBuffers:Int = 1;
 	private var numObjects:Int;
 	private var useBlurFilter:Bool = false;
 	private var useByteArray:Bool = false;
 	#if !flash
-	private var useFloat32Array:Bool = #if html5 false #else true #end;
+	private var useFloat32Array:Bool = true;
 	#end
 	private var useColor:Bool = true;
 	private var useRandomAlpha:Bool = false;
