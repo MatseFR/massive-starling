@@ -1,4 +1,3 @@
-# README
 **Massive**
 
 Massive is a high performance DisplayObject for Starling ( [https://github.com/openfl/starling](https://github.com/openfl/starling) ), meant to render lots of quads (textured, animated) very efficiently.
