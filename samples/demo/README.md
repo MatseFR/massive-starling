@@ -1,5 +1,5 @@
 # Benchmark demo
-A few things to better understand what's going on in the demo
+A few things to better understand what's going on in the demo. 
 For context my PC is quite old : i5-6500 CPU and geforce GTX 1060 3GB, if you have a powerful machine I guess your numbers will be quite different.
 ## Options
 Those apply to both Classic and Massive.
