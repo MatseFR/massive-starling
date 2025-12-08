@@ -690,6 +690,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._elementsPerQuad = MassiveConstants.VERTICES_PER_QUAD * this._elementsPerVertex;
 	}
 	
+	/**
+	   Adds specified layer on top of other existing layers
+	   @param	layer
+	**/
 	public function addLayer(layer:MassiveLayer):Void
 	{
 		layer.display = this;
@@ -697,6 +701,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._layers[this._layers.length] = layer;
 	}
 	
+	/**
+	   Adds specified layer at specified index
+	   @param	layer
+	   @param	index
+	**/
 	public function addLayerAt(layer:MassiveLayer, index:Int):Void
 	{
 		layer.display = this;
@@ -708,6 +717,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		#end
 	}
 	
+	/**
+	   Returns layer with specified name, or null if no layer with that name is found
+	   @param	name
+	   @return
+	**/
 	public function getLayer(name:String):MassiveLayer
 	{
 		this._numLayers = this._layers.length;
@@ -718,11 +732,22 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return null;
 	}
 	
+	/**
+	   Returns layer at specified index
+	   @param	index
+	   @return
+	**/
 	public function getLayerAt(index:Int):MassiveLayer
 	{
 		return this._layers[index];
 	}
 	
+	/**
+	   Removes specified layer, optionnally disposing it
+	   @param	layer
+	   @param	dispose
+	   @return
+	**/
 	public function removeLayer(layer:MassiveLayer, dispose:Bool = false):MassiveLayer
 	{
 		var index:Int = this._layers.indexOf(layer);
@@ -740,6 +765,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return null;
 	}
 	
+	/**
+	   Removes layer at specified index, optionnally disposing it
+	   @param	index
+	   @param	dispose
+	   @return
+	**/
 	public function removeLayerAt(index:Int, dispose:Bool = false):MassiveLayer
 	{
 		var layer:MassiveLayer = this._layers[index];
@@ -753,6 +784,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return layer;
 	}
 	
+	/**
+	   Removes layer ith specified name, optionnally disposing it
+	   @param	name
+	   @param	dispose
+	   @return
+	**/
 	public function removeLayerWithName(name:String, dispose:Bool = false):MassiveLayer
 	{
 		this._numLayers = this._layers.length;
@@ -766,6 +803,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return null;
 	}
 	
+	/**
+	   advances time for all animated layers
+	   @param	time
+	**/
 	public function advanceTime(time:Float):Void
 	{
 		this._numLayers = this._layers.length;
@@ -777,6 +818,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		setRequiresRedraw();
 	}
 	
+	/**
+	   
+	   @param	painter
+	**/
 	override public function render(painter:Painter):Void 
 	{
 		this._numLayers = this._layers.length;
@@ -996,6 +1041,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 	}
 	
+	/**
+	   Calculates exact bounds for this MassiveDisplay instance and stores it in boundsRect
+	   Caution : this can be really expensive !
+	**/
 	public function updateExactBounds():Void
 	{
 		if (this.boundsRect == null) this.boundsRect = new Rectangle();
