@@ -1,3 +1,4 @@
+[massive logo](https://github.com/MatseFR/massive-starling/blob/main/assets/massive_logo_white_red.png)
 # Massive
 Massive is a high performance library for [Starling](https://github.com/openfl/starling), meant to render lots of quads (textured, animated) in a single `DisplayObject` very efficiently.
 
