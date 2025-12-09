@@ -3,6 +3,8 @@ Massive is a high performance library for [Starling](https://github.com/openfl/s
 
 It's heavily inspired by the [FFParticleSystem](https://github.com/shin10/Starling-FFParticleSystem) lib by Michael Trenkler, which I [ported](https://github.com/MatseFR/starling-extension-FFParticleSystem) to haxe some years ago.
 
+It's been tested on windows (haxelib version of hxcpp), html5 and air targets with the latest versions of OpenFL, Lime and Starling.
+
 ## Demos
 [Benchmark](https://matse.skwatt.com/haxe/starling/massive/demo/) - compare Massive performance with classic Starling `Quad` and `MovieClip` (more info in the demo's [README](https://github.com/MatseFR/massive-starling/tree/main/samples/demo))
 
@@ -23,8 +25,6 @@ To include Massive in an OpenFL project, add this line to your [_project.xml_](h
 ```xml
 <haxelib name="massive" />
 ```
-
-You can look at the benchmark demo's [MassiveImages](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveImages.hx) and [MassiveQuads](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveQuads.hx) for starters
 
 ## Quick setup
 Massive is meant to be as easy as possible to work with, startup Starling like you would normally do
@@ -54,3 +54,4 @@ img.y = 100;
 layer.addImage(img);
 
 ```
+You can also look at the benchmark demo's [MassiveImages](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveImages.hx) and [MassiveQuads](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveQuads.hx) for starters

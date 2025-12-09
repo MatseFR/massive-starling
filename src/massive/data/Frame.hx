@@ -6,7 +6,8 @@ import starling.textures.Texture;
 import starling.utils.Align;
 
 /**
- * ...
+ * Stores the info needed by an ImageData to display a texture (typically a SubTexture from a TextureAtlas)
+ * Use the static helper function to create those
  * @author Matse
  */
 class Frame 
@@ -198,23 +199,59 @@ class Frame
 		return frames;
 	}
 	
-	public var halfWidth:Float;
-	public var halfHeight:Float;
+	/**
+	   Left texture coordinate
+	**/
 	public var u1:Float;
+	/**
+	   Top texture coordinate
+	**/
 	public var v1:Float;
+	/**
+	   Right texture coordinate
+	**/
 	public var u2:Float;
+	/**
+	   Bottom texture coordinate
+	**/
 	public var v2:Float;
+	/**
+	   Tells whether the texture is rotated or not
+	**/
 	public var rotated:Bool;
-	
+	/**
+	   Width of the texture in pixels
+	**/
 	public var width:Float;
+	/**
+	   Height of the texture in pixels
+	**/
 	public var height:Float;
-	
+	/**
+	   Pivot location on x-axis
+	   If you set this value directly you should call pivotUpdate afterwards
+	**/
 	public var pivotX:Float;
+	/**
+	   Pivot location on y-axis
+	   If you set this value directly you should call pivotUpdate afterwards
+	**/
 	public var pivotY:Float;
-	
+	/**
+	   How many pixels from 0 to pivotX
+	**/
 	public var leftWidth:Float;
+	/**
+	   How many pixels from pivotX to width
+	**/
 	public var rightWidth:Float;
+	/**
+	   How many pixels from 0 to pivotY
+	**/
 	public var topHeight:Float;
+	/**
+	   How many pixels from pivotY to height
+	**/
 	public var bottomHeight:Float;
 	
 	public function new(nativeTextureWidth:Float, nativeTextureHeight:Float, x:Float, y:Float,
@@ -228,13 +265,16 @@ class Frame
 		this.width = width;
 		this.height = height;
 		
-		this.halfWidth = width / 2;
-		this.halfHeight = height / 2;
 		this.rotated = rotated;
 		
 		this.setPivot(0, 0);
 	}
 	
+	/**
+	   Sets pivotX and pivotY based on specified Align values and calls pivotUpdate
+	   @param	horizontalAlign
+	   @param	verticalAlign
+	**/
 	public function alignPivot(horizontalAlign:String, verticalAlign:String):Void 
 	{
 		if (horizontalAlign == Align.LEFT) this.pivotX = 0;
@@ -250,6 +290,11 @@ class Frame
 		pivotUpdate();
 	}
 	
+	/**
+	   Sets pivotX and pivotY values and calls pivotUpdate
+	   @param	pivotX
+	   @param	pivotY
+	**/
 	public function setPivot(pivotX:Float, pivotY:Float):Void 
 	{
 		this.pivotX = pivotX;
@@ -259,7 +304,7 @@ class Frame
 	}
 	
 	/**
-	 * 
+	 * updates pivot-related values
 	 */
 	public function pivotUpdate():Void
 	{

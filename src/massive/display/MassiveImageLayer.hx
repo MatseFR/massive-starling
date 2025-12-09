@@ -11,17 +11,28 @@ import openfl.utils._internal.Float32Array;
 #end
 
 /**
- * ...
+ * A Massive layer that displays ImageData
  * @author Matse
  */
 @:generic
 class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer 
 {
 	#if flash
+	/**
+	   The Vector containing ImageData instances to draw
+	**/
 	public var datas(get, set):Vector<T>;
 	#else
+	/**
+	   The Array containing ImageData instances to draw
+	**/
 	public var datas(get, set):Array<T>;
 	#end
+	/**
+	   Tells whether this layer should animate textures or not.
+	   If you are displaying non-animated images, consider setting this to false for better performance
+	   @default true
+	**/
 	public var textureAnimation:Bool = true;
 	
 	#if flash
@@ -65,13 +76,16 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		SIN = LookUp.SIN;
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function dispose():Void 
 	{
 		this._datas = null;
 	}
 	
 	/**
-	 * 
+	 * Adds the specified ImageData to this layer
 	 * @param	data
 	 */
 	public function addImage(data:T):Void
@@ -80,7 +94,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	}
 	
 	/**
-	 * 
+	 * Adds the specified ImageData Array to this layer
 	 * @param	datas
 	 */
 	public function addImageArray(datas:Array<T>):Void
@@ -93,7 +107,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	}
 	
 	/**
-	 * 
+	 * Removes the specified ImageData from this layer
 	 * @param	data
 	 */
 	public function removeImage(data:T):Void
@@ -105,6 +119,10 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		}
 	}
 	
+	/**
+	   Removes ImageData at specified index
+	   @param	index
+	**/
 	public function removeImageAt(index:Int):Void
 	{
 		#if flash
@@ -115,7 +133,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	}
 	
 	/**
-	 * 
+	 * Removes the specified ImageData Array from this layer
 	 * @param	datas
 	 */
 	public function removeImageArray(datas:Array<T>):Void
@@ -132,6 +150,9 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		}
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function removeAllData():Void 
 	{
 		#if flash
@@ -141,11 +162,17 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		#end
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function advanceTime(time:Float):Void 
 	{
 		if (this.textureAnimation) Animator.animateImageDataList(this._datas, time);
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
@@ -362,6 +389,9 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	}
 	
 	#if !flash
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
@@ -579,6 +609,9 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	}
 	#end
 	
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;

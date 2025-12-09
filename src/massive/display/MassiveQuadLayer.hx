@@ -4,10 +4,12 @@ import massive.data.MassiveConstants;
 import massive.data.QuadData;
 import openfl.Vector;
 import openfl.utils.ByteArray;
+#if !flash
 import openfl.utils._internal.Float32Array;
+#end
 
 /**
- * ...
+ * A Massive layer that displays QuadData
  * @author Matse
  */
 @:generic
@@ -15,8 +17,14 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 {
 	
 	#if flash
+	/**
+	   The Vector containing QuadData instances to draw
+	**/
 	public var datas(get, set):Vector<T>;
 	#else
+	/**
+	   The Array containing QuadData instances to draw
+	**/
 	public var datas(get, set):Array<T>;
 	#end
 	
@@ -61,13 +69,16 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		SIN = LookUp.SIN;
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function dispose():Void
 	{
 		this._datas = null;
 	}
 	
 	/**
-	 * 
+	 * Adds the specified QuadData to this layer
 	 * @param	data
 	 */
 	public function addQuad(data:T):Void
@@ -76,7 +87,7 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	}
 	
 	/**
-	 * 
+	 * Adds the specified QuadData Array to this layer
 	 * @param	datas
 	 */
 	public function addQuadArray(datas:Array<T>):Void
@@ -89,7 +100,7 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	}
 	
 	/**
-	 * 
+	 * Removes the specified QuadData from this layer
 	 * @param	data
 	 */
 	public function removeQuad(data:T):Void
@@ -101,6 +112,10 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		}
 	}
 	
+	/**
+	   Removes QuadData at specified index
+	   @param	index
+	**/
 	public function removeQuadAt(index:Int):Void
 	{
 		#if flash
@@ -111,7 +126,7 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	}
 	
 	/**
-	 * 
+	 * Removes the specified QuadData Array from this layer
 	 * @param	datas
 	 */
 	public function removeQuadArray(datas:Array<T>):Void
@@ -128,6 +143,9 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		}
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function removeAllData():Void 
 	{
 		#if flash
@@ -137,11 +155,17 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		#end
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function advanceTime(time:Float):Void 
 	{
 		// nothing
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
 	{
 		if (this._datas == null) return 0;
@@ -310,6 +334,9 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	}
 	
 	#if !flash
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
 	{
 		if (this._datas == null) return 0;
@@ -481,6 +508,9 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	}
 	#end
 	
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
 	{
 		if (this._datas == null) return 0;
