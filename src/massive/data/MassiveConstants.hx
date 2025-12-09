@@ -1,7 +1,7 @@
 package massive.data;
 
 /**
- * ...
+ * Stores useful constant values
  * @author Matse
  */
 class MassiveConstants 

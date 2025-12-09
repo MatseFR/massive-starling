@@ -1,20 +1,32 @@
 package massive.data;
+#if flash
 import openfl.Vector;
+#end
 
 /**
- * ...
+ * Image display object with optionnal texture animation
  * @author Matse
  */
 class ImageData extends DisplayData
 {
 	static private var _POOL:Array<ImageData> = new Array<ImageData>();
 	
+	/**
+	   Returns an ImageData from pool if there's at least one in pool, or a new one otherwise
+	   @return
+	**/
 	static public function fromPool():ImageData
 	{
 		if (_POOL.length != 0) return _POOL.pop();
 		return new ImageData();
 	}
 	
+	/**
+	   Returns an Array of ImageData, taken from pool if possible and created otherwise
+	   @param	numImages
+	   @param	imgList
+	   @return
+	**/
 	static public function fromPoolArray(numImages:Int, imgList:Array<ImageData> = null):Array<ImageData>
 	{
 		if (imgList == null) imgList = new Array<ImageData>();
@@ -35,19 +47,70 @@ class ImageData extends DisplayData
 		return imgList;
 	}
 	
+	#if flash
+	/**
+	   Returns a Vector of ImageData, taken from pool if possible and created otherwise
+	   @param	numImages
+	   @param	imgList
+	   @return
+	**/
+	static public function fromPoolVector(numImages:Int, imgList:Vector<ImageData> = null):Vector<ImageData>
+	{
+		if (imgList == null) imgList = new Vector<ImageData>();
+		
+		while (numImages != 0)
+		{
+			if (_POOL.length == 0) break;
+			imgList[imgList.length] = _POOL.pop();
+			numImages--;
+		}
+		
+		while (numImages != 0)
+		{
+			imgList[imgList.length] = new ImageData();
+			numImages--;
+		}
+		
+		return imgList;
+	}
+	#end
+	
+	/**
+	   Equivalent to calling ImageData's pool function
+	   @param	img
+	**/
 	static public function toPool(img:ImageData):Void
 	{
 		img.clear();
 		_POOL[_POOL.length] = img;
 	}
 	
+	/**
+	   Pools all ImageData objects in the specified Array
+	   @param	imgList
+	**/
 	static public function toPoolArray(imgList:Array<ImageData>):Void
+	{
+		for (img in imgList)
+		{
+			img.clear();
+			_POOL[_POOL.length] = img;
+		}
+	}
+	
+	#if flash
+	/**
+	   Pools all ImageData objects in the specified Vector
+	   @param	imgList
+	**/
+	static public function toPoolVector(imgList:Vector<ImageData>):Void
 	{
 		for (img in imgList)
 		{
 			img.pool();
 		}
 	}
+	#end
 	
 	/* tells whether the ImageData is animated (if it has frames) or not */
 	public var animate:Bool = false;
@@ -98,6 +161,9 @@ class ImageData extends DisplayData
 		super();
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	override public function clear():Void
 	{
 		this.invertX = this.invertY = this.animate = false;
@@ -111,12 +177,18 @@ class ImageData extends DisplayData
 		super.clear();
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function pool():Void
 	{
 		clear();
 		_POOL[_POOL.length] = this;
 	}
 	
+	/**
+	   Clears all stored Frame objects and associated timings
+	**/
 	public function clearFrames():Void
 	{
 		this.frameList = null;
@@ -124,6 +196,15 @@ class ImageData extends DisplayData
 		this.frameCount = 0;
 	}
 	
+	/**
+	   Sets the current animation properties : Frame objects, associated timings + playing options
+	   @param	frames
+	   @param	timings
+	   @param	loop
+	   @param	numLoops
+	   @param	frameIndex
+	   @param	animate
+	**/
 	public function setFrames(frames:#if flash Vector<Frame> #else Array<Frame> #end, timings:Array<Float> = null, loop:Bool = true, numLoops:Int = 0, frameIndex:Int = 0, animate:Bool = true):Void
 	{
 		this.frameList = frames;
@@ -147,6 +228,10 @@ class ImageData extends DisplayData
 		}
 	}
 	
+	/**
+	   Set the timings associated to the current Frame objects
+	   @param	timings
+	**/
 	public function setFrameTimings(timings:Array<Float>):Void
 	{
 		this.frameTimings = timings;

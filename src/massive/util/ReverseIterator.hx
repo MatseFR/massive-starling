@@ -1,7 +1,7 @@
 package massive.util;
 
 /**
- * ...
+ * An iterator that goes backwards
  * @author Matse
  */
 class ReverseIterator 

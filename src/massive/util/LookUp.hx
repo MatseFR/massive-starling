@@ -1,13 +1,17 @@
 package massive.util;
 import massive.data.MassiveConstants;
-import openfl.Vector;
 
 /**
- * ...
+ * COS and SIN lookup tables
+ * heavily inspired by FFParticleSystem https://github.com/shin10/Starling-FFParticleSystem
+ * Either call init() once directly, or indirectly by accessing COS or SIN properties
  * @author Matse
  */
 class LookUp 
 {
+	/**
+	   Tells whether init() has been called
+	**/
 	static public var initDone(get, never):Bool;
 	static private var _initDone:Bool = false;
 	static private function get_initDone():Bool { return _initDone; }
@@ -30,6 +34,9 @@ class LookUp
 		//return _SIN;
 	//}
 	//#else
+	/**
+	   Stores lookup values for COS
+	**/
 	static public var COS(get, never):Array<Float>;
 	static private var _COS:Array<Float>;
 	static private function get_COS():Array<Float>
@@ -38,6 +45,9 @@ class LookUp
 		return _COS;
 	}
 	
+	/**
+	   Stores lookup values for SIN
+	**/
 	static public var SIN(get, never):Array<Float>;
 	static private var _SIN:Array<Float>;
 	static private function get_SIN():Array<Float>
@@ -50,6 +60,9 @@ class LookUp
 	static private inline var COSINUS_CONSTANT:Float = 0.00306796157577128245943617517898;
 	static private inline var SINUS_CONSTANT:Float = 0.00306796157577128245943617517898;
 	
+	/**
+	   Sets up lookup tables for COS and SIN
+	**/
 	static public function init():Void
 	{
 		if (_initDone) return;
@@ -71,16 +84,31 @@ class LookUp
 		_initDone = true;
 	}
 	
+	/**
+	   Returns the index of the COS/SIN value for the specified angle (in radians)
+	   @param	angle
+	   @return
+	**/
 	static public inline function getAngle(angle:Float):Int
 	{
 		return Std.int(angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 	}
 	
+	/**
+	   Returns the COS value for the specified angle (in radians)
+	   @param	angle
+	   @return
+	**/
 	static public inline function cos(angle:Float):Float
 	{
 		return _COS[Std.int(angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2];
 	}
 	
+	/**
+	   Returns the SIN value for the specified angle (in radians)
+	   @param	angle
+	   @return
+	**/
 	static public inline function sin(angle:Float):Float
 	{
 		return _SIN[Std.int(angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2];
