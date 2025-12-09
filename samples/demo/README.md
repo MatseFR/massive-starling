@@ -1,6 +1,9 @@
 # Benchmark demo
 A few things to better understand what's going on in the demo
 For context my PC is quite old : i5-6500 CPU and geforce GTX 1060 3GB, if you have a powerful machine I guess your numbers will be quite different.
+## Draw calls
+Each `MassiveDisplay` instance makes 1 draw call unless it has no layer. Each instance can display up to 16383 quads (I'll look into removing that limit at some point), so when you select a scene with 64K objects the demo uses 4 `MassiveDisplay` instances.
+The menu button adds 2 draw calls.
 ## Options
 Those apply to both Classic and Massive.
 ### atlas
@@ -24,7 +27,7 @@ This option exists only to show that Massive display works with the 3D stuff in 
 
 ### BlurFilter
 This option exists only to show that filters work with Massive display.
-By default a MassiveDisplay instance will use stage bounds, on classic starling this is very costy because the filter will request the Sprite's bounds, and it will calculate those with thousands of child objects.
+By default a `MassiveDisplay` instance will use stage bounds, on classic starling this is very costy because the filter will request the `Sprite`'s bounds, and it will calculate those with thousands of child objects.
 I think we should add a `useStageBounds` to Starling's filters : they have an optimization for bounds but only when they are applied to the Stage.
 Anyway, don't use that option to measure a performance difference between Classic and Massive !
 
