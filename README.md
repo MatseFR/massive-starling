@@ -1,12 +1,14 @@
 # Massive
 Massive is a high performance library for [Starling](https://github.com/openfl/starling), meant to render lots of quads (textured, animated) in a single `DisplayObject` very efficiently.
 
+It's heavily inspired by the [FFParticleSystem](https://github.com/shin10/Starling-FFParticleSystem) lib by Michael Trenkler, which I [ported](https://github.com/MatseFR/starling-extension-FFParticleSystem) to haxe some years ago.
+
 ## Demos
 [Benchmark](https://matse.skwatt.com/haxe/starling/massive/demo/) - compare Massive performance with classic Starling `Quad` and `MovieClip` (more info in the demo's [README](https://github.com/MatseFR/massive-starling/tree/main/samples/demo))
 
 Hex Map - display only a part of a huge hexagon map and interact with it (link coming soon)
 
-Particle Editor - editor for Massive's ParticleSystem (link coming soon)
+Particle Editor - editor for Massive's `ParticleSystem` (link coming soon)
 
 ## Getting started
 Massive is not available on haxelib yet, you can either use haxelib to install it directly from GitHub :
@@ -23,3 +25,32 @@ To include Massive in an OpenFL project, add this line to your [_project.xml_](h
 ```
 
 You can look at the benchmark demo's [MassiveImages](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveImages.hx) and [MassiveQuads](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveQuads.hx) for starters
+
+## Quick setup
+Massive is meant to be as easy as possible to work with, startup Starling like you would normally do
+```haxe
+var massive:MassiveDisplay = new MassiveDisplay();
+// by default a MassiveDisplay instance will use the maximum buffer size, which is MassiveConstants.MAX_QUADS (16383)
+// if you know you're gonna use less than that you can set the buffer size for better performance
+massive.bufferSize = 5000; // display up to 5000 quads
+massive.texture = assetManager.getTextureAtlas("my-atlas").texture;
+addChild(massive);
+
+// we need a layer in order to display something
+var layer:MassiveImageLayer = new MassiveImageLayer();
+massive.addLayer(layer);
+
+// we need to create Frame instances to display Massive's equivalent of Image
+var textures = assetManaget.getTextures("my-atlas-animation");
+var frames = Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER); // the Frame class offers various helper functions
+// we also need timings to associate with those frames
+var timings = Animator.generateTimings(frames);
+
+// we're ready to display our animated "image"
+var img:ImageData = new ImageData();
+img.setFrames(frames, timings);
+img.x = 200;
+img.y = 100;
+layer.addImage(img);
+
+```
