@@ -41,7 +41,7 @@ var layer:MassiveImageLayer = new MassiveImageLayer();
 massive.addLayer(layer);
 
 // we need to create Frame instances to display Massive's equivalent of Image
-var textures = assetManaget.getTextures("my-atlas-animation");
+var textures = assetManager.getTextures("my-atlas-animation");
 var frames = Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER); // the Frame class offers various helper functions
 // we also need timings to associate with those frames
 var timings = Animator.generateTimings(frames);
