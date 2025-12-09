@@ -1,5 +1,5 @@
 # Benchmark demo
-A few things to better understand what's going on in the demo
+A few things to better understand what's going on in the demo. 
 For context my PC is quite old : i5-6500 CPU and geforce GTX 1060 3GB, if you have a powerful machine I guess your numbers will be quite different.
 ## Draw calls
 Each `MassiveDisplay` instance makes 1 draw call unless it has no layer. Each instance can display up to 16383 quads (I'll look into removing that limit at some point), so when you select a scene with 64K objects the demo uses 4 `MassiveDisplay` instances.
