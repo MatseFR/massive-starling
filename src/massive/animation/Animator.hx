@@ -6,11 +6,16 @@ import openfl.Vector;
 #end
 
 /**
- * ...
+ * Animates textures and generates timings
  * @author Matse
  */
 class Animator 
 {
+	/**
+	   Animates textures of the specified ImageData list
+	   @param datas
+	   @param time
+	**/
 	@:generic
 	static public inline function animateImageDataList<T:ImageData>(datas:#if flash Vector<T> #else Array<T>#end, time:Float):Void
 	{
@@ -39,6 +44,13 @@ class Animator
 		
 	}
 	
+	/**
+	   Generates timings for the specified frameList, with the specified frameRate
+	   @param	frameList
+	   @param	frameRate
+	   @param	timings
+	   @return
+	**/
 	static public function generateTimings(frameList:#if flash Vector<Frame> #else Array<Frame> #end, frameRate:Float = 60, timings:Array<Float> = null):Array<Float>
 	{
 		if (timings == null) timings = new Array<Float>();
