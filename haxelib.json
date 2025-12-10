@@ -3,7 +3,7 @@
 	"url": "https://github.com/MatseFR/massive-starling",
 	"license": "MIT",
 	"tags": [ "openfl", "starling", "flash", "air", "js", "web", "cpp" ],
-	"description": "custom starling DisplayObject for heavy rendering",
+	"description": "High performance quad rendering and texture animation for Starling through custom DisplayObject",
 	"version": "1.0.0-alpha.0",
 	"releasenote": "initial release",
 	"contributors": [ "matse" ],
