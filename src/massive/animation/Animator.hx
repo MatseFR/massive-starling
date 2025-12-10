@@ -13,8 +13,8 @@ class Animator
 {
 	/**
 	   Animates textures of the specified ImageData list
-	   @param datas
-	   @param time
+	   @param	datas
+	   @param	time
 	**/
 	@:generic
 	static public inline function animateImageDataList<T:ImageData>(datas:#if flash Vector<T> #else Array<T>#end, time:Float):Void

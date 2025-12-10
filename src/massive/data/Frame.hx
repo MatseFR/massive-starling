@@ -66,6 +66,7 @@ class Frame
 	/**
 	 * 
 	 * @param	textures
+	 * @param	frames
 	 * @return
 	 */
 	static public function fromTextureArray(textures:Array<Texture>, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
@@ -89,6 +90,7 @@ class Frame
 	 * @param	textures
 	 * @param	horizontalAlign
 	 * @param	verticalAlign
+	 * @param	frames
 	 * @return
 	 */
 	static public function fromTextureArrayWithAlign(textures:Array<Texture>, horizontalAlign:String, 
@@ -113,6 +115,7 @@ class Frame
 	 * @param	textures
 	 * @param	pivotX
 	 * @param	pivotY
+	 * @param	frames
 	 * @return
 	 */
 	static public function fromTextureArrayWithPivot(textures:Array<Texture>, pivotX:Float, pivotY:Float, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
@@ -134,6 +137,7 @@ class Frame
 	/**
 	 * 
 	 * @param	textures
+	 * @param	frames
 	 * @return
 	 */
 	static public function fromTextureVector(textures:Vector<Texture>, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
@@ -157,6 +161,7 @@ class Frame
 	 * @param	textures
 	 * @param	horizontalAlign
 	 * @param	verticalAlign
+	 * @param	frames
 	 * @return
 	 */
 	static public function fromTextureVectorWithAlign(textures:Vector<Texture>, horizontalAlign:String,
@@ -181,6 +186,7 @@ class Frame
 	 * @param	textures
 	 * @param	pivotX
 	 * @param	pivotY
+	 * @param	frames
 	 * @return
 	 */
 	static public function fromTextureVectorWithPivot(textures:Vector<Texture>, pivotX:Float, pivotY:Float, frames:#if flash Vector<Frame> #else Array<Frame> #end = null):#if flash Vector<Frame> #else Array<Frame> #end
