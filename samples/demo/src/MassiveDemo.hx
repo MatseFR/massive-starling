@@ -434,6 +434,12 @@ class MassiveDemo extends Sprite
 		btn.addEventListener(Event.TRIGGERED, movieClips256k);
 		this.classicSprite.addChild(btn);
 		
+		tY += btn.height + gap;
+		btn = new Button(this.buttonTextureOFF, "512000 clips", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, movieClips512k);
+		this.classicSprite.addChild(btn);
+		
 		tY += btn.height + gap * 4;
 		btn = new Button(this.buttonTextureOFF, "8000 quads", null, this.buttonTextureON);
 		btn.y = tY;
@@ -468,6 +474,12 @@ class MassiveDemo extends Sprite
 		btn = new Button(this.buttonTextureOFF, "256000 quads", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, classicQuads256k);
+		this.classicSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(this.buttonTextureOFF, "512000 quads", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, classicQuads512k);
 		this.classicSprite.addChild(btn);
 		//\CLASSIC STARLING
 		
@@ -527,6 +539,12 @@ class MassiveDemo extends Sprite
 		btn.addEventListener(Event.TRIGGERED, massiveClips256k);
 		this.massiveSprite.addChild(btn);
 		
+		tY += btn.height + gap;
+		btn = new Button(this.buttonTextureOFF, "512000 clips", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, massiveClips512k);
+		this.massiveSprite.addChild(btn);
+		
 		tY += btn.height + gap * 4;
 		btn = new Button(this.buttonTextureOFF, "8000 quads", null, this.buttonTextureON);
 		btn.y = tY;
@@ -562,6 +580,12 @@ class MassiveDemo extends Sprite
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, massiveQuads256k);
 		this.massiveSprite.addChild(btn);
+		
+		tY += btn.height + gap;
+		btn = new Button(this.buttonTextureOFF, "512000 quads", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, massiveQuads512k);
+		this.massiveSprite.addChild(btn);
 		//\MASSIVE STARLING
 		
 		tY = this.massiveSprite.y + this.massiveSprite.height + gap * 4;
@@ -571,15 +595,6 @@ class MassiveDemo extends Sprite
 		tf.y = tY;
 		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
 		this.menuSprite.addChild(tf);
-		
-		//quad.width = 100;
-		//quad.color = colorUP;
-		//textureUP = new RenderTexture(Std.int(quad.width), Std.int(quad.height));
-		//textureUP.draw(quad);
-		//
-		//quad.color = colorOVER;
-		//textureOVER = new RenderTexture(Std.int(quad.width), Std.int(quad.height));
-		//textureOVER.draw(quad);
 		
 		this.backButton = new Button(this.mediumButtonTextureOFF, "Menu", null, this.mediumButtonTextureON);
 		this.backButton.addEventListener(Event.TRIGGERED, backToMenu);
@@ -947,6 +962,12 @@ class MassiveDemo extends Sprite
 		startMassiveImages();
 	}
 	
+	private function massiveClips512k(evt:Event):Void
+	{
+		this.numObjects = 512000;
+		startMassiveImages();
+	}
+	
 	private function massiveQuads8k(evt:Event):Void
 	{
 		this.numObjects = 8000;
@@ -980,6 +1001,12 @@ class MassiveDemo extends Sprite
 	private function massiveQuads256k(evt:Event):Void
 	{
 		this.numObjects = 256000;
+		startMassiveQuads();
+	}
+	
+	private function massiveQuads512k(evt:Event):Void
+	{
+		this.numObjects = 512000;
 		startMassiveQuads();
 	}
 	
@@ -1025,6 +1052,12 @@ class MassiveDemo extends Sprite
 		startMovieClips();
 	}
 	
+	private function movieClips512k(evt:Event):Void
+	{
+		this.numObjects = 512000;
+		startMovieClips();
+	}
+	
 	private function classicQuads8k(evt:Event):Void
 	{
 		this.numObjects = 8000;
@@ -1058,6 +1091,12 @@ class MassiveDemo extends Sprite
 	private function classicQuads256k(evt:Event):Void
 	{
 		this.numObjects = 256000;
+		startClassicQuads();
+	}
+	
+	private function classicQuads512k(evt:Event):Void
+	{
+		this.numObjects = 512000;
 		startClassicQuads();
 	}
 	

@@ -23,16 +23,15 @@
     <class path="src" />
     <class path="C:\HaxeToolkit\haxe\lib\lime\8,3,0\externs\air" />
     <class path="C:\HaxeToolkit\haxe\lib\openfl\9,5,0\lib\flash-externs\src" />
-    <class path="bin\air\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="lime=8.3.0&#xA;massive=0.0.1&#xA;openfl=9.5.0&#xA;starling=2.7.1&#xA;AIR_SDK=C:\Users\Matse\AppData\Local\HaxeDevelop\Apps\flexairsdk\4.6.0+32.0.0&#xA;native-trace&#xA;tools=8.3.0&#xA;lime-opengl&#xA;no-compilation&#xA;openfl-flash&#xA;fdb&#xA;air&#xA;desktop&#xA;air" />
+    <option directives="lime=8.3.0&#xA;massive=1.0.0-alpha.0&#xA;openfl=9.5.0&#xA;starling=2.7.1&#xA;AIR_SDK=C:\Users\Matse\AppData\Local\HaxeDevelop\Apps\flexairsdk\4.6.0+32.0.0&#xA;tools=8.3.0&#xA;lime-opengl&#xA;no-compilation&#xA;openfl-flash&#xA;openfl-disable-handle-error&#xA;air&#xA;desktop" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="True" />
-    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro haxe.macro.Compiler.addMetadata(&quot;@:autoBuild(lime._internal.macros.AssetsMacro.embedBytes())&quot;, &quot;haxe.io.Bytes&quot;)&#xA;--macro openfl.utils._internal.ExtraParamsMacro.include()&#xA;--macro allowPackage('sys')&#xA;-swf-version 17" />
+    <option additional="--macro lime._internal.macros.DefineMacro.run()&#xA;--macro haxe.macro.Compiler.addMetadata(&quot;@:autoBuild(lime._internal.macros.AssetsMacro.embedBytes())&quot;, &quot;haxe.io.Bytes&quot;)&#xA;--macro openfl.utils._internal.ExtraParamsMacro.include()&#xA;--macro allowPackage('sys')&#xA;-swf-version 17&#xA;--no-output " />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

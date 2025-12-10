@@ -9,7 +9,7 @@
 	<app main="Main" file="MassiveDemo" path="bin" />
 	
 	<window background="#000000" fps="60" />
-	<window width="1280" height="720" unless="mobile || html5" />
+	<window width="1280" height="800" unless="mobile || html5" />
 	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
 	
 	<!-- classpath, haxe libs -->
