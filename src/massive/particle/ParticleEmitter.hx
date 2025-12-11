@@ -35,12 +35,13 @@ class ParticleEmitter
 		_POOL[_POOL.length] = this;
 	}
 	
-	//public function advanceSystem(system:ParticleSystem, passedTime:Float):Void
-	//{
-		//system.emitterX = this.x;
-		//system.emitterY = this.y;
-		//system.velocityX = this.velocityX;
-		//system.velocityY = this.velocityY;
-	//}
+	@:generic
+	public function advanceSystem<T:Particle>(system:ParticleSystem<T>, passedTime:Float):Void
+	{
+		system.emitterX = this.x;
+		system.emitterY = this.y;
+		system.velocityX = this.velocityX;
+		system.velocityY = this.velocityY;
+	}
 	
 }
