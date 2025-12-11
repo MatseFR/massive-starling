@@ -2,13 +2,23 @@ package;
 
 import feathers.data.ArrayCollection;
 import massive.data.Frame;
+import massive.data.ImageData;
 import massive.display.MassiveDisplay;
 import massive.particle.Particle;
 import massive.particle.ParticleSystem;
+#if (desktop || air)
+import openfl.filesystem.File;
+import openfl.filesystem.FileStream;
+#else
+import openfl.net.FileReference;
+#end
+import openfl.Vector;
 import starling.core.Starling;
 import starling.textures.Texture;
 import starling.utils.Align;
 import valedit.ExposedCollection;
+import valedit.value.ExposedBool;
+import valedit.value.base.ExposedValue;
 import valeditor.ValEditor;
 import valeditor.data.Data;
 import valeditor.editor.base.ValEditorSimpleStarling;
@@ -35,11 +45,14 @@ class ParticleEditor extends ValEditorSimpleStarling
 	private var _editMenuCollection:ArrayCollection<MenuItem>;
 	private var _undoItem:MenuItem;
 	private var _redoItem:MenuItem;
+	
+	#if (desktop || air)
+	private var _fileStream:FileStream = new FileStream();
+	#end
 
 	public function new() 
 	{
 		super();
-		
 	}
 	
 	override function exposeData():Void 
@@ -75,11 +88,19 @@ class ParticleEditor extends ValEditorSimpleStarling
 		
 		var texture:Texture;
 		var frame:Frame;
+		#if flash
+		var frames:Vector<Frame>;
+		#else
 		var frames:Array<Frame>;
+		#end
 		
 		texture = Texture.fromColor(2, 2);
 		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
+		#if flash
+		frames = new Vector<Frame>();
+		#else
 		frames = new Array<Frame>();
+		#end
 		frames[0] = frame;
 		
 		this._massive = new MassiveDisplay();
@@ -87,13 +108,20 @@ class ParticleEditor extends ValEditorSimpleStarling
 		addChild(this._massive);
 		
 		this._ps = new ParticleSystem<Particle>();
+		#if flash
+		this._ps.particlesFromPoolFunction = Particle.fromPoolVector;
+		this._ps.particlesToPoolFunction = Particle.toPoolVector;
+		#else
 		this._ps.particlesFromPoolFunction = Particle.fromPoolArray;
 		this._ps.particlesToPoolFunction = Particle.toPoolArray;
+		#end
 		this._ps.addFrames(frames);
 		this._massive.addLayer(this._ps);
 		
 		this._ps.start();
 		
+		//var t = Type.typeof(this._ps);
+		//var t = $type(this._ps);
 		this._psCollection = ValEditor.edit(this._ps);
 	}
 	
@@ -111,7 +139,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		if (this._ps == null) return;
 		this._ps.emitterX = this.editView.displayCenter.x;
 		this._ps.emitterY = this.editView.displayCenter.y;
-		this._psCollection.read();
+		//this._psCollection.read();
 	}
 	
 	@:access(starling.core.Starling)
@@ -155,7 +183,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		switch (item.id)
 		{
 			case "file_open" :
-				//FileController.open(
+				FileController.open(fileOpen);
 			
 			case "file_save" :
 				
@@ -165,6 +193,16 @@ class ParticleEditor extends ValEditorSimpleStarling
 		}
 	}
 	
-	//private function onFileOpen(
+	#if (desktop || air)
+	private function fileOpen(file:File):Void
+	{
+		
+	}
+	#else
+	private function fileOpen(fileRef:FileReference):Void
+	{
+		
+	}
+	#end
 	
 }
