@@ -395,6 +395,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _colorOffset:Int;
 	private var _uvOffset:Int;
 	
+	#if flash
+	private var _zeroBytes:ByteArray = new ByteArray();
+	#end
+	
 	/**
 	 * Constructor
 	 */
@@ -581,9 +585,16 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._numBuffers = numBuffers;
 		this._vertexBufferIndex = -1;
 		
+		#if flash
+		this._zeroBytes.length = this._bufferSize * MassiveConstants.VERTICES_PER_QUAD * this._elementsPerQuad;
+		#end
+		
 		for (i in 0...this._numBuffers)
 		{
 			this._vertexBuffers[i] = context.createVertexBuffer(this._bufferSize * MassiveConstants.VERTICES_PER_QUAD, this._elementsPerVertex, Context3DBufferUsage.DYNAMIC_DRAW);
+			#if flash
+			this._vertexBuffers[i].uploadFromByteArray(this._zeroBytes, 0, 0, this._bufferSize * MassiveConstants.VERTICES_PER_QUAD);
+			#end
 		}
 		
 		this._indexBuffer = context.createIndexBuffer(this._bufferSize * 6);
