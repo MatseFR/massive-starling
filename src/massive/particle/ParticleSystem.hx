@@ -1093,7 +1093,11 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	private var _regularSorting:Bool = true;
 	private var _updateEmitter:Bool = false;
 	
+	#if flash
+	private var _frames:Vector<Vector<Frame>> = new Vector<Vector<Frame>>();
+	#else
 	private var _frames:Array<Array<Frame>> = new Array<Array<Frame>>();
+	#end
 	private var _frameTimings:Array<Array<Float>> = new Array<Array<Float>>();
 	private var _numFrameSets:Int = 0;
 	private var _useMultipleFrameSets:Bool = false;
@@ -1121,11 +1125,11 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	
 	private function init():Void
 	{
-		for (i in 0...50)
-		{
-			//trace(getRandomRatio());
-			trace(MathUtils.random());
-		}
+		//for (i in 0...50)
+		//{
+			////trace(getRandomRatio());
+			//trace(MathUtils.random());
+		//}
 		
 		this._emissionRate = this._maxNumParticles / this._lifeSpan;
 		this._emissionTime = 0.0;
@@ -1133,7 +1137,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		//this._frameDuration = 1.0 / this._frameRate;
 	}
 	
-	public function addFrames(frames:Array<Frame>, timings:Array<Float> = null, refreshParticles:Bool = true):Void
+	public function addFrames(frames:#if flash Vector<Frame> #else Array<Frame>#end, timings:Array<Float> = null, refreshParticles:Bool = true):Void
 	{
 		if (timings == null) timings = Animator.generateTimings(frames, this._frameRate);
 		
@@ -1149,7 +1153,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		}
 	}
 	
-	public function addFramesMultiple(frames:Array<Array<Frame>>, timings:Array<Array<Float>> = null, refreshParticles:Bool = true):Void
+	public function addFramesMultiple(frames:#if flash Vector<Vector<Frame>> #else Array<Array<Frame>>#end, timings:Array<Array<Float>> = null, refreshParticles:Bool = true):Void
 	{
 		var count:Int = frames.length;
 		for (i in 0...count)
