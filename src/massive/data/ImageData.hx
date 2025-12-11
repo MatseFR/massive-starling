@@ -217,13 +217,20 @@ class ImageData extends DisplayData
 		
 		if (this.animate)
 		{
-			if (this.frameIndex == 0)
+			if (this.frameCount == 0)
 			{
-				this.frameTime = 0;
+				this.animate = false;
 			}
 			else
 			{
-				this.frameTime = this.frameTimings[this.frameIndex - 1];
+				if (this.frameIndex == 0)
+				{
+					this.frameTime = 0;
+				}
+				else
+				{
+					this.frameTime = this.frameTimings[this.frameIndex - 1];
+				}
 			}
 		}
 	}
@@ -235,7 +242,7 @@ class ImageData extends DisplayData
 	public function setFrameTimings(timings:Array<Float>):Void
 	{
 		this.frameTimings = timings;
-		this.frameCount = this.frameTimings == null ? this.frameList.length - 1 : this.frameTimings.length - 1;
+		this.frameCount = this.frameTimings == null ? this.frameList != null ? this.frameList.length - 1 : 0 : this.frameTimings.length - 1;
 	}
 	
 }
