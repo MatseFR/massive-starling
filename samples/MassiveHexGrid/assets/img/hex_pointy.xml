@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:9d0c2dda8bc6596f8909a939e667c48b:2b3e7f459e3d86311cd26902691cf26d:145c49f9da03ad23076e1d4d77a80581$ -->
+<TextureAtlas imagePath="hex_pointy.png">
+    <SubTexture name="dirt" x="124" y="286" width="120" height="140"/>
+    <SubTexture name="grass" x="2" y="286" width="120" height="140"/>
+    <SubTexture name="rock" x="124" y="144" width="120" height="140"/>
+    <SubTexture name="sand" x="2" y="144" width="120" height="140"/>
+    <SubTexture name="selection" x="124" y="2" width="120" height="140"/>
+    <SubTexture name="trees" x="2" y="2" width="120" height="140"/>
+</TextureAtlas>

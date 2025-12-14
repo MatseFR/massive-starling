@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:cd1218749291e2a177465d30b2ab3d9f:a91abf46cb0cbb0505c03274e25b4c73:d23ff14930104e383d2b6fa60c350bc0$ -->
+<TextureAtlas imagePath="hex_flat.png">
+    <SubTexture name="cost_1" x="464" y="51" width="32" height="45" frameX="-8" frameY="-14" frameWidth="44" frameHeight="75"/>
+    <SubTexture name="cost_2" x="428" y="51" width="34" height="47" frameX="-5" frameY="-12" frameWidth="44" frameHeight="75"/>
+    <SubTexture name="cost_3" x="466" y="2" width="36" height="47" frameX="-4" frameY="-13" frameWidth="44" frameHeight="75"/>
+    <SubTexture name="cost_5" x="428" y="2" width="36" height="47" frameX="-4" frameY="-13" frameWidth="44" frameHeight="75"/>
+    <SubTexture name="dirt" x="286" y="124" width="140" height="120"/>
+    <SubTexture name="grass" x="286" y="2" width="140" height="120"/>
+    <SubTexture name="rock" x="144" y="124" width="140" height="120"/>
+    <SubTexture name="sand" x="144" y="2" width="140" height="120"/>
+    <SubTexture name="selection" x="2" y="124" width="140" height="120"/>
+    <SubTexture name="trees" x="2" y="2" width="140" height="120"/>
+</TextureAtlas>
