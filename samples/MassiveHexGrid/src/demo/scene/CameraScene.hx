@@ -136,15 +136,10 @@ class CameraScene extends Scene implements IAnimatable
 		this._rolloverLayer.addImage(this._selectedImage);
 		
 		this._camera = new HexCamera();
-		//this._camera.grid = grid;
-		//this._camera.definition = this.hexDefinition;
 		this._camera.width = stageWidth * this.viewRatio;
 		this._camera.height = stageHeight * this.viewRatio;
 		this._camera.init(this.grid, this.hexDefinition);
-		this._camera.renderFunction = cameraRender;
 		
-		//this._display.pivotX = stageWidth / 2;//this._camera.width / 2;
-		//this._display.pivotY = stageHeight / 2;//this._camera.height / 2;
 		this._display.x = (stageWidth - this._camera.width) / 2 + this._camera.displayOffsetX;
 		this._display.y = (stageHeight - this._camera.height) / 2 + this._camera.displayOffsetY;
 		
@@ -167,8 +162,6 @@ class CameraScene extends Scene implements IAnimatable
 		this._camera.width = width * this.viewRatio;
 		this._camera.height = height * this.viewRatio;
 		
-		//this._display.pivotX = width / 2;//this._camera.width / 2;
-		//this._display.pivotY = height / 2;//this._camera.height / 2;
 		this._display.x = (width - this._camera.width) / 2 + this._camera.displayOffsetX;
 		this._display.y = (height - this._camera.height) / 2 + this._camera.displayOffsetY;
 		
