@@ -2205,7 +2205,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		getParticlesFromPool();
 	}
 	
-	public function writeSystempOptions(options:ParticleSystemOptions = null):ParticleSystemOptions
+	public function writeSystemOptions(options:ParticleSystemOptions = null):ParticleSystemOptions
 	{
 		if (options == null) options = ParticleSystemOptions.fromPool();
 		
