@@ -173,6 +173,42 @@ class CameraScene extends Scene implements IAnimatable
 		super.stageResize(width, height);
 	}
 	
+	public function advanceTime(time:Float):Void
+	{
+		var speed:Float = 5;
+		
+		if (this._keyPressed[Keyboard.LEFT])
+		{
+			this._camera.x -= speed;
+		}
+		
+		if (this._keyPressed[Keyboard.RIGHT])
+		{
+			this._camera.x += speed;
+		}
+		
+		if (this._keyPressed[Keyboard.UP])
+		{
+			this._camera.y -= speed;
+		}
+		
+		if (this._keyPressed[Keyboard.DOWN])
+		{
+			this._camera.y += speed;
+		}
+		
+		var count:Int = this._hexList.length;
+		for (i in 0...count)
+		{
+			this._hexList[i].visible = false;
+		}
+		this._hexList.resize(0);
+		this._camera.getHexes(this._hexList);
+		cameraRender(this._hexList, this._camera.x, this._camera.y);
+		
+		this._cameraDebug.update(this._camera);
+	}
+	
 	private function cameraRender(hexList:Array<Hex>, offsetX:Float, offsetY:Float):Void
 	{
 		this._display.renderOffsetX = -offsetX;
@@ -192,6 +228,7 @@ class CameraScene extends Scene implements IAnimatable
 		for (i in  0...count)
 		{
 			hex = hexList[i];
+			hex.visible = true;
 			hex.imageData.offsetX = hex.offsetX;
 			hex.imageData.offsetY = hex.offsetY;
 			this._hexDataList[++index] = hex.imageData;
@@ -207,12 +244,14 @@ class CameraScene extends Scene implements IAnimatable
 		{
 			this._rolloverImage.offsetX = this._rolloverHex.offsetX;
 			this._rolloverImage.offsetY = this._rolloverHex.offsetY;
+			this._rolloverImage.visible = this._rolloverHex.visible;
 		}
 		
 		if (this._selectedHex != null)
 		{
 			this._selectedImage.offsetX = this._selectedHex.offsetX;
 			this._selectedImage.offsetY = this._selectedHex.offsetY;
+			this._selectedImage.visible = this._selectedHex.visible;
 		}
 		
 		count = this._selectionHexList.length;
@@ -220,6 +259,7 @@ class CameraScene extends Scene implements IAnimatable
 		{
 			this._selectionImageList[i].offsetX = this._selectionHexList[i].offsetX;
 			this._selectionImageList[i].offsetY = this._selectionHexList[i].offsetY;
+			this._selectionImageList[i].visible = this._selectionHexList[i].visible;
 		}
 	}
 	
@@ -451,37 +491,6 @@ class CameraScene extends Scene implements IAnimatable
 		{
 			createSelectedImage(hex);
 		}
-	}
-	
-	public function advanceTime(time:Float):Void
-	{
-		var speed:Float = 5;
-		
-		if (this._keyPressed[Keyboard.LEFT])
-		{
-			this._camera.x -= speed;
-		}
-		
-		if (this._keyPressed[Keyboard.RIGHT])
-		{
-			this._camera.x += speed;
-		}
-		
-		if (this._keyPressed[Keyboard.UP])
-		{
-			this._camera.y -= speed;
-		}
-		
-		if (this._keyPressed[Keyboard.DOWN])
-		{
-			this._camera.y += speed;
-		}
-		
-		this._hexList.resize(0);
-		this._camera.getHexes(this._hexList);
-		cameraRender(this._hexList, this._camera.x, this._camera.y);
-		
-		this._cameraDebug.update(this._camera);
 	}
 	
 	private function keyDown(evt:KeyboardEvent):Void
