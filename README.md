@@ -10,7 +10,7 @@ It's been tested on windows (haxelib version of hxcpp), html5 and air targets wi
 
 [Hex Grid](https://matse.skwatt.com/haxe/starling/massive/hexgrid/) - display only a part of an hexagon map, move around with infinite scroll and interact with it
 
-Particle Editor - editor for Massive's `ParticleSystem` (link coming soon)
+[Particle Editor](https://matse.skwatt.com/haxe/starling/massive/particles/editor/) - editor for Massive's `ParticleSystem` (WIP)
 
 ## Getting started
 Massive is not available on haxelib yet, you can either use haxelib to install it directly from GitHub :
