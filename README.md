@@ -8,7 +8,7 @@ It's been tested on windows (haxelib version of hxcpp), html5 and air targets wi
 ## Demos
 [Benchmark](https://matse.skwatt.com/haxe/starling/massive/demo/) - compare Massive performance with classic Starling `Quad` and `MovieClip` (more info in the demo's [README](https://github.com/MatseFR/massive-starling/tree/main/samples/demo))
 
-Hex Map - display only a part of a huge hexagon map and interact with it (link coming soon)
+[Hex Grid](https://matse.skwatt.com/haxe/starling/massive/hexgrid/) - display only a part of an hexagon map, move around with infinite scroll and interact with it
 
 Particle Editor - editor for Massive's `ParticleSystem` (link coming soon)
 
