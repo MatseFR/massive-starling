@@ -27,6 +27,7 @@ class Hex
 	public var offsetY:Float;
 	public var imageData:ImageData;
 	public var costImageData:ImageData;
+	public var visible:Bool = false;
 	
 	public function new() 
 	{
