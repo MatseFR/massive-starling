@@ -13,10 +13,6 @@ import starling.events.EventDispatcher;
 abstract class MassiveLayer extends EventDispatcher
 {
 	/**
-	   Name of the layer, only useful if you want to be able to retrieve layers by their name
-	**/
-	public var name:String;
-	/**
 	   Tells whether the MassiveDisplay instance this layer is added to should call the advanceTime function or not
 	**/
 	public var animate:Bool;
@@ -31,6 +27,10 @@ abstract class MassiveLayer extends EventDispatcher
 	**/
 	public var display:MassiveDisplay;
 	/**
+	   Name of the layer, only useful if you want to be able to retrieve layers by their name
+	**/
+	public var name:String;
+	/**
 	   How many quads this layer should write data for when requested.
 	**/
 	public var numDatas:Int = 0;
@@ -42,6 +42,21 @@ abstract class MassiveLayer extends EventDispatcher
 	   Tells whether this layer should write color data or not, this is decided by the MassiveDisplay instance this layer was added to.
 	**/
 	public var useColor:Bool;
+	/**
+	   Tells whether this layer is visible or not.
+	   @default true
+	**/
+	public var visible:Bool = true;
+	/**
+	   The layer's position on x axis, relative to the MassiveDisplay it belongs to
+	   @default 0
+	**/
+	public var x:Float = 0.0;
+	/**
+	   The layer's position on y axis, relative to the MassiveDisplay it belongs to
+	   @default 0
+	**/
+	public var y:Float = 0.0;
 	
 	abstract private function get_totalDatas():Int;
 	
@@ -61,9 +76,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	offset
 	   @param	renderOffsetX
 	   @param	renderOffsetY
+	   @param	pma
 	   @return
 	**/
-	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int;
+	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int;
 	
 	#if !flash
 	/**
@@ -72,9 +88,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	offset
 	   @param	renderOffsetX
 	   @param	renderOffsetY
+	   @param	pma
 	   @return
 	**/
-	abstract public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int;
+	abstract public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int;
 	#end
 	
 	/**
@@ -83,9 +100,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	offset
 	   @param	renderOffsetX
 	   @param	renderOffsetY
+	   @param	pma
 	   @return
 	**/
-	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int;
+	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int;
 	
 	/**
 	 * Advances time for the layer, controlled by the MassiveDisplay instance this layer was added to

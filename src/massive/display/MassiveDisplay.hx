@@ -113,6 +113,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var numQuads(get, never):Int;
 	/**
+	   
+	**/
+	public var pma(default, null):Bool = true;
+	/**
 	   The shader used by this MassiveDisplay instance
 	**/
 	public var program(get, set):Program;
@@ -156,39 +160,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public var useFloat32Array(get, set):Bool;
 	#end
 	
-	override function set_alpha(value:Float):Float 
-	{
-		super.set_alpha(value);
-		
-		if (this._useByteArray)
-		{
-			if (this._byteColor != null)
-			{
-				this._byteColor.position = 12;
-				this._byteColor.writeFloat(this.__alpha);
-			}
-		}
-		else if (this._vectorColor != null)
-		{
-			this._vectorColor[3] = this.__alpha;
-		}
-		
-		return this.__alpha;
-	}
-	
 	private var _autoHandleJuggler:Bool = true;
 	private function get_autoHandleJuggler():Bool { return this._autoHandleJuggler; }
 	private function set_autoHandleJuggler(value:Bool):Bool
 	{
 		return this._autoHandleJuggler = value;
-	}
-	
-	override function set_blendMode(value:String):String 
-	{
-		if (this.__blendMode == value) return value;
-		this.__blendMode = value;
-		updateBlendMode();
-		return this.__blendMode;
 	}
 	
 	private var _bufferSize:Int = MassiveConstants.MAX_QUADS;
@@ -202,7 +178,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		if (this._buffersCreated)
 		{
-			// TODO : better buffer resizing
+			// TODO : better buffer resizing ?
 			createBuffers(this._numBuffers, value);
 		}
 		return this._bufferSize = value;
@@ -212,17 +188,20 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private function get_colorBlue():Float { return this._colorBlue; }
 	private function set_colorBlue(value:Float):Float
 	{
-		if (this._useByteArray)
+		if (!this.pma)
 		{
-			if (this._byteColor != null)
+			if (this._useByteArray)
 			{
-				this._byteColor.position = 8;
-				this._byteColor.writeFloat(value);
+				if (this._byteColor != null)
+				{
+					this._byteColor.position = 8;
+					this._byteColor.writeFloat(value);
+				}
 			}
-		}
-		else if (this._vectorColor != null)
-		{
-			this._vectorColor[2] = value;
+			else if (this._vectorColor != null)
+			{
+				this._vectorColor[2] = value;
+			}
 		}
 		return this._colorBlue = value;
 	}
@@ -231,17 +210,20 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private function get_colorGreen():Float { return this._colorGreen; }
 	private function set_colorGreen(value:Float):Float
 	{
-		if (this._useByteArray)
+		if (!this.pma)
 		{
-			if (this._byteColor != null)
+			if (this._useByteArray)
 			{
-				this._byteColor.position = 4;
-				this._byteColor.writeFloat(value);
+				if (this._byteColor != null)
+				{
+					this._byteColor.position = 4;
+					this._byteColor.writeFloat(value);
+				}
 			}
-		}
-		else if (this._vectorColor != null)
-		{
-			this._vectorColor[1] = value;
+			else if (this._vectorColor != null)
+			{
+				this._vectorColor[1] = value;
+			}
 		}
 		return this._colorGreen = value;
 	}
@@ -250,17 +232,20 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private function get_colorRed():Float { return this._colorRed; }
 	private function set_colorRed(value:Float):Float
 	{
-		if (this._useByteArray)
+		if (!this.pma)
 		{
-			if (this._byteColor != null)
+			if (this._useByteArray)
 			{
-				this._byteColor.position = 0;
-				this._byteColor.writeFloat(value);
+				if (this._byteColor != null)
+				{
+					this._byteColor.position = 0;
+					this._byteColor.writeFloat(value);
+				}
 			}
-		}
-		else if (this._vectorColor != null)
-		{
-			this._vectorColor[0] = value;
+			else if (this._vectorColor != null)
+			{
+				this._vectorColor[0] = value;
+			}
 		}
 		return this._colorRed = value;
 	}
@@ -312,7 +297,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private function set_texture(value:Texture):Texture
 	{
 		this._texture = value;
-		updateBlendMode();
+		this.pma = this._texture != null ? this._texture.premultipliedAlpha : true;
+		updateColor();
 		updateElements();
 		return this._texture;
 	}
@@ -389,8 +375,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _vectorIndices:Vector<UInt>;
 	private var _byteIndices:ByteArray;
 	
-	private var _realBlendMode:String;
-	
 	private var _positionOffset:Int = 0;
 	private var _colorOffset:Int;
 	private var _uvOffset:Int;
@@ -444,9 +428,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			{
 				this._byteColor = new ByteArray(16);
 				this._byteColor.endian = Endian.LITTLE_ENDIAN;
-				this._byteColor.writeFloat(this._colorRed);
-				this._byteColor.writeFloat(this._colorGreen);
-				this._byteColor.writeFloat(this._colorBlue);
+				if (this.pma)
+				{
+					this._byteColor.writeFloat(this._colorRed * this.__alpha);
+					this._byteColor.writeFloat(this._colorGreen * this.__alpha);
+					this._byteColor.writeFloat(this._colorBlue * this.__alpha);
+				}
+				else
+				{
+					this._byteColor.writeFloat(this._colorRed);
+					this._byteColor.writeFloat(this._colorGreen);
+					this._byteColor.writeFloat(this._colorBlue);
+				}
 				this._byteColor.writeFloat(this.__alpha);
 			}
 			
@@ -461,9 +454,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			if (this._vectorColor == null)
 			{
 				this._vectorColor = new Vector<Float>();
-				this._vectorColor[0] = this._colorRed;
-				this._vectorColor[1] = this._colorGreen;
-				this._vectorColor[2] = this._colorBlue;
+				if (this.pma)
+				{
+					this._vectorColor[0] = this._colorRed * this.__alpha;
+					this._vectorColor[1] = this._colorGreen * this.__alpha;
+					this._vectorColor[2] = this._colorBlue * this.__alpha;
+				}
+				else
+				{
+					this._vectorColor[0] = this._colorRed;
+					this._vectorColor[1] = this._colorGreen;
+					this._vectorColor[2] = this._colorBlue;
+				}
 				this._vectorColor[3] = this.__alpha;
 			}
 			
@@ -853,8 +855,36 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		++painter.drawCount;
 		
 		painter.setupContextDefaults();
-		painter.state.blendMode = this._realBlendMode;
+		painter.state.blendMode = this.__blendMode;
 		painter.prepareToDraw();
+		
+		var alpha:Float = painter.state.alpha * this.__alpha;
+		if (this._useByteArray)
+		{
+			if (this.pma)
+			{
+				this._byteColor.position = 0;
+				this._byteColor.writeFloat(this._colorRed * alpha);
+				this._byteColor.writeFloat(this._colorGreen * alpha);
+				this._byteColor.writeFloat(this._colorBlue * alpha);
+				this._byteColor.writeFloat(alpha);
+			}
+			else
+			{
+				this._byteColor.position = 12;
+				this._byteColor.writeFloat(alpha);
+			}
+		}
+		else
+		{
+			if (this.pma)
+			{
+				this._vectorColor[0] = this._colorRed * alpha;
+				this._vectorColor[1] = this._colorBlue * alpha;
+				this._vectorColor[2] = this._colorGreen * alpha;
+			}
+			this._vectorColor[3] = alpha;
+		}
 		
 		this._program.activate(context);
 		if (this._texture != null)
@@ -871,7 +901,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._byteData.length = 0;
 			for (i in 0...this._numLayers)
 			{
-				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				if (!this._layers[i].visible) continue;
+				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma);
 			}
 			
 			this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
@@ -881,7 +912,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			#if flash
 			for (i in 0...this._numLayers)
 			{
-				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				if (!this._layers[i].visible) continue;
+				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma);
 			}
 			
 			this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
@@ -891,7 +923,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				//trace("Float32Array");
 				for (i in 0...this._numLayers)
 				{
-					this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+					if (!this._layers[i].visible) continue;
+					this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma);
 				}
 				
 				this._vertexBuffer.uploadFromTypedArray(this._float32Data);
@@ -901,7 +934,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				//trace("Vector");
 				for (i in 0...this._numLayers)
 				{
-					this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+					if (!this._layers[i].visible) continue;
+					this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma);
 				}
 				
 				this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
@@ -958,39 +992,44 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._byteData.length = 0;
 			for (i in 0...this._numLayers)
 			{
-				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma);
 			}
 		}
 		else
 		{
 			for (i in 0...this._numLayers)
 			{
-				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY);
+				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma);
 			}
 		}
 	}
 	
-	private function updateBlendMode():Void
+	private function updateColor():Void
 	{
-		if (this.__blendMode == BlendMode.NORMAL)
+		if (this.pma) return;
+		
+		if (this._useByteArray)
 		{
-			var pma:Bool = this._texture != null ? this._texture.premultipliedAlpha : true;
-			if (pma)
+			if (this._byteData == null)
 			{
-				this._realBlendMode = Context3DBlendFactor.SOURCE_ALPHA + ", " + Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
-				if (!BlendMode.isRegistered(this._realBlendMode))
-				{
-					BlendMode.register(this._realBlendMode, Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
-				}
+				this._byteData = new ByteArray();
+				this._byteData.endian = Endian.LITTLE_ENDIAN;
 			}
-			else
-			{
-				this._realBlendMode = this.__blendMode;
-			}
+			this._byteColor.position = 0;
+			this._byteColor.writeFloat(this._colorRed);
+			this._byteColor.writeFloat(this._colorGreen);
+			this._byteColor.writeFloat(this._colorBlue);
 		}
 		else
 		{
-			this._realBlendMode = this.__blendMode;
+			if (this._vectorColor == null)
+			{
+				this._vectorColor = new Vector<Float>();
+			}
+			
+			this._vectorColor[0] = this._colorRed;
+			this._vectorColor[1] = this._colorGreen;
+			this._vectorColor[2] = this._colorBlue;
 		}
 	}
 	

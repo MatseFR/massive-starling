@@ -166,7 +166,7 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
+	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int 
 	{
 		if (this._datas == null) return 0;
 		
@@ -196,6 +196,9 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
+		renderOffsetX += this.x;
+		renderOffsetY += this.y;
+		
 		if (this.useColor)
 		{
 			byteData.length += this.numDatas * 96;
@@ -220,10 +223,20 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			
 			if (this.useColor)
 			{
-				red = data.colorRed;
-				green = data.colorGreen;
-				blue = data.colorBlue;
-				alpha = data.colorAlpha;
+				if (pma)
+				{
+					alpha = data.colorAlpha;
+					red = data.colorRed * alpha;
+					green = data.colorGreen * alpha;
+					blue = data.colorBlue * alpha;
+				}
+				else
+				{
+					red = data.colorRed;
+					green = data.colorGreen;
+					blue = data.colorBlue;
+					alpha = data.colorAlpha;
+				}
 			}
 			
 			leftOffset = data.leftWidth * data.scaleX;
@@ -337,7 +350,7 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int
+	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -379,6 +392,9 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
+		renderOffsetX += this.x;
+		renderOffsetY += this.y;
+		
 		var data:T;
 		for (i in 0...this.numDatas)
 		{
@@ -393,10 +409,20 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			
 			if (this.useColor)
 			{
-				red = data.colorRed;
-				green = data.colorGreen;
-				blue = data.colorBlue;
-				alpha = data.colorAlpha;
+				if (pma)
+				{
+					alpha = data.colorAlpha;
+					red = data.colorRed * alpha;
+					green = data.colorGreen * alpha;
+					blue = data.colorBlue * alpha;
+				}
+				else
+				{
+					red = data.colorRed;
+					green = data.colorGreen;
+					blue = data.colorBlue;
+					alpha = data.colorAlpha;
+				}
 			}
 			
 			leftOffset = data.leftWidth * data.scaleX;
@@ -511,7 +537,7 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float):Int 
+	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int 
 	{
 		if (this._datas == null) return 0;
 		
@@ -553,6 +579,9 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
+		renderOffsetX += this.x;
+		renderOffsetY += this.y;
+		
 		var data:T;
 		for (i in 0...this.numDatas)
 		{
@@ -567,10 +596,20 @@ class MassiveQuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			
 			if (this.useColor)
 			{
-				red = data.colorRed;
-				green = data.colorGreen;
-				blue = data.colorBlue;
-				alpha = data.colorAlpha;
+				if (pma)
+				{
+					alpha = data.colorAlpha;
+					red = data.colorRed * alpha;
+					green = data.colorGreen * alpha;
+					blue = data.colorBlue * alpha;
+				}
+				else
+				{
+					red = data.colorRed;
+					green = data.colorGreen;
+					blue = data.colorBlue;
+					alpha = data.colorAlpha;
+				}
 			}
 			
 			leftOffset = data.leftWidth * data.scaleX;
