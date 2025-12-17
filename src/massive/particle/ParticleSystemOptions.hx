@@ -606,7 +606,7 @@ class ParticleSystemOptions
 		this.particleAmount = 0;
 		
 		this.autoSetEmissionRate = true;
-		this.emissionRate = 10.0;
+		this.emissionRate = 100.0;
 		this.emissionRatio = 1.0;
 		
 		this.emitterX = 0;
@@ -638,14 +638,14 @@ class ParticleSystemOptions
 		this.fadeInTime = 0.0;
 		this.fadeOutTime = 0.0;
 		
-		this.sizeXStart = 100;
+		this.sizeXStart = 20;
 		this.sizeXStartVariance = 0;
-		this.sizeYStart = 100;
+		this.sizeYStart = 20;
 		this.sizeYStartVariance = 0;
 		
-		this.sizeXEnd = 100;
+		this.sizeXEnd = 20;
 		this.sizeXEndVariance = 0;
-		this.sizeYEnd = 100;
+		this.sizeYEnd = 20;
 		this.sizeYEndVariance = 0;
 		
 		this.rotationStart = 0;
