@@ -6,11 +6,11 @@ It's heavily inspired by the [FFParticleSystem](https://github.com/shin10/Starli
 It's been tested on windows (haxelib version of hxcpp), html5 and air targets with the latest versions of OpenFL, Lime and Starling.
 
 ## Demos
-[Benchmark](https://matse.skwatt.com/haxe/starling/massive/demo/) - compare Massive performance with classic Starling `Quad` and `MovieClip` (more info in the demo's [README](https://github.com/MatseFR/massive-starling/tree/main/samples/demo))
+[Benchmark](https://matse.skwatt.com/haxe/starling/massive/demo/) - compare Massive performance with classic Starling `Quad` and `MovieClip` ([README](https://github.com/MatseFR/massive-starling/tree/main/samples/demo))
 
-[Hex Grid](https://matse.skwatt.com/haxe/starling/massive/hexgrid/) - display only a part of an hexagon map, move around with infinite scroll and interact with it
+[Hex Grid](https://matse.skwatt.com/haxe/starling/massive/hexgrid/) - display only a part of an hexagon map, move around with infinite scroll and interact with it ([README](https://github.com/MatseFR/massive-starling/tree/main/samples/MassiveHexGrid))
 
-[Particle Editor](https://matse.skwatt.com/haxe/starling/massive/particles/editor/) - editor for Massive's `ParticleSystem` (WIP)
+[Particle Editor](https://matse.skwatt.com/haxe/starling/massive/particles/editor/) - editor for Massive's `ParticleSystem` (WIP) ([README](https://github.com/MatseFR/massive-starling/tree/main/samples/particles/editor))
 
 ## Getting started
 Massive is not available on haxelib yet, you can either use haxelib to install it directly from GitHub :
