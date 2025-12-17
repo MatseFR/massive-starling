@@ -54,4 +54,4 @@ img.y = 100;
 layer.addImage(img);
 
 ```
-You can also look at the benchmark demo's [MassiveImages](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveImages.hx) and [MassiveQuads](https://github.com/MatseFR/massive-starling/blob/main/samples/demo/src/scene/MassiveQuads.hx) for starters
+You can also look at the [samples](https://github.com/MatseFR/massive-starling/tree/main/samples) source code for starters
