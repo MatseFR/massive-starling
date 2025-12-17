@@ -2,9 +2,9 @@ package massive.display;
 
 import massive.data.MassiveConstants;
 import massive.util.MathUtils;
+import massive.util.ReverseIterator;
 import openfl.Vector;
 import openfl.display3D.Context3D;
-import openfl.display3D.Context3DBlendFactor;
 import openfl.display3D.Context3DBufferUsage;
 import openfl.display3D.Context3DProgramType;
 import openfl.display3D.Context3DVertexBufferFormat;
@@ -16,9 +16,6 @@ import openfl.geom.Point;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
 import openfl.utils.Endian;
-#if !flash
-import openfl.utils._internal.Float32Array;
-#end
 import starling.animation.IAnimatable;
 import starling.animation.Juggler;
 import starling.core.Starling;
@@ -32,7 +29,9 @@ import starling.textures.Texture;
 import starling.textures.TextureSmoothing;
 import starling.utils.MatrixUtil;
 import starling.utils.RenderUtil;
-import massive.util.ReverseIterator;
+#if !flash
+import openfl.utils._internal.Float32Array;
+#end
 
 /**
  * MassiveDisplay is a starling DisplayObject
