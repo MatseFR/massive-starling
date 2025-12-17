@@ -1168,6 +1168,21 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		}
 	}
 	
+	public function clearFrames():Void
+	{
+		returnParticlesToPool();
+		
+		#if flash
+		this._frames.length = 0;
+		#else
+		this._frames.resize(0);
+		#end
+		this._frameTimings.resize(0);
+		
+		this._numFrameSets = 0;
+		this._useMultipleFrameSets = false;
+	}
+	
 	private function refreshFrameTimings(prevFrameRate:Float, newFrameRate:Float):Void
 	{
 		var ratio:Float = newFrameRate / prevFrameRate;
