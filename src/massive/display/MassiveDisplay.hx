@@ -879,8 +879,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			if (this.pma)
 			{
 				this._vectorColor[0] = this._colorRed * alpha;
-				this._vectorColor[1] = this._colorBlue * alpha;
-				this._vectorColor[2] = this._colorGreen * alpha;
+				this._vectorColor[1] = this._colorGreen * alpha;
+				this._vectorColor[2] = this._colorBlue * alpha;
 			}
 			this._vectorColor[3] = alpha;
 		}
