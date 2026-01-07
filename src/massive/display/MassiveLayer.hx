@@ -78,6 +78,7 @@ abstract class MassiveLayer extends EventDispatcher
 	**/
 	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
 	
+	#if flash
 	/**
 	   Writes the layer's quads data to the domain memory ByteArray
 	   byteData is still passed as a parameter so that the layer can set its length
@@ -90,6 +91,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @return
 	**/
 	abstract public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
+	#end
 	
 	#if !flash
 	/**

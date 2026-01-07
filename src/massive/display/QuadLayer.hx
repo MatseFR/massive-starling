@@ -1,6 +1,4 @@
 package massive.display;
-import massive.util.LookUp;
-import massive.data.MassiveConstants;
 import massive.data.QuadData;
 import openfl.Memory;
 import openfl.Vector;
@@ -349,6 +347,10 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		return quadsWritten;
 	}
 	
+	#if flash
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
@@ -545,12 +547,13 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		return quadsWritten;
 	}
+	#end
 	
 	#if !flash
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataFloat32Array(floatData:Float32Array, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
+	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		

@@ -148,10 +148,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   Tells the MassiveDisplay instance to use a ByteArray to store and upload vertex data. This seems to result in faster upload on flash/air target, but at a higher cpu cost.
 	**/
 	public var useByteArray(get, set):Bool;
+	#if flash
 	/**
-	   
+	   (flash/air target only) If useByteArray is set to true, this makes the MassiveDisplay instance to write vertex data using domain memory, which is a lot faster than calling ByteArray functions.
+	   This seems to be the best setting for flash/air target.
 	**/
-	public var useByteArrayDomainMemory:Bool = false;
+	public var useByteArrayDomainMemory:Bool = true;
+	#end
 	/**
 	   Tells whether to have color data for tinting/colorizing, this results in bigger vertex data and more complex shader so disabling it is a good idea if you don't need it
 	   @default true
@@ -330,7 +333,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return super.set_touchable(value);
 	}
 	
-	private var _useByteArray:Bool = false;
+	private var _useByteArray:Bool = #if flash true #else false#end;
 	private function get_useByteArray():Bool { return this._useByteArray; }
 	private function set_useByteArray(value:Bool):Bool
 	{
@@ -900,6 +903,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		if (this._useByteArray)
 		{
+			#if flash
 			if (this.useByteArrayDomainMemory)
 			{
 				this._byteData.length = 1024;
@@ -912,13 +916,16 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			}
 			else
 			{
+			#end
 				this._byteData.length = 0;
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
 					this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor);
 				}
+			#if flash
 			}
+			#end
 			
 			this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
 		}

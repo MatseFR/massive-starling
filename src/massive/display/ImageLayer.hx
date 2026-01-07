@@ -2,8 +2,6 @@ package massive.display;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
-import massive.util.LookUp;
-import massive.data.MassiveConstants;
 import openfl.Memory;
 import openfl.Vector;
 import openfl.utils.ByteArray;
@@ -189,7 +187,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var blue:Float = 0;
 		var alpha:Float = 0;
 		
-		var angle:Int;
+		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -403,21 +401,22 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		return quadsWritten;
 	}
 	
+	#if flash
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
-		var vertexID:Int = offset << 2;
 		var position:Int;
 		
 		if (useColor)
 		{
-			//position = vertexID << 3;
 			position = offset * 96;
 		}
 		else
 		{
-			//position = vertexID << 2;
 			position = offset << 5;
 		}
 		
@@ -432,7 +431,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var blue:Float = 0;
 		var alpha:Float = 0;
 		
-		var angle:Int;
+		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -646,6 +645,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		return quadsWritten;
 	}
+	#end
 	
 	#if !flash
 	/**
@@ -678,7 +678,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var blue:Float = 0;
 		var alpha:Float = 0;
 		
-		var angle:Int;
+		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -913,7 +913,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var blue:Float = 0;
 		var alpha:Float = 0;
 		
-		var angle:Int;
+		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
