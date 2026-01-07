@@ -17,6 +17,7 @@ class Main extends Sprite
 {
 	private var _tf:TextField;
 	private var _format:TextFormat;
+	private var _m = Math;
 
 	public function new() 
 	{
@@ -119,6 +120,7 @@ class Main extends Sprite
 		#end
 		var result:Float;
 		var angle:Float = 1.57;
+		var m = Math;
 		
 		t1 = timeStamp();
 		for (i in 0...iterations)
@@ -128,6 +130,17 @@ class Main extends Sprite
 		}
 		t2 = timeStamp();
 		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			//result = m.cos(Math.random() * MathUtils.PI2);
+			result = _m.cos(angle);
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("(cached Math).cos", time2, "Math.cos", time1);
 		
 		t1 = timeStamp();
 		for (i in 0...iterations)
@@ -172,6 +185,7 @@ class Main extends Sprite
 		var time2:Float;
 		var iterations:Int = 10000000;
 		var result:Float;
+		var m = Math;
 		
 		t1 = timeStamp();
 		for (i in 0...iterations)
@@ -181,6 +195,17 @@ class Main extends Sprite
 		}
 		t2 = timeStamp();
 		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			//result = m.sin(Math.random() * MathUtils.PI2);
+			result = m.sin(1.57);
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("(cached Math).sin", time2, "Math.sin", time1);
 		
 		t1 = timeStamp();
 		for (i in 0...iterations)
@@ -200,7 +225,7 @@ class Main extends Sprite
 		var t2:Float;
 		var time1:Float;
 		var time2:Float;
-		var iterations:Int = MathUtils.INT_MAX;
+		var iterations:Int = 10000000;
 		var angle:Float = 1.57;
 		var intAngle:Int;
 		var result1:Float;
@@ -258,6 +283,17 @@ class Main extends Sprite
 		time2 = t2 - t1;
 		
 		logResults("MathUtils.fastCos", time2, "Math.cos", time1);
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			//result = MathUtils.fasterCos(Math.random() * MathUtils.PI2);
+			result = MathUtils.fasterCos(1.57);
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("MathUtils.fasterCos", time2, "Math.cos", time1);
 	}
 	
 	private function fastSin():Void
@@ -288,6 +324,17 @@ class Main extends Sprite
 		time2 = t2 - t1;
 		
 		logResults("MathUtils.fastSin", time2, "Math.sin", time1);
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			//result = MathUtils.fasterSin(Math.random() * MathUtils.PI2);
+			result = MathUtils.fasterSin(1.57);
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("MathUtils.fasterSin", time2, "Math.sin", time1);
 	}
 	
 	private function abs():Void
