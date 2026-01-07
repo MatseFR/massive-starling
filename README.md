@@ -37,7 +37,7 @@ massive.texture = assetManager.getTextureAtlas("my-atlas").texture;
 addChild(massive);
 
 // we need a layer in order to display something
-var layer:MassiveImageLayer = new MassiveImageLayer();
+var layer:ImageLayer = new ImageLayer();
 massive.addLayer(layer);
 
 // we need to create Frame instances to display Massive's equivalent of Image
