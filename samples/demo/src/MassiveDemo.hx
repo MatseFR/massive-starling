@@ -54,10 +54,11 @@ class MassiveDemo extends Sprite
 	private var numObjects:Int;
 	private var useBlurFilter:Bool = false;
 	private var useByteArray:Bool = false;
+	private var useColor:Bool = true;
+	private var useDomainMemory:Bool = false;
 	#if !flash
 	private var useFloat32Array:Bool = true;
 	#end
-	private var useColor:Bool = true;
 	private var useRandomAlpha:Bool = false;
 	private var useRandomColor:Bool = false;
 	private var useRandomRotation:Bool = true;
@@ -93,7 +94,7 @@ class MassiveDemo extends Sprite
 			Assets.getPath("img/starling_bird.png"),
 			Assets.getPath("img/starling_bird.xml"),
 			Assets.getPath("img/zombi_walk.png"),
-			Assets.getPath("img/zombi_walk.xml")
+			Assets.getPath("img/zombi_walk.xml"),
 			
 		]);
 		assetManager.loadQueue(assetsLoaded);
@@ -112,7 +113,6 @@ class MassiveDemo extends Sprite
 		var quad:Quad = new Quad(250, 20);
 		var mediumQuad:Quad = new Quad(90, 20);
 		var miniQuad:Quad = new Quad(36, 20);
-		//var backQuad:Quad = new Quad(100, 20);
 		
 		quad.color = colorUP;
 		this.buttonTextureOFF = new RenderTexture(Std.int(quad.width), Std.int(quad.height));
@@ -330,6 +330,12 @@ class MassiveDemo extends Sprite
 		this.dataModeButtons.push(btn);
 		this.menuSprite.addChild(btn);
 		#end
+		
+		tY += btn.height + gap;
+		btn = new Button(this.useDomainMemory ? this.buttonTextureON : this.buttonTextureOFF, "use Domain Memory (ByteArray)", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleDomainMemory);
+		this.menuSprite.addChild(btn);
 		
 		tY += btn.height + gap;
 		this.bufferSprite = new Sprite();
@@ -795,6 +801,20 @@ class MassiveDemo extends Sprite
 		btn.upState = this.miniButtonTextureON;
 	}
 	
+	private function toggleDomainMemory(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.useDomainMemory = !this.useDomainMemory;
+		if (this.useDomainMemory)
+		{
+			btn.upState = this.buttonTextureON;
+		}
+		else
+		{
+			btn.upState = this.buttonTextureOFF;
+		}
+	}
+	
 	private function toggleRandomAlpha(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
@@ -861,6 +881,7 @@ class MassiveDemo extends Sprite
 		massive.numObjects = this.numObjects;
 		massive.useBlurFilter = this.useBlurFilter;
 		massive.useByteArray = this.useByteArray;
+		massive.useDomainMemory = this.useDomainMemory;
 		#if !flash
 		massive.useFloat32Array = this.useFloat32Array;
 		#end
@@ -881,6 +902,7 @@ class MassiveDemo extends Sprite
 		massive.numObjects = this.numObjects;
 		massive.useBlurFilter = this.useBlurFilter;
 		massive.useByteArray = this.useByteArray;
+		massive.useDomainMemory = this.useDomainMemory;
 		#if !flash
 		massive.useFloat32Array = this.useFloat32Array;
 		#end

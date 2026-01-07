@@ -4,7 +4,7 @@ import massive.util.LookUp;
 import massive.data.MassiveConstants;
 import massive.data.QuadData;
 import massive.display.MassiveDisplay;
-import massive.display.MassiveQuadLayer;
+import massive.display.QuadLayer;
 import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
@@ -29,6 +29,7 @@ class MassiveQuads extends Scene implements IAnimatable
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
 	public var useByteArray:Bool;
+	public var useDomainMemory:Bool;
 	#if !flash
 	public var useFloat32Array:Bool;
 	#end
@@ -71,7 +72,7 @@ class MassiveQuads extends Scene implements IAnimatable
 		
 		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
 		var display:MassiveDisplay;
-		var layer:MassiveQuadLayer;
+		var layer:QuadLayer;
 		var numQuads:Int;
 		#if flash
 		this._quads = new Vector<MassiveQuad>();
@@ -89,12 +90,13 @@ class MassiveQuads extends Scene implements IAnimatable
 			display.bufferSize = numQuads;
 			display.numBuffers = this.numBuffers;
 			display.useByteArray = this.useByteArray;
+			display.useByteArrayDomainMemory = this.useDomainMemory;
 			display.useColor = this.useColor;
 			#if !flash
 			display.useFloat32Array = this.useFloat32Array;
 			#end
 			
-			layer = new MassiveQuadLayer();
+			layer = new QuadLayer();
 			display.addLayer(layer);
 			
 			for (j in 0...numQuads)

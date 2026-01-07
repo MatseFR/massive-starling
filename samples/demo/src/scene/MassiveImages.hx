@@ -6,7 +6,7 @@ import massive.data.ImageData;
 import massive.util.LookUp;
 import massive.data.MassiveConstants;
 import massive.display.MassiveDisplay;
-import massive.display.MassiveImageLayer;
+import massive.display.ImageLayer;
 import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
@@ -29,6 +29,7 @@ class MassiveImages extends Scene implements IAnimatable
 	public var numObjects:Int = 1000;
 	public var useBlurFilter:Bool;
 	public var useByteArray:Bool;
+	public var useDomainMemory:Bool;
 	#if !flash
 	public var useFloat32Array:Bool;
 	#end
@@ -82,7 +83,7 @@ class MassiveImages extends Scene implements IAnimatable
 		
 		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
 		var display:MassiveDisplay;
-		var layer:MassiveImageLayer;
+		var layer:ImageLayer;
 		var numImages:Int;
 		#if flash
 		this._imgList = new Vector<MassiveImage>();
@@ -101,12 +102,13 @@ class MassiveImages extends Scene implements IAnimatable
 			display.bufferSize = numImages;
 			display.numBuffers = this.numBuffers;
 			display.useByteArray = this.useByteArray;
+			display.useByteArrayDomainMemory = this.useDomainMemory;
 			display.useColor = this.useColor;
 			#if !flash
 			display.useFloat32Array = this.useFloat32Array;
 			#end
 			
-			layer = new MassiveImageLayer();
+			layer = new ImageLayer();
 			display.addLayer(layer);
 			
 			for (j in 0...numImages)
