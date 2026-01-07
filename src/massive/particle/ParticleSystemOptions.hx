@@ -281,16 +281,26 @@ class ParticleSystemOptions
 	   @default true
 	**/
 	public var textureAnimation:Bool = true;
+	///**
+	   //frame rate for texture animation
+	   //@default 60
+	//**/
+	//public var frameRate:Float = 60;
 	/**
-	   frame rate for texture animation
-	   @default 60
+	   texture animation play speed ratio
+	   @default 1
 	**/
-	public var frameRate:Float = 60;
+	public var frameDelta:Float = 1.0;
+	/**
+	   texture animation play speed ratio variance
+	   @default 0
+	**/
+	public var frameDeltaVariance:Float = 0.0;
 	/**
 	   Tells whether texture animation should loop or not
-	   @default true
+	   @default false
 	**/
-	public var loopAnimation:Bool = true;
+	public var loopAnimation:Bool = false;
 	/**
 	   Number of loops if textureAnimation is on, 0 = infinite
 	   @default 0
@@ -670,10 +680,12 @@ class ParticleSystemOptions
 		// ANIMATION
 		this.textureAnimation = true;
 		//this.animationLength = 1;
-		this.frameRate = 60;
+		//this.frameRate = 60;
+		this.frameDelta = 1.0;
+		this.frameDeltaVariance = 0.0;
 		this.firstFrame = 0;
 		this.lastFrame = -1;
-		this.loopAnimation = true;
+		this.loopAnimation = false;
 		this.animationLoops = 0;
 		this.randomStartFrame = false;
 		//\ANIMATION
@@ -855,7 +867,9 @@ class ParticleSystemOptions
 		
 		// ANIMATION
 		target.textureAnimation = this.textureAnimation;
-		target.frameRate = this.frameRate;
+		//target.frameRate = this.frameRate;
+		target.frameDelta = this.frameDelta;
+		target.frameDeltaVariance = this.frameDeltaVariance;
 		target.firstFrame = this.firstFrame;
 		target.lastFrame = this.lastFrame;
 		target.loopAnimation = this.loopAnimation;
@@ -1037,7 +1051,9 @@ class ParticleSystemOptions
 		
 		// ANIMATION
 		this.textureAnimation = json.textureAnimation;
-		this.frameRate = json.frameRate;
+		//this.frameRate = json.frameRate;
+		if (json.frameDelta != null) this.frameDelta = json.frameDelta;
+		if (json.frameDeltaVariance != null) this.frameDeltaVariance = json.frameDeltaVariance;
 		this.firstFrame = json.firstFrame;
 		this.lastFrame = json.lastFrame;
 		this.loopAnimation = json.loopAnimation;
@@ -1210,7 +1226,9 @@ class ParticleSystemOptions
 		
 		// ANIMATION
 		json.textureAnimation = this.textureAnimation;
-		json.frameRate = this.frameRate;
+		//json.frameRate = this.frameRate;
+		json.frameDelta = this.frameDelta;
+		json.frameDeltaVariance = this.frameDeltaVariance;
 		json.firstFrame = this.firstFrame;
 		json.lastFrame = this.lastFrame;
 		json.loopAnimation = this.loopAnimation;

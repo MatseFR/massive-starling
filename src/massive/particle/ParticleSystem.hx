@@ -3,7 +3,7 @@ package massive.particle;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.MassiveConstants;
-import massive.display.MassiveImageLayer;
+import massive.display.ImageLayer;
 import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.errors.Error;
@@ -16,14 +16,8 @@ import starling.extensions.ColorArgb;
  * @author Matse
  */
 @:generic
-class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
+class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 {
-	//static public var AUTO_CLEAR_ON_COMPLETE:Bool = true;
-	//static public inline var EMITTER_TYPE_GRAVITY:Int = 0;
-	//static public inline var EMITTER_TYPE_RADIAL:Int = 1;
-	//static public inline var PI2:Float = 6.283185307179586476925286766559;
-	//static public var RANDOM_SEED:Int = 1;
-	
 	public var autoClearOnComplete:Bool = ParticleSystemDefaults.AUTO_CLEAR_ON_COMPLETE;
 	public var randomSeed:Int = ParticleSystemDefaults.RANDOM_SEED;
 	
@@ -233,7 +227,19 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	   Limits particle life to texture animation duration (including loops)
 	   @default false
 	**/
-	public var useAnimationLifeSpan:Bool = false;
+	public var useAnimationLifeSpan(get, set):Bool;
+	private var _useAnimationLifeSpan:Bool = false;
+	private function get_useAnimationLifeSpan():Bool { return this._useAnimationLifeSpan; }
+	private function set_useAnimationLifeSpan(value:Bool):Bool
+	{
+		if (this._useAnimationLifeSpan == value) return value;
+		this._useAnimationLifeSpan = value;
+		if (this._autoSetEmissionRate)
+		{
+			updateEmissionRate();
+		}
+		return this._useAnimationLifeSpan;
+	}
 	
 	/**
 	   @default 1
@@ -498,27 +504,43 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	//##################################################
 	// ANIMATION
 	//##################################################
-	/**
-	   frame rate for texture animation
-	   @default 60
-	**/
-	public var frameRate(get, set):Float;
-	private var _frameRate:Float = 60.0;
-	private function get_frameRate():Float { return this._frameRate; }
-	private function set_frameRate(value:Float):Float
+	///**
+	   //frame rate for texture animation
+	   //@default 60
+	//**/
+	//public var frameRate(get, set):Float;
+	//private var _frameRate:Float = 60.0;
+	//private function get_frameRate():Float { return this._frameRate; }
+	//private function set_frameRate(value:Float):Float
+	//{
+		//if (this._frameRate == value) return value;
+		//refreshFrameTimings(this._frameRate, value);
+		////this._frameDuration = 1.0 / value;
+		//return this._frameRate = value;
+	//}
+	
+	public var frameDelta(get, set):Float;
+	private var _frameDelta:Float = 1.0;
+	private function get_frameDelta():Float { return this._frameDelta; }
+	private function set_frameDelta(value:Float):Float
 	{
-		if (this._frameRate == value) return value;
-		refreshFrameTimings(this._frameRate, value);
-		//this._frameDuration = 1.0 / value;
-		return this._frameRate = value;
+		if (this._frameDelta == value) return value;
+		this._frameDelta = value;
+		if (this.useAnimationLifeSpan)
+		{
+			updateEmissionRate();
+		}
+		return this._frameDelta;
 	}
+	
+	public var frameDeltaVariance:Float = 0.0;
 	
 	/**
 	   Tells whether texture animation should loop or not
 	   @default true
 	**/
 	public var loopAnimation(get, set):Bool;
-	private var _loopAnimation:Bool = true;
+	private var _loopAnimation:Bool = false;
 	private function get_loopAnimation():Bool { return this._loopAnimation; }
 	private function set_loopAnimation(value:Bool):Bool
 	{
@@ -1125,21 +1147,17 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	
 	private function init():Void
 	{
-		//for (i in 0...50)
-		//{
-			////trace(getRandomRatio());
-			//trace(MathUtils.random());
-		//}
-		
 		this._emissionRate = this._maxNumParticles / this._lifeSpan;
 		this._emissionTime = 0.0;
 		this._frameTime = 0.0;
-		//this._frameDuration = 1.0 / this._frameRate;
 	}
 	
 	public function addFrames(frames:#if flash Vector<Frame> #else Array<Frame>#end, timings:Array<Float> = null, refreshParticles:Bool = true):Void
 	{
-		if (timings == null) timings = Animator.generateTimings(frames, this._frameRate);
+		if (timings == null) 
+		{
+			timings = Animator.generateTimings(frames);// , this._frameRate);
+		}
 		
 		this._frames[this._frames.length] = frames;
 		this._frameTimings[this._frameTimings.length] = timings;
@@ -1183,26 +1201,26 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		this._useMultipleFrameSets = false;
 	}
 	
-	private function refreshFrameTimings(prevFrameRate:Float, newFrameRate:Float):Void
-	{
-		var ratio:Float = newFrameRate / prevFrameRate;
-		var timings:Array<Float>;
-		var count:Int;
-		for (i in 0...this._numFrameSets)
-		{
-			timings = this._frameTimings[i];
-			count = timings.length;
-			for (j in 0...count)
-			{
-				timings[j] = timings[j] * ratio;
-			}
-		}
-		
-		for (i in 0...this._numParticles)
-		{
-			this._particles[i].frameTime *= ratio;
-		}
-	}
+	//private function refreshFrameTimings(prevFrameRate:Float, newFrameRate:Float):Void
+	//{
+		//var ratio:Float = newFrameRate / prevFrameRate;
+		//var timings:Array<Float>;
+		//var count:Int;
+		//for (i in 0...this._numFrameSets)
+		//{
+			//timings = this._frameTimings[i];
+			//count = timings.length;
+			//for (j in 0...count)
+			//{
+				//timings[j] = timings[j] / ratio;
+			//}
+		//}
+		//
+		//for (i in 0...this._numParticles)
+		//{
+			//this._particles[i].frameTime *= ratio;
+		//}
+	//}
 	
 	inline private function getRandomRatio():Float
 	{
@@ -1239,7 +1257,11 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	
 	private function initParticle(particle:T):Void
 	{
-		if (this.useAnimationLifeSpan)
+		particle.frameDelta = this._frameDelta + this.frameDeltaVariance * getRandomRatio();
+		particle.frameTime = 0.0;
+		particle.loopCount = 0;
+		
+		if (this._useAnimationLifeSpan)
 		{
 			if (this._loopAnimation)
 			{
@@ -1249,12 +1271,12 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 				}
 				else
 				{
-					this.__lifeSpan = particle.frameTimings[particle.frameTimings.length] * this._animationLoops;
+					this.__lifeSpan = (particle.frameTimings[particle.frameTimings.length-1] / particle.frameDelta) * this._animationLoops;
 				}
 			}
 			else
 			{
-				this.__lifeSpan = particle.frameTimings[particle.frameTimings.length];
+				this.__lifeSpan = particle.frameTimings[particle.frameTimings.length-1] / particle.frameDelta;
 			}
 		}
 		else
@@ -1303,13 +1325,15 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		if (this._useEmitterRadius)
 		{
 			this.__angle = MathUtils.random() * MathUtils.PI2;
-			this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+			//this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 			this.__radiusMin = this._emitterRadiusMin + this._emitterRadiusMinVariance * getRandomRatio();
 			this.__radiusMax = this._emitterRadiusMax + this._emitterRadiusMaxVariance * getRandomRatio();
 			this.__radius = this.__radiusMin + MathUtils.random() * (this.__radiusMax - this.__radiusMin);
 			
-			particle.startX = particle.xBase = this.emitterX + this.emitterXVariance * getRandomRatio() + COS[this.__intAngle] * this.__radius;
-			particle.startY = particle.yBase = this.emitterY + this.emitterYVariance * getRandomRatio() + SIN[this.__intAngle] * this.__radius;
+			//particle.startX = particle.xBase = this.emitterX + this.emitterXVariance * getRandomRatio() + COS[this.__intAngle] * this.__radius;
+			//particle.startY = particle.yBase = this.emitterY + this.emitterYVariance * getRandomRatio() + SIN[this.__intAngle] * this.__radius;
+			particle.startX = particle.xBase = this.emitterX + this.emitterXVariance * getRandomRatio() + Math.cos(this.__angle) * this.__radius;
+			particle.startY = particle.yBase = this.emitterY + this.emitterYVariance * getRandomRatio() + Math.sin(this.__angle) * this.__radius;
 		}
 		else
 		{
@@ -1318,10 +1342,12 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		}
 		
 		particle.angle = this.__angle = this.emitAngle + this.emitAngleVariance * getRandomRatio();
-		this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+		//this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
 		
-		particle.velocityX = this.__speed * COS[this.__intAngle];
-		particle.velocityY = this.__speed * SIN[this.__intAngle];
+		//particle.velocityX = this.__speed * COS[this.__intAngle];
+		//particle.velocityY = this.__speed * SIN[this.__intAngle];
+		particle.velocityX = this.__speed * Math.cos(this.__angle);
+		particle.velocityY = this.__speed * Math.sin(this.__angle);
 		
 		if (this._useVelocityInheritanceX)
 		{
@@ -1530,9 +1556,11 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 			// RADIAL
 			particle.emitRotation += particle.emitRotationDelta * passedTime;
 			particle.emitRadius += particle.emitRadiusDelta * passedTime;
-			this.__intAngle = Std.int(particle.emitRotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-			particle.xBase = this.emitterX - COS[this.__intAngle] * particle.emitRadius;
-			particle.yBase = this.emitterY - SIN[this.__intAngle] * particle.emitRadius;
+			//this.__intAngle = Std.int(particle.emitRotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+			//particle.xBase = this.emitterX - COS[this.__intAngle] * particle.emitRadius;
+			//particle.yBase = this.emitterY - SIN[this.__intAngle] * particle.emitRadius;
+			particle.xBase = this.emitterX - Math.cos(particle.emitRotation) * particle.emitRadius;
+			particle.yBase = this.emitterY - Math.sin(particle.emitRotation) * particle.emitRadius;
 		}
 		else
 		{
@@ -1632,11 +1660,14 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 				this.__velocityAngleCalculated = true;
 			}
 			particle.oscillationPositionStep += particle.oscillationPositionFrequency * passedTime;
-			this.__radius = COS[Std.int(particle.oscillationPositionStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationPositionRadius;
+			//this.__radius = COS[Std.int(particle.oscillationPositionStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationPositionRadius;
+			this.__radius = Math.cos(particle.oscillationPositionStep) * particle.oscillationPositionRadius;
 			this.__angle = this.__velocityAngle + particle.oscillationPositionAngle;
-			this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-			particle.oscillationPositionX = COS[this.__intAngle] * this.__radius;
-			particle.oscillationPositionY = SIN[this.__intAngle] * this.__radius;
+			//this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+			//particle.oscillationPositionX = COS[this.__intAngle] * this.__radius;
+			//particle.oscillationPositionY = SIN[this.__intAngle] * this.__radius;
+			particle.oscillationPositionX = Math.cos(this.__angle) * this.__radius;
+			particle.oscillationPositionY = Math.sin(this.__angle) * this.__radius;
 			
 			particle.x += particle.oscillationPositionX;
 			particle.y += particle.oscillationPositionY;
@@ -1657,11 +1688,14 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 				this.__velocityAngleCalculated = true;
 			}
 			particle.oscillationPosition2Step += particle.oscillationPosition2Frequency * passedTime;
-			this.__radius = COS[Std.int(particle.oscillationPosition2Step * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationPosition2Radius;
+			//this.__radius = COS[Std.int(particle.oscillationPosition2Step * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationPosition2Radius;
+			this.__radius = Math.cos(particle.oscillationPosition2Step) * particle.oscillationPosition2Radius;
 			this.__angle = this.__velocityAngle + particle.oscillationPosition2Angle;
-			this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-			particle.oscillationPosition2X = COS[this.__intAngle] * this.__radius;
-			particle.oscillationPosition2Y = SIN[this.__intAngle] * this.__radius;
+			//this.__intAngle = Std.int(this.__angle * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+			//particle.oscillationPosition2X = COS[this.__intAngle] * this.__radius;
+			//particle.oscillationPosition2Y = SIN[this.__intAngle] * this.__radius;
+			particle.oscillationPosition2X = Math.cos(this.__angle) * this.__radius;
+			particle.oscillationPosition2Y = Math.sin(this.__angle) * this.__radius;
 			
 			particle.x += particle.oscillationPosition2X;
 			particle.y += particle.oscillationPosition2Y;
@@ -1670,7 +1704,8 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		if (this._useOscillationRotation)
 		{
 			particle.oscillationRotationStep += particle.oscillationRotationFrequency * passedTime;
-			particle.oscillationRotation = COS[Std.int(particle.oscillationRotationStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationRotationAngle;
+			//particle.oscillationRotation = COS[Std.int(particle.oscillationRotationStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationRotationAngle;
+			particle.oscillationRotation = Math.cos(particle.oscillationRotationStep) * particle.oscillationRotationAngle;
 			
 			particle.rotation = particle.rotationBase + particle.oscillationRotation;
 		}
@@ -1684,8 +1719,10 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 			particle.oscillationScaleXStep += particle.oscillationScaleXFrequency * passedTime;
 			particle.oscillationScaleYStep += particle.oscillationScaleYFrequency * passedTime;
 			
-			particle.scaleXOscillation = 1.0 + COS[Std.int(particle.oscillationScaleXStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationScaleX;
-			particle.scaleYOscillation = 1.0 + COS[Std.int(particle.oscillationScaleYStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationScaleY;
+			//particle.scaleXOscillation = 1.0 + COS[Std.int(particle.oscillationScaleXStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationScaleX;
+			//particle.scaleYOscillation = 1.0 + COS[Std.int(particle.oscillationScaleYStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2] * particle.oscillationScaleY;
+			particle.scaleXOscillation = 1.0 + Math.cos(particle.oscillationScaleXStep) * particle.oscillationScaleX;
+			particle.scaleYOscillation = 1.0 + Math.cos(particle.oscillationScaleYStep) * particle.oscillationScaleY;
 		}
 		//\OSCILLATION
 		
@@ -1745,7 +1782,8 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		if (this._useOscillationColor)
 		{
 			particle.oscillationColorStep += particle.oscillationColorFrequency * passedTime;
-			this.__step = COS[Std.int(particle.oscillationColorStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2];
+			//this.__step = COS[Std.int(particle.oscillationColorStep * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2];
+			this.__step = Math.cos(particle.oscillationColorStep);
 			
 			particle.oscillationColorRed = particle.oscillationColorRedFactor * this.__step;
 			particle.oscillationColorGreen = particle.oscillationColorGreenFactor * this.__step;
@@ -1773,7 +1811,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		
 		if (this._updateEmitter)
 		{
-			//this._emitterObject.advanceSystem(this, time);
+			this._emitterObject.advanceSystem(this, time);
 		}
 		
 		var particleIndex:Int = 0;
@@ -1783,7 +1821,6 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		// advance existing particles
 		if (this._regularSorting)
 		{
-			//for (particleIndex in 0...this._numParticles)
 			while (particleIndex < this._numParticles)
 			{
 				particle = this._particles[particleIndex];
@@ -1911,7 +1948,21 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 	
 	private function updateEmissionRate():Void
 	{
-		this._emissionRate = this._maxNumParticles * this._emissionRatio / this._lifeSpan;
+		if (this._useAnimationLifeSpan)
+		{
+			var lifeSpan:Float = 0.0;
+			var timingsCount:Int = this._frameTimings.length;
+			for (i in 0...timingsCount)
+			{
+				lifeSpan += this._frameTimings[i][this._frameTimings[i].length - 1] / this._frameDelta;
+			}
+			lifeSpan /= timingsCount;
+			this._emissionRate = this._maxNumParticles * this._emissionRatio / lifeSpan;
+		}
+		else
+		{
+			this._emissionRate = this._maxNumParticles * this._emissionRatio / this._lifeSpan;
+		}
 	}
 	
 	public function start(duration:Float = 0.0):Void
@@ -2123,7 +2174,9 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		
 		// Animation
 		this.textureAnimation = options.textureAnimation;
-		this.frameRate = options.frameRate;
+		//this.frameRate = options.frameRate;
+		this.frameDelta = options.frameDelta;
+		this.frameDeltaVariance = options.frameDeltaVariance;
 		this.firstFrame = options.firstFrame;
 		this.lastFrame = options.lastFrame;
 		this.loopAnimation = options.loopAnimation;
@@ -2256,7 +2309,7 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		//\Emitter
 		
 		// Particle
-		options.useAnimationLifeSpan = this.useAnimationLifeSpan;
+		options.useAnimationLifeSpan = this._useAnimationLifeSpan;
 		options.lifeSpan = this._lifeSpan;
 		options.lifeSpanVariance = this.lifeSpanVariance;
 		
@@ -2294,7 +2347,9 @@ class ParticleSystem<T:Particle = Particle> extends MassiveImageLayer<T>
 		
 		// Animation
 		options.textureAnimation = this.textureAnimation;
-		options.frameRate = this._frameRate;
+		//options.frameRate = this._frameRate;
+		options.frameDelta = this._frameDelta;
+		options.frameDeltaVariance = this.frameDeltaVariance;
 		options.firstFrame = this.firstFrame;
 		options.lastFrame = this.lastFrame;
 		options.loopAnimation = this._loopAnimation;
