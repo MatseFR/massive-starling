@@ -4,6 +4,7 @@ import massive.data.Frame;
 import massive.data.ImageData;
 import massive.util.LookUp;
 import massive.data.MassiveConstants;
+import openfl.Memory;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 #if !flash
@@ -15,7 +16,7 @@ import openfl.utils._internal.Float32Array;
  * @author Matse
  */
 @:generic
-class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer 
+class ImageLayer<T:ImageData = ImageData> extends MassiveLayer 
 {
 	#if flash
 	/**
@@ -57,8 +58,8 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	//private var COS:Vector<Float>;
 	//private var SIN:Vector<Float>;
 	//#else
-	private var COS:Array<Float>;
-	private var SIN:Array<Float>;
+	//private var COS:Array<Float>;
+	//private var SIN:Array<Float>;
 	//#end
 	
 	public function new(datas:#if flash Vector<T> #else Array<T>#end = null) 
@@ -72,8 +73,8 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		if (this._datas == null) this._datas = new Array<T>();
 		#end
 		this.animate = true;
-		COS = LookUp.COS;
-		SIN = LookUp.SIN;
+		//COS = LookUp.COS;
+		//SIN = LookUp.SIN;
 	}
 	
 	/**
@@ -173,7 +174,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int
+	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -213,7 +214,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
-		if (this.useColor)
+		if (useColor)
 		{
 			//byteData.length += numDatas * 128;
 			byteData.length += this.numDatas << 7;
@@ -236,7 +237,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			y = data.y + data.offsetY + renderOffsetY;
 			rotation = data.rotation;
 			
-			if (this.useColor)
+			if (useColor)
 			{
 				if (pma)
 				{
@@ -284,9 +285,11 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			
 			if (rotation != 0.0)
 			{
-				angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-				cos = COS[angle];
-				sin = SIN[angle];
+				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+				//cos = COS[angle];
+				//sin = SIN[angle];
+				cos = Math.cos(rotation);
+				sin = Math.sin(rotation);
 				
 				cosLeft = cos * leftOffset;
 				cosRight = cos * rightOffset;
@@ -301,7 +304,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(y - sinLeft - cosTop);
 				byteData.writeFloat(u1);
 				byteData.writeFloat(v1);
-				if (this.useColor)
+				if (useColor)
 				{
 					byteData.writeFloat(red);
 					byteData.writeFloat(green);
@@ -313,7 +316,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(y + sinRight - cosTop);
 				byteData.writeFloat(u2);
 				byteData.writeFloat(v1);
-				if (this.useColor)
+				if (useColor)
 				{
 					byteData.writeFloat(red);
 					byteData.writeFloat(green);
@@ -325,7 +328,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(y - sinLeft + cosBottom);
 				byteData.writeFloat(u1);
 				byteData.writeFloat(v2);
-				if (this.useColor)
+				if (useColor)
 				{
 					byteData.writeFloat(red);
 					byteData.writeFloat(green);
@@ -337,7 +340,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(y + sinRight + cosBottom);
 				byteData.writeFloat(u2);
 				byteData.writeFloat(v2);
-				if (this.useColor)
+				if (useColor)
 				{
 					byteData.writeFloat(red);
 					byteData.writeFloat(green);
@@ -351,7 +354,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(y - topOffset);
 				byteData.writeFloat(u1);
 				byteData.writeFloat(v1);
-				if (this.useColor)
+				if (useColor)
 				{
 					byteData.writeFloat(red);
 					byteData.writeFloat(green);
@@ -363,7 +366,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(y - topOffset);
 				byteData.writeFloat(u2);
 				byteData.writeFloat(v1);
-				if (this.useColor)
+				if (useColor)
 				{
 					byteData.writeFloat(red);
 					byteData.writeFloat(green);
@@ -375,7 +378,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(y + bottomOffset);
 				byteData.writeFloat(u1);
 				byteData.writeFloat(v2);
-				if (this.useColor)
+				if (useColor)
 				{
 					byteData.writeFloat(red);
 					byteData.writeFloat(green);
@@ -387,7 +390,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(y + bottomOffset);
 				byteData.writeFloat(u2);
 				byteData.writeFloat(v2);
-				if (this.useColor)
+				if (useColor)
 				{
 					byteData.writeFloat(red);
 					byteData.writeFloat(green);
@@ -400,18 +403,262 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		return quadsWritten;
 	}
 	
-	#if !flash
-	/**
-	   @inheritDoc
-	**/
-	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int
+	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
 		var vertexID:Int = offset << 2;
 		var position:Int;
 		
-		if (this.useColor)
+		if (useColor)
+		{
+			//position = vertexID << 3;
+			position = offset * 96;
+		}
+		else
+		{
+			//position = vertexID << 2;
+			position = offset << 5;
+		}
+		
+		var quadsWritten:Int = 0;
+		
+		var x:Float, y:Float;
+		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
+		var rotation:Float;
+		
+		var red:Float = 0;
+		var green:Float = 0;
+		var blue:Float = 0;
+		var alpha:Float = 0;
+		
+		var angle:Int;
+		var cos:Float;
+		var sin:Float;
+		
+		var cosLeft:Float;
+		var cosRight:Float;
+		var cosTop:Float;
+		var cosBottom:Float;
+		var sinLeft:Float;
+		var sinRight:Float;
+		var sinTop:Float;
+		var sinBottom:Float;
+		
+		var frame:Frame;
+		
+		var u1:Float;
+		var u2:Float;
+		var v1:Float;
+		var v2:Float;
+		
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
+		renderOffsetX += this.x;
+		renderOffsetY += this.y;
+		
+		if (useColor)
+		{
+			//byteData.length += numDatas * 128;
+			byteData.length += this.numDatas << 7;
+		}
+		else
+		{
+			//byteData.length += numDatas * 64;
+			byteData.length += this.numDatas << 6;
+		}
+		
+		var data:T;
+		for (i in 0...this.numDatas)
+		{
+			data = this._datas[i];
+			if (!data.visible) continue;
+			
+			++quadsWritten;
+			
+			x = data.x + data.offsetX + renderOffsetX;
+			y = data.y + data.offsetY + renderOffsetY;
+			rotation = data.rotation;
+			
+			if (useColor)
+			{
+				if (pma)
+				{
+					alpha = data.colorAlpha;
+					red = data.colorRed * alpha;
+					green = data.colorGreen * alpha;
+					blue = data.colorBlue * alpha;
+				}
+				else
+				{
+					red = data.colorRed;
+					green = data.colorGreen;
+					blue = data.colorBlue;
+					alpha = data.colorAlpha;
+				}
+			}
+			
+			frame = data.frameList[data.frameIndex];
+			if (data.invertX)
+			{
+				u1 = frame.u2;
+				u2 = frame.u1;
+			}
+			else
+			{
+				u1 = frame.u1;
+				u2 = frame.u2;
+			}
+			
+			if (data.invertY)
+			{
+				v1 = frame.v2;
+				v2 = frame.v1;
+			}
+			else
+			{
+				v1 = frame.v1;
+				v2 = frame.v2;
+			}
+			
+			leftOffset = frame.leftWidth * data.scaleX;
+			rightOffset = frame.rightWidth * data.scaleX;
+			topOffset = frame.topHeight * data.scaleY;
+			bottomOffset = frame.bottomHeight * data.scaleY;
+			
+			if (rotation != 0.0)
+			{
+				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+				//cos = COS[angle];
+				//sin = SIN[angle];
+				cos = Math.cos(rotation);
+				sin = Math.sin(rotation);
+				
+				cosLeft = cos * leftOffset;
+				cosRight = cos * rightOffset;
+				cosTop = cos * topOffset;
+				cosBottom = cos * bottomOffset;
+				sinLeft = sin * leftOffset;
+				sinRight = sin * rightOffset;
+				sinTop = sin * topOffset;
+				sinBottom = sin * bottomOffset;
+				
+				Memory.setFloat(position, x - cosLeft + sinTop);
+				Memory.setFloat(position += 4, y - sinLeft - cosTop);
+				Memory.setFloat(position += 4, u1);
+				Memory.setFloat(position += 4, v1);
+				if (useColor)
+				{
+					Memory.setFloat(position += 4, red);
+					Memory.setFloat(position += 4, green);
+					Memory.setFloat(position += 4, blue);
+					Memory.setFloat(position += 4, alpha);
+				}
+				
+				Memory.setFloat(position += 4, x + cosRight + sinTop);
+				Memory.setFloat(position += 4, y + sinRight - cosTop);
+				Memory.setFloat(position += 4, u2);
+				Memory.setFloat(position += 4, v1);
+				if (useColor)
+				{
+					Memory.setFloat(position += 4, red);
+					Memory.setFloat(position += 4, green);
+					Memory.setFloat(position += 4, blue);
+					Memory.setFloat(position += 4, alpha);
+				}
+				
+				Memory.setFloat(position += 4, x - cosLeft - sinBottom);
+				Memory.setFloat(position += 4, y - sinLeft + cosBottom);
+				Memory.setFloat(position += 4, u1);
+				Memory.setFloat(position += 4, v2);
+				if (useColor)
+				{
+					Memory.setFloat(position += 4, red);
+					Memory.setFloat(position += 4, green);
+					Memory.setFloat(position += 4, blue);
+					Memory.setFloat(position += 4, alpha);
+				}
+				
+				Memory.setFloat(position += 4, x + cosRight - sinBottom);
+				Memory.setFloat(position += 4, y + sinRight + cosBottom);
+				Memory.setFloat(position += 4, u2);
+				Memory.setFloat(position += 4, v2);
+				if (useColor)
+				{
+					Memory.setFloat(position += 4, red);
+					Memory.setFloat(position += 4, green);
+					Memory.setFloat(position += 4, blue);
+					Memory.setFloat(position += 4, alpha);
+				}
+			}
+			else
+			{
+				Memory.setFloat(position, x - leftOffset);
+				Memory.setFloat(position += 4, y - topOffset);
+				Memory.setFloat(position += 4, u1);
+				Memory.setFloat(position += 4, v1);
+				if (useColor)
+				{
+					Memory.setFloat(position += 4, red);
+					Memory.setFloat(position += 4, green);
+					Memory.setFloat(position += 4, blue);
+					Memory.setFloat(position += 4, alpha);
+				}
+				
+				Memory.setFloat(position += 4, x + rightOffset);
+				Memory.setFloat(position += 4, y - topOffset);
+				Memory.setFloat(position += 4, u2);
+				Memory.setFloat(position += 4, v1);
+				if (useColor)
+				{
+					Memory.setFloat(position += 4, red);
+					Memory.setFloat(position += 4, green);
+					Memory.setFloat(position += 4, blue);
+					Memory.setFloat(position += 4, alpha);
+				}
+				
+				Memory.setFloat(position += 4, x - leftOffset);
+				Memory.setFloat(position += 4, y + bottomOffset);
+				Memory.setFloat(position += 4, u1);
+				Memory.setFloat(position += 4, v2);
+				if (useColor)
+				{
+					Memory.setFloat(position += 4, red);
+					Memory.setFloat(position += 4, green);
+					Memory.setFloat(position += 4, blue);
+					Memory.setFloat(position += 4, alpha);
+				}
+				
+				Memory.setFloat(position += 4, x + rightOffset);
+				Memory.setFloat(position += 4, y + bottomOffset);
+				Memory.setFloat(position += 4, u2);
+				Memory.setFloat(position += 4, v2);
+				if (useColor)
+				{
+					Memory.setFloat(position += 4, red);
+					Memory.setFloat(position += 4, green);
+					Memory.setFloat(position += 4, blue);
+					Memory.setFloat(position += 4, alpha);
+				}
+			}
+			position += 4;
+		}
+		
+		return quadsWritten;
+	}
+	
+	#if !flash
+	/**
+	   @inheritDoc
+	**/
+	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
+	{
+		if (this._datas == null) return 0;
+		
+		var vertexID:Int = offset << 2;
+		var position:Int;
+		
+		if (useColor)
 		{
 			position = vertexID << 3;
 		}
@@ -468,7 +715,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			y = data.y + data.offsetY + renderOffsetY;
 			rotation = data.rotation;
 			
-			if (this.useColor)
+			if (useColor)
 			{
 				if (pma)
 				{
@@ -516,9 +763,11 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			
 			if (rotation != 0.0)
 			{
-				angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-				cos = COS[angle];
-				sin = SIN[angle];
+				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+				//cos = COS[angle];
+				//sin = SIN[angle];
+				cos = Math.cos(rotation);
+				sin = Math.sin(rotation);
 				
 				cosLeft = cos * leftOffset;
 				cosRight = cos * rightOffset;
@@ -533,7 +782,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = y - sinLeft - cosTop;
 				floatData[++position] = u1;
 				floatData[++position] = v1;
-				if (this.useColor)
+				if (useColor)
 				{
 					floatData[++position] = red;
 					floatData[++position] = green;
@@ -545,7 +794,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = y + sinRight - cosTop;
 				floatData[++position] = u2;
 				floatData[++position] = v1;
-				if (this.useColor)
+				if (useColor)
 				{
 					floatData[++position] = red;
 					floatData[++position] = green;
@@ -557,7 +806,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = y - sinLeft + cosBottom;
 				floatData[++position] = u1;
 				floatData[++position] = v2;
-				if (this.useColor)
+				if (useColor)
 				{
 					floatData[++position] = red;
 					floatData[++position] = green;
@@ -569,7 +818,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = y + sinRight + cosBottom;
 				floatData[++position] = u2;
 				floatData[++position] = v2;
-				if (this.useColor)
+				if (useColor)
 				{
 					floatData[++position] = red;
 					floatData[++position] = green;
@@ -583,7 +832,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = y - topOffset;
 				floatData[++position] = u1;
 				floatData[++position] = v1;
-				if (this.useColor)
+				if (useColor)
 				{
 					floatData[++position] = red;
 					floatData[++position] = green;
@@ -595,7 +844,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = y - topOffset;
 				floatData[++position] = u2;
 				floatData[++position] = v1;
-				if (this.useColor)
+				if (useColor)
 				{
 					floatData[++position] = red;
 					floatData[++position] = green;
@@ -607,7 +856,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = y + bottomOffset;
 				floatData[++position] = u1;
 				floatData[++position] = v2;
-				if (this.useColor)
+				if (useColor)
 				{
 					floatData[++position] = red;
 					floatData[++position] = green;
@@ -619,7 +868,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = y + bottomOffset;
 				floatData[++position] = u2;
 				floatData[++position] = v2;
-				if (this.useColor)
+				if (useColor)
 				{
 					floatData[++position] = red;
 					floatData[++position] = green;
@@ -637,14 +886,14 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int
+	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
 		var vertexID:Int = offset << 2;
 		var position:Int;
 		
-		if (this.useColor)
+		if (useColor)
 		{
 			position = vertexID << 3;
 		}
@@ -701,7 +950,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			y = data.y + data.offsetY + renderOffsetY;
 			rotation = data.rotation;
 			
-			if (this.useColor)
+			if (useColor)
 			{
 				if (pma)
 				{
@@ -749,9 +998,11 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			
 			if (rotation != 0.0)
 			{
-				angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-				cos = COS[angle];
-				sin = SIN[angle];
+				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+				//cos = COS[angle];
+				//sin = SIN[angle];
+				cos = Math.cos(rotation);
+				sin = Math.sin(rotation);
 				
 				cosLeft = cos * leftOffset;
 				cosRight = cos * rightOffset;
@@ -766,7 +1017,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = y - sinLeft - cosTop;
 				vectorData[++position] = u1;
 				vectorData[++position] = v1;
-				if (this.useColor)
+				if (useColor)
 				{
 					vectorData[++position] = red;
 					vectorData[++position] = green;
@@ -778,7 +1029,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = y + sinRight - cosTop;
 				vectorData[++position] = u2;
 				vectorData[++position] = v1;
-				if (this.useColor)
+				if (useColor)
 				{
 					vectorData[++position] = red;
 					vectorData[++position] = green;
@@ -790,7 +1041,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = y - sinLeft + cosBottom;
 				vectorData[++position] = u1;
 				vectorData[++position] = v2;
-				if (this.useColor)
+				if (useColor)
 				{
 					vectorData[++position] = red;
 					vectorData[++position] = green;
@@ -802,7 +1053,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = y + sinRight + cosBottom;
 				vectorData[++position] = u2;
 				vectorData[++position] = v2;
-				if (this.useColor)
+				if (useColor)
 				{
 					vectorData[++position] = red;
 					vectorData[++position] = green;
@@ -816,7 +1067,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = y - topOffset;
 				vectorData[++position] = u1;
 				vectorData[++position] = v1;
-				if (this.useColor)
+				if (useColor)
 				{
 					vectorData[++position] = red;
 					vectorData[++position] = green;
@@ -828,7 +1079,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = y - topOffset;
 				vectorData[++position] = u2;
 				vectorData[++position] = v1;
-				if (this.useColor)
+				if (useColor)
 				{
 					vectorData[++position] = red;
 					vectorData[++position] = green;
@@ -840,7 +1091,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = y + bottomOffset;
 				vectorData[++position] = u1;
 				vectorData[++position] = v2;
-				if (this.useColor)
+				if (useColor)
 				{
 					vectorData[++position] = red;
 					vectorData[++position] = green;
@@ -852,7 +1103,7 @@ class MassiveImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = y + bottomOffset;
 				vectorData[++position] = u2;
 				vectorData[++position] = v2;
-				if (this.useColor)
+				if (useColor)
 				{
 					vectorData[++position] = red;
 					vectorData[++position] = green;
