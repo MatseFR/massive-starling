@@ -8,7 +8,7 @@ import hexagon.path.HexPathFinder;
 import massive.data.Frame;
 import massive.data.ImageData;
 import massive.display.MassiveDisplay;
-import massive.display.MassiveImageLayer;
+import massive.display.ImageLayer;
 #if flash
 import openfl.Vector;
 #end
@@ -45,10 +45,10 @@ class CameraScene extends Scene implements IAnimatable
 	private var _camera:HexCamera;
 	private var _cameraDebug:CameraDebugUI;
 	private var _display:MassiveDisplay;
-	private var _hexLayer:MassiveImageLayer;
-	private var _costLayer:MassiveImageLayer;
-	private var _selectionLayer:MassiveImageLayer;
-	private var _rolloverLayer:MassiveImageLayer;
+	private var _hexLayer:ImageLayer;
+	private var _costLayer:ImageLayer;
+	private var _selectionLayer:ImageLayer;
+	private var _rolloverLayer:ImageLayer;
 	private var _touchQuad:Quad;
 	
 	private var _rolloverHex:Hex;
@@ -109,17 +109,17 @@ class CameraScene extends Scene implements IAnimatable
 		this._display.textureSmoothing = TextureSmoothing.TRILINEAR;
 		addChild(this._display);
 		
-		this._hexLayer = new MassiveImageLayer(this._hexDataList);
+		this._hexLayer = new ImageLayer(this._hexDataList);
 		this._display.addLayer(this._hexLayer);
 		
-		this._costLayer = new MassiveImageLayer(this._costDataList);
+		this._costLayer = new ImageLayer(this._costDataList);
 		this._costLayer.visible = false;
 		this._display.addLayer(this._costLayer);
 		
-		this._selectionLayer = new MassiveImageLayer();
+		this._selectionLayer = new ImageLayer();
 		this._display.addLayer(this._selectionLayer);
 		
-		this._rolloverLayer = new MassiveImageLayer();
+		this._rolloverLayer = new ImageLayer();
 		this._display.addLayer(this._rolloverLayer);
 		
 		this._rolloverImage = new ImageData();
