@@ -29,7 +29,9 @@ class MassiveQuads extends Scene implements IAnimatable
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
 	public var useByteArray:Bool;
+	#if flash
 	public var useDomainMemory:Bool;
+	#end
 	#if !flash
 	public var useFloat32Array:Bool;
 	#end
@@ -90,7 +92,9 @@ class MassiveQuads extends Scene implements IAnimatable
 			display.bufferSize = numQuads;
 			display.numBuffers = this.numBuffers;
 			display.useByteArray = this.useByteArray;
+			#if flash
 			display.useByteArrayDomainMemory = this.useDomainMemory;
+			#end
 			display.useColor = this.useColor;
 			#if !flash
 			display.useFloat32Array = this.useFloat32Array;

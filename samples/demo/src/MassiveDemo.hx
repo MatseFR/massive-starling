@@ -53,9 +53,11 @@ class MassiveDemo extends Sprite
 	private var numBuffers:Int = 1;
 	private var numObjects:Int;
 	private var useBlurFilter:Bool = false;
-	private var useByteArray:Bool = false;
+	private var useByteArray:Bool = #if flash true #else false#end;
 	private var useColor:Bool = true;
-	private var useDomainMemory:Bool = false;
+	#if flash
+	private var useDomainMemory:Bool = true;
+	#end
 	#if !flash
 	private var useFloat32Array:Bool = true;
 	#end
@@ -331,11 +333,13 @@ class MassiveDemo extends Sprite
 		this.menuSprite.addChild(btn);
 		#end
 		
+		#if flash
 		tY += btn.height + gap;
 		btn = new Button(this.useDomainMemory ? this.buttonTextureON : this.buttonTextureOFF, "use Domain Memory (ByteArray)", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleDomainMemory);
 		this.menuSprite.addChild(btn);
+		#end
 		
 		tY += btn.height + gap;
 		this.bufferSprite = new Sprite();
@@ -801,6 +805,7 @@ class MassiveDemo extends Sprite
 		btn.upState = this.miniButtonTextureON;
 	}
 	
+	#if flash
 	private function toggleDomainMemory(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
@@ -814,6 +819,7 @@ class MassiveDemo extends Sprite
 			btn.upState = this.buttonTextureOFF;
 		}
 	}
+	#end
 	
 	private function toggleRandomAlpha(evt:Event):Void
 	{
@@ -881,7 +887,9 @@ class MassiveDemo extends Sprite
 		massive.numObjects = this.numObjects;
 		massive.useBlurFilter = this.useBlurFilter;
 		massive.useByteArray = this.useByteArray;
+		#if flash
 		massive.useDomainMemory = this.useDomainMemory;
+		#end
 		#if !flash
 		massive.useFloat32Array = this.useFloat32Array;
 		#end
@@ -902,7 +910,9 @@ class MassiveDemo extends Sprite
 		massive.numObjects = this.numObjects;
 		massive.useBlurFilter = this.useBlurFilter;
 		massive.useByteArray = this.useByteArray;
+		#if flash
 		massive.useDomainMemory = this.useDomainMemory;
+		#end
 		#if !flash
 		massive.useFloat32Array = this.useFloat32Array;
 		#end
