@@ -39,10 +39,6 @@ abstract class MassiveLayer extends EventDispatcher
 	**/
 	public var totalDatas(get, never):Int;
 	/**
-	   Tells whether this layer should write color data or not, this is decided by the MassiveDisplay instance this layer was added to.
-	**/
-	public var useColor:Bool;
-	/**
 	   Tells whether this layer is visible or not.
 	   @default true
 	**/
@@ -77,9 +73,23 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	renderOffsetX
 	   @param	renderOffsetY
 	   @param	pma
+	   @param	useColor
 	   @return
 	**/
-	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int;
+	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
+	
+	/**
+	   Writes the layer's quads data to the domain memory ByteArray
+	   byteData is still passed as a parameter so that the layer can set its length
+	   @param	byteData
+	   @param	offset
+	   @param	renderOffsetX
+	   @param	renderOffsetY
+	   @param	pma
+	   @param	useColor
+	   @return
+	**/
+	abstract public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
 	
 	#if !flash
 	/**
@@ -89,9 +99,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	renderOffsetX
 	   @param	renderOffsetY
 	   @param	pma
+	   @param	useColor
 	   @return
 	**/
-	abstract public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int;
+	abstract public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
 	#end
 	
 	/**
@@ -101,9 +112,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	renderOffsetX
 	   @param	renderOffsetY
 	   @param	pma
+	   @param	useColor
 	   @return
 	**/
-	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool):Int;
+	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
 	
 	/**
 	 * Advances time for the layer, controlled by the MassiveDisplay instance this layer was added to
