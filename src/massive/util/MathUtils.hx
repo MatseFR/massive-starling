@@ -55,26 +55,26 @@ class MathUtils
 	**/
 	inline static public function atan2(y:Float, x:Float):Float
 	{
-		#if html5
-		var result:Float;
-		if (y > 0)
-		{
-			if (x >= 0) 
-				result = 0.78539816339744830961566084581988 - 0.78539816339744830961566084581988 * (x - y) / (x + y);
-			else
-				result = 2.3561944901923449288469825374596 - 0.78539816339744830961566084581988 * (x + y) / (y - x);
-		}
-		else
-		{
-			if (x >= 0) 
-				result = -0.78539816339744830961566084581988 + 0.78539816339744830961566084581988 * (x + y) / (x - y);            
-			else
-				result = -2.3561944901923449288469825374596 - 0.78539816339744830961566084581988 * (x - y) / (y + x);
-		}
-		return result;
-		#else
+		//#if html5
+		//var result:Float;
+		//if (y > 0)
+		//{
+			//if (x >= 0) 
+				//result = 0.78539816339744830961566084581988 - 0.78539816339744830961566084581988 * (x - y) / (x + y);
+			//else
+				//result = 2.3561944901923449288469825374596 - 0.78539816339744830961566084581988 * (x + y) / (y - x);
+		//}
+		//else
+		//{
+			//if (x >= 0) 
+				//result = -0.78539816339744830961566084581988 + 0.78539816339744830961566084581988 * (x + y) / (x - y);            
+			//else
+				//result = -2.3561944901923449288469825374596 - 0.78539816339744830961566084581988 * (x - y) / (y + x);
+		//}
+		//return result;
+		//#else
 		return Math.atan2(y, x);
-		#end
+		//#end
 	}
 	
 	/**
@@ -248,6 +248,26 @@ class MathUtils
 		{
 			return rad * (3.1 - rad * (0.5 + rad * (7.2 + rad * 3.6)));
 		}
+	}
+	
+	inline static public function fasterCos(rad:Float):Float
+	{
+		return fasterSin(rad + 1.57079632);
+	}
+	
+	inline static public function fasterSin(rad:Float):Float
+	{
+		//always wrap input angle to -PI..PI
+		if (rad < -3.14159265)
+			rad += 6.28318531;
+		else if (rad >  3.14159265)
+			rad -= 6.28318531;
+		
+		//compute sine
+		if (rad < 0)
+			return 1.27323954 * rad + .405284735 * rad * rad;
+		else
+			return 1.27323954 * rad - 0.405284735 * rad * rad;
 	}
 	
 }
