@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:af1c0e41a05392844f75246a513ccb84:fac4615e12f0a6240475578acc32d847:b87ae8e892b555b31a785265716bcf06$ -->
+<TextureAtlas imagePath="animated_fx.png" width="922" height="128">
+    <SubTexture name="0_00" x="1" y="1" width="64" height="64"/>
+    <SubTexture name="0_01" x="67" y="1" width="64" height="64"/>
+    <SubTexture name="0_02" x="133" y="1" width="64" height="64"/>
+    <SubTexture name="0_03" x="199" y="1" width="64" height="64"/>
+    <SubTexture name="0_04" x="1" y="67" width="60" height="60" frameX="-2" frameY="-2" frameWidth="64" frameHeight="64"/>
+    <SubTexture name="0_05" x="125" y="67" width="58" height="58" frameX="-3" frameY="-3" frameWidth="64" frameHeight="64"/>
+    <SubTexture name="0_06" x="859" y="1" width="62" height="62" frameX="-1" frameY="-1" frameWidth="64" frameHeight="64"/>
+    <SubTexture name="0_07" x="265" y="1" width="64" height="64"/>
+    <SubTexture name="0_08" x="331" y="1" width="64" height="64"/>
+    <SubTexture name="0_09" x="397" y="1" width="64" height="64"/>
+    <SubTexture name="0_10" x="463" y="1" width="64" height="64"/>
+    <SubTexture name="0_11" x="529" y="1" width="64" height="64"/>
+    <SubTexture name="0_12" x="595" y="1" width="64" height="64"/>
+    <SubTexture name="0_13" x="661" y="1" width="64" height="64"/>
+    <SubTexture name="0_14" x="727" y="1" width="64" height="64"/>
+    <SubTexture name="0_15" x="793" y="1" width="64" height="64"/>
+    <SubTexture name="0_16" x="793" y="1" width="64" height="64"/>
+    <SubTexture name="0_17" x="63" y="67" width="60" height="60" frameX="-2" frameY="-2" frameWidth="64" frameHeight="64"/>
+</TextureAtlas>

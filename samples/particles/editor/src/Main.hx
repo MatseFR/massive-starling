@@ -39,11 +39,7 @@ class Main extends Sprite
 		_starling.skipUnchangedFrames = true;
 		_starling.supportBrowserZoom = true;
 		_starling.supportHighResolutions = false;
-		_starling.simulateMultitouch = true;
-		_starling.addEventListener(Event.ROOT_CREATED, function():Void
-		{
-			trace("root created");
-		});
+		_starling.simulateMultitouch = false;
 		
 		_starling.start();
 	}

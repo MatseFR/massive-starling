@@ -3,27 +3,23 @@
 	<!-- NMML reference: https://gist.github.com/1763850 -->
 	
 	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
-	<meta title="ParticleEditor" package="ParticleEditor" version="1.0.0" company="Matse" />
+	<meta title="UtilsTest" package="UtilsTest" version="1.0.0" company="Matse" />
 	
 	<!-- output -->
-	<app main="Main" file="ParticleEditor" path="bin" />
-	<app swf-version="32" />
+	<app main="Main" file="UtilsTest" path="bin" />
 	
-	<window background="#000000" fps="60" />
-	<window width="1280" height="720" unless="mobile || html5" />
+	<window background="#ffffff" fps="60" />
+	<window width="800" height="600" unless="mobile || html5" />
 	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
 	
 	<!-- classpath, haxe libs -->
 	<source path="src" />
 	<haxelib name="openfl" />
-	<haxelib name="starling" />
 	<haxelib name="massive" />
-	<haxelib name="valeditor" />
 	
 	<!-- assets -->
 	<icon path="assets/openfl.svg" />
-	<assets path="assets/img" rename="img" embed="false" />
-	<assets path="assets/presets" rename="presets" embed="true" />
+	<assets path="assets/img" rename="img" />
 	
 	<!-- optimize output
 	<haxeflag name="-dce full" /> -->

@@ -1,8 +1,13 @@
 package;
 
 import feathers.data.ArrayCollection;
+import feathers.layout.AutoSizeMode;
 import haxe.Json;
 import haxe.io.Path;
+import inputAction.InputAction;
+import inputAction.controllers.KeyAction;
+import inputAction.events.InputActionEvent;
+import massive.animation.Animator;
 import massive.data.Frame;
 import massive.display.MassiveDisplay;
 import massive.particle.Particle;
@@ -10,18 +15,24 @@ import massive.particle.ParticleSystem;
 import massive.particle.ParticleSystemOptions;
 import openfl.Assets;
 import openfl.Vector;
-import openfl.utils.AssetType;
+import openfl.ui.Keyboard;
+import starling.assets.AssetManager;
 import starling.core.Starling;
 import starling.display.BlendMode;
 import starling.events.Event;
 import starling.textures.Texture;
+import starling.textures.TextureAtlas;
 import starling.utils.Align;
 import valedit.ExposedCollection;
+import valedit.value.ExposedFloatDrag;
+import valedit.value.ExposedSelect;
 import valeditor.ValEditor;
 import valeditor.data.Data;
 import valeditor.editor.base.ValEditorSimpleStarling;
 import valeditor.editor.file.FileController;
+import valeditor.input.InputActionID;
 import valeditor.ui.feathers.data.MenuItem;
+import valeditor.ui.feathers.view.SimpleEditViewToggleGroups;
 #if (desktop || air)
 import openfl.filesystem.File;
 import openfl.filesystem.FileMode;
@@ -36,7 +47,10 @@ import openfl.net.FileReference;
  */
 class ParticleEditor extends ValEditorSimpleStarling 
 {
+	private var _assetManager:AssetManager;
+	
 	private var _massive:MassiveDisplay;
+	private var _massiveCollection:ExposedCollection;
 	private var _ps:ParticleSystem<Particle>;
 	private var _psCollection:ExposedCollection;
 	
@@ -56,18 +70,29 @@ class ParticleEditor extends ValEditorSimpleStarling
 	private var _autoCenterItem:MenuItem;
 	private var _centerItem:MenuItem;
 	
+	// texture menu
+	private var _textureMenuCollection:ArrayCollection<MenuItem>;
+	
 	// presets menu
 	private var _presetsMenuCollection:ArrayCollection<MenuItem>;
 	
 	private var _fileName:String = "particle.json";
-	private var _filePath:String;
-	private var _fullPath:String;
+	private var _filePath:String = null;
+	private var _fullPath:String = null;
 	#if (desktop || air)
 	private var _fileStream:FileStream = new FileStream();
 	#end
 	
 	private var _autoCenter:Bool = true;
 	private var _presetConfigs:Map<String, ParticleConfig> = new Map<String, ParticleConfig>();
+	
+	private var _textureMap:Map<String, Texture> = new Map<String, Texture>();
+	#if flash
+	private var _frameMap:Map<String, Vector<Frame>> = new Map<String, Vector<Frame>>();
+	#else
+	private var _frameMap:Map<String, Array<Frame>> = new Map<String, Array<Frame>>();
+	#end
+	private var _timingMap:Map<String, Array<Float>> = new Map<String, Array<Float>>();
 
 	public function new() 
 	{
@@ -82,9 +107,33 @@ class ParticleEditor extends ValEditorSimpleStarling
 		Data.exposeStarling();
 	}
 	
+	override public function start():Void 
+	{
+		this.editView = new SimpleEditViewToggleGroups();
+		this.editView.autoSizeMode = AutoSizeMode.STAGE;
+		
+		super.start();
+	}
+	
 	override function ready():Void 
 	{
 		super.ready();
+		
+		this._assetManager = new AssetManager();
+		this._assetManager.enqueue([
+			Assets.getPath("img/blob.png"),
+			Assets.getPath("img/circle.png"),
+			Assets.getPath("img/heart.png"),
+			Assets.getPath("img/star.png"),
+			Assets.getPath("img/animated_fx.png"),
+			Assets.getPath("img/animated_fx.xml")
+		]);
+		this._assetManager.loadQueue(assetsLoaded);
+	}
+	
+	private function assetsLoaded():Void 
+	{
+		initInputActions();
 		
 		// file menu
 		this._fileOpenItem = new MenuItem("file_open", "Open", true, "Ctrl+O");
@@ -115,19 +164,69 @@ class ParticleEditor extends ValEditorSimpleStarling
 		]);
 		this.editView.addMenu("options", "Options", onOptionsMenuCallback, onOptionsMenuOpen, this._optionsMenuCollection);
 		
+		// texture menu
+		this._textureMenuCollection = new ArrayCollection<MenuItem>([
+		
+		]);
+		this.editView.addMenu("texture", "Texture", onTextureMenuCallback, onTextureMenuOpen, this._textureMenuCollection);
+		
 		// presets menu
 		this._presetsMenuCollection = new ArrayCollection<MenuItem>([
 			
 		]);
 		this.editView.addMenu("presets", "Presets", onPresetsMenuCallback, onPresetsMenuOpen, this._presetsMenuCollection);
 		
+		// ? menu
+		
+		cast(this.editView, SimpleEditViewToggleGroups).addToggleGroup("MassiveDisplay", "DISPLAY", true);
+		cast(this.editView, SimpleEditViewToggleGroups).addToggleGroup("ParticleSystem", "PARTICLE SYSTEM", true);
+		
+		var atlas:TextureAtlas;
 		var texture:Texture;
+		var textures:Vector<Texture>;
 		var frame:Frame;
 		#if flash
 		var frames:Vector<Frame>;
 		#else
 		var frames:Array<Frame>;
 		#end
+		var timings:Array<Float>;
+		
+		atlas = this._assetManager.getTextureAtlas("animated_fx");
+		textures = atlas.getTextures("0_");
+		frames = Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER);
+		timings = Animator.generateTimings(frames, 12);
+		registerTexture("animated_fx", atlas.texture, frames, timings);
+		
+		texture = this._assetManager.getTexture("blob");
+		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
+		#if flash
+		frames = new Vector<Frame>();
+		#else
+		frames = new Array<Frame>();
+		#end
+		frames[0] = frame;
+		registerTexture("blob", texture, frames);
+		
+		texture = this._assetManager.getTexture("circle");
+		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
+		#if flash
+		frames = new Vector<Frame>();
+		#else
+		frames = new Array<Frame>();
+		#end
+		frames[0] = frame;
+		registerTexture("circle", texture, frames);
+		
+		texture = this._assetManager.getTexture("heart");
+		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
+		#if flash
+		frames = new Vector<Frame>();
+		#else
+		frames = new Array<Frame>();
+		#end
+		frames[0] = frame;
+		registerTexture("heart", texture, frames);
 		
 		texture = Texture.fromColor(2, 2);
 		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
@@ -137,6 +236,17 @@ class ParticleEditor extends ValEditorSimpleStarling
 		frames = new Array<Frame>();
 		#end
 		frames[0] = frame;
+		registerTexture("square", texture, frames);
+		
+		texture = this._assetManager.getTexture("star");
+		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
+		#if flash
+		frames = new Vector<Frame>();
+		#else
+		frames = new Array<Frame>();
+		#end
+		frames[0] = frame;
+		registerTexture("star", texture, frames);
 		
 		var config:ParticleConfig;
 		var options:ParticleSystemOptions;
@@ -146,10 +256,34 @@ class ParticleEditor extends ValEditorSimpleStarling
 		// "none" preset
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
-		config.texture = texture;
+		config.texture = this._textureMap.get("square");
 		config.options = new ParticleSystemOptions();
-		config.addFrames(frames);
+		config.addFrames(this._frameMap.get("square"));
 		registerPreset("none", config);
+		
+		// "animated fx" preset
+		str = Assets.getText("presets/animated_fx.json");
+		json = Json.parse(str);
+		options = new ParticleSystemOptions();
+		options.fromJSON(json);
+		config = new ParticleConfig();
+		config.blendMode = BlendMode.NORMAL;
+		config.texture = this._textureMap.get("animated_fx");
+		config.options = options;
+		config.addFrames(this._frameMap.get("animated_fx"), this._timingMap.get("animated_fx"));
+		registerPreset("animated fx", config);
+		
+		// "cybermancy" preset
+		str = Assets.getText("presets/cybermancy.json");
+		json = Json.parse(str);
+		options = new ParticleSystemOptions();
+		options.fromJSON(json);
+		config = new ParticleConfig();
+		config.blendMode = BlendMode.ADD;
+		config.texture = this._textureMap.get("square");
+		config.options = options;
+		config.addFrames(this._frameMap.get("square"));
+		registerPreset("cybermancy", config);
 		
 		// "fireball" preset
 		str = Assets.getText("presets/fireball.json");
@@ -158,9 +292,9 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.ADD;
-		config.texture = texture;
+		config.texture = this._textureMap.get("circle");
 		config.options = options;
-		config.addFrames(frames);
+		config.addFrames(this._frameMap.get("circle"));
 		registerPreset("fireball", config);
 		
 		// "hyperspace" preset
@@ -170,10 +304,22 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.ADD;
-		config.texture = texture;
+		config.texture = this._textureMap.get("square");
 		config.options = options;
-		config.addFrames(frames);
+		config.addFrames(this._frameMap.get("square"));
 		registerPreset("hyperspace", config);
+		
+		// "love cloud" preset
+		str = Assets.getText("presets/love_cloud.json");
+		json = Json.parse(str);
+		options = new ParticleSystemOptions();
+		options.fromJSON(json);
+		config = new ParticleConfig();
+		config.blendMode = BlendMode.NORMAL;
+		config.texture = this._textureMap.get("heart");
+		config.options = options;
+		config.addFrames(this._frameMap.get("heart"));
+		registerPreset("love cloud", config);
 		
 		// "space worms" preset
 		str = Assets.getText("presets/space_worms.json");
@@ -182,15 +328,72 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
-		config.texture = texture;
+		config.texture = this._textureMap.get("square");
 		config.options = options;
-		config.addFrames(frames);
+		config.addFrames(this._frameMap.get("square"));
 		registerPreset("space worms", config);
 		
+		// "star geyser" preset
+		str = Assets.getText("presets/star_geyser.json");
+		json = Json.parse(str);
+		options = new ParticleSystemOptions();
+		options.fromJSON(json);
+		config = new ParticleConfig();
+		config.blendMode = BlendMode.ADD;
+		config.texture = this._textureMap.get("star");
+		config.options = options;
+		config.addFrames(this._frameMap.get("star"));
+		registerPreset("star geyser", config);
+		
+		// "toxic vortex" preset
+		str = Assets.getText("presets/toxic_vortex.json");
+		json = Json.parse(str);
+		options = new ParticleSystemOptions();
+		options.fromJSON(json);
+		config = new ParticleConfig();
+		config.blendMode = BlendMode.ADD;
+		config.texture = this._textureMap.get("blob");
+		config.options = options;
+		config.addFrames(this._frameMap.get("blob"));
+		registerPreset("toxic vortex", config);
+		
 		this._massive = new MassiveDisplay();
-		//this._massive.blendMode = BlendMode.ADD;
 		this._massive.texture = texture;
 		addChild(this._massive);
+		
+		// MassiveDisplay collection
+		// we're only interested in a few properties so we create a custom collection
+		var float:ExposedFloatDrag;
+		var select:ExposedSelect;
+		
+		this._massiveCollection = new ExposedCollection();
+		
+		select = new ExposedSelect("blendMode");
+		select.add(BlendMode.ADD);
+		select.add(BlendMode.AUTO);
+		select.add(BlendMode.BELOW);
+		select.add(BlendMode.ERASE);
+		select.add(BlendMode.MASK);
+		select.add(BlendMode.MULTIPLY);
+		select.add(BlendMode.NONE);
+		select.add(BlendMode.NORMAL);
+		select.add(BlendMode.SCREEN);
+		this._massiveCollection.addValue(select);
+		
+		float = new ExposedFloatDrag("colorRed", null, 0, 10, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("colorGreen", null, 0, 10, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("colorBlue", null, 0, 10, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("alpha", null, 0, 1.0, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		ValEditor.edit(this._massive, this._massiveCollection, this.editView.getEditContainer("MassiveDisplay"));
+		//\MassiveDisplay collection
 		
 		this._ps = new ParticleSystem<Particle>();
 		#if flash
@@ -200,13 +403,11 @@ class ParticleEditor extends ValEditorSimpleStarling
 		this._ps.particlesFromPoolFunction = Particle.fromPoolArray;
 		this._ps.particlesToPoolFunction = Particle.toPoolArray;
 		#end
-		//this._ps.addFrames(frames);
 		this._massive.addLayer(this._ps);
 		
-		//this._ps.start();
-		this._psCollection = ValEditor.edit(this._ps);
+		this._psCollection = ValEditor.edit(this._ps, null, this.editView.getEditContainer("ParticleSystem"));
 		
-		applyPreset("fireball");
+		applyPreset("love cloud");
 	}
 	
 	private function registerPreset(id:String, config:ParticleConfig):Void
@@ -228,8 +429,30 @@ class ParticleEditor extends ValEditorSimpleStarling
 		this._ps.readSystemOptions(config.options);
 		
 		if (this._autoCenter) centerParticles();
+		this._massiveCollection.read();
 		this._psCollection.read();
 		this._ps.start();
+		
+		ValEditor.actionStack.clearActions();
+	}
+	
+	private function registerTexture(id:String, texture:Texture, frames:#if flash Vector<Frame> #else Array<Frame> #end, timings:Array<Float> = null):Void
+	{
+		if (timings == null) timings = Animator.generateTimings(frames);
+		
+		this._textureMap.set(id, texture);
+		this._frameMap.set(id, frames);
+		this._timingMap.set(id, timings);
+		
+		var menuItem:MenuItem = new MenuItem(id, id);
+		this.editView.addMenuItem("texture", menuItem);
+	}
+	
+	private function applyTexture(id:String):Void
+	{
+		this._massive.texture = this._textureMap.get(id);
+		this._ps.clearFrames();
+		this._ps.addFrames(this._frameMap.get(id), this._timingMap.get(id));
 	}
 	
 	@:access(starling.core.Starling)
@@ -253,6 +476,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		if (this._autoCenter) centerParticles();
 	}
 	
+	#if flash
 	@:access(starling.core.Starling)
 	private function updateStarlingStats(evt:Event):Void
 	{
@@ -261,6 +485,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		Starling.current.__statsDisplay.x = this.editView.displayRect.x;
 		Starling.current.__statsDisplay.y = this.editView.displayRect.y;
 	}
+	#end
 	
 	private function centerParticles():Void
 	{
@@ -299,35 +524,16 @@ class ParticleEditor extends ValEditorSimpleStarling
 	
 	private function onFileMenuCallback(item:MenuItem):Void
 	{
-		var json:Dynamic;
-		var options:ParticleSystemOptions;
-		
 		switch (item.id)
 		{
 			case "file_open" :
-				FileController.open(fileOpen);
+				openFile();
 			
 			case "file_save" :
-				options = ParticleSystemOptions.fromPool();
-				this._ps.writeSystemOptions(options);
-				json = options.toJSON();
-				options.pool();
-				#if (desktop || air)
-				FileController.save(Json.stringify(json), fileSaveComplete, null, this._fullPath, this._filePath == null);
-				#else
-				FileController.save(Json.stringify(json), fileSaveComplete, null, this._fileName);
-				#end
+				saveFile(false);
 			
 			case "file_save_as" :
-				options = ParticleSystemOptions.fromPool();
-				this._ps.writeSystemOptions(options);
-				json = options.toJSON();
-				options.pool();
-				#if (desktop || air)
-				FileController.save(Json.stringify(json), fileSaveComplete, null, this._fullPath, true);
-				#else
-				FileController.save(Json.stringify(json), fileSaveComplete, null, this._fileName);
-				#end
+				saveFile(true);
 		}
 	}
 	//\FILE MENU
@@ -371,6 +577,31 @@ class ParticleEditor extends ValEditorSimpleStarling
 	}
 	//\PRESETS MENU
 	
+	// TEXTURE MENU
+	private function onTextureMenuOpen(evt:openfl.events.Event):Void
+	{
+		
+	}
+	
+	private function onTextureMenuCallback(item:MenuItem):Void
+	{
+		applyTexture(item.id);
+	}
+	//\TEXTURE MENU
+	
+	private function newFile():Void
+	{
+		applyPreset("none");
+		this._fullPath = null;
+		this._filePath = null;
+		this._fileName = "particle.json";
+	}
+	
+	private function openFile():Void
+	{
+		FileController.open(fileOpen);
+	}
+	
 	#if (desktop || air)
 	private function fileOpen(file:File):Void
 	{
@@ -409,6 +640,19 @@ class ParticleEditor extends ValEditorSimpleStarling
 	}
 	#end
 	
+	private function saveFile(saveAs:Bool):Void
+	{
+		var options:ParticleSystemOptions = ParticleSystemOptions.fromPool();
+		this._ps.writeSystemOptions(options);
+		var json:Dynamic = options.toJSON();
+		options.pool();
+		#if (desktop || air)
+		FileController.save(Json.stringify(json), fileSaveComplete, null, this._fullPath, saveAs || this._filePath == null);
+		#else
+		FileController.save(Json.stringify(json), fileSaveComplete, null, this._fileName);
+		#end
+	}
+	
 	#if (desktop || air)
 	private function fileSaveComplete(path:String):Void
 	{
@@ -422,5 +666,60 @@ class ParticleEditor extends ValEditorSimpleStarling
 		this._fileName = fileName;
 	}
 	#end
+	
+	private function initInputActions():Void
+	{
+		var keyAction:KeyAction;
+		
+		// undo
+		keyAction = new KeyAction(InputActionID.UNDO, false, true);
+		ValEditor.keyboardController.addKeyAction(Keyboard.Z, keyAction);
+		
+		// redo
+		keyAction = new KeyAction(InputActionID.REDO, false, true);
+		ValEditor.keyboardController.addKeyAction(Keyboard.Y, keyAction);
+		
+		// save
+		keyAction = new KeyAction(InputActionID.SAVE, false, true);
+		ValEditor.keyboardController.addKeyAction(Keyboard.S, keyAction);
+		keyAction = new KeyAction(InputActionID.SAVE_AS, false, true, true);
+		ValEditor.keyboardController.addKeyAction(Keyboard.S, keyAction);
+		
+		// new file
+		keyAction = new KeyAction(InputActionID.NEW_FILE, false, true);
+		ValEditor.keyboardController.addKeyAction(Keyboard.N, keyAction);
+		
+		// open
+		keyAction = new KeyAction(InputActionID.OPEN, false, true);
+		ValEditor.keyboardController.addKeyAction(Keyboard.O, keyAction);
+		
+		ValEditor.input.addEventListener(InputActionEvent.ACTION_BEGIN, onInputActionBegin);
+	}
+	
+	private function onInputActionBegin(evt:InputActionEvent):Void
+	{
+		var inputAction:InputAction = evt.action;
+		
+		switch (inputAction.actionID)
+		{
+			case InputActionID.NEW_FILE :
+				
+			
+			case InputActionID.OPEN :
+				openFile();
+			
+			case InputActionID.REDO :
+				ValEditor.actionStack.redo();
+			
+			case InputActionID.SAVE :
+				saveFile(false);
+			
+			case InputActionID.SAVE_AS :
+				saveFile(true);
+			
+			case InputActionID.UNDO :
+				ValEditor.actionStack.undo();
+		}
+	}
 	
 }
