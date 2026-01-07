@@ -3,7 +3,6 @@ package massive.util;
 /**
  * This is heavily based on Jackson Dunstan's articles 
  * https://www.jacksondunstan.com
- * all improvement indications are from the as3 version for now and need to be checked on various targets
  * @author Matse
  */
 class MathUtils 
@@ -250,11 +249,21 @@ class MathUtils
 		}
 	}
 	
+	/**
+	   This seems to be the fastest, but still slower than Math.cos
+	   @param	rad
+	   @return
+	**/
 	inline static public function fasterCos(rad:Float):Float
 	{
 		return fasterSin(rad + 1.57079632);
 	}
 	
+	/**
+	   This seems to be the fastest, but still slower than Math.sin
+	   @param	rad
+	   @return
+	**/
 	inline static public function fasterSin(rad:Float):Float
 	{
 		//always wrap input angle to -PI..PI
