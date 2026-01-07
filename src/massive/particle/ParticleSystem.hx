@@ -1633,7 +1633,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				}
 				else
 				{
-					this.__velocityAngle = MathUtils.atan2(particle.velocityY, particle.velocityX);
+					this.__velocityAngle = Math.atan2(particle.velocityY, particle.velocityX);
 				}
 				this.__velocityAngleCalculated = true;
 			}
@@ -1655,7 +1655,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				}
 				else
 				{
-					this.__velocityAngle = MathUtils.atan2(particle.velocityY, particle.velocityX);
+					this.__velocityAngle = Math.atan2(particle.velocityY, particle.velocityX);
 				}
 				this.__velocityAngleCalculated = true;
 			}
@@ -1683,7 +1683,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				}
 				else
 				{
-					this.__velocityAngle = MathUtils.atan2(particle.velocityY, particle.velocityX);
+					this.__velocityAngle = Math.atan2(particle.velocityY, particle.velocityX);
 				}
 				this.__velocityAngleCalculated = true;
 			}
