@@ -120,7 +120,12 @@ class Main extends Sprite
 		#end
 		var result:Float;
 		var angle:Float = 1.57;
+		//var m:Class<Math> = Math;
 		var m = Math;
+		
+		//trace(Type.typeof(m));
+		//trace(Type.getClass(m));
+		//trace(Type.getClassName(Type.getClass(m)));
 		
 		t1 = timeStamp();
 		for (i in 0...iterations)
@@ -135,7 +140,7 @@ class Main extends Sprite
 		for (i in 0...iterations)
 		{
 			//result = m.cos(Math.random() * MathUtils.PI2);
-			result = _m.cos(angle);
+			result = m.cos(angle);
 		}
 		t2 = timeStamp();
 		time2 = t2 - t1;
