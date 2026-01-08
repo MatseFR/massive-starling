@@ -365,7 +365,7 @@ class MassiveHexGridDemo extends Sprite
 		this.gridMenuSprite.addChild(tf);
 		
 		tY += tf.height + gap;
-		var tf:TextField = new TextField(0, 0, "arrow keys to scroll");
+		var tf:TextField = new TextField(0, 0, "arrow keys\nor WASD\nor ZQSD\nto scroll");
 		tf.format.color = 0xffffff;
 		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
 		tf.y = tY;
@@ -573,7 +573,7 @@ class MassiveHexGridDemo extends Sprite
 	{
 		for (btn in allGridbuttons)
 		{
-			btn.upState = this.buttonTextureOFF;
+			btn.upState = this.mediumButtonTextureOFF;
 		}
 	}
 	
