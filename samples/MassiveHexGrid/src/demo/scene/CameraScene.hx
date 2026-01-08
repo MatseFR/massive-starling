@@ -177,22 +177,22 @@ class CameraScene extends Scene implements IAnimatable
 	{
 		var speed:Float = 5;
 		
-		if (this._keyPressed[Keyboard.LEFT])
+		if (this._keyPressed[Keyboard.LEFT] || this._keyPressed[Keyboard.Q] || this._keyPressed[Keyboard.A])
 		{
 			this._camera.x -= speed;
 		}
 		
-		if (this._keyPressed[Keyboard.RIGHT])
+		if (this._keyPressed[Keyboard.RIGHT] || this._keyPressed[Keyboard.D])
 		{
 			this._camera.x += speed;
 		}
 		
-		if (this._keyPressed[Keyboard.UP])
+		if (this._keyPressed[Keyboard.UP] || this._keyPressed[Keyboard.Z] || this._keyPressed[Keyboard.W])
 		{
 			this._camera.y -= speed;
 		}
 		
-		if (this._keyPressed[Keyboard.DOWN])
+		if (this._keyPressed[Keyboard.DOWN] || this._keyPressed[Keyboard.S])
 		{
 			this._camera.y += speed;
 		}
