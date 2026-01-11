@@ -24,6 +24,7 @@ import starling.textures.Texture;
 import starling.textures.TextureAtlas;
 import starling.utils.Align;
 import valedit.ExposedCollection;
+import valedit.value.ExposedColor;
 import valedit.value.ExposedFloatDrag;
 import valedit.value.ExposedSelect;
 import valeditor.ValEditor;
@@ -31,6 +32,8 @@ import valeditor.data.Data;
 import valeditor.editor.base.ValEditorSimpleStarling;
 import valeditor.editor.file.FileController;
 import valeditor.input.InputActionID;
+import valeditor.ui.feathers.FeathersWindows;
+import valeditor.ui.feathers.WindowSize;
 import valeditor.ui.feathers.data.MenuItem;
 import valeditor.ui.feathers.view.SimpleEditViewToggleGroups;
 #if (desktop || air)
@@ -45,7 +48,7 @@ import openfl.net.FileReference;
  * ...
  * @author Matse
  */
-class ParticleEditor extends ValEditorSimpleStarling 
+class ParticleEditor extends ValEditorSimpleStarling
 {
 	private var _assetManager:AssetManager;
 	
@@ -67,6 +70,8 @@ class ParticleEditor extends ValEditorSimpleStarling
 	
 	// options menu
 	private var _optionsMenuCollection:ArrayCollection<MenuItem>;
+	private var _backgroundColorItem:MenuItem;
+	private var _uiSkinItem:MenuItem;
 	private var _autoCenterItem:MenuItem;
 	private var _centerItem:MenuItem;
 	
@@ -84,6 +89,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 	#end
 	
 	private var _autoCenter:Bool = true;
+	private var _backgroundColorCollection:ExposedCollection;
 	private var _presetConfigs:Map<String, ParticleConfig> = new Map<String, ParticleConfig>();
 	
 	private var _textureMap:Map<String, Texture> = new Map<String, Texture>();
@@ -109,6 +115,8 @@ class ParticleEditor extends ValEditorSimpleStarling
 	
 	override public function start():Void 
 	{
+		this.stage.color = 0x333333;
+		
 		this.editView = new SimpleEditViewToggleGroups();
 		this.editView.autoSizeMode = AutoSizeMode.STAGE;
 		
@@ -156,9 +164,13 @@ class ParticleEditor extends ValEditorSimpleStarling
 		this.editView.addMenu("edit", "Edit", onEditMenuCallback, onEditMenuOpen, this._editMenuCollection);
 		
 		// options menu
+		this._uiSkinItem = new MenuItem("ui_skin", "", true);
+		this._backgroundColorItem = new MenuItem("background_color", "Background color", true);
 		this._autoCenterItem = new MenuItem("auto_center", "Auto center enabled", true);
 		this._centerItem = new MenuItem("center", "Center", true);
 		this._optionsMenuCollection = new ArrayCollection<MenuItem>([
+			this._uiSkinItem,
+			this._backgroundColorItem,
 			this._autoCenterItem,
 			this._centerItem
 		]);
@@ -177,6 +189,12 @@ class ParticleEditor extends ValEditorSimpleStarling
 		this.editView.addMenu("presets", "Presets", onPresetsMenuCallback, onPresetsMenuOpen, this._presetsMenuCollection);
 		
 		// ? menu
+		
+		// create a collection for background color edit
+		this._backgroundColorCollection = new ExposedCollection();
+		var color:ExposedColor = new ExposedColor("color");
+		this._backgroundColorCollection.addValue(color);
+		this._backgroundColorCollection.readAndSetObject(this.stage);
 		
 		cast(this.editView, SimpleEditViewToggleGroups).addToggleGroup("MassiveDisplay", "DISPLAY", true);
 		cast(this.editView, SimpleEditViewToggleGroups).addToggleGroup("ParticleSystem", "PARTICLE SYSTEM", true);
@@ -541,6 +559,15 @@ class ParticleEditor extends ValEditorSimpleStarling
 	// OPTIONS MENU
 	private function onOptionsMenuOpen(evt:openfl.events.Event):Void
 	{
+		if (ValEditor.theme.darkMode)
+		{
+			this._uiSkinItem.text = "UI light mode";
+		}
+		else
+		{
+			this._uiSkinItem.text = "UI dark mode";
+		}
+		
 		if (this._autoCenter)
 		{
 			this._autoCenterItem.text = "Auto center enabled";
@@ -555,6 +582,13 @@ class ParticleEditor extends ValEditorSimpleStarling
 	{
 		switch (item.id)
 		{
+			case "ui_skin" :
+				ValEditor.theme.darkMode = !ValEditor.theme.darkMode;
+			
+			case "background_color" :
+				ValEditor.actionStack.pushSession();
+				FeathersWindows.showCollectionEditWindow(this._backgroundColorCollection, onBackgroundColorConfirm, onBackgroundColorCancel, "Background color", WindowSize.SMALL, WindowSize.SMALL);
+			
 			case "auto_center" :
 				this._autoCenter = !this._autoCenter;
 				if (this._autoCenter) centerParticles();
@@ -720,6 +754,17 @@ class ParticleEditor extends ValEditorSimpleStarling
 			case InputActionID.UNDO :
 				ValEditor.actionStack.undo();
 		}
+	}
+	
+	private function onBackgroundColorConfirm():Void
+	{
+		ValEditor.actionStack.popSession();
+	}
+	
+	private function onBackgroundColorCancel():Void
+	{
+		ValEditor.actionStack.currentSession.undoAll();
+		ValEditor.actionStack.popSession();
 	}
 	
 }
