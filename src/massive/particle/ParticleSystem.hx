@@ -2,10 +2,11 @@ package massive.particle;
 
 import massive.animation.Animator;
 import massive.data.Frame;
-import massive.data.MassiveConstants;
 import massive.display.ImageLayer;
 import massive.util.MathUtils;
+#if flash
 import openfl.Vector;
+#end
 import openfl.errors.Error;
 import openfl.geom.Rectangle;
 import starling.events.Event;
@@ -1811,7 +1812,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._updateEmitter)
 		{
-			this._emitterObject.advanceSystem(this, time);
+			//this._emitterObject.advanceSystem(this, time);
 		}
 		
 		var particleIndex:Int = 0;
