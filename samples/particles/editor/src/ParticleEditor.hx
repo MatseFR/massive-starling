@@ -12,6 +12,7 @@ import massive.data.Frame;
 import massive.display.MassiveDisplay;
 import massive.particle.Particle;
 import massive.particle.ParticleSystem;
+import massive.particle.ParticleSystemDefaults;
 import massive.particle.ParticleSystemOptions;
 import openfl.Assets;
 import openfl.Vector;
@@ -413,16 +414,12 @@ class ParticleEditor extends ValEditorSimpleStarling
 		ValEditor.edit(this._massive, this._massiveCollection, this.editView.getEditContainer("MassiveDisplay"));
 		//\MassiveDisplay collection
 		
-		this._ps = new ParticleSystem<Particle>();
-		#if flash
-		this._ps.particlesFromPoolFunction = Particle.fromPoolVector;
-		this._ps.particlesToPoolFunction = Particle.toPoolVector;
-		#else
-		this._ps.particlesFromPoolFunction = Particle.fromPoolArray;
-		this._ps.particlesToPoolFunction = Particle.toPoolArray;
-		#end
+		// create particle system
+		this._ps = ParticleSystemDefaults.create();
+		// add to massive display
 		this._massive.addLayer(this._ps);
 		
+		// edit particle system and get collection
 		this._psCollection = ValEditor.edit(this._ps, null, this.editView.getEditContainer("ParticleSystem"));
 		
 		applyPreset("love cloud");
