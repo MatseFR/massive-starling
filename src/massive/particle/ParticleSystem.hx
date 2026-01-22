@@ -411,6 +411,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 0
 	**/
 	public var rotationEndVariance:Float = 0;
+	
+	/**
+	   @default	false
+	**/
+	public var rotationEndRelativeToStart:Bool = false;
 	//##################################################
 	//\PARTICLE
 	//##################################################
@@ -2305,12 +2310,26 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		if (this.emitAngleAlignedRotation)
 		{
 			this.__rotationStart = this.__angle + this.rotationStart + this.rotationStartVariance * getRandomRatio();
-			this.__rotationEnd = this.__angle + this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+			if (this.rotationEndRelativeToStart)
+			{
+				this.__rotationEnd = this.__rotationStart + this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+			}
+			else
+			{
+				this.__rotationEnd = this.__angle + this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+			}
 		}
 		else
 		{
 			this.__rotationStart = this.rotationStart + this.rotationStartVariance * getRandomRatio();
-			this.__rotationEnd = this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+			if (this.rotationEndRelativeToStart)
+			{
+				this.__rotationEnd = this.__rotationStart + this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+			}
+			else
+			{
+				this.__rotationEnd = this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+			}
 		}
 		
 		particle.rotationBase = this.__rotationStart;
@@ -3214,6 +3233,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.rotationStartVariance = options.rotationStartVariance;
 		this.rotationEnd = options.rotationEnd;
 		this.rotationEndVariance = options.rotationEndVariance;
+		this.rotationEndRelativeToStart = options.rotationEndRelativeToStart;
 		//\Particle
 		
 		// Velocity
@@ -3414,6 +3434,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.rotationStartVariance = this.rotationStartVariance;
 		options.rotationEnd = this.rotationEnd;
 		options.rotationEndVariance = this.rotationEndVariance;
+		options.rotationEndRelativeToStart = this.rotationEndRelativeToStart;
 		//\Particle
 		
 		// Velocity
