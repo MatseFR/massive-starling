@@ -434,6 +434,10 @@ class ParticleSystemOptions
 	   @default	false
 	**/
 	public var colorEndRelativeToStart:Bool = false;
+	/**
+	   @default	false
+	**/
+	public var colorEndIsMultiplier:Bool = false;
 	//##################################################
 	//\COLOR
 	//##################################################
@@ -860,6 +864,7 @@ class ParticleSystemOptions
 		this.colorEndVariance.red = this.colorEndVariance.green = this.colorEndVariance.blue = this.colorEndVariance.alpha = 0.0;
 		
 		this.colorEndRelativeToStart = false;
+		this.colorEndIsMultiplier = false;
 		//\COLOR
 		
 		// OSCILLATION
@@ -1075,6 +1080,7 @@ class ParticleSystemOptions
 		target.colorEnd.copyFrom(this.colorEnd);
 		target.colorEndVariance.copyFrom(this.colorEndVariance);
 		target.colorEndRelativeToStart = this.colorEndRelativeToStart;
+		target.colorEndIsMultiplier = this.colorEndIsMultiplier;
 		//\COLOR
 		
 		// OSCILLATION
@@ -1284,6 +1290,7 @@ class ParticleSystemOptions
 		colorFromJSON(this.colorEnd, json.colorEnd);
 		colorFromJSON(this.colorEndVariance, json.colorEndVariance);
 		this.colorEndRelativeToStart = json.colorEndRelativeToStart;
+		this.colorEndIsMultiplier = json.colorEndIsMultiplier;
 		//\COLOR
 		
 		// OSCILLATION
@@ -1493,6 +1500,7 @@ class ParticleSystemOptions
 		json.colorEnd = colorToJSON(this.colorEnd);
 		json.colorEndVariance = colorToJSON(this.colorEndVariance);
 		json.colorEndRelativeToStart = this.colorEndRelativeToStart;
+		json.colorEndIsMultiplier = this.colorEndIsMultiplier;
 		//\COLOR
 		
 		// OSCILLATION
