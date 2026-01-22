@@ -759,6 +759,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   
 	**/
 	public var colorEndVariance:MassiveTint = new MassiveTint(0, 0, 0, 0);
+	
+	/**
+	   @default	false
+	**/
+	public var colorEndRelativeToStart:Bool = false;
 	//##################################################
 	//\COLOR
 	//##################################################
@@ -2280,10 +2285,20 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.__colorBlueStart = this.colorStart.blue + this.colorStartVariance.blue * getRandomRatio();
 		this.__colorAlphaStart = this.colorStart.alpha + this.colorStartVariance.alpha * getRandomRatio();
 		
-		this.__colorRedEnd = this.colorEnd.red + this.colorEndVariance.red * getRandomRatio();
-		this.__colorGreenEnd = this.colorEnd.green + this.colorEndVariance.green * getRandomRatio();
-		this.__colorBlueEnd = this.colorEnd.blue + this.colorEndVariance.blue * getRandomRatio();
-		this.__colorAlphaEnd = this.colorEnd.alpha + this.colorEndVariance.alpha * getRandomRatio();
+		if (this.colorEndRelativeToStart)
+		{
+			this.__colorRedEnd = this.__colorRedStart + this.colorEnd.red + this.colorEndVariance.red * getRandomRatio();
+			this.__colorGreenEnd = this.__colorGreenStart + this.colorEnd.green + this.colorEndVariance.green * getRandomRatio();
+			this.__colorBlueEnd = this.__colorBlueStart + this.colorEnd.blue + this.colorEndVariance.blue * getRandomRatio();
+			this.__colorAlphaEnd = this.__colorAlphaStart + this.colorEnd.alpha + this.colorEndVariance.alpha * getRandomRatio();
+		}
+		else
+		{
+			this.__colorRedEnd = this.colorEnd.red + this.colorEndVariance.red * getRandomRatio();
+			this.__colorGreenEnd = this.colorEnd.green + this.colorEndVariance.green * getRandomRatio();
+			this.__colorBlueEnd = this.colorEnd.blue + this.colorEndVariance.blue * getRandomRatio();
+			this.__colorAlphaEnd = this.colorEnd.alpha + this.colorEndVariance.alpha * getRandomRatio();
+		}
 		
 		particle.colorRedBase = this.__colorRedStart;
 		particle.colorGreenBase = this.__colorGreenStart;
@@ -3296,6 +3311,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.colorStartVariance.copyFrom(options.colorStartVariance);
 		this.colorEnd.copyFrom(options.colorEnd);
 		this.colorEndVariance.copyFrom(options.colorEndVariance);
+		this.colorEndRelativeToStart = options.colorEndRelativeToStart;
 		//\Color
 		
 		// Oscillation
@@ -3498,6 +3514,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.colorStartVariance.copyFrom(this.colorStartVariance);
 		options.colorEnd.copyFrom(this.colorEnd);
 		options.colorEndVariance.copyFrom(this.colorEndVariance);
+		options.colorEndRelativeToStart = this.colorEndRelativeToStart;
 		//\Color
 		
 		// Oscillation

@@ -430,6 +430,10 @@ class ParticleSystemOptions
 	   
 	**/
 	public var colorEndVariance:MassiveTint = new MassiveTint(0, 0, 0, 0);
+	/**
+	   @default	false
+	**/
+	public var colorEndRelativeToStart:Bool = false;
 	//##################################################
 	//\COLOR
 	//##################################################
@@ -854,6 +858,8 @@ class ParticleSystemOptions
 		
 		this.colorEnd.red = this.colorEnd.green = this.colorEnd.blue = this.colorEnd.alpha = 1.0;
 		this.colorEndVariance.red = this.colorEndVariance.green = this.colorEndVariance.blue = this.colorEndVariance.alpha = 0.0;
+		
+		this.colorEndRelativeToStart = false;
 		//\COLOR
 		
 		// OSCILLATION
@@ -1068,6 +1074,7 @@ class ParticleSystemOptions
 		
 		target.colorEnd.copyFrom(this.colorEnd);
 		target.colorEndVariance.copyFrom(this.colorEndVariance);
+		target.colorEndRelativeToStart = this.colorEndRelativeToStart;
 		//\COLOR
 		
 		// OSCILLATION
@@ -1276,6 +1283,7 @@ class ParticleSystemOptions
 		colorFromJSON(this.colorStartVariance, json.colorStartVariance);
 		colorFromJSON(this.colorEnd, json.colorEnd);
 		colorFromJSON(this.colorEndVariance, json.colorEndVariance);
+		this.colorEndRelativeToStart = json.colorEndRelativeToStart;
 		//\COLOR
 		
 		// OSCILLATION
@@ -1484,6 +1492,7 @@ class ParticleSystemOptions
 		
 		json.colorEnd = colorToJSON(this.colorEnd);
 		json.colorEndVariance = colorToJSON(this.colorEndVariance);
+		json.colorEndRelativeToStart = this.colorEndRelativeToStart;
 		//\COLOR
 		
 		// OSCILLATION
