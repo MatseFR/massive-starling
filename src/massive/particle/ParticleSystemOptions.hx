@@ -1,10 +1,10 @@
 package massive.particle;
 import haxe.xml.Access;
+import massive.util.MassiveTint;
 import massive.util.MathUtils;
 import openfl.display3D.Context3DBlendFactor;
 import openfl.errors.ArgumentError;
 import openfl.geom.Rectangle;
-import starling.extensions.ColorArgb;
 
 /**
  * ...
@@ -281,11 +281,6 @@ class ParticleSystemOptions
 	   @default true
 	**/
 	public var textureAnimation:Bool = true;
-	///**
-	   //frame rate for texture animation
-	   //@default 60
-	//**/
-	//public var frameRate:Float = 60;
 	/**
 	   texture animation play speed ratio
 	   @default 1
@@ -418,19 +413,19 @@ class ParticleSystemOptions
 	/**
 	   
 	**/
-	public var colorStart:ColorArgb = new ColorArgb(1, 1, 1, 1);
+	public var colorStart:MassiveTint = new MassiveTint(1, 1, 1, 1);
 	/**
 	   
 	**/
-	public var colorStartVariance:ColorArgb = new ColorArgb(0, 0, 0, 0);
+	public var colorStartVariance:MassiveTint = new MassiveTint(0, 0, 0, 0);
 	/**
 	   
 	**/
-	public var colorEnd:ColorArgb = new ColorArgb(1, 1, 1, 1);
+	public var colorEnd:MassiveTint = new MassiveTint(1, 1, 1, 1);
 	/**
 	   
 	**/
-	public var colorEndVariance:ColorArgb = new ColorArgb(0, 0, 0, 0);
+	public var colorEndVariance:MassiveTint = new MassiveTint(0, 0, 0, 0);
 	//##################################################
 	//\COLOR
 	//##################################################
@@ -438,7 +433,21 @@ class ParticleSystemOptions
 	//##################################################
 	// OSCILLATION
 	//##################################################
+	/**
+	   @default	1
+	**/
+	public var oscillationGlobalFrequency:Float = 1.0;
+	/**
+	   @default	0
+	**/
+	public var oscillationUnifiedFrequencyVariance:Float = 0.0;
+	
 	// Position
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationPositionFrequencyMode:String = OscillationFrequencyMode.SINGLE;
 	/**
 	   @default 0
 	**/
@@ -448,6 +457,11 @@ class ParticleSystemOptions
 	**/
 	public var oscillationPositionAngleVariance:Float = 0.0;
 	/**
+	   see AngleRelativeTo for possible values
+	   @default	AngleRelativeTo.ROTATION
+	**/
+	public var oscillationPositionAngleRelativeTo:String = AngleRelativeTo.ROTATION;
+	/**
 	   @default 0
 	**/
 	public var oscillationPositionRadius:Float = 0.0;
@@ -456,9 +470,13 @@ class ParticleSystemOptions
 	**/
 	public var oscillationPositionRadiusVariance:Float = 0.0;
 	/**
-	   @default 1.0
+	   @default 1
 	**/
 	public var oscillationPositionFrequency:Float = 1.0;
+	/**
+	   @default	false
+	**/
+	public var oscillationPositionUnifiedFrequencyVariance:Bool = false;
 	/**
 	   @default 0
 	**/
@@ -467,8 +485,18 @@ class ParticleSystemOptions
 	   @default	false
 	**/
 	public var oscillationPositionFrequencyInverted:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationPositionFrequencyStart:String = OscillationFrequencyStart.ZERO;
 	
 	// Position2
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationPosition2FrequencyMode:String = OscillationFrequencyMode.SINGLE;
 	/**
 	   @default 0
 	**/
@@ -478,6 +506,11 @@ class ParticleSystemOptions
 	**/
 	public var oscillationPosition2AngleVariance:Float = 0.0;
 	/**
+	   see AngleRelativeTo for possible values
+	   @default	AngleRelativeTo.ROTATION
+	**/
+	public var oscillationPosition2AngleRelativeTo:String = AngleRelativeTo.ROTATION;
+	/**
 	   @default 0
 	**/
 	public var oscillationPosition2Radius:Float = 0.0;
@@ -486,9 +519,13 @@ class ParticleSystemOptions
 	**/
 	public var oscillationPosition2RadiusVariance:Float = 0.0;
 	/**
-	   @default 1.0
+	   @default 1
 	**/
 	public var oscillationPosition2Frequency:Float = 1.0;
+	/**
+	   @default	false
+	**/
+	public var oscillationPosition2UnifiedFrequencyVariance:Bool = false;
 	/**
 	   @default 0
 	**/
@@ -497,8 +534,18 @@ class ParticleSystemOptions
 	   @default	false
 	**/
 	public var oscillationPosition2FrequencyInverted:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationPosition2FrequencyStart:String = OscillationFrequencyStart.ZERO;
 	
 	// Rotation
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationRotationFrequencyMode:String = OscillationFrequencyMode.SINGLE;
 	/**
 	   @default 0
 	**/
@@ -508,9 +555,13 @@ class ParticleSystemOptions
 	**/
 	public var oscillationRotationAngleVariance:Float = 0.0;
 	/**
-	   @default 1.0
+	   @default 1
 	**/
 	public var oscillationRotationFrequency:Float = 1.0;
+	/**
+	   @default	false
+	**/
+	public var oscillationRotationUnifiedFrequencyVariance:Bool = false;
 	/**
 	   @default 0
 	**/
@@ -519,8 +570,18 @@ class ParticleSystemOptions
 	   @default	false
 	**/
 	public var oscillationRotationFrequencyInverted:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationRotationFrequencyStart:String = OscillationFrequencyStart.ZERO;
 	
-	// Scale
+	// ScaleX
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationScaleXFrequencyMode:String = OscillationFrequencyMode.SINGLE;
 	/**
 	   @default 0
 	**/
@@ -534,13 +595,29 @@ class ParticleSystemOptions
 	**/
 	public var oscillationScaleXFrequency:Float = 1.0;
 	/**
+	   @default	false
+	**/
+	public var oscillationScaleXUnifiedFrequencyVariance:Bool = false;
+	/**
 	   @default 0
 	**/
 	public var oscillationScaleXFrequencyVariance:Float = 0.0;
 	/**
-	   @default	false;
+	   @default	false
 	**/
 	public var oscillationScaleXFrequencyInverted:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationScaleXFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	
+	// ScaleY
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationScaleYFrequencyMode:String = OscillationFrequencyMode.SINGLE;
 	/**
 	   @default 0
 	**/
@@ -554,15 +631,29 @@ class ParticleSystemOptions
 	**/
 	public var oscillationScaleYFrequency:Float = 1.0;
 	/**
+	   @default	false
+	**/
+	public var oscillationScaleYUnifiedFrequencyVariance:Bool = false;
+	/**
 	   @default 0
 	**/
 	public var oscillationScaleYFrequencyVariance:Float = 0.0;
 	/**
-	   @default	false;
+	   @default	false
 	**/
 	public var oscillationScaleYFrequencyInverted:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationScaleYFrequencyStart:String = OscillationFrequencyStart.ZERO;
 	
 	// Color
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationColorFrequencyMode:String = OscillationFrequencyMode.SINGLE;
 	/**
 	   @default 0
 	**/
@@ -596,9 +687,13 @@ class ParticleSystemOptions
 	**/
 	public var oscillationColorAlphaVariance:Float = 0.0;
 	/**
-	   @default 0
+	   @default 1
 	**/
-	public var oscillationColorFrequency:Float = 0.0;
+	public var oscillationColorFrequency:Float = 1.0;
+	/**
+	   @default	false
+	**/
+	public var oscillationColorUnifiedFrequencyVariance:Bool = false;
 	/**
 	   @default 0
 	**/
@@ -607,6 +702,11 @@ class ParticleSystemOptions
 	   @default	false
 	**/
 	public var oscillationColorFrequencyInverted:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationColorFrequencyStart:String = OscillationFrequencyStart.ZERO;
 	//##################################################
 	//\OSCILLATION
 	//##################################################
@@ -703,8 +803,6 @@ class ParticleSystemOptions
 		
 		// ANIMATION
 		this.textureAnimation = true;
-		//this.animationLength = 1;
-		//this.frameRate = 60;
 		this.frameDelta = 1.0;
 		this.frameDeltaVariance = 0.0;
 		this.firstFrame = 0;
@@ -754,44 +852,67 @@ class ParticleSystemOptions
 		//\COLOR
 		
 		// OSCILLATION
+		this.oscillationGlobalFrequency = 1.0;
+		this.oscillationUnifiedFrequencyVariance = 0.0;
+		
 		// position
+		this.oscillationPositionFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationPositionAngle = 0.0;
 		this.oscillationPositionAngleVariance = 0.0;
+		this.oscillationPositionAngleRelativeTo = AngleRelativeTo.ROTATION;
 		this.oscillationPositionRadius = 0.0;
 		this.oscillationPositionRadiusVariance = 0.0;
 		this.oscillationPositionFrequency = 1.0;
+		this.oscillationPositionUnifiedFrequencyVariance = false;
 		this.oscillationPositionFrequencyVariance = 0.0;
 		this.oscillationPositionFrequencyInverted = false;
+		this.oscillationPositionFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// position2
+		this.oscillationPosition2FrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationPosition2Angle = 0.0;
 		this.oscillationPosition2AngleVariance = 0.0;
+		this.oscillationPosition2AngleRelativeTo = AngleRelativeTo.ROTATION;
 		this.oscillationPosition2Radius = 0.0;
 		this.oscillationPosition2RadiusVariance = 0.0;
 		this.oscillationPosition2Frequency = 1.0;
+		this.oscillationPosition2UnifiedFrequencyVariance = false;
 		this.oscillationPosition2FrequencyVariance = 0.0;
 		this.oscillationPosition2FrequencyInverted = false;
+		this.oscillationPosition2FrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// rotation
+		this.oscillationRotationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationRotationAngle = 0.0;
 		this.oscillationRotationAngleVariance = 0.0;
 		this.oscillationRotationFrequency = 1.0;
+		this.oscillationRotationUnifiedFrequencyVariance = false;
 		this.oscillationRotationFrequencyVariance = 0.0;
 		this.oscillationRotationFrequencyInverted = false;
+		this.oscillationRotationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
-		// scale
+		// scaleX
+		this.oscillationScaleXFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationScaleX = 0.0;
 		this.oscillationScaleXVariance = 0.0;
 		this.oscillationScaleXFrequency = 1.0;
+		this.oscillationScaleXUnifiedFrequencyVariance = false;
 		this.oscillationScaleXFrequencyVariance = 0.0;
 		this.oscillationScaleXFrequencyInverted = false;
+		this.oscillationScaleXFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// scaleY
+		this.oscillationScaleYFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationScaleY = 0.0;
 		this.oscillationScaleYVariance = 0.0;
 		this.oscillationScaleYFrequency = 1.0;
+		this.oscillationScaleYUnifiedFrequencyVariance = false;
 		this.oscillationScaleYFrequencyVariance = 0.0;
 		this.oscillationScaleYFrequencyInverted = false;
+		this.oscillationScaleYFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// color
+		this.oscillationColorFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationColorRed = 0.0;
 		this.oscillationColorGreen = 0.0;
 		this.oscillationColorBlue = 0.0;
@@ -800,15 +921,12 @@ class ParticleSystemOptions
 		this.oscillationColorGreenVariance = 0.0;
 		this.oscillationColorBlueVariance = 0.0;
 		this.oscillationColorAlphaVariance = 0.0;
-		this.oscillationColorFrequency = 0.0;
+		this.oscillationColorFrequency = 1.0;
+		this.oscillationColorUnifiedFrequencyVariance = false;
 		this.oscillationColorFrequencyVariance = 0.0;
 		this.oscillationColorFrequencyInverted = false;
+		this.oscillationColorFrequencyStart = OscillationFrequencyStart.ZERO;
 		//\OSCILLATION
-		
-		//this.premultipliedAlpha = true;
-		
-		//this.blendFuncSource = Context3DBlendFactor.ONE;
-		//this.blendFuncDestination = Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
 		
 		this.customFunction = null;
 		this.sortFunction = null;
@@ -897,7 +1015,6 @@ class ParticleSystemOptions
 		
 		// ANIMATION
 		target.textureAnimation = this.textureAnimation;
-		//target.frameRate = this.frameRate;
 		target.frameDelta = this.frameDelta;
 		target.frameDeltaVariance = this.frameDeltaVariance;
 		target.firstFrame = this.firstFrame;
@@ -948,39 +1065,61 @@ class ParticleSystemOptions
 		//\COLOR
 		
 		// OSCILLATION
+		target.oscillationGlobalFrequency = this.oscillationGlobalFrequency;
+		target.oscillationUnifiedFrequencyVariance = this.oscillationUnifiedFrequencyVariance;
+		
+		target.oscillationPositionFrequencyMode = this.oscillationPositionFrequencyMode;
 		target.oscillationPositionAngle = this.oscillationPositionAngle;
 		target.oscillationPositionAngleVariance = this.oscillationPositionAngleVariance;
+		target.oscillationPositionAngleRelativeTo = this.oscillationPositionAngleRelativeTo;
 		target.oscillationPositionRadius = this.oscillationPositionRadius;
 		target.oscillationPositionRadiusVariance = this.oscillationPositionRadiusVariance;
 		target.oscillationPositionFrequency = this.oscillationPositionFrequency;
+		target.oscillationPositionUnifiedFrequencyVariance = this.oscillationPositionUnifiedFrequencyVariance;
 		target.oscillationPositionFrequencyVariance = this.oscillationPositionFrequencyVariance;
 		target.oscillationPositionFrequencyInverted = this.oscillationPositionFrequencyInverted;
+		target.oscillationPositionFrequencyStart = this.oscillationPositionFrequencyStart;
 		
+		target.oscillationPosition2FrequencyMode = this.oscillationPosition2FrequencyMode;
 		target.oscillationPosition2Angle = this.oscillationPosition2Angle;
 		target.oscillationPosition2AngleVariance = this.oscillationPosition2AngleVariance;
+		target.oscillationPosition2AngleRelativeTo = this.oscillationPosition2AngleRelativeTo;
 		target.oscillationPosition2Radius = this.oscillationPosition2Radius;
 		target.oscillationPosition2RadiusVariance = this.oscillationPosition2RadiusVariance;
 		target.oscillationPosition2Frequency = this.oscillationPosition2Frequency;
+		target.oscillationPosition2UnifiedFrequencyVariance = this.oscillationPosition2UnifiedFrequencyVariance;
 		target.oscillationPosition2FrequencyVariance = this.oscillationPosition2FrequencyVariance;
 		target.oscillationPosition2FrequencyInverted = this.oscillationPosition2FrequencyInverted;
+		target.oscillationPosition2FrequencyStart = this.oscillationPosition2FrequencyStart;
 		
+		target.oscillationRotationFrequencyMode = this.oscillationRotationFrequencyMode;
 		target.oscillationRotationAngle = this.oscillationRotationAngle;
 		target.oscillationRotationAngleVariance = this.oscillationRotationAngleVariance;
 		target.oscillationRotationFrequency = this.oscillationRotationFrequency;
+		target.oscillationRotationUnifiedFrequencyVariance = this.oscillationRotationUnifiedFrequencyVariance;
 		target.oscillationRotationFrequencyVariance = this.oscillationRotationFrequencyVariance;
 		target.oscillationRotationFrequencyInverted = this.oscillationRotationFrequencyInverted;
+		target.oscillationRotationFrequencyStart = this.oscillationRotationFrequencyStart;
 		
+		target.oscillationScaleXFrequencyMode = this.oscillationScaleXFrequencyMode;
 		target.oscillationScaleX = this.oscillationScaleX;
 		target.oscillationScaleXVariance = this.oscillationScaleXVariance;
 		target.oscillationScaleXFrequency = this.oscillationScaleXFrequency;
+		target.oscillationScaleXUnifiedFrequencyVariance = this.oscillationScaleXUnifiedFrequencyVariance;
 		target.oscillationScaleXFrequencyVariance = this.oscillationScaleXFrequencyVariance;
 		target.oscillationScaleXFrequencyInverted = this.oscillationScaleXFrequencyInverted;
+		target.oscillationScaleXFrequencyStart = this.oscillationScaleXFrequencyStart;
+		
+		target.oscillationScaleYFrequencyMode = this.oscillationScaleYFrequencyMode;
 		target.oscillationScaleY = this.oscillationScaleY;
 		target.oscillationScaleYVariance = this.oscillationScaleYVariance;
 		target.oscillationScaleYFrequency = this.oscillationScaleYFrequency;
+		target.oscillationScaleYUnifiedFrequencyVariance = this.oscillationScaleYUnifiedFrequencyVariance;
 		target.oscillationScaleYFrequencyVariance = this.oscillationScaleYFrequencyVariance;
 		target.oscillationScaleYFrequencyInverted = this.oscillationScaleYFrequencyInverted;
+		target.oscillationScaleYFrequencyStart = this.oscillationScaleYFrequencyStart;
 		
+		target.oscillationColorFrequencyMode = this.oscillationColorFrequencyMode;
 		target.oscillationColorRed = this.oscillationColorRed;
 		target.oscillationColorGreen = this.oscillationColorGreen;
 		target.oscillationColorBlue = this.oscillationColorBlue;
@@ -990,14 +1129,11 @@ class ParticleSystemOptions
 		target.oscillationColorBlueVariance = this.oscillationColorBlueVariance;
 		target.oscillationColorAlphaVariance = this.oscillationColorAlphaVariance;
 		target.oscillationColorFrequency = this.oscillationColorFrequency;
+		target.oscillationColorUnifiedFrequencyVariance = this.oscillationColorUnifiedFrequencyVariance;
 		target.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
 		target.oscillationColorFrequencyInverted = this.oscillationColorFrequencyInverted;
+		target.oscillationColorFrequencyStart = this.oscillationColorFrequencyStart;
 		//\OSCILLATION
-		
-		//target.premultipliedAlpha = this.premultipliedAlpha;
-		
-		//target.blendFuncSource = this.blendFuncSource;
-		//target.blendFuncDestination = this.blendFuncDestination;
 		
 		target.exactBounds = this.exactBounds;
 		
@@ -1087,7 +1223,6 @@ class ParticleSystemOptions
 		
 		// ANIMATION
 		this.textureAnimation = json.textureAnimation;
-		//this.frameRate = json.frameRate;
 		if (json.frameDelta != null) this.frameDelta = json.frameDelta;
 		if (json.frameDeltaVariance != null) this.frameDeltaVariance = json.frameDeltaVariance;
 		this.firstFrame = json.firstFrame;
@@ -1137,39 +1272,112 @@ class ParticleSystemOptions
 		//\COLOR
 		
 		// OSCILLATION
+		if (json.oscillationGlobalFrequency != null)
+		{
+			this.oscillationGlobalFrequency = json.oscillationGlobalFrequency;
+		}
+		if (json.oscillationUnifiedFrequencyVariance != null)
+		{
+			this.oscillationUnifiedFrequencyVariance = json.oscillationUnifiedFrequencyVariance;
+		}
+		
+		// position
+		if (json.oscillationPositionFrequencyMode != null)
+		{
+			this.oscillationPositionFrequencyMode = json.oscillationPositionFrequencyMode;
+		}
 		this.oscillationPositionAngle = json.oscillationPositionAngle;
 		this.oscillationPositionAngleVariance = json.oscillationPositionAngleVariance;
+		if (json.oscillationPositionAngleRelativeTo != null)
+		{
+			this.oscillationPositionAngleRelativeTo = json.oscillationPositionAngleRelativeTo;
+		}
 		this.oscillationPositionRadius = json.oscillationPositionRadius;
 		this.oscillationPositionRadiusVariance = json.oscillationPositionRadiusVariance;
 		this.oscillationPositionFrequency = json.oscillationPositionFrequency;
+		this.oscillationPositionUnifiedFrequencyVariance = json.oscillationPositionUnifiedFrequencyVariance;
 		this.oscillationPositionFrequencyVariance = json.oscillationPositionFrequencyVariance;
 		this.oscillationPositionFrequencyInverted = json.oscillationPositionFrequencyInverted;
+		if (json.oscillationPositionFrequencyStart != null)
+		{
+			this.oscillationPositionFrequencyStart = json.oscillationPositionFrequencyStart;
+		}
 		
+		// position2
+		if (json.oscillationPosition2FrequencyMode != null)
+		{
+			this.oscillationPosition2FrequencyMode = json.oscillationPosition2FrequencyMode;
+		}
 		this.oscillationPosition2Angle = json.oscillationPosition2Angle;
 		this.oscillationPosition2AngleVariance = json.oscillationPosition2AngleVariance;
+		if (json.oscillationPosition2AngleRelativeTo != null)
+		{
+			this.oscillationPosition2AngleRelativeTo = json.oscillationPosition2AngleRelativeTo;
+		}
 		this.oscillationPosition2Radius = json.oscillationPosition2Radius;
 		this.oscillationPosition2RadiusVariance = json.oscillationPosition2RadiusVariance;
 		this.oscillationPosition2Frequency = json.oscillationPosition2Frequency;
+		this.oscillationPosition2UnifiedFrequencyVariance = json.oscillationPosition2UnifiedFrequencyVariance;
 		this.oscillationPosition2FrequencyVariance = json.oscillationPosition2FrequencyVariance;
 		this.oscillationPosition2FrequencyInverted = json.oscillationPosition2FrequencyInverted;
+		if (json.oscillationPosition2FrequencyStart != null)
+		{
+			this.oscillationPosition2FrequencyStart = json.oscillationPosition2FrequencyStart;
+		}
 		
+		// rotation
+		if (json.oscillationRotationFrequencyMode != null)
+		{
+			this.oscillationRotationFrequencyMode = json.oscillationRotationFrequencyMode;
+		}
 		this.oscillationRotationAngle = json.oscillationRotationAngle;
 		this.oscillationRotationAngleVariance = json.oscillationRotationAngleVariance;
 		this.oscillationRotationFrequency = json.oscillationRotationFrequency;
+		this.oscillationRotationUnifiedFrequencyVariance = json.oscillationRotationUnifiedFrequencyVariance;
 		this.oscillationRotationFrequencyVariance = json.oscillationRotationFrequencyVariance;
 		this.oscillationRotationFrequencyInverted = json.oscillationRotationFrequencyInverted;
+		if (json.oscillationRotationFrequencyStart != null)
+		{
+			this.oscillationRotationFrequencyStart = json.oscillationRotationFrequencyStart;
+		}
 		
+		// scaleX
+		if (json.oscillationScaleXFrequencyMode != null)
+		{
+			this.oscillationScaleXFrequencyMode = json.oscillationScaleXFrequencyMode;
+		}
 		this.oscillationScaleX = json.oscillationScaleX;
 		this.oscillationScaleXVariance = json.oscillationScaleXVariance;
 		this.oscillationScaleXFrequency = json.oscillationScaleXFrequency;
+		this.oscillationScaleXUnifiedFrequencyVariance = json.oscillationScaleXUnifiedFrequencyVariance;
 		this.oscillationScaleXFrequencyVariance = json.oscillationScaleXFrequencyVariance;
 		this.oscillationScaleXFrequencyInverted = json.oscillationScaleXFrequencyInverted;
+		if (json.oscillationScaleXFrequencyStart != null)
+		{
+			this.oscillationScaleXFrequencyStart = json.oscillationScaleXFrequencyStart;
+		}
+		
+		// scaleY
+		if (json.oscillationScaleYFrequencyMode != null)
+		{
+			this.oscillationScaleYFrequencyMode = json.oscillationScaleYFrequencyMode;
+		}
 		this.oscillationScaleY = json.oscillationScaleY;
 		this.oscillationScaleYVariance = json.oscillationScaleYVariance;
 		this.oscillationScaleYFrequency = json.oscillationScaleYFrequency;
+		this.oscillationScaleYUnifiedFrequencyVariance = json.oscillationScaleYUnifiedFrequencyVariance;
 		this.oscillationScaleYFrequencyVariance = json.oscillationScaleYFrequencyVariance;
 		this.oscillationScaleYFrequencyInverted = json.oscillationScaleYFrequencyInverted;
+		if (json.oscillationScaleYFrequencyStart != null)
+		{
+			this.oscillationScaleYFrequencyStart = json.oscillationScaleYFrequencyStart;
+		}
 		
+		// color
+		if (json.oscillationColorFrequencyMode != null)
+		{
+			this.oscillationColorFrequencyMode = json.oscillationColorFrequencyMode;
+		}
 		this.oscillationColorRed = json.oscillationColorRed;
 		this.oscillationColorGreen = json.oscillationColorGreen;
 		this.oscillationColorBlue = json.oscillationColorBlue;
@@ -1179,12 +1387,14 @@ class ParticleSystemOptions
 		this.oscillationColorBlueVariance = json.oscillationColorBlueVariance;
 		this.oscillationColorAlphaVariance = json.oscillationColorAlphaVariance;
 		this.oscillationColorFrequency = json.oscillationColorFrequency;
+		this.oscillationColorUnifiedFrequencyVariance = json.oscillationColorUnifiedFrequencyVariance;
 		this.oscillationColorFrequencyVariance = json.oscillationColorFrequencyVariance;
 		this.oscillationColorFrequencyInverted = json.oscillationColorFrequencyInverted;
+		if (json.oscillationColorFrequencyStart != null)
+		{
+			this.oscillationColorFrequencyStart = json.oscillationColorFrequencyStart;
+		}
 		//\OSCILLATION
-		
-		//this.blendFuncSource = json.blendFuncSource;
-		//this.blendFuncDestination = json.blendFuncDestination;
 		
 		this.exactBounds = json.exactBounds;
 		
@@ -1318,39 +1528,61 @@ class ParticleSystemOptions
 		//\COLOR
 		
 		// OSCILLATION
+		json.oscillationGlobalFrequency = this.oscillationGlobalFrequency;
+		json.oscillationUnifiedFrequencyVariance = this.oscillationUnifiedFrequencyVariance;
+		
+		json.oscillationPositionFrequencyMode = this.oscillationPositionFrequencyMode;
 		json.oscillationPositionAngle = this.oscillationPositionAngle;
 		json.oscillationPositionAngleVariance = this.oscillationPositionAngleVariance;
+		json.oscillationPositionAngleRelativeTo = this.oscillationPositionAngleRelativeTo;
 		json.oscillationPositionRadius = this.oscillationPositionRadius;
 		json.oscillationPositionRadiusVariance = this.oscillationPositionRadiusVariance;
 		json.oscillationPositionFrequency = this.oscillationPositionFrequency;
+		json.oscillationPositionUnifiedFrequencyVariance = this.oscillationPositionUnifiedFrequencyVariance;
 		json.oscillationPositionFrequencyVariance = this.oscillationPositionFrequencyVariance;
 		json.oscillationPositionFrequencyInverted = this.oscillationPositionFrequencyInverted;
+		json.oscillationPositionFrequencyStart = this.oscillationPositionFrequencyStart;
 		
+		json.oscillationPosition2FrequencyMode = this.oscillationPosition2FrequencyMode;
 		json.oscillationPosition2Angle = this.oscillationPosition2Angle;
 		json.oscillationPosition2AngleVariance = this.oscillationPosition2AngleVariance;
+		json.oscillationPosition2AngleRelativeTo = this.oscillationPosition2AngleRelativeTo;
 		json.oscillationPosition2Radius = this.oscillationPosition2Radius;
 		json.oscillationPosition2RadiusVariance = this.oscillationPosition2RadiusVariance;
 		json.oscillationPosition2Frequency = this.oscillationPosition2Frequency;
+		json.oscillationPosition2UnifiedFrequencyVariance = this.oscillationPosition2UnifiedFrequencyVariance;
 		json.oscillationPosition2FrequencyVariance = this.oscillationPosition2FrequencyVariance;
 		json.oscillationPosition2FrequencyInverted = this.oscillationPosition2FrequencyInverted;
+		json.oscillationPosition2FrequencyStart = this.oscillationPosition2FrequencyStart;
 		
+		json.oscillationRotationFrequencyMode = this.oscillationRotationFrequencyMode;
 		json.oscillationRotationAngle = this.oscillationRotationAngle;
 		json.oscillationRotationAngleVariance = this.oscillationRotationAngleVariance;
 		json.oscillationRotationFrequency = this.oscillationRotationFrequency;
+		json.oscillationRotationUnifiedFrequencyVariance = this.oscillationRotationUnifiedFrequencyVariance;
 		json.oscillationRotationFrequencyVariance = this.oscillationRotationFrequencyVariance;
 		json.oscillationRotationFrequencyInverted = this.oscillationRotationFrequencyInverted;
+		json.oscillationRotationFrequencyStart = this.oscillationRotationFrequencyStart;
 		
+		json.oscillationScaleXFrequencyMode = this.oscillationScaleXFrequencyMode;
 		json.oscillationScaleX = this.oscillationScaleX;
 		json.oscillationScaleXVariance = this.oscillationScaleXVariance;
 		json.oscillationScaleXFrequency = this.oscillationScaleXFrequency;
+		json.oscillationScaleXUnifiedFrequencyVariance = this.oscillationScaleXUnifiedFrequencyVariance;
 		json.oscillationScaleXFrequencyVariance = this.oscillationScaleXFrequencyVariance;
 		json.oscillationScaleXFrequencyInverted = this.oscillationScaleXFrequencyInverted;
+		json.oscillationScaleXFrequencyStart = this.oscillationScaleXFrequencyStart;
+		
+		json.oscillationScaleYFrequencyMode = this.oscillationScaleYFrequencyMode;
 		json.oscillationScaleY = this.oscillationScaleY;
 		json.oscillationScaleYVariance = this.oscillationScaleYVariance;
 		json.oscillationScaleYFrequency = this.oscillationScaleYFrequency;
+		json.oscillationScaleYUnifiedFrequencyVariance = this.oscillationScaleYUnifiedFrequencyVariance;
 		json.oscillationScaleYFrequencyVariance = this.oscillationScaleYFrequencyVariance;
 		json.oscillationScaleYFrequencyInverted = this.oscillationScaleYFrequencyInverted;
+		json.oscillationScaleYFrequencyStart = this.oscillationScaleYFrequencyStart;
 		
+		json.oscillationColorFrequencyMode = this.oscillationColorFrequencyMode;
 		json.oscillationColorRed = this.oscillationColorRed;
 		json.oscillationColorGreen = this.oscillationColorGreen;
 		json.oscillationColorBlue = this.oscillationColorBlue;
@@ -1360,12 +1592,11 @@ class ParticleSystemOptions
 		json.oscillationColorBlueVariance = this.oscillationColorBlueVariance;
 		json.oscillationColorAlphaVariance = this.oscillationColorAlphaVariance;
 		json.oscillationColorFrequency = this.oscillationColorFrequency;
+		json.oscillationColorUnifiedFrequencyVariance = this.oscillationColorUnifiedFrequencyVariance;
 		json.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
 		json.oscillationColorFrequencyInverted = this.oscillationColorFrequencyInverted;
+		json.oscillationColorFrequencyStart = this.oscillationColorFrequencyStart;
 		//\OSCILLATION
-		
-		//json.blendFuncSource = this.blendFuncSource;
-		//json.blendFuncDestination = this.blendFuncDestination;
 		
 		json.exactBounds = this.exactBounds;
 		
@@ -1374,7 +1605,7 @@ class ParticleSystemOptions
 		return json;
 	}
 	
-	static public function colorFromJSON(color:ColorArgb, json:Dynamic):Void
+	static public function colorFromJSON(color:MassiveTint, json:Dynamic):Void
 	{
 		color.red = json.red;
 		color.green = json.green;
@@ -1382,7 +1613,7 @@ class ParticleSystemOptions
 		color.alpha = json.alpha;
 	}
 	
-	static public function colorToJSON(color:ColorArgb, json:Dynamic = null):Dynamic
+	static public function colorToJSON(color:MassiveTint, json:Dynamic = null):Dynamic
 	{
 		if (json == null) json = {};
 		
@@ -1556,9 +1787,9 @@ class ParticleSystemOptions
 		return MathUtils.isNaN(result) ? 0 : result;
 	}
 	
-	private static function getColor(element:Access, color:ColorArgb = null):ColorArgb
+	private static function getColor(element:Access, color:MassiveTint = null):MassiveTint
 	{
-		if (color == null) color = new ColorArgb();
+		if (color == null) color = new MassiveTint();
 		if (element.has.red) color.red = Std.parseFloat(element.att.red);
 		if (element.has.green) color.green = Std.parseFloat(element.att.green);
 		if (element.has.blue) color.blue = Std.parseFloat(element.att.blue);

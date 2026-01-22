@@ -3,6 +3,7 @@ package massive.particle;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.display.ImageLayer;
+import massive.util.MassiveTint;
 import massive.util.MathUtils;
 #if flash
 import openfl.Vector;
@@ -10,7 +11,6 @@ import openfl.Vector;
 import openfl.errors.Error;
 import openfl.geom.Rectangle;
 import starling.events.Event;
-import starling.extensions.ColorArgb;
 
 /**
  * ...
@@ -116,16 +116,19 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 0
 	**/
 	public var emitterX:Float = 0;
+	
 	/**
 	   Horizontal emitter position variance
 	   @default 0
 	**/
 	public var emitterXVariance:Float = 0;
+	
 	/**
 	   Vertical emitter position
 	   @default 0
 	**/
 	public var emitterY:Float = 0;
+	
 	/**
 	   Vertical emitter position variance
 	   @default 0
@@ -190,10 +193,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 0
 	**/
 	public var emitAngle:Float = 0;
+	
 	/**
 	   @default Math.PI
 	**/
 	public var emitAngleVariance:Float = Math.PI;
+	
 	/**
 	   Aligns the particles to their emit angle at birth
 	   @default false
@@ -215,7 +220,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._emitterObject = value;
 	}
 	
+	/**
+	   @default	false
+	**/
 	public var useDisplayRect:Bool = false;
+	
+	/**
+	   
+	**/
 	public var displayRect:Rectangle = new Rectangle();
 	//##################################################
 	//\EMITTER
@@ -324,14 +336,17 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 20
 	**/
 	public var sizeXStart:Float = 20;
+	
 	/**
 	   @default 0
 	**/
 	public var sizeXStartVariance:Float = 0;
+	
 	/**
 	   @default 20
 	**/
 	public var sizeYStart:Float = 20;
+	
 	/**
 	   @default 0
 	**/
@@ -361,30 +376,37 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 20
 	**/
 	public var sizeXEnd:Float = 20;
+	
 	/**
 	   @default 0
 	**/
 	public var sizeXEndVariance:Float = 0;
+	
 	/**
 	   @default 20
 	**/
 	public var sizeYEnd:Float = 20;
+	
 	/**
 	   @default 0
 	**/
 	public var sizeYEndVariance:Float = 0;
+	
 	/**
 	   @default 0
 	**/
 	public var rotationStart:Float = 0;
+	
 	/**
 	   @default 0
 	**/
 	public var rotationStartVariance:Float = 0;
+	
 	/**
 	   @default 0
 	**/
 	public var rotationEnd:Float = 0;
+	
 	/**
 	   @default 0
 	**/
@@ -455,6 +477,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 0
 	**/
 	public var velocityX:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
@@ -494,6 +517,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default false
 	**/
 	public var linkRotationToVelocity:Bool = false;
+	
 	/**
 	   @default 0
 	**/
@@ -505,21 +529,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	//##################################################
 	// ANIMATION
 	//##################################################
-	///**
-	   //frame rate for texture animation
-	   //@default 60
-	//**/
-	//public var frameRate(get, set):Float;
-	//private var _frameRate:Float = 60.0;
-	//private function get_frameRate():Float { return this._frameRate; }
-	//private function set_frameRate(value:Float):Float
-	//{
-		//if (this._frameRate == value) return value;
-		//refreshFrameTimings(this._frameRate, value);
-		////this._frameDuration = 1.0 / value;
-		//return this._frameRate = value;
-	//}
-	
+	/**
+	   
+	   @default	1.0
+	**/
 	public var frameDelta(get, set):Float;
 	private var _frameDelta:Float = 1.0;
 	private function get_frameDelta():Float { return this._frameDelta; }
@@ -579,12 +592,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default false
 	**/
 	public var randomStartFrame:Bool = false;
+	
 	/**
 	   Index of the first frame
 	   @default 0
 	**/
-	public var firstFrame:Int = 0;// TODO
-	public var lastFrame:Int = -1;// TODO
+	public var firstFrame:Int = 0;// TODO (?)
+	
+	public var lastFrame:Int = -1;// TODO (?)
 	//##################################################
 	//\ANIMATION
 	//##################################################
@@ -597,34 +612,42 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 100
 	**/
 	public var speed:Float = 100.0;
+	
 	/**
 	   @default 0
 	**/
 	public var speedVariance:Float = 0.0;
+	
 	/**
 	   @default false
 	**/
 	public var adjustLifeSpanToSpeed:Bool = false;
+	
 	/**
 	   @default 0
 	**/
 	public var gravityX:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var gravityY:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var radialAcceleration:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var radialAccelerationVariance:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var tangentialAcceleration:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
@@ -680,22 +703,27 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 50
 	**/
 	public var radiusMax:Float = 50.0;
+	
 	/**
 	   @default 0
 	**/
 	public var radiusMaxVariance:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var radiusMin:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var radiusMinVariance:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var rotatePerSecond:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
@@ -710,19 +738,22 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   
 	**/
-	public var colorStart:ColorArgb = new ColorArgb(1, 1, 1, 1);
+	public var colorStart:MassiveTint = new MassiveTint(1, 1, 1, 1);
+	
 	/**
 	   
 	**/
-	public var colorStartVariance:ColorArgb = new ColorArgb(0, 0, 0, 0);
+	public var colorStartVariance:MassiveTint = new MassiveTint(0, 0, 0, 0);
+	
 	/**
 	   
 	**/
-	public var colorEnd:ColorArgb = new ColorArgb(1, 1, 1, 1);
+	public var colorEnd:MassiveTint = new MassiveTint(1, 1, 1, 1);
+	
 	/**
 	   
 	**/
-	public var colorEndVariance:ColorArgb = new ColorArgb(0, 0, 0, 0);
+	public var colorEndVariance:MassiveTint = new MassiveTint(0, 0, 0, 0);
 	//##################################################
 	//\COLOR
 	//##################################################
@@ -730,16 +761,111 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	//##################################################
 	// OSCILLATION
 	//##################################################
+	private var _useOscillationGlobalFrequency:Bool = false;
+	private var _useOscillationUnifiedFrequencyVariance:Bool = false;
+	private var _useOscillationUnifiedFrequencyStart:Bool = false;
+	private var _oscillationGlobalStep:Float;
+	private var _oscillationGlobalValue:Float;
+	private var _oscillationGlobalValueInverted:Float;
+	
+	/**
+	   @default	1
+	**/
+	public var oscillationGlobalFrequency:Float = 1.0;
+	
+	/**
+	   @default 0
+	**/
+	public var oscillationUnifiedFrequencyVariance:Float = 0.0;
+	
 	// oscillation position
-	private var _useOscillationPosition:Bool = false;
+	private var _oscillationPositionEnabled:Bool = false;
+	private var _oscillationPositionGroupStep:Float;
+	private var _oscillationPositionGroupValue:Float;
+	private var _oscillationPositionGlobalFrequencyEnabled:Bool = false;
+	private var _oscillationPositionGroupFrequencyEnabled:Bool = false;
+	private var _oscillationPositionFrequencyStartRandomized:Bool = false;
+	private var _oscillationPositionFrequencyStartUnified:Bool = false;
+	private var _oscillationPositionAngleRelativeToRotation:Bool = true;
+	private var _oscillationPositionAngleRelativeToVelocity:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationPositionFrequencyMode(get, set):String;
+	private var _oscillationPositionFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationPositionFrequencyMode():String { return this._oscillationPositionFrequencyMode; }
+	private function set_oscillationPositionFrequencyMode(value:String):String
+	{
+		if (this._oscillationPositionFrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationPositionGlobalFrequencyEnabled = true;
+				this._oscillationPositionGroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationPositionGlobalFrequencyEnabled = false;
+				this._oscillationPositionGroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationPositionGlobalFrequencyEnabled = false;
+				this._oscillationPositionGroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
+											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		
+		return this._oscillationPositionFrequencyMode = value;
+	}
+	
 	/**
 	   @default 0
 	**/
 	public var oscillationPositionAngle:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var oscillationPositionAngleVariance:Float = 0.0;
+	
+	/**
+	   see AngleRelativeTo for possible values
+	   @default	AngleRelativeTo.ROTATION
+	**/
+	public var oscillationPositionAngleRelativeTo(get, set):String;
+	private var _oscillationPositionAngleRelativeTo:String = AngleRelativeTo.ROTATION;
+	private function get_oscillationPositionAngleRelativeTo():String { return this._oscillationPositionAngleRelativeTo; }
+	private function set_oscillationPositionAngleRelativeTo(value:String):String
+	{
+		if (this._oscillationPositionAngleRelativeTo == value) return value;
+		
+		switch (value)
+		{
+			case AngleRelativeTo.ABSOLUTE :
+				this._oscillationPositionAngleRelativeToRotation = false;
+				this._oscillationPositionAngleRelativeToVelocity = false;
+			
+			case AngleRelativeTo.ROTATION :
+				this._oscillationPositionAngleRelativeToRotation = true;
+				this._oscillationPositionAngleRelativeToVelocity = false;
+			
+			case AngleRelativeTo.VELOCITY :
+				this._oscillationPositionAngleRelativeToRotation = false;
+				this._oscillationPositionAngleRelativeToVelocity = true;
+			
+			default :
+				throw new Error("unknown AngleRelativeTo ::: " + value);
+		}
+		
+		return this._oscillationPositionAngleRelativeTo = value;
+	}
+	
 	/**
 	   @default 0
 	**/
@@ -748,9 +874,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function get_oscillationPositionRadius():Float { return this._oscillationPositionRadius; }
 	private function set_oscillationPositionRadius(value:Float):Float
 	{
-		this._useOscillationPosition = value != 0.0 || this._oscillationPositionRadiusVariance != 0.0;
+		this._oscillationPositionEnabled = value != 0.0 || this._oscillationPositionRadiusVariance != 0.0;
 		return this._oscillationPositionRadius = value;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -759,37 +886,162 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function get_oscillationPositionRadiusVariance():Float { return this._oscillationPositionRadiusVariance; }
 	private function set_oscillationPositionRadiusVariance(value:Float):Float
 	{
-		this._useOscillationPosition = value != 0.0 || this._oscillationPositionRadius != 0.0;
+		this._oscillationPositionEnabled = value != 0.0 || this._oscillationPositionRadius != 0.0;
 		return this._oscillationPositionRadiusVariance = value;
 	}
+	
 	/**
 	   @default 0
 	**/
 	public var oscillationPositionFrequency:Float = 1.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationPositionUnifiedFrequencyVariance(get, set):Bool;
+	private var _oscillationPositionUnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationPositionUnifiedFrequencyVariance():Bool { return this._oscillationPositionUnifiedFrequencyVariance; }
+	private function set_oscillationPositionUnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationPositionUnifiedFrequencyVariance = value;
+		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
+													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		return this._oscillationPositionUnifiedFrequencyVariance;
+	}
+	
 	/**
 	   @default 0
 	**/
 	public var oscillationPositionFrequencyVariance:Float = 0.0;
+	
 	/**
 	   @default	false
 	**/
 	public var oscillationPositionFrequencyInverted:Bool = false;
+	
 	/**
-	   @default false
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
 	**/
-	public var oscillationPositionFrequencyRandomized:Bool;
+	public var oscillationPositionFrequencyStart(get, set):String;
+	private var _oscillationPositionFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationPositionFrequencyStart():String { return this._oscillationPositionFrequencyStart; }
+	private function set_oscillationPositionFrequencyStart(value:String):String
+	{
+		if (this._oscillationPositionFrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationPositionFrequencyStartRandomized = false;
+				this._oscillationPositionFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationPositionFrequencyStartRandomized = true;
+				this._oscillationPositionFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationPositionFrequencyStartRandomized = false;
+				this._oscillationPositionFrequencyStartUnified = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
+													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		
+		return this._oscillationPositionFrequencyStart = value;
+	}
 	
 	// oscillation position 2
-	private var _useOscillationPosition2:Bool = false;
+	private var _oscillationPosition2Enabled:Bool = false;
+	private var _oscillationPosition2GroupStep:Float;
+	private var _oscillationPosition2GroupValue:Float;
+	private var _oscillationPosition2GlobalFrequencyEnabled:Bool = false;
+	private var _oscillationPosition2GroupFrequencyEnabled:Bool = false;
+	private var _oscillationPosition2FrequencyStartRandomized:Bool = false;
+	private var _oscillationPosition2FrequencyStartUnified:Bool = false;
+	private var _oscillationPosition2AngleRelativeToRotation:Bool = true;
+	private var _oscillationPosition2AngleRelativeToVelocity:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationPosition2FrequencyMode(get, set):String;
+	private var _oscillationPosition2FrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationPosition2FrequencyMode():String { return this._oscillationPosition2FrequencyMode; }
+	private function set_oscillationPosition2FrequencyMode(value:String):String
+	{
+		if (this._oscillationPosition2FrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationPosition2GlobalFrequencyEnabled = true;
+				this._oscillationPosition2GroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationPosition2GlobalFrequencyEnabled = false;
+				this._oscillationPosition2GroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationPosition2GlobalFrequencyEnabled = false;
+				this._oscillationPosition2GroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
+											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		
+		return this._oscillationPosition2FrequencyMode = value;
+	}
 	
 	/**
 	   @default 0
 	**/
 	public var oscillationPosition2Angle:Float = 0.0;
+	
 	/**
 	   @default 0
 	**/
 	public var oscillationPosition2AngleVariance:Float = 0.0;
+	
+	/**
+	   see AngleRelativeTo for possible values
+	   @default	AngleRelativeTo.ROTATION
+	**/
+	public var oscillationPosition2AngleRelativeTo(get, set):String;
+	private var _oscillationPosition2AngleRelativeTo:String = AngleRelativeTo.ROTATION;
+	private function get_oscillationPosition2AngleRelativeTo():String { return this._oscillationPosition2AngleRelativeTo; }
+	private function set_oscillationPosition2AngleRelativeTo(value:String):String
+	{
+		if (this._oscillationPositionAngleRelativeTo == value) return value;
+		
+		switch (value)
+		{
+			case AngleRelativeTo.ABSOLUTE :
+				this._oscillationPosition2AngleRelativeToRotation = false;
+				this._oscillationPosition2AngleRelativeToVelocity = false;
+			
+			case AngleRelativeTo.ROTATION :
+				this._oscillationPosition2AngleRelativeToRotation = true;
+				this._oscillationPosition2AngleRelativeToVelocity = false;
+			
+			case AngleRelativeTo.VELOCITY :
+				this._oscillationPosition2AngleRelativeToRotation = false;
+				this._oscillationPosition2AngleRelativeToVelocity = true;
+			
+			default :
+				throw new Error("unknown AngleRelativeTo ::: " + value);
+		}
+		
+		return this._oscillationPosition2AngleRelativeTo = value;
+	}
+	
 	/**
 	   @default 0
 	**/
@@ -798,9 +1050,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function get_oscillationPosition2Radius():Float { return this._oscillationPosition2Radius; }
 	private function set_oscillationPosition2Radius(value:Float):Float
 	{
-		this._useOscillationPosition2 = value != 0.0 || this._oscillationPosition2RadiusVariance != 0.0;
+		this._oscillationPosition2Enabled = value != 0.0 || this._oscillationPosition2RadiusVariance != 0.0;
 		return this._oscillationPosition2Radius = value;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -809,28 +1062,117 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function get_oscillationPosition2RadiusVariance():Float { return this._oscillationPosition2RadiusVariance; }
 	private function set_oscillationPosition2RadiusVariance(value:Float):Float
 	{
-		this._useOscillationPosition2 = value != 0.0 || this._oscillationPosition2Radius != 0.0;
+		this._oscillationPosition2Enabled = value != 0.0 || this._oscillationPosition2Radius != 0.0;
 		return this._oscillationPosition2RadiusVariance = value;
 	}
+	
 	/**
 	   @default 1.0
 	**/
 	public var oscillationPosition2Frequency:Float = 1.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationPosition2UnifiedFrequencyVariance(get, set):Bool;
+	private var _oscillationPosition2UnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationPosition2UnifiedFrequencyVariance():Bool { return this._oscillationPosition2UnifiedFrequencyVariance; }
+	private function set_oscillationPosition2UnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationPosition2UnifiedFrequencyVariance = value;
+		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
+													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		return this._oscillationPosition2UnifiedFrequencyVariance;
+	}
+	
 	/**
 	   @default 0
 	**/
 	public var oscillationPosition2FrequencyVariance:Float = 0.0;
+	
 	/**
 	   
 	**/
 	public var oscillationPosition2FrequencyInverted:Bool = false;
+	
 	/**
-	   @default false
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
 	**/
-	public var oscillationPosition2FrequencyRandomized:Bool;
+	public var oscillationPosition2FrequencyStart(get, set):String;
+	private var _oscillationPosition2FrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationPosition2FrequencyStart():String { return this._oscillationPosition2FrequencyStart; }
+	private function set_oscillationPosition2FrequencyStart(value:String):String
+	{
+		if (this._oscillationPosition2FrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationPosition2FrequencyStartRandomized = false;
+				this._oscillationPosition2FrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationPosition2FrequencyStartRandomized = true;
+				this._oscillationPosition2FrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationPosition2FrequencyStartRandomized = false;
+				this._oscillationPosition2FrequencyStartUnified = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
+													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		
+		return this._oscillationPosition2FrequencyStart = value;
+	}
 	
 	// oscillation rotation
-	private var _useOscillationRotation:Bool = false;
+	private var _oscillationRotationEnabled:Bool = false;
+	private var _oscillationRotationGroupStep:Float;
+	private var _oscillationRotationGroupValue:Float;
+	private var _oscillationRotationGlobalFrequencyEnabled:Bool = false;
+	private var _oscillationRotationGroupFrequencyEnabled:Bool = false;
+	private var _oscillationRotationFrequencyStartRandomized:Bool = false;
+	private var _oscillationRotationFrequencyStartUnified:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationRotationFrequencyMode(get, set):String;
+	private var _oscillationRotationFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationRotationFrequencyMode():String { return this._oscillationRotationFrequencyMode; }
+	private function set_oscillationRotationFrequencyMode(value:String):String
+	{
+		if (this._oscillationRotationFrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationRotationGlobalFrequencyEnabled = true;
+				this._oscillationRotationGroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationRotationGlobalFrequencyEnabled = false;
+				this._oscillationRotationGroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationRotationGlobalFrequencyEnabled = false;
+				this._oscillationRotationGroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
+											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		
+		return this._oscillationRotationFrequencyMode = value;
+	}
 	
 	/**
 	   @default 0
@@ -840,9 +1182,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function get_oscillationRotationAngle():Float { return this._oscillationRotationAngle; }
 	private function set_oscillationRotationAngle(value:Float):Float
 	{
-		this._useOscillationRotation = value != 0.0 || this._oscillationRotationAngleVariance != 0.0;
+		this._oscillationRotationEnabled = value != 0.0 || this._oscillationRotationAngleVariance != 0.0;
 		return this._oscillationRotationAngle = value;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -851,24 +1194,117 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function get_oscillationRotationAngleVariance():Float { return this._oscillationRotationAngleVariance; }
 	private function set_oscillationRotationAngleVariance(value:Float):Float
 	{
-		this._useOscillationRotation = value != 0.0 || this._oscillationRotationAngle != 0.0;
+		this._oscillationRotationEnabled = value != 0.0 || this._oscillationRotationAngle != 0.0;
 		return this._oscillationRotationAngleVariance = value;
 	}
+	
 	/**
 	   @default	1
 	**/
 	public var oscillationRotationFrequency:Float = 1.0;
+	
+	/**
+	   @default false
+	**/
+	public var oscillationRotationUnifiedFrequencyVariance(get, set):Bool;
+	private var _oscillationRotationUnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationRotationUnifiedFrequencyVariance():Bool { return this._oscillationRotationUnifiedFrequencyVariance; }
+	private function set_oscillationRotationUnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationRotationUnifiedFrequencyVariance = value;
+		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
+													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		return this._oscillationRotationUnifiedFrequencyVariance;
+	}
+	
 	/**
 	   @default 0
 	**/
 	public var oscillationRotationFrequencyVariance:Float = 0.0;
+	
 	/**
 	   @default	false
 	**/
 	public var oscillationRotationFrequencyInverted:Bool = false;
 	
-	// oscillation scale
-	private var _useOscillationScaleX:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationRotationFrequencyStart(get, set):String;
+	private var _oscillationRotationFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationRotationFrequencyStart():String { return this._oscillationRotationFrequencyStart; }
+	private function set_oscillationRotationFrequencyStart(value:String):String
+	{
+		if (this._oscillationRotationFrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationRotationFrequencyStartRandomized = false;
+				this._oscillationRotationFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationRotationFrequencyStartRandomized = true;
+				this._oscillationRotationFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationRotationFrequencyStartRandomized = false;
+				this._oscillationRotationFrequencyStartUnified = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
+													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		
+		return this._oscillationRotationFrequencyStart = value;
+	}
+	
+	// oscillation scaleX
+	private var _oscillationScaleXEnabled:Bool = false;
+	private var _oscillationScaleXGroupStep:Float;
+	private var _oscillationScaleXGroupValue:Float;
+	private var _oscillationScaleXGlobalFrequencyEnabled:Bool = false;
+	private var _oscillationScaleXGroupFrequencyEnabled:Bool = false;
+	private var _oscillationScaleXFrequencyStartRandomized:Bool = false;
+	private var _oscillationScaleXFrequencyStartUnified:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationScaleXFrequencyMode(get, set):String;
+	private var _oscillationScaleXFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationScaleXFrequencyMode():String { return this._oscillationScaleXFrequencyMode; }
+	private function set_oscillationScaleXFrequencyMode(value:String):String
+	{
+		if (this._oscillationScaleXFrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationScaleXGlobalFrequencyEnabled = true;
+				this._oscillationScaleXGroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationScaleXGlobalFrequencyEnabled = false;
+				this._oscillationScaleXGroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationScaleXGlobalFrequencyEnabled = false;
+				this._oscillationScaleXGroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
+											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		
+		return this._oscillationScaleXFrequencyMode = value;
+	}
 	
 	/**
 	   @default 0
@@ -879,7 +1315,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationScaleX(value:Float):Float
 	{
 		this._oscillationScaleX = value;
-		this._useOscillationScaleX = this._oscillationScaleX != 0.0 || this._oscillationScaleXVariance != 0.0;
+		this._oscillationScaleXEnabled = this._oscillationScaleX != 0.0 || this._oscillationScaleXVariance != 0.0;
 		return this._oscillationScaleX;
 	}
 	
@@ -892,7 +1328,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationScaleXVariance(value:Float):Float
 	{
 		this._oscillationScaleXVariance = value;
-		this._useOscillationScaleX = this._oscillationScaleX != 0.0 || this._oscillationScaleXVariance != 0.0;
+		this._oscillationScaleXEnabled = this._oscillationScaleX != 0.0 || this._oscillationScaleXVariance != 0.0;
 		return this._oscillationScaleXVariance;
 	}
 	
@@ -900,6 +1336,20 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 1
 	**/
 	public var oscillationScaleXFrequency:Float = 1.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationScaleXUnifiedFrequencyVariance:Bool;
+	private var _oscillationScaleXUnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationScaleXUnifiedFrequencyVariance():Bool { return this._oscillationScaleXUnifiedFrequencyVariance; }
+	private function set_oscillationScaleXUnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationScaleXUnifiedFrequencyVariance = value;
+		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
+													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		return this._oscillationScaleXUnifiedFrequencyVariance;
+	}
 	
 	/**
 	   @default 0
@@ -911,7 +1361,84 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	**/
 	public var oscillationScaleXFrequencyInverted:Bool = false;
 	
-	private var _useOscillationScaleY:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationScaleXFrequencyStart(get, set):String;
+	private var _oscillationScaleXFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationScaleXFrequencyStart():String { return this._oscillationScaleXFrequencyStart; }
+	private function set_oscillationScaleXFrequencyStart(value:String):String
+	{
+		if (this._oscillationScaleXFrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationScaleXFrequencyStartRandomized = false;
+				this._oscillationScaleXFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationScaleXFrequencyStartRandomized = true;
+				this._oscillationScaleXFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationScaleXFrequencyStartRandomized = false;
+				this._oscillationScaleXFrequencyStartUnified = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
+													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		
+		return this._oscillationScaleXFrequencyStart = value;
+	}
+	
+	// oscillation scaleY
+	private var _oscillationScaleYEnabled:Bool = false;
+	private var _oscillationScaleYGroupStep:Float;
+	private var _oscillationScaleYGroupValue:Float;
+	private var _oscillationScaleYGlobalFrequencyEnabled:Bool = false;
+	private var _oscillationScaleYGroupFrequencyEnabled:Bool = false;
+	private var _oscillationScaleYFrequencyStartRandomized:Bool = false;
+	private var _oscillationScaleYFrequencyStartUnified:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationScaleYFrequencyMode(get, set):String;
+	private var _oscillationScaleYFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationScaleYFrequencyMode():String { return this._oscillationScaleYFrequencyMode; }
+	private function set_oscillationScaleYFrequencyMode(value:String):String
+	{
+		if (this._oscillationScaleYFrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationScaleYGlobalFrequencyEnabled = true;
+				this._oscillationScaleYGroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationScaleYGlobalFrequencyEnabled = false;
+				this._oscillationScaleYGroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationScaleYGlobalFrequencyEnabled = false;
+				this._oscillationScaleYGroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
+											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		
+		return this._oscillationScaleYFrequencyMode = value;
+	}
 	
 	/**
 	   @default 0
@@ -922,7 +1449,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationScaleY(value:Float):Float
 	{
 		this._oscillationScaleY = value;
-		this._useOscillationScaleY = this._oscillationScaleY != 0.0 || this._oscillationScaleYVariance != 0.0;
+		this._oscillationScaleYEnabled = this._oscillationScaleY != 0.0 || this._oscillationScaleYVariance != 0.0;
 		return this._oscillationScaleY;
 	}
 	
@@ -935,7 +1462,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationScaleYVariance(value:Float):Float
 	{
 		this._oscillationScaleYVariance = value;
-		this._useOscillationScaleY = this._oscillationScaleY != 0.0 || this._oscillationScaleYVariance != 0.0;
+		this._oscillationScaleYEnabled = this._oscillationScaleY != 0.0 || this._oscillationScaleYVariance != 0.0;
 		return this._oscillationScaleYVariance;
 	}
 	
@@ -943,6 +1470,20 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 1
 	**/
 	public var oscillationScaleYFrequency:Float = 1.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationScaleYUnifiedFrequencyVariance(get, set):Bool;
+	private var _oscillationScaleYUnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationScaleYUnifiedFrequencyVariance():Bool { return this._oscillationScaleYUnifiedFrequencyVariance; }
+	private function set_oscillationScaleYUnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationScaleYUnifiedFrequencyVariance = value;
+		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
+													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		return this._oscillationScaleYUnifiedFrequencyVariance;
+	}
 	
 	/**
 	   @default 0
@@ -954,8 +1495,85 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	**/
 	public var oscillationScaleYFrequencyInverted:Bool = false;
 	
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationScaleYFrequencyStart(get, set):String;
+	private var _oscillationScaleYFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationScaleYFrequencyStart():String { return this._oscillationScaleYFrequencyStart; }
+	private function set_oscillationScaleYFrequencyStart(value:String):String
+	{
+		if (this._oscillationScaleYFrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationScaleYFrequencyStartRandomized = false;
+				this._oscillationScaleYFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationScaleYFrequencyStartRandomized = true;
+				this._oscillationScaleYFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationScaleYFrequencyStartRandomized = false;
+				this._oscillationScaleYFrequencyStartUnified = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
+													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		
+		return this._oscillationScaleYFrequencyStart = value;
+	}
+	
 	// oscillation color
-	private var _useOscillationColor:Bool;
+	private var _useOscillationColor:Bool = false;
+	private var _oscillationColorGroupStep:Float;
+	private var _oscillationColorGroupValue:Float;
+	private var _oscillationColorGlobalFrequencyEnabled:Bool = false;
+	private var _oscillationColorGroupFrequencyEnabled:Bool = false;
+	private var _oscillationColorFrequencyStartRandomized:Bool = false;
+	private var _oscillationColorFrequencyStartUnified:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationColorFrequencyMode(get, set):String;
+	private var _oscillationColorFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationColorFrequencyMode():String { return this._oscillationColorFrequencyMode; }
+	private function set_oscillationColorFrequencyMode(value:String):String
+	{
+		if (this._oscillationColorFrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationColorGlobalFrequencyEnabled = true;
+				this._oscillationColorGroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationColorGlobalFrequencyEnabled = false;
+				this._oscillationColorGroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationColorGlobalFrequencyEnabled = false;
+				this._oscillationColorGroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
+											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		
+		return this._oscillationColorFrequencyMode = value;
+	}
+	
 	/**
 	   @default 0
 	**/
@@ -969,6 +1587,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
 		return this._oscillationColorRed;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -982,6 +1601,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
 		return this._oscillationColorGreen;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -995,6 +1615,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
 		return this._oscillationColorBlue;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -1008,6 +1629,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
 		return this._oscillationColorAlpha;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -1021,6 +1643,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
 		return this._oscillationColorRedVariance;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -1034,6 +1657,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
 		return this._oscillationColorGreenVariance;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -1047,6 +1671,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
 		return this._oscillationColorBlueVariance;
 	}
+	
 	/**
 	   @default 0
 	**/
@@ -1060,18 +1685,71 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
 		return this._oscillationColorAlphaVariance;
 	}
+	
 	/**
 	   @default 1.0
 	**/
 	public var oscillationColorFrequency:Float = 1.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationColorUnifiedFrequencyVariance(get, set):Bool;
+	private var _oscillationColorUnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationColorUnifiedFrequencyVariance():Bool { return this._oscillationColorUnifiedFrequencyVariance; }
+	private function set_oscillationColorUnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationColorUnifiedFrequencyVariance = value;
+		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
+													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		return this._oscillationColorUnifiedFrequencyVariance;
+	}
+	
 	/**
 	   @default 0
 	**/
 	public var oscillationColorFrequencyVariance:Float = 0.0;
+	
 	/**
 	   @default	false
 	**/
 	public var oscillationColorFrequencyInverted:Bool = false;
+	
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationColorFrequencyStart(get, set):String;
+	private var _oscillationColorFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationColorFrequencyStart():String { return this._oscillationColorFrequencyStart; }
+	private function set_oscillationColorFrequencyStart(value:String):String
+	{
+		if (this._oscillationColorFrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationColorFrequencyStartRandomized = false;
+				this._oscillationColorFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationColorFrequencyStartRandomized = true;
+				this._oscillationColorFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationColorFrequencyStartRandomized = false;
+				this._oscillationColorFrequencyStartUnified = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
+													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		
+		return this._oscillationColorFrequencyStart = value;
+	}
+	
 	//##################################################
 	//\OSCILLATION
 	//##################################################
@@ -1079,6 +1757,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default false
 	**/
 	public var forceSortFlag:Bool = false;
+	
 	/**
 	   @default null
 	**/
@@ -1166,7 +1845,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	{
 		if (timings == null) 
 		{
-			timings = Animator.generateTimings(frames);// , this._frameRate);
+			timings = Animator.generateTimings(frames);
 		}
 		
 		this._frames[this._frames.length] = frames;
@@ -1211,27 +1890,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this._useMultipleFrameSets = false;
 	}
 	
-	//private function refreshFrameTimings(prevFrameRate:Float, newFrameRate:Float):Void
-	//{
-		//var ratio:Float = newFrameRate / prevFrameRate;
-		//var timings:Array<Float>;
-		//var count:Int;
-		//for (i in 0...this._numFrameSets)
-		//{
-			//timings = this._frameTimings[i];
-			//count = timings.length;
-			//for (j in 0...count)
-			//{
-				//timings[j] = timings[j] / ratio;
-			//}
-		//}
-		//
-		//for (i in 0...this._numParticles)
-		//{
-			//this._particles[i].frameTime *= ratio;
-		//}
-	//}
-	
 	inline private function getRandomRatio():Float
 	{
 		return (((this.randomSeed = (this.randomSeed * 16807) & 0x7FFFFFFF) / 0x40000000) - 1.0);
@@ -1250,6 +1908,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var __intAngle:Int;
 	private var __lifeSpan:Float;
 	private var __nonFadeTime:Float;
+	private var __oscillationUnifiedFrequencyStart:Float;
+	private var __oscillationUnifiedFrequencyVariance:Float;
 	private var __radius:Float;
 	private var __radiusMax:Float;
 	private var __radiusMin:Float;
@@ -1267,6 +1927,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	private function initParticle(particle:T):Void
 	{
+		#if debug
+		particle.updateCount = 0;
+		#end
+		
 		particle.frameDelta = this._frameDelta + this.frameDeltaVariance * getRandomRatio();
 		particle.frameTime = 0.0;
 		particle.loopCount = 0;
@@ -1393,18 +2057,42 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		particle.scaleXVelocity = particle.scaleYVelocity = 1.0;
 		
 		// OSCILLATION
-		if (this._useOscillationPosition)
+		if (this._useOscillationUnifiedFrequencyStart)
+		{
+			this.__oscillationUnifiedFrequencyStart = MathUtils.random() * MathUtils.PI2;
+		}
+		if (this._useOscillationUnifiedFrequencyVariance)
+		{
+			this.__oscillationUnifiedFrequencyVariance = this.oscillationUnifiedFrequencyVariance * getRandomRatio();
+		}
+		
+		if (this._oscillationPositionEnabled)
 		{
 			particle.oscillationPositionAngle = this.oscillationPositionAngle + this.oscillationPositionAngleVariance * getRandomRatio();
 			particle.oscillationPositionRadius = this._oscillationPositionRadius + this._oscillationPositionRadiusVariance * getRandomRatio();
-			particle.oscillationPositionFrequency = this.oscillationPositionFrequency + this.oscillationPositionFrequencyVariance * getRandomRatio();
-			if (this.oscillationPositionFrequencyRandomized)
+			if (!this._oscillationPositionGlobalFrequencyEnabled && !this._oscillationPositionGroupFrequencyEnabled)
 			{
-				particle.oscillationPositionStep = MathUtils.random() * MathUtils.PI2;
-			}
-			else
-			{
-				particle.oscillationPositionStep = 0.0;
+				if (this._oscillationPositionUnifiedFrequencyVariance)
+				{
+					particle.oscillationPositionFrequency = this.oscillationPositionFrequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationPositionFrequency = this.oscillationPositionFrequency + this.oscillationPositionFrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationPositionFrequencyStartRandomized)
+				{
+					particle.oscillationPositionStep = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationPositionFrequencyStartUnified)
+				{
+					particle.oscillationPositionStep = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationPositionStep = 0.0;
+				}
 			}
 		}
 		else
@@ -1412,18 +2100,33 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.oscillationPositionX = particle.oscillationPositionY = 0.0;
 		}
 		
-		if (this._useOscillationPosition2)
+		if (this._oscillationPosition2Enabled)
 		{
 			particle.oscillationPosition2Angle = this.oscillationPosition2Angle + this.oscillationPosition2AngleVariance * getRandomRatio();
 			particle.oscillationPosition2Radius = this._oscillationPosition2Radius + this._oscillationPosition2RadiusVariance * getRandomRatio();
-			particle.oscillationPosition2Frequency = this.oscillationPosition2Frequency + this.oscillationPosition2FrequencyVariance * getRandomRatio();
-			if (this.oscillationPosition2FrequencyRandomized)
+			if (!this._oscillationPosition2GlobalFrequencyEnabled && !this._oscillationPosition2GroupFrequencyEnabled)
 			{
-				particle.oscillationPosition2Step = MathUtils.random() * MathUtils.PI2;
-			}
-			else
-			{
-				particle.oscillationPosition2Step = 0.0;
+				if (this._oscillationPosition2UnifiedFrequencyVariance)
+				{
+					particle.oscillationPosition2Frequency = this.oscillationPosition2Frequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationPosition2Frequency = this.oscillationPosition2Frequency + this.oscillationPosition2FrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationPosition2FrequencyStartRandomized)
+				{
+					particle.oscillationPosition2Step = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationPosition2FrequencyStartUnified)
+				{
+					particle.oscillationPosition2Step = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationPosition2Step = 0.0;
+				}
 			}
 		}
 		else
@@ -1431,33 +2134,99 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.oscillationPosition2X = particle.oscillationPosition2Y = 0.0;
 		}
 		
-		if (this._useOscillationRotation)
+		if (this._oscillationRotationEnabled)
 		{
 			particle.oscillationRotationAngle = this._oscillationRotationAngle + this._oscillationRotationAngleVariance * getRandomRatio();
-			particle.oscillationRotationFrequency = this.oscillationRotationFrequency + this.oscillationRotationFrequencyVariance * getRandomRatio();
-			particle.oscillationRotationStep = 0.0;
+			if (!this._oscillationRotationGlobalFrequencyEnabled && !this._oscillationRotationGroupFrequencyEnabled)
+			{
+				if (this._oscillationRotationUnifiedFrequencyVariance)
+				{
+					particle.oscillationRotationFrequency = this.oscillationRotationFrequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationRotationFrequency = this.oscillationRotationFrequency + this.oscillationRotationFrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationRotationFrequencyStartRandomized)
+				{
+					particle.oscillationRotationStep = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationRotationFrequencyStartUnified)
+				{
+					particle.oscillationRotationStep = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationRotationStep = 0.0;
+				}
+			}
 		}
 		else
 		{
 			particle.oscillationRotation = 0.0;
 		}
 		
-		if (this._useOscillationScaleX)
+		if (this._oscillationScaleXEnabled)
 		{
 			particle.oscillationScaleX = this._oscillationScaleX + this._oscillationScaleXVariance * getRandomRatio();
-			particle.oscillationScaleXFrequency = this.oscillationScaleXFrequency + this.oscillationScaleXFrequencyVariance * getRandomRatio();
-			particle.oscillationScaleXStep = 0.0;
+			if (!this._oscillationScaleXGlobalFrequencyEnabled && !this._oscillationScaleXGroupFrequencyEnabled)
+			{
+				if (this._oscillationScaleXUnifiedFrequencyVariance)
+				{
+					particle.oscillationScaleXFrequency = this.oscillationScaleXFrequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationScaleXFrequency = this.oscillationScaleXFrequency + this.oscillationScaleXFrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationScaleXFrequencyStartRandomized)
+				{
+					particle.oscillationScaleXStep = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationScaleXFrequencyStartUnified)
+				{
+					particle.oscillationScaleXStep = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationScaleXStep = 0.0;
+				}
+			}
 		}
 		else
 		{
 			particle.scaleXOscillation = 1.0;
 		}
 		
-		if (this._useOscillationScaleY)
+		if (this._oscillationScaleYEnabled)
 		{
 			particle.oscillationScaleY = this._oscillationScaleY + this._oscillationScaleYVariance * getRandomRatio();
-			particle.oscillationScaleYFrequency = this.oscillationScaleYFrequency + this.oscillationScaleYFrequencyVariance * getRandomRatio();
-			particle.oscillationScaleYStep = 0.0;
+			if (!this._oscillationScaleYGlobalFrequencyEnabled && !this._oscillationScaleYGroupFrequencyEnabled)
+			{
+				if (this._oscillationScaleYUnifiedFrequencyVariance)
+				{
+					particle.oscillationScaleYFrequency = this.oscillationScaleYFrequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationScaleYFrequency = this.oscillationScaleYFrequency + this.oscillationScaleYFrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationScaleYFrequencyStartRandomized)
+				{
+					particle.oscillationScaleYStep = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationScaleYFrequencyStartUnified)
+				{
+					particle.oscillationScaleYStep = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationScaleYStep = 0.0;
+				}
+			}
 		}
 		else
 		{
@@ -1470,8 +2239,30 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.oscillationColorGreenFactor = this._oscillationColorGreen + this._oscillationColorGreenVariance * getRandomRatio();
 			particle.oscillationColorBlueFactor = this._oscillationColorBlue + this._oscillationColorBlueVariance * getRandomRatio();
 			particle.oscillationColorAlphaFactor = this._oscillationColorAlpha + this._oscillationColorAlphaVariance * getRandomRatio();
-			particle.oscillationColorFrequency = this.oscillationColorFrequency + this.oscillationColorFrequencyVariance * getRandomRatio();
-			particle.oscillationColorStep = 0.0;
+			if (!this._oscillationColorGlobalFrequencyEnabled && !this._oscillationColorGroupFrequencyEnabled)
+			{
+				if (this._oscillationColorUnifiedFrequencyVariance)
+				{
+					particle.oscillationColorFrequency = this.oscillationColorFrequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationColorFrequency = this.oscillationColorFrequency + this.oscillationColorFrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationColorFrequencyStartRandomized)
+				{
+					particle.oscillationColorStep = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationColorFrequencyStartUnified)
+				{
+					particle.oscillationColorStep = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationColorStep = 0.0;
+				}
+			}
 		}
 		else
 		{
@@ -1544,6 +2335,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var __newY:Float;
 	private var __radialX:Float;
 	private var __radialY:Float;
+	private var __refAngle:Float;
 	private var __repellentDistanceX:Float;
 	private var __repellentDistanceY:Float;
 	private var __repellentDistanceScalar:Float;
@@ -1558,6 +2350,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	private function advanceParticle(particle:T, passedTime:Float):Void
 	{
+		#if debug
+		particle.updateCount++;
+		#end
+		
 		this.__restTime = particle.timeTotal - particle.timeCurrent;
 		passedTime = this.__restTime > passedTime ? passedTime : this.__restTime;
 		particle.timeCurrent += passedTime;
@@ -1655,78 +2451,34 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 		
 		// OSCILLATION
-		if (this._useOscillationPosition)
+		if (this._oscillationRotationEnabled)
 		{
-			if (!this.__velocityAngleCalculated)
+			if (this._oscillationRotationGlobalFrequencyEnabled)
 			{
-				if (particle.velocityX == 0.0 && particle.velocityY == 0.0)
+				if (this.oscillationRotationFrequencyInverted)
 				{
-					this.__velocityAngle = 0.0;
+					particle.oscillationRotation = this._oscillationGlobalValueInverted * particle.oscillationRotationAngle;
 				}
 				else
 				{
-					this.__velocityAngle = Math.atan2(particle.velocityY, particle.velocityX);
+					particle.oscillationRotation = this._oscillationGlobalValue * particle.oscillationRotationAngle;
 				}
-				this.__velocityAngleCalculated = true;
 			}
-			particle.oscillationPositionStep += particle.oscillationPositionFrequency * passedTime;
-			if (this.oscillationPositionFrequencyInverted)
+			else if (this._oscillationRotationGroupFrequencyEnabled)
 			{
-				this.__radius = Math.sin(particle.oscillationPositionStep) * particle.oscillationPositionRadius;
+				particle.oscillationRotation = this._oscillationRotationGroupValue * particle.oscillationRotationAngle;
 			}
 			else
 			{
-				this.__radius = Math.cos(particle.oscillationPositionStep) * particle.oscillationPositionRadius;
-			}
-			this.__angle = this.__velocityAngle + particle.oscillationPositionAngle;
-			particle.oscillationPositionX = Math.cos(this.__angle) * this.__radius;
-			particle.oscillationPositionY = Math.sin(this.__angle) * this.__radius;
-			
-			particle.x += particle.oscillationPositionX;
-			particle.y += particle.oscillationPositionY;
-		}
-		
-		if (this._useOscillationPosition2)
-		{
-			if (!this.__velocityAngleCalculated)
-			{
-				if (particle.velocityX == 0.0 && particle.velocityY == 0.0)
+				particle.oscillationRotationStep += particle.oscillationRotationFrequency * passedTime;
+				if (this.oscillationRotationFrequencyInverted)
 				{
-					this.__velocityAngle = 0.0;
+					particle.oscillationRotation = Math.sin(particle.oscillationRotationStep) * particle.oscillationRotationAngle;
 				}
 				else
 				{
-					this.__velocityAngle = Math.atan2(particle.velocityY, particle.velocityX);
+					particle.oscillationRotation = Math.cos(particle.oscillationRotationStep) * particle.oscillationRotationAngle;
 				}
-				this.__velocityAngleCalculated = true;
-			}
-			particle.oscillationPosition2Step += particle.oscillationPosition2Frequency * passedTime;
-			if (this.oscillationPosition2FrequencyInverted)
-			{
-				this.__radius = Math.sin(particle.oscillationPosition2Step) * particle.oscillationPosition2Radius;
-			}
-			else
-			{
-				this.__radius = Math.cos(particle.oscillationPosition2Step) * particle.oscillationPosition2Radius;
-			}
-			this.__angle = this.__velocityAngle + particle.oscillationPosition2Angle;
-			particle.oscillationPosition2X = Math.cos(this.__angle) * this.__radius;
-			particle.oscillationPosition2Y = Math.sin(this.__angle) * this.__radius;
-			
-			particle.x += particle.oscillationPosition2X;
-			particle.y += particle.oscillationPosition2Y;
-		}
-		
-		if (this._useOscillationRotation)
-		{
-			particle.oscillationRotationStep += particle.oscillationRotationFrequency * passedTime;
-			if (this.oscillationRotationFrequencyInverted)
-			{
-				particle.oscillationRotation = Math.sin(particle.oscillationRotationStep) * particle.oscillationRotationAngle;
-			}
-			else
-			{
-				particle.oscillationRotation = Math.cos(particle.oscillationRotationStep) * particle.oscillationRotationAngle;
 			}
 			particle.rotation = particle.rotationBase + particle.oscillationRotation;
 		}
@@ -1735,29 +2487,189 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.rotation = particle.rotationBase;
 		}
 		
-		if (this._useOscillationScaleX)
+		if (this._oscillationPositionEnabled)
 		{
-			particle.oscillationScaleXStep += particle.oscillationScaleXFrequency * passedTime;
-			if (this.oscillationScaleXFrequencyInverted)
+			if (this._oscillationPositionAngleRelativeToRotation)
 			{
-				particle.scaleXOscillation = 1.0 + Math.sin(particle.oscillationScaleXStep) * particle.oscillationScaleX;
+				this.__refAngle = particle.rotation;
+			}
+			else if (this._oscillationPositionAngleRelativeToVelocity)
+			{
+				if (!this.__velocityAngleCalculated)
+				{
+					if (particle.velocityX == 0.0 && particle.velocityY == 0.0)
+					{
+						this.__velocityAngle = 0.0;
+					}
+					else
+					{
+						this.__velocityAngle = Math.atan2(particle.velocityY, particle.velocityX);
+					}
+					this.__velocityAngleCalculated = true;
+				}
+				this.__refAngle = this.__velocityAngle;
 			}
 			else
 			{
-				particle.scaleXOscillation = 1.0 + Math.cos(particle.oscillationScaleXStep) * particle.oscillationScaleX;
+				this.__refAngle = 0.0;
+			}
+			
+			if (this._oscillationPositionGlobalFrequencyEnabled)
+			{
+				if (this.oscillationPositionFrequencyInverted)
+				{
+					this.__radius = this._oscillationGlobalValueInverted * particle.oscillationPositionRadius;
+				}
+				else
+				{
+					this.__radius = this._oscillationGlobalValue * particle.oscillationPositionRadius;
+				}
+			}
+			else if (this._oscillationPositionGroupFrequencyEnabled)
+			{
+				this.__radius = this._oscillationPositionGroupValue * particle.oscillationPositionRadius;
+			}
+			else
+			{
+				particle.oscillationPositionStep += particle.oscillationPositionFrequency * passedTime;
+				if (this.oscillationPositionFrequencyInverted)
+				{
+					this.__radius = Math.sin(particle.oscillationPositionStep) * particle.oscillationPositionRadius;
+				}
+				else
+				{
+					this.__radius = Math.cos(particle.oscillationPositionStep) * particle.oscillationPositionRadius;
+				}
+			}
+			this.__angle = this.__refAngle + particle.oscillationPositionAngle;
+			particle.oscillationPositionX = Math.cos(this.__angle) * this.__radius;
+			particle.oscillationPositionY = Math.sin(this.__angle) * this.__radius;
+			
+			particle.x += particle.oscillationPositionX;
+			particle.y += particle.oscillationPositionY;
+		}
+		
+		if (this._oscillationPosition2Enabled)
+		{
+			if (this._oscillationPosition2AngleRelativeToRotation)
+			{
+				this.__refAngle = particle.rotation;
+			}
+			else if (this._oscillationPosition2AngleRelativeToVelocity)
+			{
+				if (!this.__velocityAngleCalculated)
+				{
+					if (particle.velocityX == 0.0 && particle.velocityY == 0.0)
+					{
+						this.__velocityAngle = 0.0;
+					}
+					else
+					{
+						this.__velocityAngle = Math.atan2(particle.velocityY, particle.velocityX);
+					}
+					this.__velocityAngleCalculated = true;
+				}
+				this.__refAngle = this.__velocityAngle;
+			}
+			else
+			{
+				this.__refAngle = 0.0;
+			}
+			
+			if (this._oscillationPosition2GlobalFrequencyEnabled)
+			{
+				if (this.oscillationPosition2FrequencyInverted)
+				{
+					this.__radius = this._oscillationGlobalValueInverted * particle.oscillationPosition2Radius;
+				}
+				else
+				{
+					this.__radius = this._oscillationGlobalValue * particle.oscillationPosition2Radius;
+				}
+			}
+			else if (this._oscillationPosition2GroupFrequencyEnabled)
+			{
+				this.__radius = this._oscillationPosition2GroupValue * particle.oscillationPosition2Radius;
+			}
+			else
+			{
+				particle.oscillationPosition2Step += particle.oscillationPosition2Frequency * passedTime;
+				if (this.oscillationPosition2FrequencyInverted)
+				{
+					this.__radius = Math.sin(particle.oscillationPosition2Step) * particle.oscillationPosition2Radius;
+				}
+				else
+				{
+					this.__radius = Math.cos(particle.oscillationPosition2Step) * particle.oscillationPosition2Radius;
+				}
+			}
+			this.__angle = this.__refAngle + particle.oscillationPosition2Angle;
+			particle.oscillationPosition2X = Math.cos(this.__angle) * this.__radius;
+			particle.oscillationPosition2Y = Math.sin(this.__angle) * this.__radius;
+			
+			particle.x += particle.oscillationPosition2X;
+			particle.y += particle.oscillationPosition2Y;
+		}
+		
+		if (this._oscillationScaleXEnabled)
+		{
+			if (this._oscillationScaleXGlobalFrequencyEnabled)
+			{
+				if (this.oscillationScaleXFrequencyInverted)
+				{
+					particle.scaleXOscillation = 1.0 + this._oscillationGlobalValueInverted * particle.oscillationScaleX;
+				}
+				else
+				{
+					particle.scaleXOscillation = 1.0 + this._oscillationGlobalValue * particle.oscillationScaleX;
+				}
+			}
+			else if (this._oscillationScaleXGroupFrequencyEnabled)
+			{
+				particle.scaleXOscillation = 1.0 + this._oscillationScaleXGroupValue * particle.oscillationScaleX;
+			}
+			else
+			{
+				particle.oscillationScaleXStep += particle.oscillationScaleXFrequency * passedTime;
+				if (this.oscillationScaleXFrequencyInverted)
+				{
+					particle.scaleXOscillation = 1.0 + Math.sin(particle.oscillationScaleXStep) * particle.oscillationScaleX;
+				}
+				else
+				{
+					particle.scaleXOscillation = 1.0 + Math.cos(particle.oscillationScaleXStep) * particle.oscillationScaleX;
+				}
 			}
 		}
 		
-		if (this._useOscillationScaleY)
+		if (this._oscillationScaleYEnabled)
 		{
-			particle.oscillationScaleYStep += particle.oscillationScaleYFrequency * passedTime;
-			if (this.oscillationScaleYFrequencyInverted)
+			if (this._oscillationScaleYGlobalFrequencyEnabled)
 			{
-				particle.scaleYOscillation = 1.0 + Math.sin(particle.oscillationScaleYStep) * particle.oscillationScaleY;
+				if (this.oscillationScaleYFrequencyInverted)
+				{
+					particle.scaleYOscillation = 1.0 + this._oscillationGlobalValueInverted * particle.oscillationScaleY;
+				}
+				else
+				{
+					particle.scaleYOscillation = 1.0 + this._oscillationGlobalValue * particle.oscillationScaleY;
+				}
+			}
+			else if (this._oscillationScaleYGroupFrequencyEnabled)
+			{
+				particle.scaleYOscillation = 1.0 + this._oscillationScaleYGroupValue * particle.oscillationScaleY;
 			}
 			else
 			{
-				particle.scaleYOscillation = 1.0 + Math.cos(particle.oscillationScaleYStep) * particle.oscillationScaleY;
+				particle.oscillationScaleYStep += particle.oscillationScaleYFrequency * passedTime;
+				if (this.oscillationScaleYFrequencyInverted)
+				{
+					particle.scaleYOscillation = 1.0 + Math.sin(particle.oscillationScaleYStep) * particle.oscillationScaleY;
+				}
+				else
+				{
+					particle.scaleYOscillation = 1.0 + Math.cos(particle.oscillationScaleYStep) * particle.oscillationScaleY;
+				}
 			}
 		}
 		//\OSCILLATION
@@ -1815,14 +2727,32 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		// OSCILLATION COLOR
 		if (this._useOscillationColor)
 		{
-			particle.oscillationColorStep += particle.oscillationColorFrequency * passedTime;
-			if (this.oscillationColorFrequencyInverted)
+			if (this._oscillationColorGlobalFrequencyEnabled)
 			{
-				this.__step = Math.sin(particle.oscillationColorStep);
+				if (this.oscillationColorFrequencyInverted)
+				{
+					this.__step = this._oscillationGlobalValueInverted;
+				}
+				else
+				{
+					this.__step = this._oscillationGlobalValue;
+				}
+			}
+			else if (this._oscillationColorGroupFrequencyEnabled)
+			{
+				this.__step = this._oscillationColorGroupValue;
 			}
 			else
 			{
-				this.__step = Math.cos(particle.oscillationColorStep);
+				particle.oscillationColorStep += particle.oscillationColorFrequency * passedTime;
+				if (this.oscillationColorFrequencyInverted)
+				{
+					this.__step = Math.sin(particle.oscillationColorStep);
+				}
+				else
+				{
+					this.__step = Math.cos(particle.oscillationColorStep);
+				}
 			}
 			
 			particle.oscillationColorRed = particle.oscillationColorRedFactor * this.__step;
@@ -1854,6 +2784,91 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			#if !cpp // TODO : fix bug when building for cpp
 			this._emitterObject.advanceSystem(this, time);
 			#end
+		}
+		
+		if (this._useOscillationGlobalFrequency)
+		{
+			this._oscillationGlobalStep += this.oscillationGlobalFrequency * time;
+			this._oscillationGlobalValue = Math.cos(this._oscillationGlobalStep);
+			this._oscillationGlobalValueInverted = Math.sin(this._oscillationGlobalStep);
+		}
+		
+		if (this._oscillationPositionEnabled && this._oscillationPositionGroupFrequencyEnabled)
+		{
+			this._oscillationPositionGroupStep += this.oscillationPositionFrequency * time;
+			if (this.oscillationPositionFrequencyInverted)
+			{
+				this._oscillationPositionGroupValue = Math.sin(this._oscillationPositionGroupStep);
+			}
+			else
+			{
+				this._oscillationPositionGroupValue = Math.cos(this._oscillationPositionGroupStep);
+			}
+		}
+		
+		if (this._oscillationPosition2Enabled && this._oscillationPosition2GroupFrequencyEnabled)
+		{
+			this._oscillationPosition2GroupStep += this.oscillationPosition2Frequency * time;
+			if (this.oscillationPosition2FrequencyInverted)
+			{
+				this._oscillationPosition2GroupValue = Math.sin(this._oscillationPosition2GroupStep);
+			}
+			else
+			{
+				this._oscillationPosition2GroupValue = Math.cos(this._oscillationPosition2GroupStep);
+			}
+		}
+		
+		if (this._oscillationRotationEnabled && this._oscillationRotationGroupFrequencyEnabled)
+		{
+			this._oscillationRotationGroupStep += this.oscillationRotationFrequency * time;
+			if (this.oscillationRotationFrequencyInverted)
+			{
+				this._oscillationRotationGroupValue = Math.sin(this._oscillationRotationGroupStep);
+			}
+			else
+			{
+				this._oscillationRotationGroupValue = Math.cos(this._oscillationRotationGroupStep);
+			}
+		}
+		
+		if (this._oscillationScaleXEnabled && this._oscillationScaleXGroupFrequencyEnabled)
+		{
+			this._oscillationScaleXGroupStep += this.oscillationScaleXFrequency * time;
+			if (this.oscillationScaleXFrequencyInverted)
+			{
+				this._oscillationScaleXGroupValue = Math.sin(this._oscillationScaleXGroupStep);
+			}
+			else
+			{
+				this._oscillationScaleXGroupValue = Math.cos(this._oscillationScaleXGroupStep);
+			}
+		}
+		
+		if (this._oscillationScaleYEnabled && this._oscillationScaleYGroupFrequencyEnabled)
+		{
+			this._oscillationScaleYGroupStep += this.oscillationScaleYFrequency * time;
+			if (this.oscillationScaleYFrequencyInverted)
+			{
+				this._oscillationScaleYGroupValue = Math.sin(this._oscillationScaleYGroupStep);
+			}
+			else
+			{
+				this._oscillationScaleYGroupValue = Math.cos(this._oscillationScaleYGroupStep);
+			}
+		}
+		
+		if (this._useOscillationColor && this._oscillationColorGroupFrequencyEnabled)
+		{
+			this._oscillationColorGroupStep += this.oscillationColorFrequency * time;
+			if (this.oscillationColorFrequencyInverted)
+			{
+				this._oscillationColorGroupValue = Math.sin(this._oscillationColorGroupStep);
+			}
+			else
+			{
+				this._oscillationColorGroupValue = Math.cos(this._oscillationColorGroupStep);
+			}
 		}
 		
 		var particleIndex:Int = 0;
@@ -2027,6 +3042,13 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			this._isPlaying = true;
 			this._emissionTime = duration;
 			this._frameTime = 0.0;
+			this._oscillationGlobalStep = 0.0;
+			this._oscillationPositionGroupStep = 0.0;
+			this._oscillationPosition2GroupStep = 0.0;
+			this._oscillationRotationGroupStep = 0.0;
+			this._oscillationScaleXGroupStep = 0.0;
+			this._oscillationScaleYGroupStep = 0.0;
+			this._oscillationColorGroupStep = 0.0;
 		}
 	}
 	
@@ -2078,7 +3100,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	private function getParticlesFromPool():Void
 	{
-		if (this._particles.length != 0) // || this._frames.length == 0)
+		if (this._particles.length != 0)
 		{
 			return;
 		}
@@ -2090,13 +3112,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		else
 		{
 			throw new Error("ParticleSystem.getParticlesFromPool ::: null particlesFromPoolFunction");
-			//var particle:T;
-			//var args:Array<Dynamic> = [];
-			//for (i in 0...this._maxNumParticles)
-			//{
-				//particle = Type.createInstance(T, args);
-				//this._particles[i] = particle;
-			//}
 		}
 		
 		if (this._useMultipleFrameSets)
@@ -2216,7 +3231,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		// Animation
 		this.textureAnimation = options.textureAnimation;
-		//this.frameRate = options.frameRate;
 		this.frameDelta = options.frameDelta;
 		this.frameDeltaVariance = options.frameDeltaVariance;
 		this.firstFrame = options.firstFrame;
@@ -2265,39 +3279,61 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		//\Color
 		
 		// Oscillation
+		this.oscillationGlobalFrequency = options.oscillationGlobalFrequency;
+		this.oscillationUnifiedFrequencyVariance = options.oscillationUnifiedFrequencyVariance;
+		
+		this.oscillationPositionFrequencyMode = options.oscillationPositionFrequencyMode;
 		this.oscillationPositionAngle = options.oscillationPositionAngle;
 		this.oscillationPositionAngleVariance = options.oscillationPositionAngleVariance;
+		this.oscillationPositionAngleRelativeTo = options.oscillationPositionAngleRelativeTo;
 		this.oscillationPositionRadius = options.oscillationPositionRadius;
 		this.oscillationPositionRadiusVariance = options.oscillationPositionRadiusVariance;
 		this.oscillationPositionFrequency = options.oscillationPositionFrequency;
+		this.oscillationPositionUnifiedFrequencyVariance = options.oscillationPositionUnifiedFrequencyVariance;
 		this.oscillationPositionFrequencyVariance = options.oscillationPositionFrequencyVariance;
 		this.oscillationPositionFrequencyInverted = options.oscillationPositionFrequencyInverted;
+		this.oscillationPositionFrequencyStart = options.oscillationPositionFrequencyStart;
 		
+		this.oscillationPosition2FrequencyMode = options.oscillationPosition2FrequencyMode;
 		this.oscillationPosition2Angle = options.oscillationPosition2Angle;
 		this.oscillationPosition2AngleVariance = options.oscillationPosition2AngleVariance;
+		this.oscillationPosition2AngleRelativeTo = options.oscillationPosition2AngleRelativeTo;
 		this.oscillationPosition2Radius = options.oscillationPosition2Radius;
 		this.oscillationPosition2RadiusVariance = options.oscillationPosition2RadiusVariance;
 		this.oscillationPosition2Frequency = options.oscillationPosition2Frequency;
+		this.oscillationPosition2UnifiedFrequencyVariance = options.oscillationPosition2UnifiedFrequencyVariance;
 		this.oscillationPosition2FrequencyVariance = options.oscillationPosition2FrequencyVariance;
 		this.oscillationPosition2FrequencyInverted = options.oscillationPosition2FrequencyInverted;
+		this.oscillationPosition2FrequencyStart = options.oscillationPosition2FrequencyStart;
 		
+		this.oscillationRotationFrequencyMode = options.oscillationRotationFrequencyMode;
 		this.oscillationRotationAngle = options.oscillationRotationAngle;
 		this.oscillationRotationAngleVariance = options.oscillationRotationAngleVariance;
 		this.oscillationRotationFrequency = options.oscillationRotationFrequency;
+		this.oscillationRotationUnifiedFrequencyVariance = options.oscillationRotationUnifiedFrequencyVariance;
 		this.oscillationRotationFrequencyVariance = options.oscillationRotationFrequencyVariance;
 		this.oscillationRotationFrequencyInverted = options.oscillationRotationFrequencyInverted;
+		this.oscillationRotationFrequencyStart = options.oscillationRotationFrequencyStart;
 		
+		this.oscillationScaleXFrequencyMode = options.oscillationScaleXFrequencyMode;
 		this.oscillationScaleX = options.oscillationScaleX;
 		this.oscillationScaleXVariance = options.oscillationScaleXVariance;
 		this.oscillationScaleXFrequency = options.oscillationScaleXFrequency;
+		this.oscillationScaleXUnifiedFrequencyVariance = options.oscillationScaleXUnifiedFrequencyVariance;
 		this.oscillationScaleXFrequencyVariance = options.oscillationScaleXFrequencyVariance;
 		this.oscillationScaleXFrequencyInverted = options.oscillationScaleXFrequencyInverted;
+		this.oscillationScaleXFrequencyStart = options.oscillationScaleXFrequencyStart;
+		
+		this.oscillationScaleYFrequencyMode = options.oscillationScaleYFrequencyMode;
 		this.oscillationScaleY = options.oscillationScaleY;
 		this.oscillationScaleYVariance = options.oscillationScaleYVariance;
 		this.oscillationScaleYFrequency = options.oscillationScaleYFrequency;
+		this.oscillationScaleYUnifiedFrequencyVariance = options.oscillationScaleYUnifiedFrequencyVariance;
 		this.oscillationScaleYFrequencyVariance = options.oscillationScaleYFrequencyVariance;
 		this.oscillationScaleYFrequencyInverted = options.oscillationScaleYFrequencyInverted;
+		this.oscillationScaleYFrequencyStart = options.oscillationScaleYFrequencyStart;
 		
+		this.oscillationColorFrequencyMode = options.oscillationColorFrequencyMode;
 		this.oscillationColorRed = options.oscillationColorRed;
 		this.oscillationColorGreen = options.oscillationColorGreen;
 		this.oscillationColorBlue = options.oscillationColorBlue;
@@ -2307,11 +3343,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationColorBlueVariance = options.oscillationColorBlueVariance;
 		this.oscillationColorAlphaVariance = options.oscillationColorAlphaVariance;
 		this.oscillationColorFrequency = options.oscillationColorFrequency;
+		this.oscillationColorUnifiedFrequencyVariance = options.oscillationColorUnifiedFrequencyVariance;
 		this.oscillationColorFrequencyVariance = options.oscillationColorFrequencyVariance;
 		this.oscillationColorFrequencyInverted = options.oscillationColorFrequencyInverted;
+		this.oscillationColorFrequencyStart = options.oscillationColorFrequencyStart;
 		//\Oscillation
-		
-		//this._animationLoopLength = this._lastFrame - this._firstFrame + 1;
 		
 		if (this._autoSetEmissionRate)
 		{
@@ -2444,39 +3480,61 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		//\Color
 		
 		// Oscillation
+		options.oscillationGlobalFrequency = this.oscillationGlobalFrequency;
+		options.oscillationUnifiedFrequencyVariance = this.oscillationUnifiedFrequencyVariance;
+		
+		options.oscillationPositionFrequencyMode = this._oscillationPositionFrequencyMode;
 		options.oscillationPositionAngle = this.oscillationPositionAngle;
 		options.oscillationPositionAngleVariance = this.oscillationPositionAngleVariance;
+		options.oscillationPositionAngleRelativeTo = this._oscillationPositionAngleRelativeTo;
 		options.oscillationPositionRadius = this._oscillationPositionRadius;
 		options.oscillationPositionRadiusVariance = this._oscillationPositionRadiusVariance;
 		options.oscillationPositionFrequency = this.oscillationPositionFrequency;
+		options.oscillationPositionUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance;
 		options.oscillationPositionFrequencyVariance = this.oscillationPositionFrequencyVariance;
 		options.oscillationPositionFrequencyInverted = this.oscillationPositionFrequencyInverted;
+		options.oscillationPositionFrequencyStart = this._oscillationPositionFrequencyStart;
 		
+		options.oscillationPosition2FrequencyMode = this._oscillationPosition2FrequencyMode;
 		options.oscillationPosition2Angle = this.oscillationPosition2Angle;
 		options.oscillationPosition2AngleVariance = this.oscillationPosition2AngleVariance;
+		options.oscillationPosition2AngleRelativeTo = this.oscillationPosition2AngleRelativeTo;
 		options.oscillationPosition2Radius = this._oscillationPosition2Radius;
 		options.oscillationPosition2RadiusVariance = this._oscillationPosition2RadiusVariance;
 		options.oscillationPosition2Frequency = this.oscillationPosition2Frequency;
+		options.oscillationPosition2UnifiedFrequencyVariance = this._oscillationPosition2UnifiedFrequencyVariance;
 		options.oscillationPosition2FrequencyVariance = this.oscillationPosition2FrequencyVariance;
 		options.oscillationPosition2FrequencyInverted = this.oscillationPosition2FrequencyInverted;
+		options.oscillationPosition2FrequencyStart = this._oscillationPosition2FrequencyStart;
 		
+		options.oscillationRotationFrequencyMode = this._oscillationRotationFrequencyMode;
 		options.oscillationRotationAngle = this._oscillationRotationAngle;
 		options.oscillationRotationAngleVariance = this._oscillationRotationAngleVariance;
 		options.oscillationRotationFrequency = this.oscillationRotationFrequency;
+		options.oscillationRotationUnifiedFrequencyVariance = this._oscillationRotationUnifiedFrequencyVariance;
 		options.oscillationRotationFrequencyVariance = this.oscillationRotationFrequencyVariance;
 		options.oscillationRotationFrequencyInverted = this.oscillationRotationFrequencyInverted;
+		options.oscillationRotationFrequencyStart = this._oscillationRotationFrequencyStart;
 		
+		options.oscillationScaleXFrequencyMode = this._oscillationScaleXFrequencyMode;
 		options.oscillationScaleX = this.oscillationScaleX;
 		options.oscillationScaleXVariance = this.oscillationScaleXVariance;
 		options.oscillationScaleXFrequency = this.oscillationScaleXFrequency;
+		options.oscillationScaleXUnifiedFrequencyVariance = this._oscillationScaleXUnifiedFrequencyVariance;
 		options.oscillationScaleXFrequencyVariance = this.oscillationScaleXFrequencyVariance;
 		options.oscillationScaleXFrequencyInverted = this.oscillationScaleXFrequencyInverted;
+		options.oscillationScaleXFrequencyStart = this._oscillationScaleXFrequencyStart;
+		
+		options.oscillationScaleYFrequencyMode = this._oscillationScaleYFrequencyMode;
 		options.oscillationScaleY = this.oscillationScaleY;
 		options.oscillationScaleYVariance = this.oscillationScaleYVariance;
 		options.oscillationScaleYFrequency = this.oscillationScaleYFrequency;
+		options.oscillationScaleYUnifiedFrequencyVariance = this._oscillationScaleYUnifiedFrequencyVariance;
 		options.oscillationScaleYFrequencyVariance = this.oscillationScaleYFrequencyVariance;
 		options.oscillationScaleYFrequencyInverted = this.oscillationScaleYFrequencyInverted;
+		options.oscillationScaleYFrequencyStart = this._oscillationScaleYFrequencyStart;
 		
+		options.oscillationColorFrequencyMode = this._oscillationColorFrequencyMode;
 		options.oscillationColorRed = this._oscillationColorRed;
 		options.oscillationColorGreen = this._oscillationColorGreen;
 		options.oscillationColorBlue = this._oscillationColorBlue;
@@ -2486,8 +3544,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.oscillationColorBlueVariance = this._oscillationColorBlueVariance;
 		options.oscillationColorAlphaVariance = this._oscillationColorAlphaVariance;
 		options.oscillationColorFrequency = this.oscillationColorFrequency;
+		options.oscillationColorUnifiedFrequencyVariance = this._oscillationColorUnifiedFrequencyVariance;
 		options.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
 		options.oscillationColorFrequencyInverted = this.oscillationColorFrequencyInverted;
+		options.oscillationColorFrequencyStart = this._oscillationColorFrequencyStart;
 		//\Oscillation
 		
 		return options;

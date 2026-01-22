@@ -304,6 +304,18 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.addFrames(this._frameMap.get("square"));
 		registerPreset("cybermancy", config);
 		
+		// "dancing stars" preset
+		str = Assets.getText("presets/dancing_stars.json");
+		json = Json.parse(str);
+		options = new ParticleSystemOptions();
+		options.fromJSON(json);
+		config = new ParticleConfig();
+		config.blendMode = BlendMode.NORMAL;
+		config.texture = this._textureMap.get("star");
+		config.options = options;
+		config.addFrames(this._frameMap.get("star"));
+		registerPreset("dancing stars", config);
+		
 		// "fireball" preset
 		str = Assets.getText("presets/fireball.json");
 		json = Json.parse(str);
@@ -370,7 +382,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options = new ParticleSystemOptions();
 		options.fromJSON(json);
 		config = new ParticleConfig();
-		config.blendMode = BlendMode.ADD;
+		config.blendMode = BlendMode.SCREEN;
 		config.texture = this._textureMap.get("blob");
 		config.options = options;
 		config.addFrames(this._frameMap.get("blob"));
@@ -399,13 +411,13 @@ class ParticleEditor extends ValEditorSimpleStarling
 		select.add(BlendMode.SCREEN);
 		this._massiveCollection.addValue(select);
 		
-		float = new ExposedFloatDrag("colorRed", null, 0, 10, 0.01);
+		float = new ExposedFloatDrag("colorRed", null, 0.0, 10.0, 0.01);
 		this._massiveCollection.addValue(float);
 		
-		float = new ExposedFloatDrag("colorGreen", null, 0, 10, 0.01);
+		float = new ExposedFloatDrag("colorGreen", null, 0.0, 10.0, 0.01);
 		this._massiveCollection.addValue(float);
 		
-		float = new ExposedFloatDrag("colorBlue", null, 0, 10, 0.01);
+		float = new ExposedFloatDrag("colorBlue", null, 0.0, 10.0, 0.01);
 		this._massiveCollection.addValue(float);
 		
 		float = new ExposedFloatDrag("alpha", null, 0, 1.0, 0.01);

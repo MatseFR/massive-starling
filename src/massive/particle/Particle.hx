@@ -194,6 +194,10 @@ class Particle extends ImageData
 	public var fadeOutTime:Float;
 	public var fadeOutDuration:Float;
 	
+	// DEBUG
+	public var updateCount:Int;
+	//\DEBUG
+	
 	public function new() 
 	{
 		super();
