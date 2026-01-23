@@ -17,7 +17,7 @@
 	<source path="src" />
 	<haxelib name="openfl" />
 	<haxelib name="starling" />
-	<haxelib name="massive" />
+	<haxelib name="massive-starling" />
 	<haxelib name="valeditor" />
 	
 	<!-- assets -->
