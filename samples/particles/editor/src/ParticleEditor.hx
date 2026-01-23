@@ -370,7 +370,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options = new ParticleSystemOptions();
 		options.fromJSON(json);
 		config = new ParticleConfig();
-		config.blendMode = BlendMode.ADD;
+		config.blendMode = BlendMode.NORMAL;
 		config.texture = this._textureMap.get("star");
 		config.options = options;
 		config.addFrames(this._frameMap.get("star"));
