@@ -13,17 +13,21 @@ It's been tested on windows (haxelib version of hxcpp), html5 and air targets wi
 [Particle Editor](https://matse.skwatt.com/haxe/starling/massive/particles/editor/) - editor for Massive's `ParticleSystem` (WIP) ([README](https://github.com/MatseFR/massive-starling/tree/main/samples/particles/editor))
 
 ## Getting started
-Massive is not available on haxelib yet, you can either use haxelib to install it directly from GitHub :
+Massive is available on haxelib
 ```sh
-haxelib git massive https://github.com/MatseFR/massive-starling
+haxelib install massive-starling
+```
+you can also use haxelib to install it directly from GitHub :
+```sh
+haxelib git massive-starling https://github.com/MatseFR/massive-starling
 ```
 or download the Massive repo and then use haxelib to install it
 ```sh
-haxelib dev massive path/to/massive
+haxelib dev massive-starling path/to/massive
 ```
 To include Massive in an OpenFL project, add this line to your [_project.xml_](https://lime.openfl.org/docs/project-files/xml-format/) file:
 ```xml
-<haxelib name="massive" />
+<haxelib name="massive-starling" />
 ```
 
 ## Quick setup
