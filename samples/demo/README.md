@@ -36,6 +36,10 @@ Those only apply to Massive.
 ### use color
 This controls whether the `MassiveDisplay` instance has color information in the vertex data or not, when you're using a texture and you turn it off it will display the texture without any tinting or alpha. Turning it off boosts performance noticeably.
 
+### simple color mode
+When turned on, color information is stored on 4 bytes instead of 16. This prevents funky color effects but reduces the amount of vertex data, resulting in a relatively small performance boost in most cases. This has no effect when "use color" is turned off.
+There is currently an issue with this on html5 target where a whole color range turns to blue, this is likely due to haxe.io.FPHelper not returning the correct Float value.
+
 ### use ByteArray
 This makes the `MassiveDisplay` instance use a `ByteArray` instead of the default `Vector<Float>` (flash target) / `Array<Float>` (other targets).
 In my experience this seems to be less costy on the GPU side on flash/air target (I guess because of a faster upload ?) but always ends up being slower because it costs a lot more on the CPU side. If you get different results I'd love to hear !
