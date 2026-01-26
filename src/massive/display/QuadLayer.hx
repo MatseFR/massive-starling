@@ -1,4 +1,5 @@
 package massive.display;
+import haxe.io.FPHelper;
 import massive.data.QuadData;
 import openfl.Memory;
 import openfl.Vector;
@@ -165,7 +166,7 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int 
+	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int 
 	{
 		if (this._datas == null) return 0;
 		
@@ -179,8 +180,9 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var green:Float = 0;
 		var blue:Float = 0;
 		var alpha:Float = 0;
+		var color:Int = 0;
 		
-		var angle:Int;
+		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -200,7 +202,14 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			byteData.length += this.numDatas * 96;
+			if (simpleColor)
+			{
+				byteData.length += this.numDatas * 48;
+			}
+			else
+			{
+				byteData.length += this.numDatas * 96;
+			}
 		}
 		else
 		{
@@ -224,17 +233,47 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			{
 				if (pma)
 				{
-					alpha = data.colorAlpha;
-					red = data.colorRed * alpha;
-					green = data.colorGreen * alpha;
-					blue = data.colorBlue * alpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24;
+					}
+					else
+					{
+						alpha = data.colorAlpha;
+						red = data.colorRed * alpha;
+						green = data.colorGreen * alpha;
+						blue = data.colorBlue * alpha;
+					}
 				}
 				else
 				{
-					red = data.colorRed;
-					green = data.colorGreen;
-					blue = data.colorBlue;
-					alpha = data.colorAlpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24;
+					}
+					else
+					{
+						red = data.colorRed;
+						green = data.colorGreen;
+						blue = data.colorBlue;
+						alpha = data.colorAlpha;
+					}
 				}
 			}
 			
@@ -264,40 +303,68 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				byteData.writeFloat(y - sinLeft - cosTop);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x + cosRight + sinTop);
 				byteData.writeFloat(y + sinRight - cosTop);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x - cosLeft - sinBottom);
 				byteData.writeFloat(y - sinLeft + cosBottom);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x + cosRight - sinBottom);
 				byteData.writeFloat(y + sinRight + cosBottom);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 			}
 			else
@@ -306,40 +373,68 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				byteData.writeFloat(y - topOffset);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x + rightOffset);
 				byteData.writeFloat(y - topOffset);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x - leftOffset);
 				byteData.writeFloat(y + bottomOffset);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x + rightOffset);
 				byteData.writeFloat(y + bottomOffset);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 			}
 		}
@@ -351,21 +446,26 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
+	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
-		var vertexID:Int = offset << 2;
 		var position:Int;
 		
 		if (useColor)
 		{
-			//position = vertexID << 3;
-			position = offset * 96;
+			if (simpleColor)
+			{
+				position = offset * 48;
+			}
+			else
+			{
+				position = offset * 96;
+			}
 		}
 		else
 		{
-			//position = vertexID << 2;
+			//position = offset * 32;
 			position = offset << 5;
 		}
 		
@@ -379,8 +479,9 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var green:Float = 0;
 		var blue:Float = 0;
 		var alpha:Float = 0;
+		var color:Int = 0;
 		
-		var angle:Int;
+		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -400,7 +501,14 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			byteData.length += this.numDatas * 96;
+			if (simpleColor)
+			{
+				byteData.length += this.numDatas * 48;
+			}
+			else
+			{
+				byteData.length += this.numDatas * 96;
+			}
 		}
 		else
 		{
@@ -424,17 +532,47 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			{
 				if (pma)
 				{
-					alpha = data.colorAlpha;
-					red = data.colorRed * alpha;
-					green = data.colorGreen * alpha;
-					blue = data.colorBlue * alpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24;
+					}
+					else
+					{
+						alpha = data.colorAlpha;
+						red = data.colorRed * alpha;
+						green = data.colorGreen * alpha;
+						blue = data.colorBlue * alpha;
+					}
 				}
 				else
 				{
-					red = data.colorRed;
-					green = data.colorGreen;
-					blue = data.colorBlue;
-					alpha = data.colorAlpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24;
+					}
+					else
+					{
+						red = data.colorRed;
+						green = data.colorGreen;
+						blue = data.colorBlue;
+						alpha = data.colorAlpha;
+					}
 				}
 			}
 			
@@ -464,40 +602,68 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				Memory.setFloat(position += 4, y - sinLeft - cosTop);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x + cosRight + sinTop);
 				Memory.setFloat(position += 4, y + sinRight - cosTop);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x - cosLeft - sinBottom);
 				Memory.setFloat(position += 4, y - sinLeft + cosBottom);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x + cosRight - sinBottom);
 				Memory.setFloat(position += 4, y + sinRight + cosBottom);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 			}
 			else
@@ -506,40 +672,68 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				Memory.setFloat(position += 4, y - topOffset);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x + rightOffset);
 				Memory.setFloat(position += 4, y - topOffset);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x - leftOffset);
 				Memory.setFloat(position += 4, y + bottomOffset);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x + rightOffset);
 				Memory.setFloat(position += 4, y + bottomOffset);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 			}
 			position += 4;
@@ -553,7 +747,7 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
+	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -562,11 +756,18 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			position = vertexID << 3;
+			if (simpleColor)
+			{
+				position = vertexID * 3;
+			}
+			else
+			{
+				position = vertexID * 6;
+			}
 		}
 		else
 		{
-			position = vertexID << 2;
+			position = vertexID * 2;
 		}
 		
 		var quadsWritten:Int = 0;
@@ -579,8 +780,9 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var green:Float = 0;
 		var blue:Float = 0;
 		var alpha:Float = 0;
+		var color:Float = 0;
 		
-		var angle:Int;
+		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -614,17 +816,47 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			{
 				if (pma)
 				{
-					alpha = data.colorAlpha;
-					red = data.colorRed * alpha;
-					green = data.colorGreen * alpha;
-					blue = data.colorBlue * alpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = FPHelper.i32ToFloat(Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24);
+					}
+					else
+					{
+						alpha = data.colorAlpha;
+						red = data.colorRed * alpha;
+						green = data.colorGreen * alpha;
+						blue = data.colorBlue * alpha;
+					}
 				}
 				else
 				{
-					red = data.colorRed;
-					green = data.colorGreen;
-					blue = data.colorBlue;
-					alpha = data.colorAlpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = FPHelper.i32ToFloat(Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24);
+					}
+					else
+					{
+						red = data.colorRed;
+						green = data.colorGreen;
+						blue = data.colorBlue;
+						alpha = data.colorAlpha;
+					}
 				}
 			}
 			
@@ -654,40 +886,68 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				floatData[++position] = y - sinLeft - cosTop;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x + cosRight + sinTop;
 				floatData[++position] = y + sinRight - cosTop;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x - cosLeft - sinBottom;
 				floatData[++position] = y - sinLeft + cosBottom;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x + cosRight - sinBottom;
 				floatData[++position] = y + sinRight + cosBottom;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 			}
 			else
@@ -696,40 +956,68 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				floatData[++position] = y - topOffset;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x + rightOffset;
 				floatData[++position] = y - topOffset;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x - leftOffset;
 				floatData[++position] = y + bottomOffset;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x + rightOffset;
 				floatData[++position] = y + bottomOffset;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 			}
 			++position;
@@ -742,7 +1030,7 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int 
+	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int 
 	{
 		if (this._datas == null) return 0;
 		
@@ -751,11 +1039,18 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			position = vertexID << 3;
+			if (simpleColor)
+			{
+				position = vertexID * 3;
+			}
+			else
+			{
+				position = vertexID * 6;
+			}
 		}
 		else
 		{
-			position = vertexID << 2;
+			position = vertexID * 2;
 		}
 		
 		var quadsWritten:Int = 0;
@@ -768,8 +1063,9 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var green:Float = 0;
 		var blue:Float = 0;
 		var alpha:Float = 0;
+		var color:Float = 0;
 		
-		var angle:Int;
+		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -803,17 +1099,47 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			{
 				if (pma)
 				{
-					alpha = data.colorAlpha;
-					red = data.colorRed * alpha;
-					green = data.colorGreen * alpha;
-					blue = data.colorBlue * alpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = FPHelper.i32ToFloat(Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24);
+					}
+					else
+					{
+						alpha = data.colorAlpha;
+						red = data.colorRed * alpha;
+						green = data.colorGreen * alpha;
+						blue = data.colorBlue * alpha;
+					}
 				}
 				else
 				{
-					red = data.colorRed;
-					green = data.colorGreen;
-					blue = data.colorBlue;
-					alpha = data.colorAlpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = FPHelper.i32ToFloat(Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24);
+					}
+					else
+					{
+						red = data.colorRed;
+						green = data.colorGreen;
+						blue = data.colorBlue;
+						alpha = data.colorAlpha;
+					}
 				}
 			}
 			
@@ -843,40 +1169,68 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				vectorData[++position] = y - sinLeft - cosTop;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x + cosRight + sinTop;
 				vectorData[++position] = y + sinRight - cosTop;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x - cosLeft - sinBottom;
 				vectorData[++position] = y - sinLeft + cosBottom;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x + cosRight - sinBottom;
 				vectorData[++position] = y + sinRight + cosBottom;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 			}
 			else
@@ -885,40 +1239,68 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				vectorData[++position] = y - topOffset;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x + rightOffset;
 				vectorData[++position] = y - topOffset;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x - leftOffset;
 				vectorData[++position] = y + bottomOffset;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x + rightOffset;
 				vectorData[++position] = y + bottomOffset;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 			}
 			++position;

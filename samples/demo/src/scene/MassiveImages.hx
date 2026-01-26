@@ -27,6 +27,7 @@ class MassiveImages extends Scene implements IAnimatable
 	public var frameDeltaVariance:Float = 0.5;
 	public var numBuffers:Int = 2;
 	public var numObjects:Int = 1000;
+	public var simpleColorMode:Bool;
 	public var useBlurFilter:Bool;
 	public var useByteArray:Bool;
 	#if flash
@@ -108,6 +109,7 @@ class MassiveImages extends Scene implements IAnimatable
 			display.useByteArrayDomainMemory = this.useDomainMemory;
 			#end
 			display.useColor = this.useColor;
+			display.simpleColorMode = this.simpleColorMode;
 			#if !flash
 			display.useFloat32Array = this.useFloat32Array;
 			#end

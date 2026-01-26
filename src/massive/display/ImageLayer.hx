@@ -1,4 +1,5 @@
 package massive.display;
+import haxe.io.FPHelper;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
@@ -172,9 +173,29 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
+	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
+		
+		var position:Int;
+		
+		if (useColor)
+		{
+			if (simpleColor)
+			{
+				position = offset * 80;
+			}
+			else
+			{
+				//position = offset * 128;
+				position = offset << 7;
+			}
+		}
+		else
+		{
+			//position = offset << 64;
+			position = offset << 6;
+		}
 		
 		var quadsWritten:Int = 0;
 		
@@ -186,6 +207,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var green:Float = 0;
 		var blue:Float = 0;
 		var alpha:Float = 0;
+		var color:Int = 0;
 		
 		//var angle:Int;
 		var cos:Float;
@@ -214,13 +236,20 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			//byteData.length += numDatas * 128;
-			byteData.length += this.numDatas << 7;
+			if (simpleColor)
+			{
+				byteData.length = position + this.numDatas * 80;
+			}
+			else
+			{
+				//byteData.length = position + numDatas * 128;
+				byteData.length = position + this.numDatas << 7;
+			}
 		}
 		else
 		{
-			//byteData.length += numDatas * 64;
-			byteData.length += this.numDatas << 6;
+			//byteData.length = position + numDatas * 64;
+			byteData.length = position + this.numDatas << 6;
 		}
 		
 		var data:T;
@@ -239,17 +268,47 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			{
 				if (pma)
 				{
-					alpha = data.colorAlpha;
-					red = data.colorRed * alpha;
-					green = data.colorGreen * alpha;
-					blue = data.colorBlue * alpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24;
+					}
+					else
+					{
+						alpha = data.colorAlpha;
+						red = data.colorRed * alpha;
+						green = data.colorGreen * alpha;
+						blue = data.colorBlue * alpha;
+					}
 				}
 				else
 				{
-					red = data.colorRed;
-					green = data.colorGreen;
-					blue = data.colorBlue;
-					alpha = data.colorAlpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24;
+					}
+					else
+					{
+						red = data.colorRed;
+						green = data.colorGreen;
+						blue = data.colorBlue;
+						alpha = data.colorAlpha;
+					}
 				}
 			}
 			
@@ -304,10 +363,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(v1);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x + cosRight + sinTop);
@@ -316,10 +382,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(v1);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x - cosLeft - sinBottom);
@@ -328,10 +401,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(v2);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x + cosRight - sinBottom);
@@ -340,10 +420,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(v2);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 			}
 			else
@@ -354,10 +441,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(v1);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x + rightOffset);
@@ -366,10 +460,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(v1);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x - leftOffset);
@@ -378,10 +479,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(v2);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 				
 				byteData.writeFloat(x + rightOffset);
@@ -390,10 +498,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				byteData.writeFloat(v2);
 				if (useColor)
 				{
-					byteData.writeFloat(red);
-					byteData.writeFloat(green);
-					byteData.writeFloat(blue);
-					byteData.writeFloat(alpha);
+					if (simpleColor)
+					{
+						byteData.writeInt(color);
+					}
+					else
+					{
+						byteData.writeFloat(red);
+						byteData.writeFloat(green);
+						byteData.writeFloat(blue);
+						byteData.writeFloat(alpha);
+					}
 				}
 			}
 		}
@@ -405,7 +520,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
+	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -413,11 +528,20 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			position = offset * 96;
+			if (simpleColor)
+			{
+				position = offset * 80;
+			}
+			else
+			{
+				//position = offset * 128;
+				position = offset << 7;
+			}
 		}
 		else
 		{
-			position = offset << 5;
+			//position = offset * 64;
+			position = offset << 6;
 		}
 		
 		var quadsWritten:Int = 0;
@@ -430,6 +554,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var green:Float = 0;
 		var blue:Float = 0;
 		var alpha:Float = 0;
+		var color:Int = 0;
 		
 		//var angle:Int;
 		var cos:Float;
@@ -458,12 +583,24 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			//byteData.length += numDatas * 128;
-			byteData.length += this.numDatas << 7;
+			if (simpleColor)
+			{
+				//byteData.length = position + this.numDatas * 80;
+				byteData.length += this.numDatas * 80;
+			}
+			else
+			{
+				//byteData.length = position + numDatas * 128;
+				//byteData.length = position + this.numDatas << 7;
+				byteData.length += this.numDatas << 7;
+			}
 		}
 		else
 		{
-			//byteData.length += numDatas * 64;
+			//byteData.length = position + numDatas * 64;
+			//byteData.length = position + this.numDatas << 6;
+			// for some reason we have to do this, otherwise on release mode execution will stop (doesn't make any sense but...)
+			// it means in that context byteData will have 1024 additional bytes, no biggie but still annoying
 			byteData.length += this.numDatas << 6;
 		}
 		
@@ -483,17 +620,47 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			{
 				if (pma)
 				{
-					alpha = data.colorAlpha;
-					red = data.colorRed * alpha;
-					green = data.colorGreen * alpha;
-					blue = data.colorBlue * alpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24;
+					}
+					else
+					{
+						alpha = data.colorAlpha;
+						red = data.colorRed * alpha;
+						green = data.colorGreen * alpha;
+						blue = data.colorBlue * alpha;
+					}
 				}
 				else
 				{
-					red = data.colorRed;
-					green = data.colorGreen;
-					blue = data.colorBlue;
-					alpha = data.colorAlpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24;
+					}
+					else
+					{
+						red = data.colorRed;
+						green = data.colorGreen;
+						blue = data.colorBlue;
+						alpha = data.colorAlpha;
+					}
 				}
 			}
 			
@@ -548,10 +715,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				Memory.setFloat(position += 4, v1);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x + cosRight + sinTop);
@@ -560,10 +734,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				Memory.setFloat(position += 4, v1);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x - cosLeft - sinBottom);
@@ -572,10 +753,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				Memory.setFloat(position += 4, v2);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x + cosRight - sinBottom);
@@ -584,10 +772,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				Memory.setFloat(position += 4, v2);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 			}
 			else
@@ -598,10 +793,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				Memory.setFloat(position += 4, v1);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x + rightOffset);
@@ -610,10 +812,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				Memory.setFloat(position += 4, v1);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x - leftOffset);
@@ -622,10 +831,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				Memory.setFloat(position += 4, v2);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 				
 				Memory.setFloat(position += 4, x + rightOffset);
@@ -634,10 +850,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				Memory.setFloat(position += 4, v2);
 				if (useColor)
 				{
-					Memory.setFloat(position += 4, red);
-					Memory.setFloat(position += 4, green);
-					Memory.setFloat(position += 4, blue);
-					Memory.setFloat(position += 4, alpha);
+					if (simpleColor)
+					{
+						Memory.setI32(position += 4, color);
+					}
+					else
+					{
+						Memory.setFloat(position += 4, red);
+						Memory.setFloat(position += 4, green);
+						Memory.setFloat(position += 4, blue);
+						Memory.setFloat(position += 4, alpha);
+					}
 				}
 			}
 			position += 4;
@@ -651,7 +874,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
+	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -660,7 +883,14 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			position = vertexID << 3;
+			if (simpleColor)
+			{
+				position = vertexID * 5;
+			}
+			else
+			{
+				position = vertexID << 3;
+			}
 		}
 		else
 		{
@@ -677,6 +907,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var green:Float = 0;
 		var blue:Float = 0;
 		var alpha:Float = 0;
+		var color:Float = 0;
 		
 		//var angle:Int;
 		var cos:Float;
@@ -719,17 +950,47 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			{
 				if (pma)
 				{
-					alpha = data.colorAlpha;
-					red = data.colorRed * alpha;
-					green = data.colorGreen * alpha;
-					blue = data.colorBlue * alpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = FPHelper.i32ToFloat(Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24);
+					}
+					else
+					{
+						alpha = data.colorAlpha;
+						red = data.colorRed * alpha;
+						green = data.colorGreen * alpha;
+						blue = data.colorBlue * alpha;
+					}
 				}
 				else
 				{
-					red = data.colorRed;
-					green = data.colorGreen;
-					blue = data.colorBlue;
-					alpha = data.colorAlpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = FPHelper.i32ToFloat(Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24);
+					}
+					else
+					{
+						red = data.colorRed;
+						green = data.colorGreen;
+						blue = data.colorBlue;
+						alpha = data.colorAlpha;
+					}
 				}
 			}
 			
@@ -784,10 +1045,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = v1;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x + cosRight + sinTop;
@@ -796,10 +1064,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = v1;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x - cosLeft - sinBottom;
@@ -808,10 +1083,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = v2;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x + cosRight - sinBottom;
@@ -820,10 +1102,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = v2;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 			}
 			else
@@ -834,10 +1123,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = v1;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x + rightOffset;
@@ -846,10 +1142,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = v1;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x - leftOffset;
@@ -858,10 +1161,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = v2;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 				
 				floatData[++position] = x + rightOffset;
@@ -870,10 +1180,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				floatData[++position] = v2;
 				if (useColor)
 				{
-					floatData[++position] = red;
-					floatData[++position] = green;
-					floatData[++position] = blue;
-					floatData[++position] = alpha;
+					if (simpleColor)
+					{
+						floatData[++position] = color;
+					}
+					else
+					{
+						floatData[++position] = red;
+						floatData[++position] = green;
+						floatData[++position] = blue;
+						floatData[++position] = alpha;
+					}
 				}
 			}
 			++position;
@@ -886,7 +1203,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int
+	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
 	{
 		if (this._datas == null) return 0;
 		
@@ -895,7 +1212,14 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		if (useColor)
 		{
-			position = vertexID << 3;
+			if (simpleColor)
+			{
+				position = vertexID * 5;
+			}
+			else
+			{
+				position = vertexID << 3;
+			}
 		}
 		else
 		{
@@ -912,6 +1236,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var green:Float = 0;
 		var blue:Float = 0;
 		var alpha:Float = 0;
+		var color:Float = 0;
 		
 		//var angle:Int;
 		var cos:Float;
@@ -954,17 +1279,47 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			{
 				if (pma)
 				{
-					alpha = data.colorAlpha;
-					red = data.colorRed * alpha;
-					green = data.colorGreen * alpha;
-					blue = data.colorBlue * alpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = FPHelper.i32ToFloat(Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24);
+					}
+					else
+					{
+						alpha = data.colorAlpha;
+						red = data.colorRed * alpha;
+						green = data.colorGreen * alpha;
+						blue = data.colorBlue * alpha;
+					}
 				}
 				else
 				{
-					red = data.colorRed;
-					green = data.colorGreen;
-					blue = data.colorBlue;
-					alpha = data.colorAlpha;
+					if (simpleColor)
+					{
+						alpha = data.colorAlpha;
+						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
+						red = data.colorRed;
+						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
+						green = data.colorGreen;
+						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
+						blue = data.colorBlue;
+						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
+						color = FPHelper.i32ToFloat(Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24);
+					}
+					else
+					{
+						red = data.colorRed;
+						green = data.colorGreen;
+						blue = data.colorBlue;
+						alpha = data.colorAlpha;
+					}
 				}
 			}
 			
@@ -1019,10 +1374,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = v1;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x + cosRight + sinTop;
@@ -1031,10 +1393,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = v1;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x - cosLeft - sinBottom;
@@ -1043,10 +1412,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = v2;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x + cosRight - sinBottom;
@@ -1055,10 +1431,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = v2;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 			}
 			else
@@ -1069,10 +1452,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = v1;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x + rightOffset;
@@ -1081,10 +1471,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = v1;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x - leftOffset;
@@ -1093,10 +1490,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = v2;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 				
 				vectorData[++position] = x + rightOffset;
@@ -1105,10 +1509,17 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				vectorData[++position] = v2;
 				if (useColor)
 				{
-					vectorData[++position] = red;
-					vectorData[++position] = green;
-					vectorData[++position] = blue;
-					vectorData[++position] = alpha;
+					if (simpleColor)
+					{
+						vectorData[++position] = color;
+					}
+					else
+					{
+						vectorData[++position] = red;
+						vectorData[++position] = green;
+						vectorData[++position] = blue;
+						vectorData[++position] = alpha;
+					}
 				}
 			}
 			++position;

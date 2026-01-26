@@ -74,9 +74,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	renderOffsetY
 	   @param	pma
 	   @param	useColor
+	   @param	simpleColor
 	   @return
 	**/
-	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
+	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int;
 	
 	#if flash
 	/**
@@ -88,9 +89,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	renderOffsetY
 	   @param	pma
 	   @param	useColor
+	   @param	simpleColor
 	   @return
 	**/
-	abstract public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
+	abstract public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int;
 	#end
 	
 	#if !flash
@@ -102,9 +104,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	renderOffsetY
 	   @param	pma
 	   @param	useColor
+	   @param	simpleColor
 	   @return
 	**/
-	abstract public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
+	abstract public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int;
 	#end
 	
 	/**
@@ -115,9 +118,10 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	renderOffsetY
 	   @param	pma
 	   @param	useColor
+	   @param	simpleColor
 	   @return
 	**/
-	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool):Int;
+	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int;
 	
 	/**
 	 * Advances time for the layer, controlled by the MassiveDisplay instance this layer was added to

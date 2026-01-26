@@ -23,6 +23,7 @@ class MassiveQuads extends Scene implements IAnimatable
 	public var displayScale:Float;
 	public var numBuffers:Int = 2;
 	public var numObjects:Int = 2000;
+	public var simpleColorMode:Bool;
 	public var useBlurFilter:Bool;
 	public var useColor:Bool;
 	public var useRandomAlpha:Bool = false;
@@ -96,6 +97,7 @@ class MassiveQuads extends Scene implements IAnimatable
 			display.useByteArrayDomainMemory = this.useDomainMemory;
 			#end
 			display.useColor = this.useColor;
+			display.simpleColorMode = this.simpleColorMode;
 			#if !flash
 			display.useFloat32Array = this.useFloat32Array;
 			#end

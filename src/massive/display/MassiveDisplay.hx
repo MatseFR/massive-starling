@@ -131,6 +131,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var renderOffsetY:Float = 0;
 	/**
+	   
+	**/
+	public var simpleColorMode(get, set):Bool;
+	/**
 	   The texture used by this MassiveDisplay instance, typically from a TextureAtlas.
 	**/
 	public var texture(get, set):Texture;
@@ -297,6 +301,15 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._program.dispose();
 		}
 		return this._program = value;
+	}
+	
+	private var _simpleColorMode:Bool = false;
+	private function get_simpleColorMode():Bool { return this._simpleColorMode; }
+	private function set_simpleColorMode(value:Bool):Bool
+	{
+		this._simpleColorMode = value;
+		updateElements();
+		return this._simpleColorMode = value;
 	}
 	
 	private var _texture:Texture;
@@ -699,7 +712,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		if (this._useColor) 
 		{
-			this._elementsPerVertex += 4;
+			if (this._simpleColorMode)
+			{
+				this._elementsPerVertex += 1;
+			}
+			else
+			{
+				this._elementsPerVertex += 4;
+			}
 			this._colorOffset = this._uvOffset + 2;
 		}
 		else
@@ -911,7 +931,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
-					this._numQuads += this._layers[i].writeDataBytesMemory(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor);
+					this._numQuads += this._layers[i].writeDataBytesMemory(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 				}
 			}
 			else
@@ -921,7 +941,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
-					this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor);
+					this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 				}
 			#if flash
 			}
@@ -935,7 +955,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			for (i in 0...this._numLayers)
 			{
 				if (!this._layers[i].visible) continue;
-				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor);
+				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 			}
 			
 			this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
@@ -946,7 +966,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
-					this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor);
+					this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 				}
 				
 				this._vertexBuffer.uploadFromTypedArray(this._float32Data);
@@ -957,7 +977,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
-					this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor);
+					this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 				}
 				
 				this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
@@ -974,7 +994,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		if (this._useColor)
 		{
-			context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
+			if (this._simpleColorMode)
+			{
+				context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.BYTES_4);
+			}
+			else
+			{
+				context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
+			}
 			contextBufferIndex++;
 			
 			if (this._useByteArray)
@@ -1014,14 +1041,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._byteData.length = 0;
 			for (i in 0...this._numLayers)
 			{
-				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor);
+				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 			}
 		}
 		else
 		{
 			for (i in 0...this._numLayers)
 			{
-				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor);
+				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 			}
 		}
 	}
