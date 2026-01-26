@@ -1,5 +1,6 @@
 package massive.display;
 
+import lime.utils.UInt16Array;
 import massive.data.MassiveConstants;
 import massive.util.MathUtils;
 import massive.util.ReverseIterator;
@@ -49,6 +50,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	static public var defaultJuggler:Juggler;
 	
+	#if flash
+	static private var _byteIndices:ByteArray;
+	#else
+	static private var _uint16Indices:UInt16Array;
+	#end
 	static private var _helperMatrix:Matrix = new Matrix();
 	static private var _helperPoint:Point = new Point();
 	
@@ -392,8 +398,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	#if !flash
 	private var _float32Data:Float32Array;
 	#end
-	private var _vectorIndices:Vector<UInt>;
-	private var _byteIndices:ByteArray;
 	
 	private var _positionOffset:Int = 0;
 	private var _colorOffset:Int;
@@ -621,53 +625,47 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		this._indexBuffer = context.createIndexBuffer(this._bufferSize * 6);
 		
-		var numVertices:Int = 0;
-		if (this._useByteArray)
+		#if flash
+		if (_byteIndices == null)
 		{
-			if (this._byteIndices == null)
-			{
-				this._byteIndices = new ByteArray();
-				this._byteIndices.endian = Endian.LITTLE_ENDIAN;
-				
-				for (i in 0...MassiveConstants.MAX_QUADS)
-				{
-					this._byteIndices.writeShort(numVertices);
-					this._byteIndices.writeShort(numVertices + 1);
-					this._byteIndices.writeShort(numVertices + 2);
-					
-					this._byteIndices.writeShort(numVertices + 1);
-					this._byteIndices.writeShort(numVertices + 2);
-					this._byteIndices.writeShort(numVertices + 3);
-					
-					numVertices += MassiveConstants.VERTICES_PER_QUAD;
-				}
-			}
+			var numVertices:Int = 0;
+			_byteIndices = new ByteArray();
+			_byteIndices.endian = Endian.LITTLE_ENDIAN;
 			
-			this._indexBuffer.uploadFromByteArray(this._byteIndices, 0, 0, this._bufferSize * 6);
+			for (i in 0...MassiveConstants.MAX_QUADS)
+			{
+				_byteIndices.writeShort(numVertices);
+				_byteIndices.writeShort(numVertices + 1);
+				_byteIndices.writeShort(numVertices + 2);
+				_byteIndices.writeShort(numVertices + 1);
+				_byteIndices.writeShort(numVertices + 2);
+				_byteIndices.writeShort(numVertices + 3);
+				
+				numVertices += MassiveConstants.VERTICES_PER_QUAD;
+			}
 		}
-		else
+		this._indexBuffer.uploadFromByteArray(_byteIndices, 0, 0, this._bufferSize * 6);
+		#else
+		if (_uint16Indices == null)
 		{
-			if (this._vectorIndices == null)
-			{
-				this._vectorIndices = new Vector<UInt>();
-				
-				var position:Int = -1;
-				for (i in 0...MassiveConstants.MAX_QUADS)
-				{
-					this._vectorIndices[++position] = numVertices;
-					this._vectorIndices[++position] = numVertices + 1;
-					this._vectorIndices[++position] = numVertices + 2;
-					
-					this._vectorIndices[++position] = numVertices + 1;
-					this._vectorIndices[++position] = numVertices + 2;
-					this._vectorIndices[++position] = numVertices + 3;
-					
-					numVertices += MassiveConstants.VERTICES_PER_QUAD;
-				}
-			}
+			var numVertices:UInt = 0;
+			_uint16Indices = new UInt16Array(MassiveConstants.MAX_QUADS * MassiveConstants.INDICES_PER_QUAD);
 			
-			this._indexBuffer.uploadFromVector(this._vectorIndices, 0, this._bufferSize * 6);
+			var position:Int = -1;
+			for (i in 0...MassiveConstants.MAX_QUADS)
+			{
+				_uint16Indices[++position] = numVertices;
+				_uint16Indices[++position] = numVertices + 1;
+				_uint16Indices[++position] = numVertices + 2;
+				_uint16Indices[++position] = numVertices + 1;
+				_uint16Indices[++position] = numVertices + 2;
+				_uint16Indices[++position] = numVertices + 3;
+				
+				numVertices += MassiveConstants.VERTICES_PER_QUAD;
+			}
 		}
+		this._indexBuffer.uploadFromTypedArray(_uint16Indices);
+		#end
 		
 		this._buffersCreated = true;
 	}
