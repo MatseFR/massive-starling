@@ -72,7 +72,6 @@ class MassiveHexGridDemo extends Sprite
 	private var hexMode:String;
 	private var numRows:Int = 30;
 	private var numColumns:Int = 30;
-	private var useByteArray:Bool = false;
 	private var wrapAroundQ:Bool = true;
 	private var wrapAroundR:Bool = true;
 	
@@ -540,7 +539,6 @@ class MassiveHexGridDemo extends Sprite
 		scene.hexDefinition = this.definition;
 		scene.atlasTexture = this.atlas.texture;
 		scene.selectionFrames = this.selectionFrames;
-		scene.useByteArray = this.useByteArray;
 		
 		showSceneList([scene]);
 	}

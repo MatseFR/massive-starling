@@ -37,7 +37,6 @@ class CameraScene extends Scene implements IAnimatable
 	public var grid:HexGrid;
 	public var hexDefinition:HexDefinition;
 	public var selectionFrames:#if flash Vector<Frame> #else Array<Frame>#end;
-	public var useByteArray:Bool;
 	public var viewRatio:Float = 0.75;
 	
 	private var _pathFinder:HexPathFinder;
@@ -103,9 +102,7 @@ class CameraScene extends Scene implements IAnimatable
 		addChild(this._touchQuad);
 		this._touchQuad.addEventListener(TouchEvent.TOUCH, onTouch);
 		
-		_display = new MassiveDisplay();
-		this._display.texture = this.atlasTexture;
-		this._display.useByteArray = this.useByteArray;
+		_display = new MassiveDisplay(this.atlasTexture);
 		this._display.textureSmoothing = TextureSmoothing.TRILINEAR;
 		addChild(this._display);
 		
