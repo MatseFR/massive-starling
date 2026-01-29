@@ -9,13 +9,17 @@ import inputAction.controllers.KeyAction;
 import inputAction.events.InputActionEvent;
 import massive.animation.Animator;
 import massive.data.Frame;
+import massive.data.MassiveConstants;
+import massive.display.MassiveColorMode;
 import massive.display.MassiveDisplay;
+import massive.display.MassiveRenderMode;
 import massive.particle.Particle;
 import massive.particle.ParticleSystem;
 import massive.particle.ParticleSystemDefaults;
 import massive.particle.ParticleSystemOptions;
 import openfl.Assets;
 import openfl.Vector;
+import openfl.events.MouseEvent;
 import openfl.ui.Keyboard;
 import starling.assets.AssetManager;
 import starling.core.Starling;
@@ -25,8 +29,10 @@ import starling.textures.Texture;
 import starling.textures.TextureAtlas;
 import starling.utils.Align;
 import valedit.ExposedCollection;
+import valedit.value.ExposedBool;
 import valedit.value.ExposedColor;
 import valedit.value.ExposedFloatDrag;
+import valedit.value.ExposedIntDrag;
 import valedit.value.ExposedSelect;
 import valeditor.ValEditor;
 import valeditor.data.Data;
@@ -190,6 +196,9 @@ class ParticleEditor extends ValEditorSimpleStarling
 		this.editView.addMenu("presets", "Presets", onPresetsMenuCallback, onPresetsMenuOpen, this._presetsMenuCollection);
 		
 		// ? menu
+		
+		// disable default right click menu
+		Starling.current.nativeStage.showDefaultContextMenu = false;
 		
 		// create a collection for background color edit
 		this._backgroundColorCollection = new ExposedCollection();
@@ -395,6 +404,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		// MassiveDisplay collection
 		// we're only interested in a few properties so we create a custom collection
 		var float:ExposedFloatDrag;
+		//var int:ExposedIntDrag;
 		var select:ExposedSelect;
 		
 		this._massiveCollection = new ExposedCollection();
@@ -422,6 +432,19 @@ class ParticleEditor extends ValEditorSimpleStarling
 		
 		float = new ExposedFloatDrag("alpha", null, 0, 1.0, 0.01);
 		this._massiveCollection.addValue(float);
+		
+		//int = new ExposedIntDrag("bufferSize", null, 0, MassiveConstants.MAX_QUADS);
+		//this._massiveCollection.addValue(int);
+		
+		select = new ExposedSelect("renderMode");
+		select.choiceListFunction = MassiveRenderMode.getValues;
+		select.valueListFunction = MassiveRenderMode.getValues;
+		this._massiveCollection.addValue(select);
+		
+		select = new ExposedSelect("colorMode");
+		select.choiceListFunction = MassiveColorMode.getValues;
+		select.valueListFunction = MassiveColorMode.getValues;
+		this._massiveCollection.addValue(select);
 		
 		ValEditor.edit(this._massive, this._massiveCollection, this.editView.getEditContainer("MassiveDisplay"));
 		//\MassiveDisplay collection
