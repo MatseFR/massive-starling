@@ -1,6 +1,5 @@
 package massive.display;
 
-import lime.utils.UInt16Array;
 import massive.data.MassiveConstants;
 import massive.util.MathUtils;
 import massive.util.ReverseIterator;
@@ -9,6 +8,7 @@ import openfl.Vector;
 import openfl.display3D.Context3D;
 import openfl.display3D.Context3DBufferUsage;
 import openfl.display3D.Context3DProgramType;
+import openfl.display3D.Context3DTextureFormat;
 import openfl.display3D.Context3DVertexBufferFormat;
 import openfl.display3D.IndexBuffer3D;
 import openfl.display3D.VertexBuffer3D;
@@ -32,7 +32,10 @@ import starling.textures.TextureSmoothing;
 import starling.utils.MatrixUtil;
 import starling.utils.RenderUtil;
 #if !flash
+import lime.utils.UInt16Array;
 import openfl.utils._internal.Float32Array;
+#else
+import flash.system.ApplicationDomain;
 #end
 
 /**
@@ -46,9 +49,76 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	/**
 	   The default Juggler instance to use for all MassiveDisplay objects when their juggler property is null.
-	   If left null it will default to Starling.currentJuggler
+	   If left null it will default to Starling.currentJuggler.
 	**/
 	static public var defaultJuggler:Juggler;
+	
+	/**
+	   Default colorMode, used when colorMode parameter is null.
+	**/
+	static public var defaultColorMode:String = MassiveColorMode.EXTENDED;
+	
+	/**
+	   Default renderMode, used when renderMode parameter is null.
+	**/
+	static public var defaultRenderMode:String = #if flash MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY #else MassiveRenderMode.FLOAT32ARRAY #end;
+	
+	/**
+	   Default program used when `useColor` is `true` and `texture` is `null`
+	**/
+	static public var programColorNoTexture:Program;
+	/**
+	   Default program used when `useColor` is `true`, `texture`'s `premultipliedAlpha` is `false` and `texture`'s format is `Context3DTextureFormat.COMPRESSED`
+	**/
+	static public var programColorTextureCompressed:Program;
+	/**
+	   Default program used when `useColor` is `true`, `texture`'s `premultipliedAlpha` is `true` and `texture`'s format is `Context3DTextureFormat.COMPRESSED`
+	**/
+	static public var programColorTextureCompressedPMA:Program;
+	/**
+	   Default program used when `useColor` is `true`, `texture`'s `premultipliedAlpha` is `false` and `texture`'s format is `Context3DTextureFormat.COMPRESSED_ALPHA`
+	**/
+	static public var programColorTextureCompressedAlpha:Program;
+	/**
+	   Default program used when `useColor` is `true`, `texture`'s `premultipliedAlpha` is `true` and `texture`'s format is `Context3DTextureFormat.COMPRESSED_ALPHA`
+	**/
+	static public var programColorTextureCompressedAlphaPMA:Program;
+	/**
+	   Default program used when `useColor` is `true`, `texture`'s `premultipliedAlpha` is `false` and `texture`'s format is neither `Context3DTextureFormat.COMPRESSED` or `Context3DTextureFormat.COMPRESSED_ALPHA`
+	**/
+	static public var programColorTextureDefault:Program;
+	/**
+	   Default program used when `useColor` is `true`, `texture`'s `premultipliedAlpha` is `true` and `texture`'s format is neither `Context3DTextureFormat.COMPRESSED` or `Context3DTextureFormat.COMPRESSED_ALPHA`
+	**/
+	static public var programColorTextureDefaultPMA:Program;
+	/**
+	   Default program used when `useColor` is `false` and `texture` is `null`
+	**/
+	static public var programNoColorNoTexture:Program;
+	/**
+	   Default program used when `useColor` is `false`, `texture`'s `premultipliedAlpha` is `false` and `texture`'s format is `Context3DTextureFormat.COMPRESSED`
+	**/
+	static public var programNoColorTextureCompressed:Program;
+	/**
+	   Default program used when `useColor` is `false`, `texture`'s `premultipliedAlpha` is `true` and `texture`'s format is `Context3DTextureFormat.COMPRESSED`
+	**/
+	static public var programNoColorTextureCompressedPMA:Program;
+	/**
+	   Default program used when `useColor` is `false`, `texture`'s `premultipliedAlpha` is `false` and `texture`'s format is `Context3DTextureFormat.COMPRESSED_ALPHA`
+	**/
+	static public var programNoColorTextureCompressedAlpha:Program;
+	/**
+	   Default program used when `useColor` is `false`, `texture`'s `premultipliedAlpha` is `true` and `texture`'s format is `Context3DTextureFormat.COMPRESSED_ALPHA`
+	**/
+	static public var programNoColorTextureCompressedAlphaPMA:Program;
+	/**
+	   Default program used when `useColor` is `false`, `texture`'s `premultipliedAlpha` is `false` and `texture`'s format is neither `Context3DTextureFormat.COMPRESSED` or `Context3DTextureFormat.COMPRESSED_ALPHA`
+	**/
+	static public var programNoColorTextureDefault:Program;
+	/**
+	   Default program used when `useColor` is `false`, `texture`'s `premultipliedAlpha` is `true` and `texture`'s format is neither `Context3DTextureFormat.COMPRESSED` or `Context3DTextureFormat.COMPRESSED_ALPHA`
+	**/
+	static public var programNoColorTextureDefaultPMA:Program;
 	
 	#if flash
 	static private var _byteIndices:ByteArray;
@@ -74,6 +144,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @default 16383
 	**/
 	public var bufferSize(get, set):Int;
+	/**
+	   Tells how to handle color, see massive.display.MassiveColorMode for possible values and details about them.
+	**/
+	public var colorMode(get, set):String;
 	/**
 	   Amount of blue tinting applied to the whole MassiveDisplay instance, from -1 to 10.
 	   This has no effect when useColor is turned off.
@@ -127,6 +201,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var program(get, set):Program;
 	/**
+	   Tells how to render, see massive.display.MassiveRenderMode for possible values and details about them.
+	**/
+	public var renderMode(get, set):String;
+	/**
 	   Offsets all layers by the specified amount on x axis when rendering
 	   @default 0
 	**/
@@ -136,10 +214,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @default 0
 	**/
 	public var renderOffsetY:Float = 0;
-	/**
-	   
-	**/
-	public var simpleColorMode(get, set):Bool;
 	/**
 	   The texture used by this MassiveDisplay instance, typically from a TextureAtlas.
 	**/
@@ -154,28 +228,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @default TextureSmoothing.BILINEAR
 	**/
 	public var textureSmoothing(get, set):String;
-	/**
-	   Tells the MassiveDisplay instance to use a ByteArray to store and upload vertex data. This seems to result in faster upload on flash/air target, but at a higher cpu cost.
-	**/
-	public var useByteArray(get, set):Bool;
-	#if flash
-	/**
-	   (flash/air target only) If useByteArray is set to true, this makes the MassiveDisplay instance to write vertex data using domain memory, which is a lot faster than calling ByteArray functions.
-	   This seems to be the best setting for flash/air target.
-	**/
-	public var useByteArrayDomainMemory:Bool = true;
-	#end
-	/**
-	   Tells whether to have color data for tinting/colorizing, this results in bigger vertex data and more complex shader so disabling it is a good idea if you don't need it
-	   @default true
-	**/
-	public var useColor(get, set):Bool;
-	#if !flash
-	/**
-	   Tells the MassiveDisplay instance to use a Float32Array to store and upload vertex data, this offers the best performance on non-flash targets
-	**/
-	public var useFloat32Array(get, set):Bool;
-	#end
 	
 	private var _autoHandleJuggler:Bool = true;
 	private function get_autoHandleJuggler():Bool { return this._autoHandleJuggler; }
@@ -195,10 +247,49 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		if (this._buffersCreated)
 		{
-			// TODO : better buffer resizing ?
-			createBuffers(this._numBuffers, value);
+			updateBuffers();
 		}
+		#if !flash
+		if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
+		#end
 		return this._bufferSize = value;
+	}
+	
+	private var _colorMode:String;
+	private function get_colorMode():String { return this._colorMode; }
+	private function set_colorMode(value:String):String
+	{
+		if (this._colorMode == value) return value;
+		
+		switch (value)
+		{
+			case MassiveColorMode.EXTENDED :
+				this._useColor = true;
+				this._simpleColorMode = false;
+			
+			case MassiveColorMode.REGULAR :
+				this._useColor = true;
+				this._simpleColorMode = true;
+			
+			case MassiveColorMode.NONE :
+				this._useColor = false;
+				this._simpleColorMode = false;
+		}
+		
+		updateElements();
+		if (this._buffersCreated)
+		{
+			updateBuffers();
+		}
+		if (this._program != null)
+		{
+			updateProgram();
+		}
+		#if !flash
+		if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
+		#end
+		
+		return this._colorMode = value;
 	}
 	
 	private var _colorBlue:Float = 1;
@@ -207,18 +298,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		if (!this.pma)
 		{
-			if (this._useByteArray)
-			{
-				if (this._byteColor != null)
-				{
-					this._byteColor.position = 8;
-					this._byteColor.writeFloat(value);
-				}
-			}
-			else if (this._vectorColor != null)
-			{
-				this._vectorColor[2] = value;
-			}
+			#if flash
+			this._byteColor.position = 8;
+			this._byteColor.writeFloat(value);
+			#else
+			this._vectorColor[2] = value;
+			#end
 		}
 		return this._colorBlue = value;
 	}
@@ -229,18 +314,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		if (!this.pma)
 		{
-			if (this._useByteArray)
-			{
-				if (this._byteColor != null)
-				{
-					this._byteColor.position = 4;
-					this._byteColor.writeFloat(value);
-				}
-			}
-			else if (this._vectorColor != null)
-			{
-				this._vectorColor[1] = value;
-			}
+			#if flash
+			this._byteColor.position = 4;
+			this._byteColor.writeFloat(value);
+			#else
+			this._vectorColor[1] = value;
+			#end
 		}
 		return this._colorGreen = value;
 	}
@@ -251,18 +330,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		if (!this.pma)
 		{
-			if (this._useByteArray)
-			{
-				if (this._byteColor != null)
-				{
-					this._byteColor.position = 0;
-					this._byteColor.writeFloat(value);
-				}
-			}
-			else if (this._vectorColor != null)
-			{
-				this._vectorColor[0] = value;
-			}
+			#if flash
+			this._byteColor.position = 0;
+			this._byteColor.writeFloat(value);
+			#else
+			this._vectorColor[0] = value;
+			#end
 		}
 		return this._colorRed = value;
 	}
@@ -287,8 +360,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._numBuffers == value) return value;
 		if (this._buffersCreated)
 		{
-			// TODO : better buffer creation/destruction
-			createBuffers(value, this._bufferSize);
+			updateBuffers();
 		}
 		return this._numBuffers = value;
 	}
@@ -302,30 +374,95 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private function get_program():Program { return this._program; }
 	private function set_program(value:Program):Program
 	{
-		if (value == null && this._program != null)
-		{
-			this._program.dispose();
-		}
+		this._isUserProgram = value != null;
 		return this._program = value;
 	}
 	
-	private var _simpleColorMode:Bool = false;
-	private function get_simpleColorMode():Bool { return this._simpleColorMode; }
-	private function set_simpleColorMode(value:Bool):Bool
+	private var _renderMode:String;
+	private function get_renderMode():String { return this._renderMode; }
+	private function set_renderMode(value:String):String
 	{
-		this._simpleColorMode = value;
-		updateElements();
-		return this._simpleColorMode = value;
+		if (this._renderMode == value) return value;
+		
+		switch (value)
+		{
+			case MassiveRenderMode.BYTEARRAY :
+				this._useByteArray = true;
+				#if flash
+				this._useByteArrayDomainMemory = false;
+				#end
+				if (this._byteData == null)
+				{
+					this._byteData = new ByteArray();
+					this._byteData.endian = Endian.LITTLE_ENDIAN;
+				}
+				#if !flash
+				this._useFloat32Array = false;
+				this._float32Data = null;
+				#end
+				this._vectorData = null;
+			
+			#if flash
+			case MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY :
+				this._useByteArray = true;
+				this._useByteArrayDomainMemory = true;
+				if (this._byteData == null)
+				{
+					this._byteData = new ByteArray();
+					this._byteData.endian = Endian.LITTLE_ENDIAN;
+				}
+				this._vectorData = null;
+			#end
+			
+			#if !flash
+			case MassiveRenderMode.FLOAT32ARRAY :
+				this._useFloat32Array = true;
+				this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
+				this._useByteArray = false;
+				this._byteData = null;
+				this._vectorData = null;
+			#end
+			
+			case MassiveRenderMode.VECTOR :
+				this._vectorData = new Vector<Float>();
+				this._useByteArray = false;
+				#if flash
+				this._useByteArrayDomainMemory = false;
+				#end
+				this._byteData = null;
+				#if !flash
+				this._useFloat32Array = false;
+				this._float32Data = null;
+				#end
+		}
+		
+		return this._renderMode = value;
 	}
 	
 	private var _texture:Texture;
 	private function get_texture():Texture { return this._texture; }
 	private function set_texture(value:Texture):Texture
 	{
+		if (this._texture == value) return value;
+		var textureWasNull:Bool = this._texture == null;
 		this._texture = value;
 		this.pma = this._texture != null ? this._texture.premultipliedAlpha : true;
 		updateColor();
-		updateElements();
+		if (textureWasNull || this._texture == null)
+		{
+			updateElements();
+			if (this._buffersCreated)
+			{
+				updateBuffers();
+			}
+			#if !flash
+			if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
+			#end
+		}
+		if (this._program != null)
+		{
+			updateProgram();
+		}
 		return this._texture;
 	}
 	
@@ -352,29 +489,31 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return super.set_touchable(value);
 	}
 	
-	private var _useByteArray:Bool = #if flash true #else false#end;
-	private function get_useByteArray():Bool { return this._useByteArray; }
-	private function set_useByteArray(value:Bool):Bool
-	{
-		return this._useByteArray = value;
-	}
 	
+	private var _simpleColorMode:Bool = false;
+	/**
+	   Tells whether to have color data for tinting/colorizing, this results in bigger vertex data and more complex shader so disabling it is a good idea if you don't need it
+	**/
 	private var _useColor:Bool = true;
-	private function get_useColor():Bool { return this._useColor; }
-	private function set_useColor(value:Bool):Bool
-	{
-		this._useColor = value;
-		updateElements();
-		return this._useColor;
-	}
+	
+	/**
+	   Tells the MassiveDisplay instance to use a ByteArray to store and upload vertex data. This seems to result in faster upload on flash/air target, but at a higher cpu cost.
+	**/
+	private var _useByteArray:Bool;
 	
 	#if !flash
-	private var _useFloat32Array:Bool = true;
-	private function get_useFloat32Array():Bool { return this._useFloat32Array; }
-	private function set_useFloat32Array(value:Bool):Bool
-	{
-		return this._useFloat32Array = value;
-	}
+	/**
+	   Tells the MassiveDisplay instance to use a Float32Array to store and upload vertex data, this offers the best performance on non-flash targets
+	**/
+	private var _useFloat32Array:Bool;
+	#end
+	
+	#if flash
+	/**
+	   (flash/air target only) If useByteArray is set to true, this makes the MassiveDisplay instance to write vertex data using domain memory, which is a lot faster than calling ByteArray functions.
+	   This seems to be the best setting for flash/air target.
+	**/
+	private var _useByteArrayDomainMemory:Bool;
 	#end
 	
 	#if flash
@@ -391,13 +530,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _vertexBufferIndex:Int = -1;
 	private var _vertexBuffers:Array<VertexBuffer3D>;
 	
-	private var _vectorColor:Vector<Float>;
+	#if flash
 	private var _byteColor:ByteArray;
+	#else
+	private var _vectorColor:Vector<Float>;
+	#end
 	private var _vectorData:Vector<Float>;
 	private var _byteData:ByteArray;
 	#if !flash
 	private var _float32Data:Float32Array;
 	#end
+	
+	private var _isUserProgram:Bool;
 	
 	private var _positionOffset:Int = 0;
 	private var _colorOffset:Int;
@@ -408,14 +552,50 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	#end
 	
 	/**
-	 * Constructor
-	 */
-	public function new() 
+	   
+	   @param	texture
+	   @param	renderMode
+	   @param	colorMode
+	   @param	bufferSize
+	**/
+	public function new(texture:Texture = null, renderMode:String = null, colorMode:String = null, bufferSize:Int = MassiveConstants.MAX_QUADS, numBuffers:Int = 1) 
 	{
 		super();
+		
+		this.texture = texture;
+		this.bufferSize = bufferSize;
+		this.numBuffers = numBuffers;
+		
+		if (colorMode == null) colorMode = defaultColorMode;
+		if (colorMode == null) colorMode = MassiveColorMode.EXTENDED;
+		this.colorMode = colorMode;
+		
+		if (renderMode == null) renderMode = defaultRenderMode;
+		if (renderMode == null)
+		{
+			#if flash
+			renderMode = MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY;
+			#else
+			renderMode = MassiveRenderMode.FLOAT32ARRAY;
+			#end
+		}
+		this.renderMode = renderMode;
+		
 		this.blendMode = BlendMode.NORMAL;
 		this.touchable = false;
 		this.addEventListener(Event.ADDED_TO_STAGE, addedToStage);
+		
+		#if flash
+		this._byteColor = new ByteArray(16);
+		this._byteColor.endian = Endian.LITTLE_ENDIAN;
+		this._byteColor.writeFloat(this._colorRed);
+		this._byteColor.writeFloat(this._colorGreen);
+		this._byteColor.writeFloat(this._colorBlue);
+		this._byteColor.writeFloat(this.__alpha);
+		#else
+		this._vectorColor = new Vector<Float>(4, true, [this._colorRed, this._colorGreen, this._colorBlue, this.__alpha]);
+		#end
+		
 		updateElements();
 		
 		if (defaultJuggler == null) defaultJuggler = Starling.currentJuggler;
@@ -446,78 +626,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		Starling.current.addEventListener(Event.CONTEXT3D_CREATE, contextCreated);
 		
-		if (this._useByteArray)
-		{
-			if (this._byteColor == null)
-			{
-				this._byteColor = new ByteArray(16);
-				this._byteColor.endian = Endian.LITTLE_ENDIAN;
-				if (this.pma)
-				{
-					this._byteColor.writeFloat(this._colorRed * this.__alpha);
-					this._byteColor.writeFloat(this._colorGreen * this.__alpha);
-					this._byteColor.writeFloat(this._colorBlue * this.__alpha);
-				}
-				else
-				{
-					this._byteColor.writeFloat(this._colorRed);
-					this._byteColor.writeFloat(this._colorGreen);
-					this._byteColor.writeFloat(this._colorBlue);
-				}
-				this._byteColor.writeFloat(this.__alpha);
-			}
-			
-			if (this._byteData == null)
-			{
-				this._byteData = new ByteArray();
-				this._byteData.endian = Endian.LITTLE_ENDIAN;
-			}
-		}
-		else
-		{
-			if (this._vectorColor == null)
-			{
-				this._vectorColor = new Vector<Float>();
-				if (this.pma)
-				{
-					this._vectorColor[0] = this._colorRed * this.__alpha;
-					this._vectorColor[1] = this._colorGreen * this.__alpha;
-					this._vectorColor[2] = this._colorBlue * this.__alpha;
-				}
-				else
-				{
-					this._vectorColor[0] = this._colorRed;
-					this._vectorColor[1] = this._colorGreen;
-					this._vectorColor[2] = this._colorBlue;
-				}
-				this._vectorColor[3] = this.__alpha;
-			}
-			
-			#if flash
-			if (this._vectorData == null)
-			{
-				this._vectorData = new Vector<Float>();
-			}
-			#else
-			if (this._useFloat32Array)
-			{
-				if (this._float32Data == null)
-				{
-					this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
-				}
-			}
-			else
-			{
-				if (this._vectorData == null)
-				{
-					this._vectorData = new Vector<Float>();
-				}
-			}
-			#end
-		}
-		
-		if (!this._buffersCreated) createBuffers(this._numBuffers, this._bufferSize);
-		if (this._program == null) createProgram();
+		if (!this._buffersCreated) updateBuffers();
+		if (this._program == null) updateProgram();
 		if (this._autoHandleJuggler) this._juggler.add(this);
 	}
 	
@@ -541,58 +651,214 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 */
 	private function contextCreated(evt:Event):Void
 	{
-		createBuffers(this._numBuffers, this._bufferSize);
+		updateBuffers();
 	}
 	
-	
-	private function createProgram():Program
+	/**
+	   
+	**/
+	private function updateProgram():Void
 	{
-		var vertexShader:String, fragmentShader:String;
+		if (this._isUserProgram) return;
+		
 		if (this._texture != null)
 		{
-			vertexShader = 
-			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
-			"mov v0, va1      \n" ; // pass texture coordinates to fragment program
-			if (this._useColor) 
-			{
-				vertexShader += "mul v1, va2, vc4 \n";  // multiply alpha (vc4) with color (va2), pass to fp
-			}
-			
 			if (this._useColor)
 			{
-				fragmentShader = RenderUtil.createAGALTexOperation("ft0", "v0", 0, this._texture) ; // read texel color
-				fragmentShader += "mul oc, ft0, v1  \n";  // multiply color with texel color
+				if (this._texture.format == Context3DTextureFormat.COMPRESSED)
+				{
+					if (this._texture.premultipliedAlpha)
+					{
+						if (programColorTextureCompressedPMA == null)
+						{
+							programColorTextureCompressedPMA = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programColorTextureCompressedPMA;
+					}
+					else
+					{
+						if (programColorTextureCompressed == null)
+						{
+							programColorTextureCompressed = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programColorTextureCompressed;
+					}
+				}
+				else if (this._texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
+				{
+					if (this._texture.premultipliedAlpha)
+					{
+						if (programColorTextureCompressedAlphaPMA == null)
+						{
+							programColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programColorTextureCompressedAlphaPMA;
+					}
+					else
+					{
+						if (programColorTextureCompressedAlpha == null)
+						{
+							programColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programColorTextureCompressedAlpha;
+					}
+				}
+				else
+				{
+					if (this._texture.premultipliedAlpha)
+					{
+						if (programColorTextureDefaultPMA == null)
+						{
+							programColorTextureDefaultPMA = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programColorTextureDefaultPMA;
+					}
+					else
+					{
+						if (programColorTextureDefault == null)
+						{
+							programColorTextureDefault = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programColorTextureDefault;
+					}
+				}
 			}
 			else
 			{
-				fragmentShader = RenderUtil.createAGALTexOperation("oc", "v0", 0, this._texture); // output color is texel color
+				if (this._texture.format == Context3DTextureFormat.COMPRESSED)
+				{
+					if (this._texture.premultipliedAlpha)
+					{
+						if (programNoColorTextureCompressedPMA == null)
+						{
+							programNoColorTextureCompressedPMA = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programNoColorTextureCompressedPMA;
+					}
+					else
+					{
+						if (programNoColorTextureCompressed == null)
+						{
+							programNoColorTextureCompressed = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programNoColorTextureCompressed;
+					}
+				}
+				else if (this._texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
+				{
+					if (this._texture.premultipliedAlpha)
+					{
+						if (programNoColorTextureCompressedAlphaPMA == null)
+						{
+							programNoColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programNoColorTextureCompressedAlphaPMA;
+					}
+					else
+					{
+						if (programNoColorTextureCompressedAlpha == null)
+						{
+							programNoColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programNoColorTextureCompressedAlpha;
+					}
+				}
+				else
+				{
+					if (this._texture.premultipliedAlpha)
+					{
+						if (programNoColorTextureDefaultPMA == null)
+						{
+							programNoColorTextureDefaultPMA = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programNoColorTextureDefaultPMA;
+					}
+					else
+					{
+						if (programNoColorTextureDefault == null)
+						{
+							programNoColorTextureDefault = createProgramWithTexture(this._useColor, this._texture);
+						}
+						this._program = programNoColorTextureDefault;
+					}
+				}
 			}
 		}
 		else
 		{
-			vertexShader = "m44 op, va0, vc0 \n" ; // 4x4 matrix transform to output clip-space
 			if (this._useColor)
 			{
-				vertexShader += "mul v0, va1, vc4 \n";  // multiply alpha (vc4) with color (va1)
+				if (programColorNoTexture == null)
+				{
+					programColorNoTexture = createProgramWithoutTexture(this._useColor);
+				}
+				this._program = programColorNoTexture;
 			}
 			else
 			{
-				vertexShader += "sge v0, va0, va0" ; // this is a hack that always produces "1"
+				if (programNoColorNoTexture == null)
+				{
+					programNoColorNoTexture = createProgramWithoutTexture(this._useColor);
+				}
+				this._program = programNoColorNoTexture;
 			}
-			fragmentShader =
-				"mov oc, v0";       // output color
+		}
+	}
+	
+	private function createProgramWithTexture(useColor:Bool, texture:Texture):Program
+	{
+		var vertexShader:String;
+		var fragmentShader:String;
+		
+		if (useColor)
+		{
+			vertexShader = 
+			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
+			"mov v0, va1      \n" + // pass texture coordinates to fragment program
+			"mul v1, va2, vc4 \n";  // multiply alpha (vc4) with color (va2), pass to fp
+			fragmentShader = RenderUtil.createAGALTexOperation("ft0", "v0", 0, texture) ; // read texel color
+			fragmentShader += "mul oc, ft0, v1  \n";  // multiply color with texel color
+		}
+		else
+		{
+			vertexShader = 
+			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
+			"mov v0, va1      \n" ; // pass texture coordinates to fragment program
+			fragmentShader = RenderUtil.createAGALTexOperation("oc", "v0", 0, texture); // output color is texel color
 		}
 		
-		this._program = Program.fromSource(vertexShader, fragmentShader);
-		return this._program;
+		return Program.fromSource(vertexShader, fragmentShader);
+	}
+	
+	private function createProgramWithoutTexture(useColor:Bool):Program
+	{
+		var vertexShader:String;
+		var fragmentShader:String;
+		
+		if (useColor)
+		{
+			vertexShader = 
+			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
+			"mul v0, va1, vc4 \n";  // multiply alpha (vc4) with color (va1)
+			fragmentShader =
+			"mov oc, v0";       // output color
+		}
+		else
+		{
+			vertexShader = 
+			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
+			"sge v0, va0, va0" ; // this is a hack that always produces "1"
+			fragmentShader =
+			"mov oc, v0";       // output color
+		}
+		
+		return Program.fromSource(vertexShader, fragmentShader);
 	}
 	
 	/**
-	 * 
-	 * @param	numBuffers
-	 * @param	bufferSize
-	 */
-	public function createBuffers(numBuffers:Int = 2, bufferSize:Int = MassiveConstants.MAX_QUADS):Void
+	   
+	**/
+	private function updateBuffers():Void
 	{
 		disposeBuffers();
 		
@@ -607,8 +873,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._vertexBuffers = new Array<VertexBuffer3D>();
 		}
 		
-		this._bufferSize = bufferSize;
-		this._numBuffers = numBuffers;
 		this._vertexBufferIndex = -1;
 		
 		#if flash
@@ -664,7 +928,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				numVertices += MassiveConstants.VERTICES_PER_QUAD;
 			}
 		}
-		this._indexBuffer.uploadFromTypedArray(_uint16Indices);
+		this._indexBuffer.uploadFromTypedArray(_uint16Indices, this._bufferSize * 6);
 		#end
 		
 		this._buffersCreated = true;
@@ -673,7 +937,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	/**
 	 * 
 	 */
-	public function disposeBuffers():Void
+	private function disposeBuffers():Void
 	{
 		if (this._indexBuffer != null)
 		{
@@ -691,6 +955,31 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		
 		this._buffersCreated = false;
+	}
+	
+	private function updateColor():Void
+	{
+		if (this.pma) return;
+		
+		#if flash
+		//if (this._byteColor == null)
+		//{
+			//this._byteColor = new ByteArray();
+			//this._byteColor.endian = Endian.LITTLE_ENDIAN;
+		//}
+		this._byteColor.position = 0;
+		this._byteColor.writeFloat(this._colorRed);
+		this._byteColor.writeFloat(this._colorGreen);
+		this._byteColor.writeFloat(this._colorBlue);
+		#else
+		//if (this._vectorColor == null)
+		//{
+			//this._vectorColor = new Vector<Float>();
+		//}
+		this._vectorColor[0] = this._colorRed;
+		this._vectorColor[1] = this._colorGreen;
+		this._vectorColor[2] = this._colorBlue;
+		#end
 	}
 	
 	/**
@@ -882,32 +1171,29 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		painter.prepareToDraw();
 		
 		var alpha:Float = painter.state.alpha * this.__alpha;
-		if (this._useByteArray)
+		#if flash
+		if (this.pma)
 		{
-			if (this.pma)
-			{
-				this._byteColor.position = 0;
-				this._byteColor.writeFloat(this._colorRed * alpha);
-				this._byteColor.writeFloat(this._colorGreen * alpha);
-				this._byteColor.writeFloat(this._colorBlue * alpha);
-				this._byteColor.writeFloat(alpha);
-			}
-			else
-			{
-				this._byteColor.position = 12;
-				this._byteColor.writeFloat(alpha);
-			}
+			this._byteColor.position = 0;
+			this._byteColor.writeFloat(this._colorRed * alpha);
+			this._byteColor.writeFloat(this._colorGreen * alpha);
+			this._byteColor.writeFloat(this._colorBlue * alpha);
+			this._byteColor.writeFloat(alpha);
 		}
 		else
 		{
-			if (this.pma)
-			{
-				this._vectorColor[0] = this._colorRed * alpha;
-				this._vectorColor[1] = this._colorGreen * alpha;
-				this._vectorColor[2] = this._colorBlue * alpha;
-			}
-			this._vectorColor[3] = alpha;
+			this._byteColor.position = 12;
+			this._byteColor.writeFloat(alpha);
 		}
+		#else
+		if (this.pma)
+		{
+			this._vectorColor[0] = this._colorRed * alpha;
+			this._vectorColor[1] = this._colorGreen * alpha;
+			this._vectorColor[2] = this._colorBlue * alpha;
+		}
+		this._vectorColor[3] = alpha;
+		#end
 		
 		this._program.activate(context);
 		if (this._texture != null)
@@ -922,8 +1208,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._useByteArray)
 		{
 			#if flash
-			if (this.useByteArrayDomainMemory)
+			if (this._useByteArrayDomainMemory)
 			{
+				var prevByteArray:ByteArray = ApplicationDomain.currentDomain.domainMemory;
 				this._byteData.length = 1024;
 				Memory.select(this._byteData);
 				for (i in 0...this._numLayers)
@@ -931,6 +1218,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 					if (!this._layers[i].visible) continue;
 					this._numQuads += this._layers[i].writeDataBytesMemory(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 				}
+				Memory.select(prevByteArray);
 			}
 			else
 			{
@@ -947,9 +1235,20 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			
 			this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
 		}
+		#if !flash
+		else if (this._useFloat32Array)
+		{
+			for (i in 0...this._numLayers)
+			{
+				if (!this._layers[i].visible) continue;
+				this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+			}
+			
+			this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._numQuads * MassiveConstants.VERTICES_PER_QUAD * 4); // uploadFromTypedArray's byteLength param is currently not used
+		}
+		#end
 		else
 		{
-			#if flash
 			for (i in 0...this._numLayers)
 			{
 				if (!this._layers[i].visible) continue;
@@ -957,30 +1256,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			}
 			
 			this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
-			#else
-			if (this._useFloat32Array)
-			{
-				//trace("Float32Array");
-				for (i in 0...this._numLayers)
-				{
-					if (!this._layers[i].visible) continue;
-					this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-				}
-				
-				this._vertexBuffer.uploadFromTypedArray(this._float32Data);
-			}
-			else
-			{
-				//trace("Vector");
-				for (i in 0...this._numLayers)
-				{
-					if (!this._layers[i].visible) continue;
-					this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-				}
-				
-				this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
-			}
-			#end
 		}
 		context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
 		contextBufferIndex++;
@@ -1002,14 +1277,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			}
 			contextBufferIndex++;
 			
-			if (this._useByteArray)
-			{
-				context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorOffset, 1, this._byteColor, 0);
-			}
-			else
-			{
-				context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorOffset, this._vectorColor, 1);
-			}
+			#if flash
+			context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorOffset, 1, this._byteColor, 0);
+			#else
+			context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorOffset, this._vectorColor, 1);
+			#end
 		}
 		
 		context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
@@ -1024,59 +1296,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._texture != null)
 		{
 			context.setTextureAt(0, null);
-		}
-	}
-	
-	/**
-	 * call this before calling updateExactBounds if needed. This does *NOT* render anything
-	 */
-	public function renderData():Void
-	{
-		this._numQuads = 0;
-		this._numLayers = this._layers.length;
-		if (this.useByteArray)
-		{
-			this._byteData.length = 0;
-			for (i in 0...this._numLayers)
-			{
-				this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-			}
-		}
-		else
-		{
-			for (i in 0...this._numLayers)
-			{
-				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-			}
-		}
-	}
-	
-	private function updateColor():Void
-	{
-		if (this.pma) return;
-		
-		if (this._useByteArray)
-		{
-			if (this._byteData == null)
-			{
-				this._byteData = new ByteArray();
-				this._byteData.endian = Endian.LITTLE_ENDIAN;
-			}
-			this._byteColor.position = 0;
-			this._byteColor.writeFloat(this._colorRed);
-			this._byteColor.writeFloat(this._colorGreen);
-			this._byteColor.writeFloat(this._colorBlue);
-		}
-		else
-		{
-			if (this._vectorColor == null)
-			{
-				this._vectorColor = new Vector<Float>();
-			}
-			
-			this._vectorColor[0] = this._colorRed;
-			this._vectorColor[1] = this._colorGreen;
-			this._vectorColor[2] = this._colorBlue;
 		}
 	}
 	
@@ -1139,6 +1358,61 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	}
 	
 	/**
+	 * call this before calling updateExactBounds if needed. This does *NOT* render anything
+	 */
+	public function renderData():Void
+	{
+		this._numQuads = 0;
+		this._numLayers = this._layers.length;
+		if (this._useByteArray)
+		{
+			#if flash
+			if (this._useByteArrayDomainMemory)
+			{
+				var prevByteArray:ByteArray = ApplicationDomain.currentDomain.domainMemory;
+				this._byteData.length = 1024;
+				Memory.select(this._byteData);
+				for (i in 0...this._numLayers)
+				{
+					if (!this._layers[i].visible) continue;
+					this._numQuads += this._layers[i].writeDataBytesMemory(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+				}
+				Memory.select(prevByteArray);
+			}
+			else
+			{
+			#end
+				this._byteData.length = 0;
+				for (i in 0...this._numLayers)
+				{
+					if (!this._layers[i].visible) continue;
+					this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+				}
+			#if flash
+			}
+			#end
+		}
+		#if !flash
+		else if (this._useFloat32Array)
+		{
+			for (i in 0...this._numLayers)
+			{
+				if (!this._layers[i].visible) continue;
+				this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+			}
+		}
+		#end
+		else
+		{
+			for (i in 0...this._numLayers)
+			{
+				if (!this._layers[i].visible) continue;
+				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+			}
+		}
+	}
+	
+	/**
 	   Calculates exact bounds for this MassiveDisplay instance and stores it in boundsRect
 	   Caution : this can be really expensive !
 	**/
@@ -1168,44 +1442,139 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		if (this._useByteArray)
 		{
+			#if flash
+			if (this._useByteArrayDomainMemory)
+			{
+				var prevByteArray:ByteArray = ApplicationDomain.currentDomain.domainMemory;
+				Memory.select(this._byteData);
+				for (i in 0...this._numQuads)
+				{
+					quadPos = i * this._elementsPerQuad << 2;
+					
+					pos = quadPos;
+					tX = Memory.getFloat(pos);
+					tY = Memory.getFloat(pos + 4);
+					
+					if (minX > tX) minX = tX;
+					if (maxX < tX) maxX = tX;
+					if (minY > tY) minY = tY;
+					if (maxY < tY) maxY = tY;
+					
+					pos += this._elementsPerVertex << 2;
+					tX = Memory.getFloat(pos);
+					tY = Memory.getFloat(pos + 4);
+					
+					if (minX > tX) minX = tX;
+					if (maxX < tX) maxX = tX;
+					if (minY > tY) minY = tY;
+					if (maxY < tY) maxY = tY;
+					
+					pos += this._elementsPerVertex << 2;
+					tX = Memory.getFloat(pos);
+					tY = Memory.getFloat(pos + 4);
+					
+					if (minX > tX) minX = tX;
+					if (maxX < tX) maxX = tX;
+					if (minY > tY) minY = tY;
+					if (maxY < tY) maxY = tY;
+					
+					pos += this._elementsPerVertex << 2;
+					tX = Memory.getFloat(pos);
+					tY = Memory.getFloat(pos + 4);
+					
+					if (minX > tX) minX = tX;
+					if (maxX < tX) maxX = tX;
+					if (minY > tY) minY = tY;
+					if (maxY < tY) maxY = tY;
+				}
+				Memory.select(prevByteArray);
+			}
+			else
+			{
+			#end
+				for (i in 0...this._numQuads)
+				{
+					quadPos = i * this._elementsPerQuad << 2;
+					
+					pos = quadPos;
+					this._byteData.position = pos;
+					tX = this._byteData.readFloat();
+					tY = this._byteData.readFloat();
+					
+					if (minX > tX) minX = tX;
+					if (maxX < tX) maxX = tX;
+					if (minY > tY) minY = tY;
+					if (maxY < tY) maxY = tY;
+					
+					pos += this._elementsPerVertex << 2;
+					this._byteData.position = pos;
+					tX = this._byteData.readFloat();
+					tY = this._byteData.readFloat();
+					
+					if (minX > tX) minX = tX;
+					if (maxX < tX) maxX = tX;
+					if (minY > tY) minY = tY;
+					if (maxY < tY) maxY = tY;
+					
+					pos += this._elementsPerVertex << 2;
+					this._byteData.position = pos;
+					tX = this._byteData.readFloat();
+					tY = this._byteData.readFloat();
+					
+					if (minX > tX) minX = tX;
+					if (maxX < tX) maxX = tX;
+					if (minY > tY) minY = tY;
+					if (maxY < tY) maxY = tY;
+					
+					pos += this._elementsPerVertex << 2;
+					this._byteData.position = pos;
+					tX = this._byteData.readFloat();
+					tY = this._byteData.readFloat();
+					
+					if (minX > tX) minX = tX;
+					if (maxX < tX) maxX = tX;
+					if (minY > tY) minY = tY;
+					if (maxY < tY) maxY = tY;
+				}
+			#if flash
+			}
+			#end
+		}
+		#if !flash
+		else if (this._useFloat32Array)
+		{
 			for (i in 0...this._numQuads)
 			{
-				quadPos = i * this._elementsPerQuad << 2;
+				quadPos = i * this._elementsPerQuad;
 				
 				pos = quadPos;
-				this._byteData.position = pos;
-				tX = this._byteData.readFloat();
-				tY = this._byteData.readFloat();
+				tX = this._float32Data[pos];
+				tY = this._float32Data[pos + 1];
 				
 				if (minX > tX) minX = tX;
 				if (maxX < tX) maxX = tX;
 				if (minY > tY) minY = tY;
 				if (maxY < tY) maxY = tY;
 				
-				pos += this._elementsPerVertex << 2;
-				this._byteData.position = pos;
-				tX = this._byteData.readFloat();
-				tY = this._byteData.readFloat();
+				pos += this._elementsPerVertex;
+				tX = this._float32Data[pos];
+				tY = this._float32Data[pos + 1];
 				
 				if (minX > tX) minX = tX;
 				if (maxX < tX) maxX = tX;
 				if (minY > tY) minY = tY;
 				if (maxY < tY) maxY = tY;
 				
-				pos += this._elementsPerVertex << 2;
-				this._byteData.position = pos;
-				tX = this._byteData.readFloat();
-				tY = this._byteData.readFloat();
+				tX = this._float32Data[pos];
+				tY = this._float32Data[pos + 1];
 				
 				if (minX > tX) minX = tX;
 				if (maxX < tX) maxX = tX;
 				if (minY > tY) minY = tY;
 				if (maxY < tY) maxY = tY;
 				
-				pos += this._elementsPerVertex << 2;
-				this._byteData.position = pos;
-				tX = this._byteData.readFloat();
-				tY = this._byteData.readFloat();
+				tX = this._float32Data[pos];
+				tY = this._float32Data[pos + 1];
 				
 				if (minX > tX) minX = tX;
 				if (maxX < tX) maxX = tX;
@@ -1213,6 +1582,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				if (maxY < tY) maxY = tY;
 			}
 		}
+		#end
 		else
 		{
 			for (i in 0...this._numQuads)
