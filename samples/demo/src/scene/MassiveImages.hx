@@ -23,20 +23,13 @@ import starling.utils.Align;
  */
 class MassiveImages extends Scene implements IAnimatable
 {
+	public var colorMode:String;
 	public var frameDeltaBase:Float = 0.1;
 	public var frameDeltaVariance:Float = 0.5;
 	public var numBuffers:Int = 2;
 	public var numObjects:Int = 1000;
-	public var simpleColorMode:Bool;
+	public var renderMode:String;
 	public var useBlurFilter:Bool;
-	public var useByteArray:Bool;
-	#if flash
-	public var useDomainMemory:Bool;
-	#end
-	#if !flash
-	public var useFloat32Array:Bool;
-	#end
-	public var useColor:Bool = true;
 	public var useRandomAlpha:Bool;
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
@@ -100,19 +93,7 @@ class MassiveImages extends Scene implements IAnimatable
 		{
 			numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			
-			display = new MassiveDisplay();
-			display.texture = this.atlasTexture;
-			display.bufferSize = numImages;
-			display.numBuffers = this.numBuffers;
-			display.useByteArray = this.useByteArray;
-			#if flash
-			display.useByteArrayDomainMemory = this.useDomainMemory;
-			#end
-			display.useColor = this.useColor;
-			display.simpleColorMode = this.simpleColorMode;
-			#if !flash
-			display.useFloat32Array = this.useFloat32Array;
-			#end
+			display = new MassiveDisplay(this.atlasTexture, this.renderMode, this.colorMode, numImages, this.numBuffers);
 			
 			layer = new ImageLayer();
 			display.addLayer(layer);

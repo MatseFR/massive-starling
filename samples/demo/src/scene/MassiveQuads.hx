@@ -20,22 +20,15 @@ import starling.utils.Align;
  */
 class MassiveQuads extends Scene implements IAnimatable
 {
+	public var colorMode:String;
 	public var displayScale:Float;
 	public var numBuffers:Int = 2;
 	public var numObjects:Int = 2000;
-	public var simpleColorMode:Bool;
+	public var renderMode:String;
 	public var useBlurFilter:Bool;
-	public var useColor:Bool;
 	public var useRandomAlpha:Bool = false;
 	public var useRandomColor:Bool;
 	public var useRandomRotation:Bool;
-	public var useByteArray:Bool;
-	#if flash
-	public var useDomainMemory:Bool;
-	#end
-	#if !flash
-	public var useFloat32Array:Bool;
-	#end
 	public var useSprite3D:Bool;
 	
 	private var _displayList:Array<MassiveDisplay> = new Array<MassiveDisplay>();
@@ -89,18 +82,7 @@ class MassiveQuads extends Scene implements IAnimatable
 		{
 			numQuads = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			
-			display = new MassiveDisplay();
-			display.bufferSize = numQuads;
-			display.numBuffers = this.numBuffers;
-			display.useByteArray = this.useByteArray;
-			#if flash
-			display.useByteArrayDomainMemory = this.useDomainMemory;
-			#end
-			display.useColor = this.useColor;
-			display.simpleColorMode = this.simpleColorMode;
-			#if !flash
-			display.useFloat32Array = this.useFloat32Array;
-			#end
+			display = new MassiveDisplay(null, this.renderMode, this.colorMode, numQuads, this.numBuffers);
 			
 			layer = new QuadLayer();
 			display.addLayer(layer);
