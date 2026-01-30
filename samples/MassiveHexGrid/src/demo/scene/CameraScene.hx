@@ -120,14 +120,14 @@ class CameraScene extends Scene implements IAnimatable
 		this._display.addLayer(this._rolloverLayer);
 		
 		this._rolloverImage = new ImageData();
-		this._rolloverImage.colorGreen = 0.75;
-		this._rolloverImage.colorBlue = 0;
+		this._rolloverImage.green = 0.75;
+		this._rolloverImage.blue = 0;
 		this._rolloverImage.setFrames(this.selectionFrames);
 		this._rolloverLayer.addImage(this._rolloverImage);
 		
 		this._selectedImage = new ImageData();
-		this._selectedImage.colorRed = 0;
-		this._selectedImage.colorGreen = 0.25;
+		this._selectedImage.red = 0;
+		this._selectedImage.green = 0.25;
 		this._selectedImage.setFrames(this.selectionFrames);
 		this._selectedImage.visible = false;
 		this._rolloverLayer.addImage(this._selectedImage);
@@ -312,12 +312,12 @@ class CameraScene extends Scene implements IAnimatable
 		this._rolloverImage.y = hex.y;
 		this._rolloverImage.offsetX = hex.offsetX;
 		this._rolloverImage.offsetY = hex.offsetY;
-		this._rolloverImage.colorAlpha = 1;
+		this._rolloverImage.alpha = 1;
 	}
 	
 	private function rollOut(hex:Hex):Void
 	{
-		this._rolloverImage.colorAlpha = 0;
+		this._rolloverImage.alpha = 0;
 	}
 	
 	private function createSelectedImage(hex:Hex):ImageData
@@ -326,8 +326,8 @@ class CameraScene extends Scene implements IAnimatable
 		img.setFrames(this.selectionFrames);
 		img.x = hex.x;
 		img.y = hex.y;
-		img.colorRed = 0;
-		img.colorGreen = 0.5;
+		img.red = 0;
+		img.green = 0.5;
 		this._selectionImageList[this._selectionImageList.length] = img;
 		this._selectionHexList[this._selectionHexList.length] = hex;
 		this._selectionLayer.addImage(img);
