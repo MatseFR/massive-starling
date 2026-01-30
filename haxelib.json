@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [ "openfl", "starling", "flash", "air", "js", "web", "cpp" ],
 	"description": "High performance quad rendering and texture animation for Starling through custom DisplayObject",
-	"version": "1.0.0-alpha.0",
-	"releasenote": "alpha release",
+	"version": "1.0.0-alpha.1",
+	"releasenote": "alpha release 1",
 	"contributors": [ "Matse" ],
 	"dependencies": {
 		"openfl":"",
