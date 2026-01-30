@@ -962,10 +962,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 					}
 					else
 					{
-						alpha = data.colorAlpha;
-						red = data.colorRed * alpha;
-						green = data.colorGreen * alpha;
-						blue = data.colorBlue * alpha;
+						alpha = data.alpha;
+						red = data.red * alpha;
+						green = data.green * alpha;
+						blue = data.blue * alpha;
 					}
 				}
 				else
