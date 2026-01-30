@@ -421,13 +421,13 @@ class ParticleEditor extends ValEditorSimpleStarling
 		select.add(BlendMode.SCREEN);
 		this._massiveCollection.addValue(select);
 		
-		float = new ExposedFloatDrag("colorRed", null, 0.0, 10.0, 0.01);
+		float = new ExposedFloatDrag("red", null, 0.0, 10.0, 0.01);
 		this._massiveCollection.addValue(float);
 		
-		float = new ExposedFloatDrag("colorGreen", null, 0.0, 10.0, 0.01);
+		float = new ExposedFloatDrag("green", null, 0.0, 10.0, 0.01);
 		this._massiveCollection.addValue(float);
 		
-		float = new ExposedFloatDrag("colorBlue", null, 0.0, 10.0, 0.01);
+		float = new ExposedFloatDrag("blue", null, 0.0, 10.0, 0.01);
 		this._massiveCollection.addValue(float);
 		
 		float = new ExposedFloatDrag("alpha", null, 0, 1.0, 0.01);

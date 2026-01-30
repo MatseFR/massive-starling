@@ -235,44 +235,44 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				{
 					if (simpleColor)
 					{
-						alpha = data.colorAlpha;
+						alpha = data.alpha;
 						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.colorRed;
+						red = data.red;
 						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.colorGreen;
+						green = data.green;
 						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.colorBlue;
+						blue = data.blue;
 						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
 						color = Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24;
 					}
 					else
 					{
-						alpha = data.colorAlpha;
-						red = data.colorRed * alpha;
-						green = data.colorGreen * alpha;
-						blue = data.colorBlue * alpha;
+						alpha = data.alpha;
+						red = data.red * alpha;
+						green = data.green * alpha;
+						blue = data.blue * alpha;
 					}
 				}
 				else
 				{
 					if (simpleColor)
 					{
-						alpha = data.colorAlpha;
+						alpha = data.alpha;
 						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.colorRed;
+						red = data.red;
 						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.colorGreen;
+						green = data.green;
 						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.colorBlue;
+						blue = data.blue;
 						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
 						color = Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24;
 					}
 					else
 					{
-						red = data.colorRed;
-						green = data.colorGreen;
-						blue = data.colorBlue;
-						alpha = data.colorAlpha;
+						red = data.red;
+						green = data.green;
+						blue = data.blue;
+						alpha = data.alpha;
 					}
 				}
 			}
@@ -534,44 +534,44 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				{
 					if (simpleColor)
 					{
-						alpha = data.colorAlpha;
+						alpha = data.alpha;
 						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.colorRed;
+						red = data.red;
 						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.colorGreen;
+						green = data.green;
 						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.colorBlue;
+						blue = data.blue;
 						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
 						color = Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24;
 					}
 					else
 					{
-						alpha = data.colorAlpha;
-						red = data.colorRed * alpha;
-						green = data.colorGreen * alpha;
-						blue = data.colorBlue * alpha;
+						alpha = data.alpha;
+						red = data.red * alpha;
+						green = data.green * alpha;
+						blue = data.blue * alpha;
 					}
 				}
 				else
 				{
 					if (simpleColor)
 					{
-						alpha = data.colorAlpha;
+						alpha = data.alpha;
 						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.colorRed;
+						red = data.red;
 						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.colorGreen;
+						green = data.green;
 						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.colorBlue;
+						blue = data.blue;
 						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
 						color = Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24;
 					}
 					else
 					{
-						red = data.colorRed;
-						green = data.colorGreen;
-						blue = data.colorBlue;
-						alpha = data.colorAlpha;
+						red = data.red;
+						green = data.green;
+						blue = data.blue;
+						alpha = data.alpha;
 					}
 				}
 			}
@@ -818,44 +818,44 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				{
 					if (simpleColor)
 					{
-						alpha = data.colorAlpha;
+						alpha = data.alpha;
 						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.colorRed;
+						red = data.red;
 						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.colorGreen;
+						green = data.green;
 						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.colorBlue;
+						blue = data.blue;
 						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
 						color = FPHelper.i32ToFloat(Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24);
 					}
 					else
 					{
-						alpha = data.colorAlpha;
-						red = data.colorRed * alpha;
-						green = data.colorGreen * alpha;
-						blue = data.colorBlue * alpha;
+						alpha = data.alpha;
+						red = data.red * alpha;
+						green = data.green * alpha;
+						blue = data.blue * alpha;
 					}
 				}
 				else
 				{
 					if (simpleColor)
 					{
-						alpha = data.colorAlpha;
+						alpha = data.alpha;
 						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.colorRed;
+						red = data.red;
 						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.colorGreen;
+						green = data.green;
 						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.colorBlue;
+						blue = data.blue;
 						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
 						color = FPHelper.i32ToFloat(Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24);
 					}
 					else
 					{
-						red = data.colorRed;
-						green = data.colorGreen;
-						blue = data.colorBlue;
-						alpha = data.colorAlpha;
+						red = data.red;
+						green = data.green;
+						blue = data.blue;
+						alpha = data.alpha;
 					}
 				}
 			}
@@ -1101,44 +1101,44 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 				{
 					if (simpleColor)
 					{
-						alpha = data.colorAlpha;
+						alpha = data.alpha;
 						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.colorRed;
+						red = data.red;
 						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.colorGreen;
+						green = data.green;
 						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.colorBlue;
+						blue = data.blue;
 						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
 						color = FPHelper.i32ToFloat(Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24);
 					}
 					else
 					{
-						alpha = data.colorAlpha;
-						red = data.colorRed * alpha;
-						green = data.colorGreen * alpha;
-						blue = data.colorBlue * alpha;
+						alpha = data.alpha;
+						red = data.red * alpha;
+						green = data.green * alpha;
+						blue = data.blue * alpha;
 					}
 				}
 				else
 				{
 					if (simpleColor)
 					{
-						alpha = data.colorAlpha;
+						alpha = data.alpha;
 						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.colorRed;
+						red = data.red;
 						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.colorGreen;
+						green = data.green;
 						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.colorBlue;
+						blue = data.blue;
 						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
 						color = FPHelper.i32ToFloat(Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24);
 					}
 					else
 					{
-						red = data.colorRed;
-						green = data.colorGreen;
-						blue = data.colorBlue;
-						alpha = data.colorAlpha;
+						red = data.red;
+						green = data.green;
+						blue = data.blue;
+						alpha = data.alpha;
 					}
 				}
 			}

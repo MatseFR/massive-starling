@@ -107,12 +107,12 @@ class MassiveImages extends Scene implements IAnimatable
 				img.scaleX = img.scaleY = this.imgScale;
 				if (this.useRandomRotation) img.rotation = MathUtils.random() * MathUtils.PI2;
 				
-				if (this.useRandomAlpha) img.colorAlpha = MathUtils.random();
+				if (this.useRandomAlpha) img.alpha = MathUtils.random();
 				if (this.useRandomColor)
 				{
-					img.colorRed = MathUtils.random();
-					img.colorGreen = MathUtils.random();
-					img.colorBlue = MathUtils.random();
+					img.red = MathUtils.random();
+					img.green = MathUtils.random();
+					img.blue = MathUtils.random();
 				}
 				
 				speedVariance = MathUtils.random();

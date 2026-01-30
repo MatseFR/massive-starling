@@ -97,12 +97,12 @@ class MassiveQuads extends Scene implements IAnimatable
 				quad.scaleX = quad.scaleY = this.displayScale;
 				if (this.useRandomRotation) quad.rotation = MathUtils.random() * MathUtils.PI2;
 				
-				if (this.useRandomAlpha) quad.colorAlpha = MathUtils.random();
+				if (this.useRandomAlpha) quad.alpha = MathUtils.random();
 				if (this.useRandomColor)
 				{
-					quad.colorRed = MathUtils.random();
-					quad.colorGreen = MathUtils.random();
-					quad.colorBlue = MathUtils.random();
+					quad.red = MathUtils.random();
+					quad.green = MathUtils.random();
+					quad.blue = MathUtils.random();
 				}
 				
 				speedVariance = MathUtils.random();

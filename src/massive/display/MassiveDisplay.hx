@@ -145,6 +145,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var bufferSize(get, set):Int;
 	/**
+	   color as Int
+	**/
+	public var color(get, set):Int;
+	/**
 	   Tells how to handle color, see massive.display.MassiveColorMode for possible values and details about them.
 	**/
 	public var colorMode(get, set):String;
@@ -153,19 +157,19 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   This has no effect when useColor is turned off.
 	   @default 1
 	**/
-	public var colorBlue(get, set):Float;
+	public var blue(get, set):Float;
 	/**
 	   Amount of green tinting applied to the whole MassiveDisplay instance, from -1 to 10.
 	   This has no effect when useColor is turned off.
 	   @default 1
 	**/
-	public var colorGreen(get, set):Float;
+	public var green(get, set):Float;
 	/**
 	   Amount of red tinting applied to the whole MassiveDisplay instance, from -1 to 10.
 	   This has no effect when useColor is turned off.
 	   @default 1
 	**/
-	public var colorRed(get, set):Float;
+	public var red(get, set):Float;
 	/**
 	   How many 32bit values per quad
 	**/
@@ -255,6 +259,22 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._bufferSize = value;
 	}
 	
+	private function get_color():Int 
+	{
+		var r:Float = this._red > 1.0 ? 1.0 : this._red < 0.0 ? 0.0 : this._red;
+		var g:Float = this._green > 1.0 ? 1.0 : this._green < 0.0 ? 0.0 : this._green;
+		var b:Float = this._blue > 1.0 ? 1.0 : this._blue < 0.0 ? 0.0 : this._blue;
+		return Std.int(r * 255) << 16 | Std.int(g * 255) << 8 | Std.int(b * 255);
+	}
+	private function set_color(value:Int):Int
+	{
+		this._red = (Std.int(value >> 16) & 0xFF) / 255.0;
+        this._green = (Std.int(value >> 8) & 0xFF) / 255.0;
+        this._blue = (value & 0xFF) / 255.0;
+		updateColor();
+		return value;
+	}
+	
 	private var _colorMode:String;
 	private function get_colorMode():String { return this._colorMode; }
 	private function set_colorMode(value:String):String
@@ -292,9 +312,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._colorMode = value;
 	}
 	
-	private var _colorBlue:Float = 1;
-	private function get_colorBlue():Float { return this._colorBlue; }
-	private function set_colorBlue(value:Float):Float
+	private var _blue:Float = 1;
+	private function get_blue():Float { return this._blue; }
+	private function set_blue(value:Float):Float
 	{
 		if (!this.pma)
 		{
@@ -305,12 +325,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._vectorColor[2] = value;
 			#end
 		}
-		return this._colorBlue = value;
+		return this._blue = value;
 	}
 	
-	private var _colorGreen:Float = 1;
-	private function get_colorGreen():Float { return this._colorGreen; }
-	private function set_colorGreen(value:Float):Float
+	private var _green:Float = 1;
+	private function get_green():Float { return this._green; }
+	private function set_green(value:Float):Float
 	{
 		if (!this.pma)
 		{
@@ -321,12 +341,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._vectorColor[1] = value;
 			#end
 		}
-		return this._colorGreen = value;
+		return this._green = value;
 	}
 	
-	private var _colorRed:Float = 1;
-	private function get_colorRed():Float { return this._colorRed; }
-	private function set_colorRed(value:Float):Float
+	private var _red:Float = 1;
+	private function get_red():Float { return this._red; }
+	private function set_red(value:Float):Float
 	{
 		if (!this.pma)
 		{
@@ -337,7 +357,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._vectorColor[0] = value;
 			#end
 		}
-		return this._colorRed = value;
+		return this._red = value;
 	}
 	
 	private var _elementsPerQuad:Int;
@@ -588,12 +608,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		#if flash
 		this._byteColor = new ByteArray(16);
 		this._byteColor.endian = Endian.LITTLE_ENDIAN;
-		this._byteColor.writeFloat(this._colorRed);
-		this._byteColor.writeFloat(this._colorGreen);
-		this._byteColor.writeFloat(this._colorBlue);
+		this._byteColor.writeFloat(this._red);
+		this._byteColor.writeFloat(this._green);
+		this._byteColor.writeFloat(this._blue);
 		this._byteColor.writeFloat(this.__alpha);
 		#else
-		this._vectorColor = new Vector<Float>(4, true, [this._colorRed, this._colorGreen, this._colorBlue, this.__alpha]);
+		this._vectorColor = new Vector<Float>(4, true, [this._red, this._green, this._blue, this.__alpha]);
 		#end
 		
 		updateElements();
@@ -962,23 +982,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this.pma) return;
 		
 		#if flash
-		//if (this._byteColor == null)
-		//{
-			//this._byteColor = new ByteArray();
-			//this._byteColor.endian = Endian.LITTLE_ENDIAN;
-		//}
 		this._byteColor.position = 0;
-		this._byteColor.writeFloat(this._colorRed);
-		this._byteColor.writeFloat(this._colorGreen);
-		this._byteColor.writeFloat(this._colorBlue);
+		this._byteColor.writeFloat(this._red);
+		this._byteColor.writeFloat(this._green);
+		this._byteColor.writeFloat(this._blue);
 		#else
-		//if (this._vectorColor == null)
-		//{
-			//this._vectorColor = new Vector<Float>();
-		//}
-		this._vectorColor[0] = this._colorRed;
-		this._vectorColor[1] = this._colorGreen;
-		this._vectorColor[2] = this._colorBlue;
+		this._vectorColor[0] = this._red;
+		this._vectorColor[1] = this._green;
+		this._vectorColor[2] = this._blue;
 		#end
 	}
 	
@@ -1175,9 +1186,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this.pma)
 		{
 			this._byteColor.position = 0;
-			this._byteColor.writeFloat(this._colorRed * alpha);
-			this._byteColor.writeFloat(this._colorGreen * alpha);
-			this._byteColor.writeFloat(this._colorBlue * alpha);
+			this._byteColor.writeFloat(this._red * alpha);
+			this._byteColor.writeFloat(this._green * alpha);
+			this._byteColor.writeFloat(this._blue * alpha);
 			this._byteColor.writeFloat(alpha);
 		}
 		else
@@ -1188,9 +1199,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		#else
 		if (this.pma)
 		{
-			this._vectorColor[0] = this._colorRed * alpha;
-			this._vectorColor[1] = this._colorGreen * alpha;
-			this._vectorColor[2] = this._colorBlue * alpha;
+			this._vectorColor[0] = this._red * alpha;
+			this._vectorColor[1] = this._green * alpha;
+			this._vectorColor[2] = this._blue * alpha;
 		}
 		this._vectorColor[3] = alpha;
 		#end

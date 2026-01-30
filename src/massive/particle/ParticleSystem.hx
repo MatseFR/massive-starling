@@ -2809,17 +2809,17 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.oscillationColorBlue = particle.oscillationColorBlueFactor * this.__step;
 			particle.oscillationColorAlpha = particle.oscillationColorAlphaFactor * this.__step;
 			
-			particle.colorRed = particle.colorRedBase + particle.oscillationColorRed;
-			particle.colorGreen = particle.colorGreenBase + particle.oscillationColorGreen;
-			particle.colorBlue = particle.colorBlueBase + particle.oscillationColorBlue;
-			particle.colorAlpha = particle.colorAlphaBase + particle.oscillationColorAlpha;
+			particle.red = particle.colorRedBase + particle.oscillationColorRed;
+			particle.green = particle.colorGreenBase + particle.oscillationColorGreen;
+			particle.blue = particle.colorBlueBase + particle.oscillationColorBlue;
+			particle.alpha = particle.colorAlphaBase + particle.oscillationColorAlpha;
 		}
 		else
 		{
-			particle.colorRed = particle.colorRedBase;
-			particle.colorGreen = particle.colorGreenBase;
-			particle.colorBlue = particle.colorBlueBase;
-			particle.colorAlpha = particle.colorAlphaBase;
+			particle.red = particle.colorRedBase;
+			particle.green = particle.colorGreenBase;
+			particle.blue = particle.colorBlueBase;
+			particle.alpha = particle.colorAlphaBase;
 		}
 		//\OSCILLATION COLOR
 	}

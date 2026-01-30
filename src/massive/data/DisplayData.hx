@@ -39,30 +39,50 @@ abstract class DisplayData
 	**/
 	public var scaleY:Float = 1;
 	/**
+	   Int color
+	   @default 0xffffff
+	**/
+	public var color(get, set):Int;
+	/**
 	   Amount of red tinting, from -1.0 to 10.0
 	   @default 1
 	**/
-	public var colorRed:Float = 1;
+	public var red:Float = 1;
 	/**
 	   Amount of green tinting, from -1.0 to 10.0
 	   @default 1
 	**/
-	public var colorGreen:Float = 1;
+	public var green:Float = 1;
 	/**
 	   Amount of blue tinting, from -1.0 to 10.0
 	   @default 1
 	**/
-	public var colorBlue:Float = 1;
+	public var blue:Float = 1;
 	/**
 	   Opacity, from 0.0 to 1.0
 	   @default 1
 	**/
-	public var colorAlpha:Float = 1;
+	public var alpha:Float = 1;
 	/**
 	   Tells whether this object is visible or not
 	   @default true
 	**/
 	public var visible:Bool = true;
+	
+	private function get_color():Int
+	{
+		var r:Float = this.red > 1.0 ? 1.0 : this.red < 0.0 ? 0.0 : this.red;
+		var g:Float = this.green > 1.0 ? 1.0 : this.green < 0.0 ? 0.0 : this.green;
+		var b:Float = this.blue > 1.0 ? 1.0 : this.blue < 0.0 ? 0.0 : this.blue;
+		return Std.int(r * 255) << 16 | Std.int(g * 255) << 8 | Std.int(b * 255);
+	}
+	private function set_color(value:Int):Int
+	{
+		this.red = (Std.int(value >> 16) & 0xFF) / 255.0;
+        this.green = (Std.int(value >> 8) & 0xFF) / 255.0;
+        this.blue = (value & 0xFF) / 255.0;
+		return value;
+	}
 	
 	public function new() 
 	{
@@ -75,7 +95,7 @@ abstract class DisplayData
 	public function clear():Void
 	{
 		this.x = this.y = this.offsetX = this.offsetY = this.rotation = 0;
-		this.scaleX = this.scaleY = this.colorRed = this.colorGreen = this.colorBlue = this.colorAlpha = 1;
+		this.scaleX = this.scaleY = this.red = this.green = this.blue = this.alpha = 1;
 		this.visible = true;
 	}
 	
