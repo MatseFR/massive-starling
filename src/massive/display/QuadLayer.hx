@@ -1,11 +1,13 @@
 package massive.display;
 import haxe.io.FPHelper;
 import massive.data.QuadData;
-import openfl.Memory;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 #if !flash
 import openfl.utils._internal.Float32Array;
+#end
+#if flash
+import openfl.Memory;
 #end
 
 /**
@@ -182,7 +184,6 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var alpha:Float = 0;
 		var color:Int = 0;
 		
-		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -199,23 +200,6 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
-		
-		if (useColor)
-		{
-			if (simpleColor)
-			{
-				byteData.length += this.numDatas * 48;
-			}
-			else
-			{
-				byteData.length += this.numDatas * 96;
-			}
-		}
-		else
-		{
-			//byteData.length += this.numDatas * 32;
-			byteData.length += this.numDatas << 5;
-		}
 		
 		var data:T;
 		for (i in 0...this.numDatas)
@@ -481,7 +465,6 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var alpha:Float = 0;
 		var color:Int = 0;
 		
-		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -498,23 +481,6 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
-		
-		if (useColor)
-		{
-			if (simpleColor)
-			{
-				byteData.length += this.numDatas * 48;
-			}
-			else
-			{
-				byteData.length += this.numDatas * 96;
-			}
-		}
-		else
-		{
-			//byteData.length += this.numDatas * 32;
-			byteData.length += this.numDatas << 5;
-		}
 		
 		var data:T;
 		for (i in 0...this.numDatas)
@@ -782,7 +748,6 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var alpha:Float = 0;
 		var color:Float = 0;
 		
-		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -1065,7 +1030,6 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var alpha:Float = 0;
 		var color:Float = 0;
 		
-		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		

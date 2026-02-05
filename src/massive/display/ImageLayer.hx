@@ -3,11 +3,13 @@ import haxe.io.FPHelper;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
-import openfl.Memory;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 #if !flash
 import openfl.utils._internal.Float32Array;
+#end
+#if flash
+import openfl.Memory;
 #end
 
 /**
@@ -209,7 +211,6 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var alpha:Float = 0;
 		var color:Int = 0;
 		
-		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -233,24 +234,6 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
-		
-		if (useColor)
-		{
-			if (simpleColor)
-			{
-				byteData.length = position + this.numDatas * 80;
-			}
-			else
-			{
-				//byteData.length = position + numDatas * 128;
-				byteData.length = position + this.numDatas << 7;
-			}
-		}
-		else
-		{
-			//byteData.length = position + numDatas * 64;
-			byteData.length = position + this.numDatas << 6;
-		}
 		
 		var data:T;
 		for (i in 0...this.numDatas)
@@ -556,7 +539,6 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var alpha:Float = 0;
 		var color:Int = 0;
 		
-		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -580,27 +562,6 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
-		
-		if (useColor)
-		{
-			if (simpleColor)
-			{
-				//byteData.length = position + this.numDatas * 80;
-				byteData.length += this.numDatas * 80;
-			}
-			else
-			{
-				//byteData.length = position + numDatas * 128;
-				byteData.length += this.numDatas << 7;
-			}
-		}
-		else
-		{
-			//byteData.length = position + numDatas * 64;
-			// for some reason we have to do this, otherwise on release mode execution will stop (doesn't make any sense but...)
-			// it means in that context byteData will have 1024 additional bytes, no biggie but still annoying
-			byteData.length += this.numDatas << 6;
-		}
 		
 		var data:T;
 		for (i in 0...this.numDatas)
@@ -907,7 +868,6 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var alpha:Float = 0;
 		var color:Float = 0;
 		
-		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
@@ -1236,7 +1196,6 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var alpha:Float = 0;
 		var color:Float = 0;
 		
-		//var angle:Int;
 		var cos:Float;
 		var sin:Float;
 		
