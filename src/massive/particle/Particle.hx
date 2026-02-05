@@ -1,7 +1,9 @@
 package massive.particle;
 
 import massive.data.ImageData;
+#if flash
 import openfl.Vector;
+#end
 
 /**
  * ...
