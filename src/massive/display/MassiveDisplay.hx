@@ -3,7 +3,6 @@ package massive.display;
 import massive.data.MassiveConstants;
 import massive.util.MathUtils;
 import massive.util.ReverseIterator;
-import openfl.Memory;
 import openfl.Vector;
 import openfl.display3D.Context3D;
 import openfl.display3D.Context3DBufferUsage;
@@ -34,8 +33,10 @@ import starling.utils.RenderUtil;
 #if !flash
 import lime.utils.UInt16Array;
 import openfl.utils._internal.Float32Array;
-#else
+#end
+#if flash
 import flash.system.ApplicationDomain;
+import openfl.Memory;
 #end
 
 /**
@@ -249,14 +250,30 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			value = MassiveConstants.MAX_QUADS;
 		}
+		this._bufferSize = value;
 		if (this._buffersCreated)
 		{
 			updateBuffers();
 		}
+		if (this._useByteArray && this._byteData != null)
+		{
+			#if flash
+			if (this._useByteArrayDomainMemory)
+			{
+				this._byteData.length = MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024);
+			}
+			else
+			{
+			#end
+			this._byteData.length = this._bufferSize * this._elementsPerQuad * 4;
+			#if flash
+			}
+			#end
+		}
 		#if !flash
 		if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
 		#end
-		return this._bufferSize = value;
+		return this._bufferSize;
 	}
 	
 	private function get_color():Int 
@@ -304,6 +321,21 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._program != null)
 		{
 			updateProgram();
+		}
+		if (this._useByteArray && this._byteData != null)
+		{
+			#if flash
+			if (this._useByteArrayDomainMemory)
+			{
+				this._byteData.length = MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024);
+			}
+			else
+			{
+			#end
+			this._byteData.length = this._bufferSize * this._elementsPerQuad * 4;
+			#if flash
+			}
+			#end
 		}
 		#if !flash
 		if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
@@ -413,8 +445,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				#end
 				if (this._byteData == null)
 				{
-					this._byteData = new ByteArray();
+					this._byteData = new ByteArray(this._bufferSize * this._elementsPerQuad * 4);
 					this._byteData.endian = Endian.LITTLE_ENDIAN;
+				}
+				else
+				{
+					this._byteData.length = this._bufferSize * this._elementsPerQuad * 4;
 				}
 				#if !flash
 				this._useFloat32Array = false;
@@ -428,8 +464,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				this._useByteArrayDomainMemory = true;
 				if (this._byteData == null)
 				{
-					this._byteData = new ByteArray();
+					this._byteData = new ByteArray(MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024));
 					this._byteData.endian = Endian.LITTLE_ENDIAN;
+				}
+				else
+				{
+					this._byteData.length = MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024);
 				}
 				this._vectorData = null;
 			#end
@@ -474,6 +514,21 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			if (this._buffersCreated)
 			{
 				updateBuffers();
+			}
+			if (this._useByteArray && this._byteData != null)
+			{
+				#if flash
+				if (this._useByteArrayDomainMemory)
+				{
+					this._byteData.length = MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024);
+				}
+				else
+				{
+				#end
+				this._byteData.length = this._bufferSize * this._elementsPerQuad * 4;
+				#if flash
+				}
+				#end
 			}
 			#if !flash
 			if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
@@ -1222,7 +1277,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			if (this._useByteArrayDomainMemory)
 			{
 				var prevByteArray:ByteArray = ApplicationDomain.currentDomain.domainMemory;
-				this._byteData.length = 1024;
 				Memory.select(this._byteData);
 				for (i in 0...this._numLayers)
 				{
@@ -1234,7 +1288,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			else
 			{
 			#end
-				this._byteData.length = 0;
+				this._byteData.position = 0;
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
@@ -1381,7 +1435,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			if (this._useByteArrayDomainMemory)
 			{
 				var prevByteArray:ByteArray = ApplicationDomain.currentDomain.domainMemory;
-				this._byteData.length = 1024;
 				Memory.select(this._byteData);
 				for (i in 0...this._numLayers)
 				{
@@ -1393,7 +1446,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			else
 			{
 			#end
-				this._byteData.length = 0;
+				this._byteData.position = 0;
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
