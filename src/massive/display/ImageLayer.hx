@@ -3,6 +3,7 @@ import haxe.io.FPHelper;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
+import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 #if !flash
@@ -503,29 +504,29 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
+	public function writeDataBytesMemory(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool
 	{
-		if (this._datas == null) return 0;
+		if (this._datas == null) return true;
 		
-		var position:Int;
+		var position:Int = renderData.position;
 		
-		if (useColor)
-		{
-			if (simpleColor)
-			{
-				position = offset * 80;
-			}
-			else
-			{
-				//position = offset * 128;
-				position = offset << 7;
-			}
-		}
-		else
-		{
-			//position = offset * 64;
-			position = offset << 6;
-		}
+		//if (useColor)
+		//{
+			//if (simpleColor)
+			//{
+				//position = offset * 80;
+			//}
+			//else
+			//{
+				////position = offset * 128;
+				//position = offset << 7;
+			//}
+		//}
+		//else
+		//{
+			////position = offset * 64;
+			//position = offset << 6;
+		//}
 		
 		var quadsWritten:Int = 0;
 		
@@ -560,11 +561,14 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
+		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		var totalQuads:Int = renderData.quadOffset + numQuads;
+		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
 		var data:T;
-		for (i in 0...this.numDatas)
+		for (i in renderData.quadOffset...totalQuads)
 		{
 			data = this._datas[i];
 			if (!data.visible) continue;
@@ -825,7 +829,21 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			position += 4;
 		}
 		
-		return quadsWritten;
+		renderData.numQuads += quadsWritten;
+		renderData.position = position;
+		
+		if (this.numDatas == totalQuads)
+		{
+			renderData.quadOffset = 0;
+			return true;
+		}
+		else
+		{
+			renderData.quadOffset += numQuads;
+			return false;
+		}
+		
+		//return quadsWritten;
 	}
 	#end
 	

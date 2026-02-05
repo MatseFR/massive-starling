@@ -430,28 +430,28 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
+	public function writeDataBytesMemory(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool
 	{
-		if (this._datas == null) return 0;
+		if (this._datas == null) return true;
 		
-		var position:Int;
+		var position:Int = renderData.position;
 		
-		if (useColor)
-		{
-			if (simpleColor)
-			{
-				position = offset * 48;
-			}
-			else
-			{
-				position = offset * 96;
-			}
-		}
-		else
-		{
-			//position = offset * 32;
-			position = offset << 5;
-		}
+		//if (useColor)
+		//{
+			//if (simpleColor)
+			//{
+				//position = offset * 48;
+			//}
+			//else
+			//{
+				//position = offset * 96;
+			//}
+		//}
+		//else
+		//{
+			////position = offset * 32;
+			//position = offset << 5;
+		//}
 		
 		var quadsWritten:Int = 0;
 		
@@ -705,7 +705,8 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			position += 4;
 		}
 		
-		return quadsWritten;
+		//return quadsWritten;
+		return true;
 	}
 	#end
 	

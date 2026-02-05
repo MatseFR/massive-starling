@@ -78,6 +78,7 @@ class MassiveImages extends Scene implements IAnimatable
 		}
 		
 		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
+		var bufferSize:Int = MathUtils.minInt(this.numObjects, MassiveConstants.MAX_QUADS);
 		var display:MassiveDisplay;
 		var layer:ImageLayer;
 		var numImages:Int;
@@ -89,16 +90,16 @@ class MassiveImages extends Scene implements IAnimatable
 		var img:MassiveImage;
 		var speedVariance:Float;
 		var velocity:Float;
-		for (i in 0...numDisplays)
-		{
-			numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
+		//for (i in 0...numDisplays)
+		//{
+			//numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			
-			display = new MassiveDisplay(this.atlasTexture, this.renderMode, this.colorMode, numImages, this.numBuffers);
+			display = new MassiveDisplay(this.atlasTexture, this.renderMode, this.colorMode, bufferSize, this.numBuffers);
 			
 			layer = new ImageLayer();
 			display.addLayer(layer);
 			
-			for (j in 0...numImages)
+			for (j in 0...this.numObjects)
 			{
 				img = new MassiveImage();
 				img.setFrames(this._frames, this._timings, true, 0, Std.random(frameCount));
@@ -134,7 +135,7 @@ class MassiveImages extends Scene implements IAnimatable
 			{
 				addChild(display);
 			}
-		}
+		//}
 		
 		if (this.useBlurFilter)
 		{

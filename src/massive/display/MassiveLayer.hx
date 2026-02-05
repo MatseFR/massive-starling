@@ -92,7 +92,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	simpleColor
 	   @return
 	**/
-	abstract public function writeDataBytesMemory(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int;
+	abstract public function writeDataBytesMemory(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool;
 	#end
 	
 	#if !flash
