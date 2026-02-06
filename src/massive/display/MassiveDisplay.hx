@@ -260,7 +260,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			#if flash
 			if (this._useByteArrayDomainMemory)
 			{
-				this._byteData.length = MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024);
+				this._byteData.length = this._bufferSize * this._elementsPerQuad * 4 + 1024; // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
 			}
 			else
 			{
@@ -327,7 +327,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			#if flash
 			if (this._useByteArrayDomainMemory)
 			{
-				this._byteData.length = MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024);
+				this._byteData.length = this._bufferSize * this._elementsPerQuad * 4 + 1024; // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
 			}
 			else
 			{
@@ -464,12 +464,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				this._useByteArrayDomainMemory = true;
 				if (this._byteData == null)
 				{
-					this._byteData = new ByteArray(MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024));
+					this._byteData = new ByteArray(this._bufferSize * this._elementsPerQuad * 4 + 1024); // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
 					this._byteData.endian = Endian.LITTLE_ENDIAN;
 				}
 				else
 				{
-					this._byteData.length = MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024);
+					this._byteData.length = this._bufferSize * this._elementsPerQuad * 4 + 1024; // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
 				}
 				this._vectorData = null;
 			#end
@@ -520,7 +520,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				#if flash
 				if (this._useByteArrayDomainMemory)
 				{
-					this._byteData.length = MathUtils.maxInt(this._bufferSize * this._elementsPerQuad * 4, 1024);
+					this._byteData.length = this._bufferSize * this._elementsPerQuad * 4 + 1024; // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
 				}
 				else
 				{
@@ -626,6 +626,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _zeroBytes:ByteArray = new ByteArray();
 	#end
 	
+	private var contextBufferIndex:Int;
 	private var _renderData:RenderData = new RenderData();
 	
 	/**
@@ -1229,39 +1230,42 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		
 		this._numQuads = 0;
-		var contextBufferIndex:Int = 0;
 		
 		painter.finishMeshBatch();
-		++painter.drawCount;
 		
 		painter.setupContextDefaults();
 		painter.state.blendMode = this.__blendMode;
 		painter.prepareToDraw();
 		
 		var alpha:Float = painter.state.alpha * this.__alpha;
-		#if flash
-		if (this.pma)
+		if (this._useColor)
 		{
-			this._byteColor.position = 0;
-			this._byteColor.writeFloat(this._red * alpha);
-			this._byteColor.writeFloat(this._green * alpha);
-			this._byteColor.writeFloat(this._blue * alpha);
-			this._byteColor.writeFloat(alpha);
+			#if flash
+			if (this.pma)
+			{
+				this._byteColor.position = 0;
+				this._byteColor.writeFloat(this._red * alpha);
+				this._byteColor.writeFloat(this._green * alpha);
+				this._byteColor.writeFloat(this._blue * alpha);
+				this._byteColor.writeFloat(alpha);
+			}
+			else
+			{
+				this._byteColor.position = 12;
+				this._byteColor.writeFloat(alpha);
+			}
+			context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorOffset, 1, this._byteColor, 0);
+			#else
+			if (this.pma)
+			{
+				this._vectorColor[0] = this._red * alpha;
+				this._vectorColor[1] = this._green * alpha;
+				this._vectorColor[2] = this._blue * alpha;
+			}
+			this._vectorColor[3] = alpha;
+			context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorOffset, this._vectorColor, 1);
+			#end
 		}
-		else
-		{
-			this._byteColor.position = 12;
-			this._byteColor.writeFloat(alpha);
-		}
-		#else
-		if (this.pma)
-		{
-			this._vectorColor[0] = this._red * alpha;
-			this._vectorColor[1] = this._green * alpha;
-			this._vectorColor[2] = this._blue * alpha;
-		}
-		this._vectorColor[3] = alpha;
-		#end
 		
 		this._program.activate(context);
 		if (this._texture != null)
@@ -1270,37 +1274,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			RenderUtil.setSamplerStateAt(0, this._texture.mipMapping, this._textureSmoothing, this._textureRepeat);
 		}
 		
-		this._vertexBufferIndex = ++this._vertexBufferIndex % this._numBuffers;
-		this._vertexBuffer = this._vertexBuffers[this._vertexBufferIndex];
-		
 		context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
 		
-		context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
-		contextBufferIndex++;
-		if (this._texture != null)
-		{
-			context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._uvOffset, Context3DVertexBufferFormat.FLOAT_2);
-			contextBufferIndex++;
-		}
-		
-		if (this._useColor)
-		{
-			if (this._simpleColorMode)
-			{
-				context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.BYTES_4);
-			}
-			else
-			{
-				context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
-			}
-			contextBufferIndex++;
-			
-			#if flash
-			context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorOffset, 1, this._byteColor, 0);
-			#else
-			context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorOffset, this._vectorColor, 1);
-			#end
-		}
+		var forceBuffer:Bool = true;
 		
 		var layerDone:Bool;
 		var layerIndex:Int = 0;
@@ -1315,97 +1291,121 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				Memory.select(this._byteData);
 				while (layerIndex < this._numLayers)
 				{
+					if (!this._layers[layerIndex].visible) continue;
 					layerDone = this._layers[layerIndex].writeDataBytesMemory(this._byteData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData);
 					if (this._renderData.numQuads == this._bufferSize)
 					{
+						nextBuffer(context, forceBuffer);
+						forceBuffer = false;
 						this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
 						context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
 						this._renderData.render();
+						++painter.drawCount;
 					}
 					if (layerDone) ++layerIndex;
 				}
 				if (this._renderData.numQuads != 0)
 				{
+					nextBuffer(context, forceBuffer);
+					forceBuffer = false;
 					this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
 					context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
 					this._renderData.render();
+					++painter.drawCount;
 				}
-				//for (i in 0...this._numLayers)
-				//{
-					//if (!this._layers[i].visible) continue;
-					//this._numQuads += this._layers[i].writeDataBytesMemory(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-				//}
 				Memory.select(prevByteArray);
 			}
 			else
 			{
 			#end
 				this._byteData.position = 0;
-				for (i in 0...this._numLayers)
+				while (layerIndex < this._numLayers)
 				{
-					if (!this._layers[i].visible) continue;
-					this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+					if (!this._layers[layerIndex].visible) continue;
+					layerDone = this._layers[layerIndex].writeDataBytes(this._byteData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData);
+					if (this._renderData.numQuads == this._bufferSize)
+					{
+						nextBuffer(context, forceBuffer);
+						forceBuffer = false;
+						this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
+						context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+						this._renderData.render();
+						++painter.drawCount;
+					}
+					if (layerDone) ++layerIndex;
+				}
+				if (this._renderData.numQuads != 0)
+				{
+					nextBuffer(context, forceBuffer);
+					forceBuffer = false;
+					this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
+					context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+					this._renderData.render();
+					++painter.drawCount;
 				}
 			#if flash
 			}
 			#end
-			
-			//this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
 		}
 		#if !flash
 		else if (this._useFloat32Array)
 		{
-			for (i in 0...this._numLayers)
+			while (layerIndex < this._numLayers)
 			{
-				if (!this._layers[i].visible) continue;
-				this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+				if (!this._layers[layerIndex].visible) continue;
+				layerDone = this._layers[layerIndex].writeDataFloat32Array(this._float32Data, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData);
+				if (this._renderData.numQuads == this._bufferSize)
+				{
+					nextBuffer(context, forceBuffer);
+					forceBuffer = false;
+					this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD * 4); // uploadFromTypedArray's byteLength param is currently not used
+					context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+					this._renderData.render();
+					++painter.drawCount;
+				}
+				if (layerDone) ++layerIndex;
 			}
-			
-			this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._numQuads * MassiveConstants.VERTICES_PER_QUAD * 4); // uploadFromTypedArray's byteLength param is currently not used
+			if (this._renderData.numQuads != 0)
+			{
+				nextBuffer(context, forceBuffer);
+				forceBuffer = false;
+				this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD * 4); // uploadFromTypedArray's byteLength param is currently not used
+				context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+				this._renderData.render();
+				++painter.drawCount;
+				
+			}
 		}
 		#end
 		else
 		{
-			for (i in 0...this._numLayers)
+			while (layerIndex < this._numLayers)
 			{
-				if (!this._layers[i].visible) continue;
-				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+				if (!this._layers[layerIndex].visible) continue;
+				layerDone = this._layers[layerIndex].writeDataVector(this._vectorData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData);
+				if (this._renderData.numQuads == this._bufferSize)
+				{
+					nextBuffer(context, forceBuffer);
+					forceBuffer = false;
+					this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
+					context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+					this._renderData.render();
+					++painter.drawCount;
+				}
+				if (layerDone) ++layerIndex;
 			}
-			
-			this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._numQuads * MassiveConstants.VERTICES_PER_QUAD);
+			if (this._renderData.numQuads != 0)
+			{
+				nextBuffer(context, forceBuffer);
+				forceBuffer = false;
+				this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
+				context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+				this._renderData.render();
+				++painter.drawCount;
+			}
 		}
-		//context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
-		//contextBufferIndex++;
-		//if (this._texture != null)
-		//{
-			//context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._uvOffset, Context3DVertexBufferFormat.FLOAT_2);
-			//contextBufferIndex++;
-		//}
-		//
-		//if (this._useColor)
-		//{
-			//if (this._simpleColorMode)
-			//{
-				//context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.BYTES_4);
-			//}
-			//else
-			//{
-				//context.setVertexBufferAt(contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
-			//}
-			//contextBufferIndex++;
-			//
-			//#if flash
-			//context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorOffset, 1, this._byteColor, 0);
-			//#else
-			//context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorOffset, this._vectorColor, 1);
-			//#end
-		//}
 		
-		//context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
-		
-		//context.drawTriangles(this._indexBuffer, 0, this._numQuads * 2);
-		
-		for (i in new ReverseIterator(contextBufferIndex-1, 0))
+		for (i in new ReverseIterator(this.contextBufferIndex, 0))
 		{
 			context.setVertexBufferAt(i, null);
 		}
@@ -1413,6 +1413,35 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._texture != null)
 		{
 			context.setTextureAt(0, null);
+		}
+	}
+	
+	private function nextBuffer(context:Context3D, forced:Bool = false):Void
+	{
+		var prevBuffer:VertexBuffer3D = this._vertexBuffer;
+		this._vertexBufferIndex = ++this._vertexBufferIndex % this._numBuffers;
+		this._vertexBuffer = this._vertexBuffers[this._vertexBufferIndex];
+		
+		if (forced || this._vertexBuffer != prevBuffer)
+		{
+			this.contextBufferIndex = -1;
+			context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
+			if (this._texture != null)
+			{
+				context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._uvOffset, Context3DVertexBufferFormat.FLOAT_2);
+			}
+			
+			if (this._useColor)
+			{
+				if (this._simpleColorMode)
+				{
+					context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.BYTES_4);
+				}
+				else
+				{
+					context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
+				}
+			}
 		}
 	}
 	
@@ -1502,7 +1531,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
-					this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+					//this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 				}
 			#if flash
 			}
@@ -1514,7 +1543,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			for (i in 0...this._numLayers)
 			{
 				if (!this._layers[i].visible) continue;
-				this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+				//this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 			}
 		}
 		#end
@@ -1523,7 +1552,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			for (i in 0...this._numLayers)
 			{
 				if (!this._layers[i].visible) continue;
-				this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
+				//this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
 			}
 		}
 	}

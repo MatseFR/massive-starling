@@ -404,44 +404,39 @@ class MassiveDemo extends Sprite
 		tf = new TextField(0, 0, "buffers");
 		tf.format.color = 0xffffff;
 		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
-		tf.y = (btn.height - tf.height) / 2;
+		//tf.y = (btn.height - tf.height) / 2;
+		tf.y = ((btn.height * 2 + gap) - tf.height) / 2;
 		this.bufferSprite.addChild(tf);
+		
 		tX = tf.width + gap;
+		var aY = tf.y + (tf.height - (btn.height * 2 + gap)) / 2;
 		
-		btn = new Button(this.numBuffers == 1 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "1", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleBuffers);
-		this.buffersButtons.push(btn);
-		this.bufferSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = new Button(this.numBuffers == 2 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "2", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleBuffers);
-		this.buffersButtons.push(btn);
-		this.bufferSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = new Button(this.numBuffers == 3 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "3", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleBuffers);
-		this.buffersButtons.push(btn);
-		this.bufferSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = new Button(this.numBuffers == 4 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "4", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleBuffers);
-		this.buffersButtons.push(btn);
-		this.bufferSprite.addChild(btn);
+		var num:Int;
+		for (i in 0...32)
+		{
+			num = i + 1;
+			btn = new Button(this.numBuffers == num ? this.miniButtonTextureON : this.miniButtonTextureOFF, Std.string(num), null, this.miniButtonTextureON);
+			btn.x = tX;
+			//btn.y = tf.y + (tf.height - btn.height) / 2;
+			btn.y = aY;
+			btn.addEventListener(Event.TRIGGERED, toggleBuffers);
+			this.buffersButtons.push(btn);
+			this.bufferSprite.addChild(btn);
+			
+			if (i == 15)
+			{
+				tX = tf.width + gap;
+				aY += btn.height + gap;
+			}
+			else
+			{
+				tX += btn.width + gap;
+			}
+		}
 		
 		this.bufferSprite.x = (this.buttonTextureOFF.width - this.bufferSprite.width) / 2;
 		
-		tY += btn.height + gap * 4;
+		tY += btn.height * 2 + gap * 4;
 		demoY = tY + btn.height + gap * 2;
 		
 		// CLASSIC STARLING
@@ -684,7 +679,7 @@ class MassiveDemo extends Sprite
 			}
 		}
 	}
-	
+
 	private function updateViewPort(width:Int, height:Int):Void 
 	{
 		var current:Starling = Starling.current;

@@ -77,7 +77,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	simpleColor
 	   @return
 	**/
-	abstract public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int;
+	abstract public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool;
 	
 	#if flash
 	/**
@@ -107,7 +107,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	simpleColor
 	   @return
 	**/
-	abstract public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int;
+	abstract public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool;
 	#end
 	
 	/**
@@ -121,7 +121,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	simpleColor
 	   @return
 	**/
-	abstract public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int;
+	abstract public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool;
 	
 	/**
 	 * Advances time for the layer, controlled by the MassiveDisplay instance this layer was added to

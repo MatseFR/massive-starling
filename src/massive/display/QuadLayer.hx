@@ -1,6 +1,7 @@
 package massive.display;
 import haxe.io.FPHelper;
 import massive.data.QuadData;
+import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 #if !flash
@@ -168,9 +169,9 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytes(byteData:ByteArray, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int 
+	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool 
 	{
-		if (this._datas == null) return 0;
+		if (this._datas == null) return true;
 		
 		var quadsWritten:Int = 0;
 		
@@ -198,11 +199,14 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
+		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		var totalQuads:Int = renderData.quadOffset + numQuads;
+		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
 		var data:T;
-		for (i in 0...this.numDatas)
+		for (i in renderData.quadOffset...totalQuads)
 		{
 			data = this._datas[i];
 			if (!data.visible) continue;
@@ -423,7 +427,18 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			}
 		}
 		
-		return quadsWritten;
+		renderData.numQuads += quadsWritten;
+		
+		if (this.numDatas == totalQuads)
+		{
+			renderData.quadOffset = 0;
+			return true;
+		}
+		else
+		{
+			renderData.quadOffset += numQuads;
+			return false;
+		}
 	}
 	
 	#if flash
@@ -435,23 +450,6 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		if (this._datas == null) return true;
 		
 		var position:Int = renderData.position;
-		
-		//if (useColor)
-		//{
-			//if (simpleColor)
-			//{
-				//position = offset * 48;
-			//}
-			//else
-			//{
-				//position = offset * 96;
-			//}
-		//}
-		//else
-		//{
-			////position = offset * 32;
-			//position = offset << 5;
-		//}
 		
 		var quadsWritten:Int = 0;
 		
@@ -479,11 +477,14 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
+		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		var totalQuads:Int = renderData.quadOffset + numQuads;
+		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
 		var data:T;
-		for (i in 0...this.numDatas)
+		for (i in renderData.quadOffset...totalQuads)
 		{
 			data = this._datas[i];
 			if (!data.visible) continue;
@@ -705,8 +706,19 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			position += 4;
 		}
 		
-		//return quadsWritten;
-		return true;
+		renderData.numQuads += quadsWritten;
+		renderData.position = position;
+		
+		if (this.numDatas == totalQuads)
+		{
+			renderData.quadOffset = 0;
+			return true;
+		}
+		else
+		{
+			renderData.quadOffset += numQuads;
+			return false;
+		}
 	}
 	#end
 	
@@ -714,28 +726,11 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataFloat32Array(floatData:Float32Array, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int
+	public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool
 	{
-		if (this._datas == null) return 0;
+		if (this._datas == null) return true;
 		
-		var vertexID:Int = offset << 2;
-		var position:Int;
-		
-		if (useColor)
-		{
-			if (simpleColor)
-			{
-				position = vertexID * 3;
-			}
-			else
-			{
-				position = vertexID * 6;
-			}
-		}
-		else
-		{
-			position = vertexID * 2;
-		}
+		var position:Int = renderData.position;
 		
 		var quadsWritten:Int = 0;
 		
@@ -763,11 +758,14 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
+		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		var totalQuads:Int = renderData.quadOffset + numQuads;
+		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
 		var data:T;
-		for (i in 0...this.numDatas)
+		for (i in renderData.quadOffset...totalQuads)
 		{
 			data = this._datas[i];
 			if (!data.visible) continue;
@@ -989,35 +987,30 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			++position;
 		}
 		
-		return quadsWritten;
+		renderData.numQuads += quadsWritten;
+		renderData.position = position;
+		
+		if (this.numDatas == totalQuads)
+		{
+			renderData.quadOffset = 0;
+			return true;
+		}
+		else
+		{
+			renderData.quadOffset += numQuads;
+			return false;
+		}
 	}
 	#end
 	
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataVector(vectorData:Vector<Float>, offset:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool):Int 
+	public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool 
 	{
-		if (this._datas == null) return 0;
+		if (this._datas == null) return true;
 		
-		var vertexID:Int = offset << 2;
-		var position:Int;
-		
-		if (useColor)
-		{
-			if (simpleColor)
-			{
-				position = vertexID * 3;
-			}
-			else
-			{
-				position = vertexID * 6;
-			}
-		}
-		else
-		{
-			position = vertexID * 2;
-		}
+		var position:Int = renderData.position;
 		
 		var quadsWritten:Int = 0;
 		
@@ -1045,11 +1038,14 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
+		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		var totalQuads:Int = renderData.quadOffset + numQuads;
+		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
 		var data:T;
-		for (i in 0...this.numDatas)
+		for (i in renderData.quadOffset...totalQuads)
 		{
 			data = this._datas[i];
 			if (!data.visible) continue;
@@ -1271,7 +1267,19 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 			++position;
 		}
 		
-		return quadsWritten;
+		renderData.numQuads += quadsWritten;
+		renderData.position = position;
+		
+		if (this.numDatas == totalQuads)
+		{
+			renderData.quadOffset = 0;
+			return true;
+		}
+		else
+		{
+			renderData.quadOffset += numQuads;
+			return false;
+		}
 	}
 	
 }
