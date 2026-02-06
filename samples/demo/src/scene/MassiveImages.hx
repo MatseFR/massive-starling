@@ -94,7 +94,7 @@ class MassiveImages extends Scene implements IAnimatable
 		//{
 			//numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			
-			display = new MassiveDisplay(this.atlasTexture, this.renderMode, this.colorMode, bufferSize, this.numBuffers);
+			display = new MassiveDisplay(this.atlasTexture, this.renderMode, this.colorMode, this.numObjects);// , this.numBuffers);
 			
 			layer = new ImageLayer();
 			display.addLayer(layer);

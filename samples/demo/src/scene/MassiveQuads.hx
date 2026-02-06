@@ -78,16 +78,16 @@ class MassiveQuads extends Scene implements IAnimatable
 		var quad:MassiveQuad;
 		var speedVariance:Float;
 		var velocity:Float;
-		for (i in 0...numDisplays)
-		{
-			numQuads = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
+		//for (i in 0...numDisplays)
+		//{
+			//numQuads = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
 			
-			display = new MassiveDisplay(null, this.renderMode, this.colorMode, numQuads, this.numBuffers);
+			display = new MassiveDisplay(null, this.renderMode, this.colorMode, this.numObjects);// , this.numBuffers);
 			
 			layer = new QuadLayer();
 			display.addLayer(layer);
 			
-			for (j in 0...numQuads)
+			for (j in 0...this.numObjects)
 			{
 				quad = new MassiveQuad();
 				quad.x = MathUtils.random() * stageWidth;
@@ -124,7 +124,7 @@ class MassiveQuads extends Scene implements IAnimatable
 			{
 				addChild(display);
 			}
-		}
+		//}
 		
 		if (this.useBlurFilter)
 		{

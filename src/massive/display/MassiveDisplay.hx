@@ -141,11 +141,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var boundsRect:Rectangle;
 	/**
-	   How many quads/images the MassiveDisplay instance should be prepared to draw, max is 16383 per instance.
-	   @default 16383
-	**/
-	public var bufferSize(get, set):Int;
-	/**
 	   color as Int
 	**/
 	public var color(get, set):Int;
@@ -185,10 +180,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var juggler(get, set):Juggler;
 	/**
-	   Tells how many VertexBuffer3D to use : if more than one, the MassiveDisplay instance will use a different one on each render.
-	   @default 1
+	   The maximum number of quads that can be rendered simultaneously.
+	   This determines the vertex buffer(s) size and how many are needed.
+	   For best performance, one vertex buffer is created for 16383 quads.
 	**/
-	public var numBuffers(get, set):Int;
+	public var maxQuads(get, set):Int;
 	/**
 	   Tells how many layers this MassiveDisplay instance currently has.
 	**/
@@ -241,41 +237,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._autoHandleJuggler = value;
 	}
 	
-	private var _bufferSize:Int = MassiveConstants.MAX_QUADS;
-	private function get_bufferSize():Int { return this._bufferSize; }
-	private function set_bufferSize(value:Int):Int
-	{
-		if (this._bufferSize == value) return value;
-		if (value > MassiveConstants.MAX_QUADS)
-		{
-			value = MassiveConstants.MAX_QUADS;
-		}
-		this._bufferSize = value;
-		if (this._buffersCreated)
-		{
-			updateBuffers();
-		}
-		if (this._useByteArray && this._byteData != null)
-		{
-			#if flash
-			if (this._useByteArrayDomainMemory)
-			{
-				this._byteData.length = this._bufferSize * this._elementsPerQuad * 4 + 1024; // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
-			}
-			else
-			{
-			#end
-			this._byteData.length = this._bufferSize * this._elementsPerQuad * 4;
-			#if flash
-			}
-			#end
-		}
-		#if !flash
-		if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
-		#end
-		return this._bufferSize;
-	}
-	
 	private function get_color():Int 
 	{
 		var r:Float = this._red > 1.0 ? 1.0 : this._red < 0.0 ? 0.0 : this._red;
@@ -322,24 +283,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			updateProgram();
 		}
-		if (this._useByteArray && this._byteData != null)
-		{
-			#if flash
-			if (this._useByteArrayDomainMemory)
-			{
-				this._byteData.length = this._bufferSize * this._elementsPerQuad * 4 + 1024; // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
-			}
-			else
-			{
-			#end
-			this._byteData.length = this._bufferSize * this._elementsPerQuad * 4;
-			#if flash
-			}
-			#end
-		}
-		#if !flash
-		if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
-		#end
+		updateData();
 		
 		return this._colorMode = value;
 	}
@@ -405,16 +349,24 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._juggler = value;
 	}
 	
-	private var _numBuffers:Int = 1;
-	private function get_numBuffers():Int { return this._numBuffers; }
-	private function set_numBuffers(value:Int):Int
+	private var _maxQuads:Int;
+	private function get_maxQuads():Int { return this._maxQuads; }
+	private function set_maxQuads(value:Int):Int
 	{
-		if (this._numBuffers == value) return value;
-		if (this._buffersCreated)
+		if (this._maxQuads == value) return value;
+		var prevBufferSize:Int = this._bufferSize;
+		this._bufferSize = MathUtils.minInt(value, MassiveConstants.MAX_QUADS);
+		var prevNumBuffers:Int = this._numBuffers;
+		this._numBuffers = Math.ceil(value / MassiveConstants.MAX_QUADS);
+		if (this._bufferSize != prevBufferSize || this._numBuffers != prevNumBuffers)
 		{
-			updateBuffers();
+			if (this._buffersCreated)
+			{
+				updateBuffers();
+			}
+			updateData();
 		}
-		return this._numBuffers = value;
+		return this._maxQuads = value;
 	}
 	
 	private function get_numLayers():Int { return this._layers.length; }
@@ -515,24 +467,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			{
 				updateBuffers();
 			}
-			if (this._useByteArray && this._byteData != null)
-			{
-				#if flash
-				if (this._useByteArrayDomainMemory)
-				{
-					this._byteData.length = this._bufferSize * this._elementsPerQuad * 4 + 1024; // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
-				}
-				else
-				{
-				#end
-				this._byteData.length = this._bufferSize * this._elementsPerQuad * 4;
-				#if flash
-				}
-				#end
-			}
-			#if !flash
-			if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
-			#end
+			updateData();
 		}
 		if (this._program != null)
 		{
@@ -565,11 +500,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	}
 	
 	
-	private var _simpleColorMode:Bool = false;
+	private var _simpleColorMode:Bool;
 	/**
 	   Tells whether to have color data for tinting/colorizing, this results in bigger vertex data and more complex shader so disabling it is a good idea if you don't need it
 	**/
-	private var _useColor:Bool = true;
+	private var _useColor:Bool;
 	
 	/**
 	   Tells the MassiveDisplay instance to use a ByteArray to store and upload vertex data. This seems to result in faster upload on flash/air target, but at a higher cpu cost.
@@ -599,10 +534,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _numLayers:Int;
 	
 	private var _buffersCreated:Bool = false;
+	private var _bufferSize:Int;
+	private var _numBuffers:Int;
 	
 	private var _indexBuffer:IndexBuffer3D;
 	private var _vertexBuffer:VertexBuffer3D;
-	private var _vertexBufferIndex:Int = -1;
+	private var _vertexBufferIndex:Int;
 	private var _vertexBuffers:Array<VertexBuffer3D>;
 	
 	#if flash
@@ -634,15 +571,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	texture
 	   @param	renderMode
 	   @param	colorMode
-	   @param	bufferSize
+	   @param	maxQuads
 	**/
-	public function new(texture:Texture = null, renderMode:String = null, colorMode:String = null, bufferSize:Int = MassiveConstants.MAX_QUADS, numBuffers:Int = 1) 
+	public function new(texture:Texture = null, renderMode:String = null, colorMode:String = null, maxQuads:Int = MassiveConstants.MAX_QUADS)//, numBuffers:Int = 1) 
 	{
 		super();
 		
 		this.texture = texture;
-		this.bufferSize = bufferSize;
-		this.numBuffers = numBuffers;
+		this.maxQuads = maxQuads;
 		
 		if (colorMode == null) colorMode = defaultColorMode;
 		if (colorMode == null) colorMode = MassiveColorMode.EXTENDED;
@@ -1048,6 +984,28 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._vectorColor[0] = this._red;
 		this._vectorColor[1] = this._green;
 		this._vectorColor[2] = this._blue;
+		#end
+	}
+	
+	private function updateData():Void
+	{
+		if (this._useByteArray && this._byteData != null)
+		{
+			#if flash
+			if (this._useByteArrayDomainMemory)
+			{
+				this._byteData.length = this._bufferSize * this._elementsPerQuad * 4 + 1024; // for some reason if we don't add 1024 to the byte array's length it will fail on release mode
+			}
+			else
+			{
+			#end
+			this._byteData.length = this._bufferSize * this._elementsPerQuad * 4;
+			#if flash
+			}
+			#end
+		}
+		#if !flash
+		else if (this._useFloat32Array && this._float32Data != null) this._float32Data = new Float32Array(this._bufferSize * this._elementsPerQuad);
 		#end
 	}
 	
