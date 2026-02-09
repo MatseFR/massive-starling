@@ -20,9 +20,9 @@ import starling.utils.Align;
  */
 class MassiveQuads extends Scene implements IAnimatable
 {
+	public var autoUpdateBounds:Bool;
 	public var colorMode:String;
 	public var displayScale:Float;
-	public var numBuffers:Int = 2;
 	public var numObjects:Int = 2000;
 	public var renderMode:String;
 	public var useBlurFilter:Bool;
@@ -66,10 +66,8 @@ class MassiveQuads extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
 		var display:MassiveDisplay;
 		var layer:QuadLayer;
-		var numQuads:Int;
 		#if flash
 		this._quads = new Vector<MassiveQuad>();
 		#else
@@ -78,53 +76,50 @@ class MassiveQuads extends Scene implements IAnimatable
 		var quad:MassiveQuad;
 		var speedVariance:Float;
 		var velocity:Float;
-		//for (i in 0...numDisplays)
-		//{
-			//numQuads = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
+		
+		display = new MassiveDisplay(null, this.renderMode, this.colorMode, this.numObjects);
+		display.autoUpdateBounds = this.autoUpdateBounds;
+		
+		layer = new QuadLayer();
+		display.addLayer(layer);
+		
+		for (j in 0...this.numObjects)
+		{
+			quad = new MassiveQuad();
+			quad.x = MathUtils.random() * stageWidth;
+			quad.y = MathUtils.random() * stageHeight;
+			quad.width = this._quadWidth;
+			quad.height = this._quadHeight;
+			quad.scaleX = quad.scaleY = this.displayScale;
+			if (this.useRandomRotation) quad.rotation = MathUtils.random() * MathUtils.PI2;
 			
-			display = new MassiveDisplay(null, this.renderMode, this.colorMode, this.numObjects);// , this.numBuffers);
-			
-			layer = new QuadLayer();
-			display.addLayer(layer);
-			
-			for (j in 0...this.numObjects)
+			if (this.useRandomAlpha) quad.alpha = MathUtils.random();
+			if (this.useRandomColor)
 			{
-				quad = new MassiveQuad();
-				quad.x = MathUtils.random() * stageWidth;
-				quad.y = MathUtils.random() * stageHeight;
-				quad.width = this._quadWidth;
-				quad.height = this._quadHeight;
-				quad.scaleX = quad.scaleY = this.displayScale;
-				if (this.useRandomRotation) quad.rotation = MathUtils.random() * MathUtils.PI2;
-				
-				if (this.useRandomAlpha) quad.alpha = MathUtils.random();
-				if (this.useRandomColor)
-				{
-					quad.red = MathUtils.random();
-					quad.green = MathUtils.random();
-					quad.blue = MathUtils.random();
-				}
-				
-				speedVariance = MathUtils.random();
-				velocity = this._velocityBase + speedVariance * this._velocityRange;
-				quad.velocityX = LookUp.cos(quad.rotation) * velocity;
-				quad.velocityY = LookUp.sin(quad.rotation) * velocity;
-				
-				quad.alignPivot(Align.CENTER, Align.CENTER);
-				
-				this._quads[this._quads.length] = quad;
-				layer.addQuad(quad);
+				quad.red = MathUtils.random();
+				quad.green = MathUtils.random();
+				quad.blue = MathUtils.random();
 			}
 			
-			if (this.useSprite3D)
-			{
-				this._sprite3D.addChild(display);
-			}
-			else
-			{
-				addChild(display);
-			}
-		//}
+			speedVariance = MathUtils.random();
+			velocity = this._velocityBase + speedVariance * this._velocityRange;
+			quad.velocityX = LookUp.cos(quad.rotation) * velocity;
+			quad.velocityY = LookUp.sin(quad.rotation) * velocity;
+			
+			quad.alignPivot(Align.CENTER, Align.CENTER);
+			
+			this._quads[this._quads.length] = quad;
+			layer.addQuad(quad);
+		}
+		
+		if (this.useSprite3D)
+		{
+			this._sprite3D.addChild(display);
+		}
+		else
+		{
+			addChild(display);
+		}
 		
 		if (this.useBlurFilter)
 		{

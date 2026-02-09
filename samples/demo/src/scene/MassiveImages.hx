@@ -23,10 +23,10 @@ import starling.utils.Align;
  */
 class MassiveImages extends Scene implements IAnimatable
 {
+	public var autoUpdateBounds:Bool;
 	public var colorMode:String;
 	public var frameDeltaBase:Float = 0.1;
 	public var frameDeltaVariance:Float = 0.5;
-	public var numBuffers:Int = 2;
 	public var numObjects:Int = 1000;
 	public var renderMode:String;
 	public var useBlurFilter:Bool;
@@ -77,11 +77,9 @@ class MassiveImages extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		var numDisplays:Int = MathUtils.ceil(this.numObjects / MassiveConstants.MAX_QUADS);
-		var bufferSize:Int = MathUtils.minInt(this.numObjects, MassiveConstants.MAX_QUADS);
+		
 		var display:MassiveDisplay;
 		var layer:ImageLayer;
-		var numImages:Int;
 		#if flash
 		this._imgList = new Vector<MassiveImage>();
 		#else
@@ -90,52 +88,49 @@ class MassiveImages extends Scene implements IAnimatable
 		var img:MassiveImage;
 		var speedVariance:Float;
 		var velocity:Float;
-		//for (i in 0...numDisplays)
-		//{
-			//numImages = i == numDisplays - 1 ? this.numObjects % MassiveConstants.MAX_QUADS : MassiveConstants.MAX_QUADS;
+		
+		display = new MassiveDisplay(this.atlasTexture, this.renderMode, this.colorMode, this.numObjects);
+		display.autoUpdateBounds = this.autoUpdateBounds;
+		
+		layer = new ImageLayer();
+		display.addLayer(layer);
+		
+		for (j in 0...this.numObjects)
+		{
+			img = new MassiveImage();
+			img.setFrames(this._frames, this._timings, true, 0, Std.random(frameCount));
+			img.x = MathUtils.random() * stageWidth;
+			img.y = MathUtils.random() * stageHeight;
+			img.scaleX = img.scaleY = this.imgScale;
+			if (this.useRandomRotation) img.rotation = MathUtils.random() * MathUtils.PI2;
 			
-			display = new MassiveDisplay(this.atlasTexture, this.renderMode, this.colorMode, this.numObjects);// , this.numBuffers);
-			
-			layer = new ImageLayer();
-			display.addLayer(layer);
-			
-			for (j in 0...this.numObjects)
+			if (this.useRandomAlpha) img.alpha = MathUtils.random();
+			if (this.useRandomColor)
 			{
-				img = new MassiveImage();
-				img.setFrames(this._frames, this._timings, true, 0, Std.random(frameCount));
-				img.x = MathUtils.random() * stageWidth;
-				img.y = MathUtils.random() * stageHeight;
-				img.scaleX = img.scaleY = this.imgScale;
-				if (this.useRandomRotation) img.rotation = MathUtils.random() * MathUtils.PI2;
-				
-				if (this.useRandomAlpha) img.alpha = MathUtils.random();
-				if (this.useRandomColor)
-				{
-					img.red = MathUtils.random();
-					img.green = MathUtils.random();
-					img.blue = MathUtils.random();
-				}
-				
-				speedVariance = MathUtils.random();
-				img.frameDelta = this.frameDeltaBase + speedVariance * this.frameDeltaVariance;
-				
-				velocity = this._velocityBase + speedVariance * this._velocityRange;
-				img.velocityX = LookUp.cos(img.rotation) * velocity;
-				img.velocityY = LookUp.sin(img.rotation) * velocity;
-				
-				this._imgList[this._imgList.length] = img;
-				layer.addImage(img);
+				img.red = MathUtils.random();
+				img.green = MathUtils.random();
+				img.blue = MathUtils.random();
 			}
 			
-			if (this.useSprite3D)
-			{
-				this._sprite3D.addChild(display);
-			}
-			else
-			{
-				addChild(display);
-			}
-		//}
+			speedVariance = MathUtils.random();
+			img.frameDelta = this.frameDeltaBase + speedVariance * this.frameDeltaVariance;
+			
+			velocity = this._velocityBase + speedVariance * this._velocityRange;
+			img.velocityX = LookUp.cos(img.rotation) * velocity;
+			img.velocityY = LookUp.sin(img.rotation) * velocity;
+			
+			this._imgList[this._imgList.length] = img;
+			layer.addImage(img);
+		}
+		
+		if (this.useSprite3D)
+		{
+			this._sprite3D.addChild(display);
+		}
+		else
+		{
+			addChild(display);
+		}
 		
 		if (this.useBlurFilter)
 		{

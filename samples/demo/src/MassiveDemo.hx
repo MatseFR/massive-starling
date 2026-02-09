@@ -41,7 +41,6 @@ class MassiveDemo extends Sprite
 	private var scaleSprite:Sprite;
 	private var colorModeSprite:Sprite;
 	private var renderModeSprite:Sprite;
-	private var bufferSprite:Sprite;
 	private var classicSprite:Sprite;
 	private var massiveSprite:Sprite;
 	private var backButton:Button;
@@ -50,13 +49,13 @@ class MassiveDemo extends Sprite
 	private var atlas:TextureAtlas;
 	private var textures:Vector<Texture>;
 	
+	private var autoUpdateBounds:Bool = false;
 	private var colorMode:String;
 	private var displayScale:Float = 1.0;
 	private var frameDeltaBase:Float;
 	private var frameDeltaVariance:Float;
 	private var frameRateBase:Int;
 	private var frameRateVariance:Int;
-	private var numBuffers:Int = 1;
 	private var numObjects:Int;
 	private var renderMode:String;
 	private var useBlurFilter:Bool = false;
@@ -74,7 +73,6 @@ class MassiveDemo extends Sprite
 	
 	private var atlasButtons:Array<Button> = new Array<Button>();
 	private var scaleButtons:Array<Button> = new Array<Button>();
-	private var buffersButtons:Array<Button> = new Array<Button>();
 	private var colorModeButtons:Array<Button> = new Array<Button>();
 	private var renderModeButtons:Array<Button> = new Array<Button>();
 	
@@ -398,43 +396,10 @@ class MassiveDemo extends Sprite
 		this.colorModeSprite.x = (this.buttonTextureOFF.width - this.colorModeSprite.width) / 2;
 		
 		tY += btn.height + gap;
-		this.bufferSprite = new Sprite();
-		this.bufferSprite.y = tY;
-		this.menuSprite.addChild(this.bufferSprite);
-		tf = new TextField(0, 0, "buffers");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
-		//tf.y = (btn.height - tf.height) / 2;
-		tf.y = ((btn.height * 2 + gap) - tf.height) / 2;
-		this.bufferSprite.addChild(tf);
-		
-		tX = tf.width + gap;
-		var aY = tf.y + (tf.height - (btn.height * 2 + gap)) / 2;
-		
-		var num:Int;
-		for (i in 0...32)
-		{
-			num = i + 1;
-			btn = new Button(this.numBuffers == num ? this.miniButtonTextureON : this.miniButtonTextureOFF, Std.string(num), null, this.miniButtonTextureON);
-			btn.x = tX;
-			//btn.y = tf.y + (tf.height - btn.height) / 2;
-			btn.y = aY;
-			btn.addEventListener(Event.TRIGGERED, toggleBuffers);
-			this.buffersButtons.push(btn);
-			this.bufferSprite.addChild(btn);
-			
-			if (i == 15)
-			{
-				tX = tf.width + gap;
-				aY += btn.height + gap;
-			}
-			else
-			{
-				tX += btn.width + gap;
-			}
-		}
-		
-		this.bufferSprite.x = (this.buttonTextureOFF.width - this.bufferSprite.width) / 2;
+		btn = new Button(this.autoUpdateBounds ? this.buttonTextureON : this.buttonTextureOFF, "autoUpdateBounds", null, this.buttonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleAutoUpdateBounds);
+		this.menuSprite.addChild(btn);
 		
 		tY += btn.height * 2 + gap * 4;
 		demoY = tY + btn.height + gap * 2;
@@ -775,6 +740,20 @@ class MassiveDemo extends Sprite
 		}
 	}
 	
+	private function toggleAutoUpdateBounds(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.autoUpdateBounds = !this.autoUpdateBounds;
+		if (this.autoUpdateBounds)
+		{
+			btn.upState = this.buttonTextureON;
+		}
+		else
+		{
+			btn.upState = this.buttonTextureOFF;
+		}
+	}
+	
 	private function toggleBlurFilter(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
@@ -787,19 +766,6 @@ class MassiveDemo extends Sprite
 		{
 			btn.upState = this.buttonTextureOFF;
 		}
-	}
-	
-	private function toggleBuffers(evt:Event):Void
-	{
-		var btn:Button = cast evt.target;
-		for (otherBtn in this.buffersButtons)
-		{
-			if (otherBtn == btn) continue;
-			otherBtn.upState = this.miniButtonTextureOFF;
-		}
-		
-		this.numBuffers = Std.parseInt(btn.text);
-		btn.upState = this.miniButtonTextureON;
 	}
 	
 	private function toggleColorMode(evt:Event):Void
@@ -927,10 +893,10 @@ class MassiveDemo extends Sprite
 	private function startMassiveImages():Void
 	{
 		var massive:MassiveImages = new MassiveImages();
+		massive.autoUpdateBounds = this.autoUpdateBounds;
 		massive.atlasTexture = this.atlas.texture;
 		massive.textures = this.textures;
 		massive.imgScale = this.displayScale;
-		massive.numBuffers = this.numBuffers;
 		massive.numObjects = this.numObjects;
 		massive.colorMode = this.colorMode;
 		massive.renderMode = this.renderMode;
@@ -946,8 +912,8 @@ class MassiveDemo extends Sprite
 	private function startMassiveQuads():Void
 	{
 		var massive:MassiveQuads = new MassiveQuads();
+		massive.autoUpdateBounds = this.autoUpdateBounds;
 		massive.displayScale = this.displayScale;
-		massive.numBuffers = this.numBuffers;
 		massive.numObjects = this.numObjects;
 		massive.colorMode = this.colorMode;
 		massive.renderMode = this.renderMode;
