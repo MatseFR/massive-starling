@@ -588,7 +588,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	colorMode
 	   @param	maxQuads
 	**/
-	public function new(texture:Texture = null, renderMode:String = null, colorMode:String = null, maxQuads:Int = MassiveConstants.MAX_QUADS)//, numBuffers:Int = 1) 
+	public function new(texture:Texture = null, renderMode:String = null, colorMode:String = null, maxQuads:Int = MassiveConstants.MAX_QUADS)
 	{
 		super();
 		
