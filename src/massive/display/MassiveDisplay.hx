@@ -136,6 +136,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var autoHandleJuggler(get, set):Bool;
 	/**
+	   Tells whether exact bounds should be updated every frame.
+	   Caution : this can be very expensive with tens of thousands of quads.
+	   @default	false
+	**/
+	public var autoUpdateBounds(get, set):Bool;
+	/**
 	   By default a MassiveDisplay instance will use stage bounds, set this if you need different bounds.
 	   @default null
 	**/
@@ -235,6 +241,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private function set_autoHandleJuggler(value:Bool):Bool
 	{
 		return this._autoHandleJuggler = value;
+	}
+	
+	private var _autoUpdateBounds:Bool = false;
+	private function get_autoUpdateBounds():Bool { return this._autoUpdateBounds; }
+	private function set_autoUpdateBounds(value:Bool):Bool
+	{
+		return this._autoUpdateBounds = value;
 	}
 	
 	private function get_color():Int 
@@ -543,8 +556,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _vertexBuffers:Array<VertexBuffer3D>;
 	
 	#if flash
+	private var _boundsData:Vector<Float> = new Vector<Float>();
 	private var _byteColor:ByteArray;
 	#else
+	private var _boundsData:Array<Float> = new Array<Float>();
 	private var _vectorColor:Vector<Float>;
 	#end
 	private var _vectorData:Vector<Float>;
@@ -1187,8 +1202,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			throw new MissingContextError();
 		}
 		
-		this._numQuads = 0;
-		
 		painter.finishMeshBatch();
 		
 		painter.setupContextDefaults();
@@ -1235,6 +1248,15 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
 		
 		var forceBuffer:Bool = true;
+		var boundsData:#if flash Vector<Float> #else Array<Float> #end = this._autoUpdateBounds ? this._boundsData : null;
+		if (boundsData != null)
+		{
+			#if flash
+			boundsData.length = 0;
+			#else
+			boundsData.resize(0);
+			#end
+		}
 		
 		var layerDone:Bool;
 		var layerIndex:Int = 0;
@@ -1250,7 +1272,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				while (layerIndex < this._numLayers)
 				{
 					if (!this._layers[layerIndex].visible) continue;
-					layerDone = this._layers[layerIndex].writeDataBytesMemory(this._byteData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData);
+					layerDone = this._layers[layerIndex].writeDataBytesMemory(this._byteData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData, boundsData);
 					if (this._renderData.numQuads == this._bufferSize)
 					{
 						nextBuffer(context, forceBuffer);
@@ -1280,7 +1302,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				while (layerIndex < this._numLayers)
 				{
 					if (!this._layers[layerIndex].visible) continue;
-					layerDone = this._layers[layerIndex].writeDataBytes(this._byteData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData);
+					layerDone = this._layers[layerIndex].writeDataBytes(this._byteData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData, boundsData);
 					if (this._renderData.numQuads == this._bufferSize)
 					{
 						nextBuffer(context, forceBuffer);
@@ -1311,7 +1333,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			while (layerIndex < this._numLayers)
 			{
 				if (!this._layers[layerIndex].visible) continue;
-				layerDone = this._layers[layerIndex].writeDataFloat32Array(this._float32Data, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData);
+				layerDone = this._layers[layerIndex].writeDataFloat32Array(this._float32Data, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData, boundsData);
 				if (this._renderData.numQuads == this._bufferSize)
 				{
 					nextBuffer(context, forceBuffer);
@@ -1340,7 +1362,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			while (layerIndex < this._numLayers)
 			{
 				if (!this._layers[layerIndex].visible) continue;
-				layerDone = this._layers[layerIndex].writeDataVector(this._vectorData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData);
+				layerDone = this._layers[layerIndex].writeDataVector(this._vectorData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData, boundsData);
 				if (this._renderData.numQuads == this._bufferSize)
 				{
 					nextBuffer(context, forceBuffer);
@@ -1362,6 +1384,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				++painter.drawCount;
 			}
 		}
+		
+		this._numQuads = this._renderData.totalQuads;
+		if (this._autoUpdateBounds) updateExactBounds();
 		
 		for (i in new ReverseIterator(this.contextBufferIndex, 0))
 		{
@@ -1464,55 +1489,23 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	/**
 	 * call this before calling updateExactBounds if needed. This does *NOT* render anything
 	 */
-	public function renderData():Void
+	public function writeBoundsData():Void
 	{
-		this._numQuads = 0;
-		this._numLayers = this._layers.length;
-		if (this._useByteArray)
-		{
-			#if flash
-			if (this._useByteArrayDomainMemory)
-			{
-				var prevByteArray:ByteArray = ApplicationDomain.currentDomain.domainMemory;
-				Memory.select(this._byteData);
-				//for (i in 0...this._numLayers)
-				//{
-					//if (!this._layers[i].visible) continue;
-					//this._numQuads += this._layers[i].writeDataBytesMemory(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-				//}
-				Memory.select(prevByteArray);
-			}
-			else
-			{
-			#end
-				this._byteData.position = 0;
-				for (i in 0...this._numLayers)
-				{
-					if (!this._layers[i].visible) continue;
-					//this._numQuads += this._layers[i].writeDataBytes(this._byteData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-				}
-			#if flash
-			}
-			#end
-		}
-		#if !flash
-		else if (this._useFloat32Array)
-		{
-			for (i in 0...this._numLayers)
-			{
-				if (!this._layers[i].visible) continue;
-				//this._numQuads += this._layers[i].writeDataFloat32Array(this._float32Data, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-			}
-		}
+		#if flash
+		this._boundsData.length = 0;
+		#else
+		this._boundsData.resize(0);
 		#end
-		else
+		this._renderData.clear();
+		this._numLayers = this._layers.length;
+		
+		for (i in 0...this._numLayers)
 		{
-			for (i in 0...this._numLayers)
-			{
-				if (!this._layers[i].visible) continue;
-				//this._numQuads += this._layers[i].writeDataVector(this._vectorData, this._numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode);
-			}
+			if (!this._layers[i].visible) continue;
+			this._layers[i].writeBoundsData(this._boundsData, this._renderData, this.renderOffsetX, this.renderOffsetY);
 		}
+		
+		this._numQuads = this._renderData.totalQuads;
 	}
 	
 	/**
@@ -1532,8 +1525,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			return;
 		}
 		
-		var quadPos:Int;
-		var pos:Int;
+		var pos:Int = -1;
 		
 		var minX:Float = MathUtils.FLOAT_MAX;
 		var maxX:Float = MathUtils.FLOAT_MIN;
@@ -1543,185 +1535,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		var tX:Float;
 		var tY:Float;
 		
-		if (this._useByteArray)
+		for (i in 0...this._numQuads)
 		{
-			#if flash
-			if (this._useByteArrayDomainMemory)
+			for (j in 0...4)
 			{
-				var prevByteArray:ByteArray = ApplicationDomain.currentDomain.domainMemory;
-				Memory.select(this._byteData);
-				for (i in 0...this._numQuads)
-				{
-					quadPos = i * this._elementsPerQuad << 2;
-					
-					pos = quadPos;
-					tX = Memory.getFloat(pos);
-					tY = Memory.getFloat(pos + 4);
-					
-					if (minX > tX) minX = tX;
-					if (maxX < tX) maxX = tX;
-					if (minY > tY) minY = tY;
-					if (maxY < tY) maxY = tY;
-					
-					pos += this._elementsPerVertex << 2;
-					tX = Memory.getFloat(pos);
-					tY = Memory.getFloat(pos + 4);
-					
-					if (minX > tX) minX = tX;
-					if (maxX < tX) maxX = tX;
-					if (minY > tY) minY = tY;
-					if (maxY < tY) maxY = tY;
-					
-					pos += this._elementsPerVertex << 2;
-					tX = Memory.getFloat(pos);
-					tY = Memory.getFloat(pos + 4);
-					
-					if (minX > tX) minX = tX;
-					if (maxX < tX) maxX = tX;
-					if (minY > tY) minY = tY;
-					if (maxY < tY) maxY = tY;
-					
-					pos += this._elementsPerVertex << 2;
-					tX = Memory.getFloat(pos);
-					tY = Memory.getFloat(pos + 4);
-					
-					if (minX > tX) minX = tX;
-					if (maxX < tX) maxX = tX;
-					if (minY > tY) minY = tY;
-					if (maxY < tY) maxY = tY;
-				}
-				Memory.select(prevByteArray);
-			}
-			else
-			{
-			#end
-				for (i in 0...this._numQuads)
-				{
-					quadPos = i * this._elementsPerQuad << 2;
-					
-					pos = quadPos;
-					this._byteData.position = pos;
-					tX = this._byteData.readFloat();
-					tY = this._byteData.readFloat();
-					
-					if (minX > tX) minX = tX;
-					if (maxX < tX) maxX = tX;
-					if (minY > tY) minY = tY;
-					if (maxY < tY) maxY = tY;
-					
-					pos += this._elementsPerVertex << 2;
-					this._byteData.position = pos;
-					tX = this._byteData.readFloat();
-					tY = this._byteData.readFloat();
-					
-					if (minX > tX) minX = tX;
-					if (maxX < tX) maxX = tX;
-					if (minY > tY) minY = tY;
-					if (maxY < tY) maxY = tY;
-					
-					pos += this._elementsPerVertex << 2;
-					this._byteData.position = pos;
-					tX = this._byteData.readFloat();
-					tY = this._byteData.readFloat();
-					
-					if (minX > tX) minX = tX;
-					if (maxX < tX) maxX = tX;
-					if (minY > tY) minY = tY;
-					if (maxY < tY) maxY = tY;
-					
-					pos += this._elementsPerVertex << 2;
-					this._byteData.position = pos;
-					tX = this._byteData.readFloat();
-					tY = this._byteData.readFloat();
-					
-					if (minX > tX) minX = tX;
-					if (maxX < tX) maxX = tX;
-					if (minY > tY) minY = tY;
-					if (maxY < tY) maxY = tY;
-				}
-			#if flash
-			}
-			#end
-		}
-		#if !flash
-		else if (this._useFloat32Array)
-		{
-			for (i in 0...this._numQuads)
-			{
-				quadPos = i * this._elementsPerQuad;
-				
-				pos = quadPos;
-				tX = this._float32Data[pos];
-				tY = this._float32Data[pos + 1];
-				
-				if (minX > tX) minX = tX;
-				if (maxX < tX) maxX = tX;
-				if (minY > tY) minY = tY;
-				if (maxY < tY) maxY = tY;
-				
-				pos += this._elementsPerVertex;
-				tX = this._float32Data[pos];
-				tY = this._float32Data[pos + 1];
-				
-				if (minX > tX) minX = tX;
-				if (maxX < tX) maxX = tX;
-				if (minY > tY) minY = tY;
-				if (maxY < tY) maxY = tY;
-				
-				tX = this._float32Data[pos];
-				tY = this._float32Data[pos + 1];
-				
-				if (minX > tX) minX = tX;
-				if (maxX < tX) maxX = tX;
-				if (minY > tY) minY = tY;
-				if (maxY < tY) maxY = tY;
-				
-				tX = this._float32Data[pos];
-				tY = this._float32Data[pos + 1];
-				
-				if (minX > tX) minX = tX;
-				if (maxX < tX) maxX = tX;
-				if (minY > tY) minY = tY;
-				if (maxY < tY) maxY = tY;
-			}
-		}
-		#end
-		else
-		{
-			for (i in 0...this._numQuads)
-			{
-				quadPos = i * this._elementsPerQuad;
-				
-				pos = quadPos;
-				tX = this._vectorData[pos];
-				tY = this._vectorData[pos + 1];
-				
-				if (minX > tX) minX = tX;
-				if (maxX < tX) maxX = tX;
-				if (minY > tY) minY = tY;
-				if (maxY < tY) maxY = tY;
-				
-				pos += this._elementsPerVertex;
-				tX = this._vectorData[pos];
-				tY = this._vectorData[pos + 1];
-				
-				if (minX > tX) minX = tX;
-				if (maxX < tX) maxX = tX;
-				if (minY > tY) minY = tY;
-				if (maxY < tY) maxY = tY;
-				
-				pos += this._elementsPerVertex;
-				tX = this._vectorData[pos];
-				tY = this._vectorData[pos + 1];
-				
-				if (minX > tX) minX = tX;
-				if (maxX < tX) maxX = tX;
-				if (minY > tY) minY = tY;
-				if (maxY < tY) maxY = tY;
-				
-				pos += this._elementsPerVertex;
-				tX = this._vectorData[pos];
-				tY = this._vectorData[pos + 1];
+				tX = this._boundsData[++pos];
+				tY = this._boundsData[++pos];
 				
 				if (minX > tX) minX = tX;
 				if (maxX < tX) maxX = tX;
@@ -1730,10 +1549,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			}
 		}
 		
-		this.boundsRect.x = this.__x + minX - this.renderOffsetX;
-		this.boundsRect.y = this.__y + minY - this.renderOffsetY;
-		this.boundsRect.width = maxX - minX;
-		this.boundsRect.height = maxY - minY;
+		this.boundsRect.setTo(this.__x + minX - this.renderOffsetX, this.__y + minY - this.renderOffsetY, maxX - minX, maxY - minY);
 	}
 	
 }

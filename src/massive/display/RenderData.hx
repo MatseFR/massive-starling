@@ -9,6 +9,7 @@ class RenderData
 	public var numQuads:Int;
 	public var position:Int;
 	public var quadOffset:Int;
+	public var totalQuads:Int;
 	
 	public function new() 
 	{
@@ -17,7 +18,7 @@ class RenderData
 	
 	public function clear():Void
 	{
-		this.numQuads = this.position = this.quadOffset = 0;
+		this.numQuads = this.position = this.quadOffset = this.totalQuads = 0;
 	}
 	
 	public function render():Void

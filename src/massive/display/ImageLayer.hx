@@ -176,7 +176,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool
+	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
 	{
 		if (this._datas == null) return true;
 		
@@ -215,6 +215,8 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
 		var totalQuads:Int = renderData.quadOffset + numQuads;
+		var storeBounds:Bool = boundsData != null;
+		var boundsIndex:Int = storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
@@ -323,6 +325,18 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				sinRight = sin * rightOffset;
 				sinTop = sin * topOffset;
 				sinBottom = sin * bottomOffset;
+				
+				if (storeBounds)
+				{
+					boundsData[++boundsIndex] = x - cosLeft + sinTop;
+					boundsData[++boundsIndex] = y - sinLeft - cosTop;
+					boundsData[++boundsIndex] = x + cosRight + sinTop;
+					boundsData[++boundsIndex] = y + sinRight - cosTop;
+					boundsData[++boundsIndex] = x - cosLeft - sinBottom;
+					boundsData[++boundsIndex] = y - sinLeft + cosBottom;
+					boundsData[++boundsIndex] = x + cosRight - sinBottom;
+					boundsData[++boundsIndex] = y + sinRight + cosBottom;
+				}
 				
 				byteData.writeFloat(x - cosLeft + sinTop);
 				byteData.writeFloat(y - sinLeft - cosTop);
@@ -402,6 +416,18 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			}
 			else
 			{
+				if (storeBounds)
+				{
+					boundsData[++boundsIndex] = x - leftOffset;
+					boundsData[++boundsIndex] = y - topOffset;
+					boundsData[++boundsIndex] = x + rightOffset;
+					boundsData[++boundsIndex] = y - topOffset;
+					boundsData[++boundsIndex] = x - leftOffset;
+					boundsData[++boundsIndex] = y + bottomOffset;
+					boundsData[++boundsIndex] = x + rightOffset;
+					boundsData[++boundsIndex] = y + bottomOffset;
+				}
+				
 				byteData.writeFloat(x - leftOffset);
 				byteData.writeFloat(y - topOffset);
 				byteData.writeFloat(u1);
@@ -481,6 +507,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		}
 		
 		renderData.numQuads += quadsWritten;
+		renderData.totalQuads += quadsWritten;
 		
 		if (this.numDatas == totalQuads)
 		{
@@ -498,7 +525,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytesMemory(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool
+	public function writeDataBytesMemory(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
 	{
 		if (this._datas == null) return true;
 		
@@ -539,6 +566,8 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
 		var totalQuads:Int = renderData.quadOffset + numQuads;
+		var storeBounds:Bool = boundsData != null;
+		var boundsIndex:Int = storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
@@ -648,6 +677,18 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				sinTop = sin * topOffset;
 				sinBottom = sin * bottomOffset;
 				
+				if (storeBounds)
+				{
+					boundsData[++boundsIndex] = x - cosLeft + sinTop;
+					boundsData[++boundsIndex] = y - sinLeft - cosTop;
+					boundsData[++boundsIndex] = x + cosRight + sinTop;
+					boundsData[++boundsIndex] = y + sinRight - cosTop;
+					boundsData[++boundsIndex] = x - cosLeft - sinBottom;
+					boundsData[++boundsIndex] = y - sinLeft + cosBottom;
+					boundsData[++boundsIndex] = x + cosRight - sinBottom;
+					boundsData[++boundsIndex] = y + sinRight + cosBottom;
+				}
+				
 				Memory.setFloat(position, x - cosLeft + sinTop);
 				Memory.setFloat(position += 4, y - sinLeft - cosTop);
 				Memory.setFloat(position += 4, u1);
@@ -726,6 +767,18 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			}
 			else
 			{
+				if (storeBounds)
+				{
+					boundsData[++boundsIndex] = x - leftOffset;
+					boundsData[++boundsIndex] = y - topOffset;
+					boundsData[++boundsIndex] = x + rightOffset;
+					boundsData[++boundsIndex] = y - topOffset;
+					boundsData[++boundsIndex] = x - leftOffset;
+					boundsData[++boundsIndex] = y + bottomOffset;
+					boundsData[++boundsIndex] = x + rightOffset;
+					boundsData[++boundsIndex] = y + bottomOffset;
+				}
+				
 				Memory.setFloat(position, x - leftOffset);
 				Memory.setFloat(position += 4, y - topOffset);
 				Memory.setFloat(position += 4, u1);
@@ -807,6 +860,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		renderData.numQuads += quadsWritten;
 		renderData.position = position;
+		renderData.totalQuads += quadsWritten;
 		
 		if (this.numDatas == totalQuads)
 		{
@@ -825,7 +879,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool
+	public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
 	{
 		if (this._datas == null) return true;
 		
@@ -866,6 +920,8 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
 		var totalQuads:Int = renderData.quadOffset + numQuads;
+		var storeBounds:Bool = boundsData != null;
+		var boundsIndex:Int = storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
@@ -975,6 +1031,18 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				sinTop = sin * topOffset;
 				sinBottom = sin * bottomOffset;
 				
+				if (storeBounds)
+				{
+					boundsData[++boundsIndex] = x - cosLeft + sinTop;
+					boundsData[++boundsIndex] = y - sinLeft - cosTop;
+					boundsData[++boundsIndex] = x + cosRight + sinTop;
+					boundsData[++boundsIndex] = y + sinRight - cosTop;
+					boundsData[++boundsIndex] = x - cosLeft - sinBottom;
+					boundsData[++boundsIndex] = y - sinLeft + cosBottom;
+					boundsData[++boundsIndex] = x + cosRight - sinBottom;
+					boundsData[++boundsIndex] = y + sinRight + cosBottom;
+				}
+				
 				floatData[position]   = x - cosLeft + sinTop;
 				floatData[++position] = y - sinLeft - cosTop;
 				floatData[++position] = u1;
@@ -1053,6 +1121,18 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			}
 			else
 			{
+				if (storeBounds)
+				{
+					boundsData[++boundsIndex] = x - leftOffset;
+					boundsData[++boundsIndex] = y - topOffset;
+					boundsData[++boundsIndex] = x + rightOffset;
+					boundsData[++boundsIndex] = y - topOffset;
+					boundsData[++boundsIndex] = x - leftOffset;
+					boundsData[++boundsIndex] = y + bottomOffset;
+					boundsData[++boundsIndex] = x + rightOffset;
+					boundsData[++boundsIndex] = y + bottomOffset;
+				}
+				
 				floatData[position]   = x - leftOffset;
 				floatData[++position] = y - topOffset;
 				floatData[++position] = u1;
@@ -1134,6 +1214,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		renderData.numQuads += quadsWritten;
 		renderData.position = position;
+		renderData.totalQuads += quadsWritten;
 		
 		if (this.numDatas == totalQuads)
 		{
@@ -1151,7 +1232,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData):Bool
+	public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
 	{
 		if (this._datas == null) return true;
 		
@@ -1192,6 +1273,8 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
 		var totalQuads:Int = renderData.quadOffset + numQuads;
+		var storeBounds:Bool = boundsData != null;
+		var boundsIndex:Int = storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
@@ -1301,6 +1384,18 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				sinTop = sin * topOffset;
 				sinBottom = sin * bottomOffset;
 				
+				if (storeBounds)
+				{
+					boundsData[++boundsIndex] = x - cosLeft + sinTop;
+					boundsData[++boundsIndex] = y - sinLeft - cosTop;
+					boundsData[++boundsIndex] = x + cosRight + sinTop;
+					boundsData[++boundsIndex] = y + sinRight - cosTop;
+					boundsData[++boundsIndex] = x - cosLeft - sinBottom;
+					boundsData[++boundsIndex] = y - sinLeft + cosBottom;
+					boundsData[++boundsIndex] = x + cosRight - sinBottom;
+					boundsData[++boundsIndex] = y + sinRight + cosBottom;
+				}
+				
 				vectorData[position]   = x - cosLeft + sinTop;
 				vectorData[++position] = y - sinLeft - cosTop;
 				vectorData[++position] = u1;
@@ -1379,6 +1474,18 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 			}
 			else
 			{
+				if (storeBounds)
+				{
+					boundsData[++boundsIndex] = x - leftOffset;
+					boundsData[++boundsIndex] = y - topOffset;
+					boundsData[++boundsIndex] = x + rightOffset;
+					boundsData[++boundsIndex] = y - topOffset;
+					boundsData[++boundsIndex] = x - leftOffset;
+					boundsData[++boundsIndex] = y + bottomOffset;
+					boundsData[++boundsIndex] = x + rightOffset;
+					boundsData[++boundsIndex] = y + bottomOffset;
+				}
+				
 				vectorData[position]   = x - leftOffset;
 				vectorData[++position] = y - topOffset;
 				vectorData[++position] = u1;
@@ -1460,6 +1567,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		
 		renderData.numQuads += quadsWritten;
 		renderData.position = position;
+		renderData.totalQuads += quadsWritten;
 		
 		if (this.numDatas == totalQuads)
 		{
@@ -1470,6 +1578,102 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		{
 			renderData.quadOffset += numQuads;
 			return false;
+		}
+	}
+	
+	/**
+	   @inheritDoc
+	**/
+	public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderData:RenderData, renderOffsetX:Float, renderOffsetY:Float):Void
+	{
+		var x:Float, y:Float;
+		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
+		var rotation:Float;
+		
+		var cos:Float;
+		var sin:Float;
+		
+		var cosLeft:Float;
+		var cosRight:Float;
+		var cosTop:Float;
+		var cosBottom:Float;
+		var sinLeft:Float;
+		var sinRight:Float;
+		var sinTop:Float;
+		var sinBottom:Float;
+		
+		var frame:Frame;
+		
+		var position:Int = boundsData.length;
+		
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
+		renderOffsetX += this.x;
+		renderOffsetY += this.y;
+		
+		var data:T;
+		for (i in 0...this.numDatas)
+		{
+			data = this._datas[i];
+			if (!data.visible) continue;
+			
+			x = data.x + data.offsetX + renderOffsetX;
+			y = data.y + data.offsetY + renderOffsetY;
+			rotation = data.rotation;
+			
+			frame = data.frameList[data.frameIndex];
+			
+			leftOffset = frame.leftWidth * data.scaleX;
+			rightOffset = frame.rightWidth * data.scaleX;
+			topOffset = frame.topHeight * data.scaleY;
+			bottomOffset = frame.bottomHeight * data.scaleY;
+			
+			if (rotation != 0.0)
+			{
+				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
+				//cos = COS[angle];
+				//sin = SIN[angle];
+				cos = Math.cos(rotation);
+				sin = Math.sin(rotation);
+				
+				cosLeft = cos * leftOffset;
+				cosRight = cos * rightOffset;
+				cosTop = cos * topOffset;
+				cosBottom = cos * bottomOffset;
+				sinLeft = sin * leftOffset;
+				sinRight = sin * rightOffset;
+				sinTop = sin * topOffset;
+				sinBottom = sin * bottomOffset;
+				
+				boundsData[position]   = x - cosLeft + sinTop;
+				boundsData[++position] = y - sinLeft - cosTop;
+				
+				boundsData[++position] = x + cosRight + sinTop;
+				boundsData[++position] = y + sinRight - cosTop;
+				
+				boundsData[++position] = x - cosLeft - sinBottom;
+				boundsData[++position] = y - sinLeft + cosBottom;
+				
+				boundsData[++position] = x + cosRight - sinBottom;
+				boundsData[++position] = y + sinRight + cosBottom;
+				
+			}
+			else
+			{
+				boundsData[position]   = x - leftOffset;
+				boundsData[++position] = y - topOffset;
+				
+				boundsData[++position] = x + rightOffset;
+				boundsData[++position] = y - topOffset;
+				
+				boundsData[++position] = x - leftOffset;
+				boundsData[++position] = y + bottomOffset;
+				
+				boundsData[++position] = x + rightOffset;
+				boundsData[++position] = y + bottomOffset;
+			}
+			
+			++position;
 		}
 	}
 	
