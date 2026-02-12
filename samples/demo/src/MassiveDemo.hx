@@ -3,14 +3,13 @@ package;
 import massive.display.MassiveColorMode;
 import massive.display.MassiveDisplay;
 import massive.display.MassiveRenderMode;
-import massive.util.LookUp;
 import openfl.Vector;
 import openfl.system.Capabilities;
 import openfl.utils.Assets;
+import scene.ClassicClips;
 import scene.ClassicQuads;
 import scene.MassiveImages;
 import scene.MassiveQuads;
-import scene.MovieClips;
 import scene.Scene;
 import starling.assets.AssetManager;
 import starling.core.Starling;
@@ -43,12 +42,17 @@ class MassiveDemo extends Sprite
 	private var renderModeSprite:Sprite;
 	private var classicSprite:Sprite;
 	private var massiveSprite:Sprite;
-	private var backButton:Button;
 	
-	private var atlasID:String;
-	private var atlas:TextureAtlas;
-	private var textures:Vector<Texture>;
+	private var demoMenuSprite:Sprite;
+	private var movementButton:Button;
+	private var animationButton:Button;
+	private var autoUpdateBoundsButton:Button;
 	
+	private var atlasIDs:Array<String> = new Array<String>();
+	private var atlases:Array<TextureAtlas> = new Array<TextureAtlas>();
+	private var textures:Array<Vector<Texture>> = new Array<Vector<Texture>>();
+	
+	private var animation:Bool = true;
 	private var autoUpdateBounds:Bool = false;
 	private var colorMode:String;
 	private var displayScale:Float = 1.0;
@@ -56,6 +60,8 @@ class MassiveDemo extends Sprite
 	private var frameDeltaVariance:Float;
 	private var frameRateBase:Int;
 	private var frameRateVariance:Int;
+	private var movement:Bool = true;
+	private var multiTextureStyle:Bool = false;
 	private var numObjects:Int;
 	private var renderMode:String;
 	private var useBlurFilter:Bool = false;
@@ -66,6 +72,8 @@ class MassiveDemo extends Sprite
 	
 	private var buttonTextureON:RenderTexture;
 	private var buttonTextureOFF:RenderTexture;
+	private var menuButtonTextureON:RenderTexture;
+	private var menuButtonTextureOFF:RenderTexture;
 	private var mediumButtonTextureON:RenderTexture;
 	private var mediumButtonTextureOFF:RenderTexture;
 	private var miniButtonTextureON:RenderTexture;
@@ -75,6 +83,11 @@ class MassiveDemo extends Sprite
 	private var scaleButtons:Array<Button> = new Array<Button>();
 	private var colorModeButtons:Array<Button> = new Array<Button>();
 	private var renderModeButtons:Array<Button> = new Array<Button>();
+	
+	private var numAtlases:Int = 8;
+	private var numClips:Array<Int> = [4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000];
+	private var numQuads:Array<Int> = [8000, 16000, 32000, 64000, 128000, 256000, 512000];
+	private var scales:Array<Float> = [2.0, 1.0, 0.5, 0.2, 0.1];
 	
 	public function new() 
 	{
@@ -90,15 +103,16 @@ class MassiveDemo extends Sprite
 		
 		this.stage.color = 0x333333;
 		
+		var assets:Array<Dynamic> = [];
+		for (i in 0...numAtlases)
+		{
+			assets[assets.length] = Assets.getPath("img/zombi" + i + ".png");
+			assets[assets.length] = Assets.getPath("img/zombi" + i + ".xml");
+		}
+		
 		assetManager = new AssetManager();
 		assetManager.verbose = Capabilities.isDebugger;
-		assetManager.enqueue([
-			Assets.getPath("img/starling_bird.png"),
-			Assets.getPath("img/starling_bird.xml"),
-			Assets.getPath("img/zombi_walk.png"),
-			Assets.getPath("img/zombi_walk.xml"),
-			
-		]);
+		assetManager.enqueue(assets);
 		assetManager.loadQueue(assetsLoaded);
 	}
 	
@@ -106,13 +120,15 @@ class MassiveDemo extends Sprite
 	{
 		trace("assetsLoaded");
 		
-		LookUp.init();
+		setAtlas("zombi0");
 		
-		setAtlas("zombi");
+		//trace(GL.getParameter(GL.MAX_TEXTURE_SIZE));
+		//trace(GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
 		
 		var colorUP:Int = 0xcccccc;
 		var colorOVER:Int = 0xffffff;
 		var quad:Quad = new Quad(230, 20);
+		var menuQuad:Quad = new Quad(140, 20);
 		var mediumQuad:Quad = new Quad(90, 20);
 		var miniQuad:Quad = new Quad(36, 20);
 		
@@ -134,6 +150,26 @@ class MassiveDemo extends Sprite
 			quad.color = colorOVER;
 			this.buttonTextureON.clear();
 			this.buttonTextureON.draw(quad);
+		}
+		
+		menuQuad.color = colorUP;
+		this.menuButtonTextureOFF = new RenderTexture(Std.int(menuQuad.width), Std.int(menuQuad.height));
+		this.menuButtonTextureOFF.draw(menuQuad);
+		this.menuButtonTextureOFF.root.onRestore = function(tex:ConcreteTexture):Void
+		{
+			menuQuad.color = colorUP;
+			this.menuButtonTextureOFF.clear();
+			this.menuButtonTextureOFF.draw(menuQuad);
+		}
+		
+		menuQuad.color = colorOVER;
+		this.menuButtonTextureON = new RenderTexture(Std.int(menuQuad.width), Std.int(menuQuad.height));
+		this.menuButtonTextureON.draw(menuQuad);
+		this.menuButtonTextureON.root.onRestore = function(tex:ConcreteTexture):Void
+		{
+			menuQuad.color = colorOVER;
+			this.menuButtonTextureON.clear();
+			this.menuButtonTextureON.draw(menuQuad);
 		}
 		
 		mediumQuad.color = colorUP;
@@ -176,7 +212,7 @@ class MassiveDemo extends Sprite
 			this.miniButtonTextureON.draw(miniQuad);
 		}
 		
-		var btn:Button;
+		var btn:Button = null;
 		var tf:TextField;
 		var gap:Float = 2;
 		var tX:Float;
@@ -204,20 +240,18 @@ class MassiveDemo extends Sprite
 		this.atlasSprite.addChild(tf);
 		tX = tf.width + gap;
 		
-		btn = new Button(this.atlasID == "zombi" ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "zombi", this.mediumButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleAtlas);
-		this.atlasButtons.push(btn);
-		this.atlasSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = new Button(this.atlasID == "bird" ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "bird", this.mediumButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleAtlas);
-		this.atlasButtons.push(btn);
-		this.atlasSprite.addChild(btn);
+		var atlasID:String;
+		for (i in 0...this.numAtlases)
+		{
+			atlasID = "zombi" + i;
+			btn = new Button(this.atlasIDs.indexOf(atlasID) != -1 ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, atlasID, this.mediumButtonTextureON);
+			btn.x = tX;
+			btn.y = tf.y + (tf.height - btn.height) / 2;
+			btn.addEventListener(Event.TRIGGERED, toggleAtlas);
+			this.atlasButtons.push(btn);
+			this.atlasSprite.addChild(btn);
+			tX += btn.width + gap;
+		}
 		
 		this.atlasSprite.x = (this.buttonTextureOFF.width - this.atlasSprite.width) / 2;
 		
@@ -250,44 +284,19 @@ class MassiveDemo extends Sprite
 		this.scaleSprite.addChild(tf);
 		tX = tf.width + gap;
 		
-		btn = new Button(this.displayScale == 2.0 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "2.0", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleDisplayScale);
-		this.scaleButtons.push(btn);
-		this.scaleSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = new Button(this.displayScale == 1.0 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "1.0", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleDisplayScale);
-		this.scaleButtons.push(btn);
-		this.scaleSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = new Button(this.displayScale == 0.5 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "0.5", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleDisplayScale);
-		this.scaleButtons.push(btn);
-		this.scaleSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = new Button(this.displayScale == 0.2 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "0.2", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleDisplayScale);
-		this.scaleButtons.push(btn);
-		this.scaleSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = new Button(this.displayScale == 0.1 ? this.miniButtonTextureON : this.miniButtonTextureOFF, "0.1", null, this.miniButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleDisplayScale);
-		this.scaleButtons.push(btn);
-		this.scaleSprite.addChild(btn);
+		var scaleFactor:Float;
+		for (i in 0...this.scales.length)
+		{
+			scaleFactor = this.scales[i];
+			
+			btn = new Button(this.displayScale == scaleFactor ? this.miniButtonTextureON : this.miniButtonTextureOFF, Std.string(scaleFactor), null, this.miniButtonTextureON);
+			btn.x = tX;
+			btn.y = tf.y + (tf.height - btn.height) / 2;
+			btn.addEventListener(Event.TRIGGERED, toggleDisplayScale);
+			this.scaleButtons.push(btn);
+			this.scaleSprite.addChild(btn);
+			tX += btn.width + gap;
+		}
 		
 		tY += btn.height + gap;
 		btn = new Button(this.useSprite3D ? this.buttonTextureON : this.buttonTextureOFF, "Sprite3D", null, this.buttonTextureON);
@@ -303,7 +312,7 @@ class MassiveDemo extends Sprite
 		
 		this.scaleSprite.x = (this.buttonTextureOFF.width - this.scaleSprite.width) / 2;
 		
-		tY += btn.height + gap;
+		tY += btn.height + gap * 2;
 		tf = new TextField(0, 0, "Massive options");
 		tf.format.color = 0xffffff;
 		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
@@ -395,10 +404,18 @@ class MassiveDemo extends Sprite
 		
 		this.colorModeSprite.x = (this.buttonTextureOFF.width - this.colorModeSprite.width) / 2;
 		
-		tY += btn.height + gap;
-		btn = new Button(this.autoUpdateBounds ? this.buttonTextureON : this.buttonTextureOFF, "autoUpdateBounds", null, this.buttonTextureON);
+		tY += btn.height + gap * 2;
+		tf = new TextField(0, 0, "Starling options");
+		tf.format.color = 0xffffff;
+		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf.y = tY;
+		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
+		this.menuSprite.addChild(tf);
+		tY += tf.height + gap;
+		
+		btn = new Button(this.multiTextureStyle ? this.buttonTextureON : this.buttonTextureOFF, "MultiTextureStyle", null, this.buttonTextureON);
 		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, toggleAutoUpdateBounds);
+		btn.addEventListener(Event.TRIGGERED, toggleMultiTextureStyle);
 		this.menuSprite.addChild(btn);
 		
 		tY += btn.height * 2 + gap * 4;
@@ -419,94 +436,25 @@ class MassiveDemo extends Sprite
 		this.classicSprite.addChild(tf);
 		tY += tf.height + gap;
 		
-		btn = new Button(this.buttonTextureOFF, "4000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, movieClips4k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "8000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, movieClips8k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "16000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, movieClips16k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "32000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, movieClips32k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "64000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, movieClips64k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "128000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, movieClips128k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "256000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, movieClips256k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "512000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, movieClips512k);
-		this.classicSprite.addChild(btn);
+		for (i in 0...this.numClips.length)
+		{
+			if (i != 0) tY += btn.height + gap;
+			btn = new Button(this.buttonTextureOFF, this.numClips[i] + " clips", null, this.buttonTextureON);
+			btn.y = tY;
+			btn.addEventListener(Event.TRIGGERED, classicClips);
+			this.classicSprite.addChild(btn);
+		}
 		
 		tY += btn.height + gap * 4;
-		btn = new Button(this.buttonTextureOFF, "8000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, classicQuads8k);
-		this.classicSprite.addChild(btn);
 		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "16000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, classicQuads16k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "32000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, classicQuads32k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "64000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, classicQuads64k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "128000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, classicQuads128k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "256000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, classicQuads256k);
-		this.classicSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "512000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, classicQuads512k);
-		this.classicSprite.addChild(btn);
+		for (i in 0...this.numQuads.length)
+		{
+			if (i != 0) tY += btn.height + gap;
+			btn = new Button(this.buttonTextureOFF, this.numQuads[i] + " quads", null, this.buttonTextureON);
+			btn.y = tY;
+			btn.addEventListener(Event.TRIGGERED, classicQuads);
+			this.classicSprite.addChild(btn);
+		}
 		//\CLASSIC STARLING
 		
 		// MASSIVE STARLING
@@ -524,94 +472,25 @@ class MassiveDemo extends Sprite
 		this.massiveSprite.addChild(tf);
 		tY += tf.height + gap;
 		
-		btn = new Button(this.buttonTextureOFF, "4000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveClips4k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "8000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveClips8k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "16000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveClips16k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "32000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveClips32k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "64000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveClips64k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "128000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveClips128k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "256000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveClips256k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "512000 clips", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveClips512k);
-		this.massiveSprite.addChild(btn);
+		for (i in 0...this.numClips.length)
+		{
+			if (i != 0) tY += btn.height + gap;
+			btn = new Button(this.buttonTextureOFF, this.numClips[i] + " clips", null, this.buttonTextureON);
+			btn.y = tY;
+			btn.addEventListener(Event.TRIGGERED, massiveClips);
+			this.massiveSprite.addChild(btn);
+		}
 		
 		tY += btn.height + gap * 4;
-		btn = new Button(this.buttonTextureOFF, "8000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveQuads8k);
-		this.massiveSprite.addChild(btn);
 		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "16000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveQuads16k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "32000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveQuads32k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "64000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveQuads64k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "128000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveQuads128k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "256000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveQuads256k);
-		this.massiveSprite.addChild(btn);
-		
-		tY += btn.height + gap;
-		btn = new Button(this.buttonTextureOFF, "512000 quads", null, this.buttonTextureON);
-		btn.y = tY;
-		btn.addEventListener(Event.TRIGGERED, massiveQuads512k);
-		this.massiveSprite.addChild(btn);
+		for (i in 0...this.numQuads.length)
+		{
+			if (i != 0) tY += btn.height + gap;
+			btn = new Button(this.buttonTextureOFF, this.numQuads[i] + " quads", null, this.buttonTextureON);
+			btn.y = tY;
+			btn.addEventListener(Event.TRIGGERED, massiveQuads);
+			this.massiveSprite.addChild(btn);
+		}
 		//\MASSIVE STARLING
 		
 		tY = this.massiveSprite.y + this.massiveSprite.height + gap * 4;
@@ -622,8 +501,34 @@ class MassiveDemo extends Sprite
 		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
 		this.menuSprite.addChild(tf);
 		
-		this.backButton = new Button(this.mediumButtonTextureOFF, "Menu", null, this.mediumButtonTextureON);
-		this.backButton.addEventListener(Event.TRIGGERED, backToMenu);
+		this.demoMenuSprite = new Sprite();
+		
+		tY = 0;
+		btn = new Button(this.menuButtonTextureOFF, "Menu", null, this.menuButtonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, backToMenu);
+		this.demoMenuSprite.addChild(btn);
+		
+		tY += btn.height + gap * 4;
+		btn = new Button(this.movement ? this.menuButtonTextureON : this.menuButtonTextureOFF, "Movement", null, this.menuButtonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleMovement);
+		this.demoMenuSprite.addChild(btn);
+		this.movementButton = btn;
+		
+		tY += btn.height + gap;
+		btn = new Button(this.animation ? this.menuButtonTextureON : this.menuButtonTextureOFF, "Animation", null, this.menuButtonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleAnimation);
+		this.demoMenuSprite.addChild(btn);
+		this.animationButton = btn;
+		
+		tY += btn.height + gap;
+		btn = new Button(this.autoUpdateBounds ? this.menuButtonTextureON : this.menuButtonTextureOFF, "autoUpdateBounds", null, this.menuButtonTextureON);
+		btn.y = tY;
+		btn.addEventListener(Event.TRIGGERED, toggleAutoUpdateBounds);
+		this.demoMenuSprite.addChild(btn);
+		this.autoUpdateBoundsButton = btn;
 		
 		this.stage.addEventListener(Event.RESIZE, stageResizeHandler);
 		
@@ -663,8 +568,8 @@ class MassiveDemo extends Sprite
 		this.menuSprite.y = (this.stage.stageHeight - this.menuSprite.height) / 2;
 		
 		var spacing:Float = 8;
-		this.backButton.x = this.stage.stageWidth - this.backButton.width - spacing;
-		this.backButton.y = spacing;
+		this.demoMenuSprite.x = this.stage.stageWidth - this.demoMenuSprite.width - spacing;
+		this.demoMenuSprite.y = spacing;
 	}
 	
 	private function showMenu():Void
@@ -687,7 +592,7 @@ class MassiveDemo extends Sprite
 			addChild(scene);
 		}
 		
-		addChild(this.backButton);
+		addChild(this.demoMenuSprite);
 	}
 	
 	private function backToMenu(evt:Event):Void
@@ -698,41 +603,67 @@ class MassiveDemo extends Sprite
 		}
 		this._sceneList = null;
 		
-		this.backButton.removeFromParent();
+		this.demoMenuSprite.removeFromParent();
 		
 		showMenu();
+	}
+	
+	private function toggleAnimation(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.animation = !this.animation;
+		if (this._sceneList.length != 0)
+		{
+			this._sceneList[0].animation = this.animation;
+		}
+		if (this.animation)
+		{
+			btn.upState = this.menuButtonTextureON;
+		}
+		else
+		{
+			btn.upState = this.menuButtonTextureOFF;
+		}
 	}
 	
 	private function toggleAtlas(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
-		for (otherBtn in this.atlasButtons)
+		var index:Int = this.atlasIDs.indexOf(btn.text);
+		if (index == -1)
 		{
-			if (otherBtn == btn) continue;
-			otherBtn.upState = this.mediumButtonTextureOFF;
+			setAtlas(btn.text);
+			btn.upState = this.miniButtonTextureON;
 		}
-		
-		setAtlas(btn.text);
-		btn.upState = this.miniButtonTextureON;
+		else if (this.atlasIDs.length > 1)
+		{
+			this.atlasIDs.splice(index, 1);
+			this.atlases.splice(index, 1);
+			this.textures.splice(index, 1);
+			btn.upState = this.miniButtonTextureOFF;
+		}
 	}
 	
 	private function setAtlas(id:String):Void
 	{
-		this.atlasID = id;
+		this.atlasIDs.push(id);
+		var atlas:TextureAtlas;
 		
-		switch (this.atlasID)
+		switch (id)
 		{
 			case "bird" :
-				this.atlas = assetManager.getTextureAtlas("starling_bird");
-				this.textures = this.atlas.getTextures("0");
+				atlas = assetManager.getTextureAtlas("starling_bird");
+				this.atlases.push(atlas);
+				this.textures.push(atlas.getTextures("0"));
 				this.frameDeltaBase = 0.05;
 				this.frameDeltaVariance = 0.25;
 				this.frameRateBase = 3;
 				this.frameRateVariance = 15;
 			
-			case "zombi" :
-				this.atlas = assetManager.getTextureAtlas("zombi_walk");
-				this.textures = this.atlas.getTextures("character");
+			default :
+				atlas = assetManager.getTextureAtlas(id);
+				this.atlases.push(atlas);
+				this.textures.push(atlas.getTextures("character"));
 				this.frameDeltaBase = 0.05;
 				this.frameDeltaVariance = 0.25;
 				this.frameRateBase = 3;
@@ -744,13 +675,17 @@ class MassiveDemo extends Sprite
 	{
 		var btn:Button = cast evt.target;
 		this.autoUpdateBounds = !this.autoUpdateBounds;
+		if (this._sceneList.length != 0)
+		{
+			this._sceneList[0].autoUpdateBounds = this.autoUpdateBounds;
+		}
 		if (this.autoUpdateBounds)
 		{
-			btn.upState = this.buttonTextureON;
+			btn.upState = this.menuButtonTextureON;
 		}
 		else
 		{
-			btn.upState = this.buttonTextureOFF;
+			btn.upState = this.menuButtonTextureOFF;
 		}
 	}
 	
@@ -791,36 +726,6 @@ class MassiveDemo extends Sprite
 		btn.upState = this.mediumButtonTextureON;
 	}
 	
-	private function toggleRenderMode(evt:Event):Void
-	{
-		var btn:Button = cast evt.target;
-		for (otherBtn in this.renderModeButtons)
-		{
-			if (otherBtn == btn) continue;
-			otherBtn.upState = this.buttonTextureOFF;
-		}
-		
-		switch (btn.text)
-		{
-			case "ByteArray" :
-				this.renderMode = MassiveRenderMode.BYTEARRAY;
-			
-			#if flash
-			case "DomainMemoryByteArray" :
-				this.renderMode = MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY;
-			#end
-			
-			#if !flash
-			case "Float32Array" :
-				this.renderMode = MassiveRenderMode.FLOAT32ARRAY;
-			#end
-			
-			case "Vector" :
-				this.renderMode = MassiveRenderMode.VECTOR;
-		}
-		btn.upState = this.buttonTextureON;
-	}
-	
 	private function toggleDisplayScale(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
@@ -832,6 +737,38 @@ class MassiveDemo extends Sprite
 		
 		this.displayScale = Std.parseFloat(btn.text);
 		btn.upState = this.miniButtonTextureON;
+	}
+	
+	private function toggleMovement(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.movement = !this.movement;
+		if (this._sceneList.length != 0)
+		{
+			this._sceneList[0].movement = this.movement;
+		}
+		if (this.movement)
+		{
+			btn.upState = this.menuButtonTextureON;
+		}
+		else
+		{
+			btn.upState = this.menuButtonTextureOFF;
+		}
+	}
+	
+	private function toggleMultiTextureStyle(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		this.multiTextureStyle = !this.multiTextureStyle;
+		if (this.multiTextureStyle)
+		{
+			btn.upState = this.buttonTextureON;
+		}
+		else
+		{
+			btn.upState = this.buttonTextureOFF;
+		}
 	}
 	
 	private function toggleRandomAlpha(evt:Event):Void
@@ -876,6 +813,36 @@ class MassiveDemo extends Sprite
 		}
 	}
 	
+	private function toggleRenderMode(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		for (otherBtn in this.renderModeButtons)
+		{
+			if (otherBtn == btn) continue;
+			otherBtn.upState = this.buttonTextureOFF;
+		}
+		
+		switch (btn.text)
+		{
+			case "ByteArray" :
+				this.renderMode = MassiveRenderMode.BYTEARRAY;
+			
+			#if flash
+			case "DomainMemoryByteArray" :
+				this.renderMode = MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY;
+			#end
+			
+			#if !flash
+			case "Float32Array" :
+				this.renderMode = MassiveRenderMode.FLOAT32ARRAY;
+			#end
+			
+			case "Vector" :
+				this.renderMode = MassiveRenderMode.VECTOR;
+		}
+		btn.upState = this.buttonTextureON;
+	}
+	
 	private function toggleSprite3D(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
@@ -892,9 +859,15 @@ class MassiveDemo extends Sprite
 	
 	private function startMassiveImages():Void
 	{
+		this.movementButton.enabled = true;
+		this.animationButton.enabled = true;
+		this.autoUpdateBoundsButton.enabled = true;
+		
 		var massive:MassiveImages = new MassiveImages();
+		massive.animation = this.animation;
+		massive.movement = this.movement;
 		massive.autoUpdateBounds = this.autoUpdateBounds;
-		massive.atlasTexture = this.atlas.texture;
+		massive.addAtlases(this.atlases);
 		massive.textures = this.textures;
 		massive.imgScale = this.displayScale;
 		massive.numObjects = this.numObjects;
@@ -911,7 +884,13 @@ class MassiveDemo extends Sprite
 	
 	private function startMassiveQuads():Void
 	{
+		this.movementButton.enabled = true;
+		this.animationButton.enabled = false;
+		this.autoUpdateBoundsButton.enabled = true;
+		
 		var massive:MassiveQuads = new MassiveQuads();
+		massive.animation = this.animation;
+		massive.movement = this.movement;
 		massive.autoUpdateBounds = this.autoUpdateBounds;
 		massive.displayScale = this.displayScale;
 		massive.numObjects = this.numObjects;
@@ -926,10 +905,17 @@ class MassiveDemo extends Sprite
 		showSceneList([massive]);
 	}
 	
-	private function startMovieClips():Void
+	private function startClassicClips():Void
 	{
-		var clips:MovieClips = new MovieClips();
+		this.movementButton.enabled = true;
+		this.animationButton.enabled = true;
+		this.autoUpdateBoundsButton.enabled = false;
+		
+		var clips:ClassicClips = new ClassicClips();
+		clips.animation = this.animation;
+		clips.movement = this.movement;
 		clips.textures = this.textures;
+		clips.multiTextureStyle = this.multiTextureStyle;
 		clips.numClips = this.numObjects;
 		clips.clipScale = this.displayScale;
 		clips.useBlurFilter = this.useBlurFilter;
@@ -942,7 +928,13 @@ class MassiveDemo extends Sprite
 	
 	private function startClassicQuads():Void
 	{
+		this.movementButton.enabled = true;
+		this.animationButton.enabled = false;
+		this.autoUpdateBoundsButton.enabled = false;
+		
 		var quads:ClassicQuads = new ClassicQuads();
+		quads.animation = this.animation;
+		quads.movement = this.movement;
 		quads.numQuads = this.numObjects;
 		quads.displayScale = this.displayScale;
 		quads.useBlurFilter = this.useBlurFilter;
@@ -953,184 +945,36 @@ class MassiveDemo extends Sprite
 		showSceneList([quads]);
 	}
 	
-	private function massiveClips4k(evt:Event):Void
+	private function classicClips(evt:Event):Void
 	{
-		this.numObjects = 4000;
-		startMassiveImages();
+		var btn:Button = cast evt.target;
+		var index:Int = btn.text.indexOf(" ");
+		this.numObjects = Std.parseInt(btn.text.substring(0, index));
+		startClassicClips();
 	}
 	
-	private function massiveClips8k(evt:Event):Void
+	private function classicQuads(evt:Event):Void
 	{
-		this.numObjects = 8000;
-		startMassiveImages();
-	}
-	
-	private function massiveClips16k(evt:Event):Void
-	{
-		this.numObjects = 16000;
-		startMassiveImages();
-	}
-	
-	private function massiveClips32k(evt:Event):Void
-	{
-		this.numObjects = 32000;
-		startMassiveImages();
-	}
-	
-	private function massiveClips64k(evt:Event):Void
-	{
-		this.numObjects = 64000;
-		startMassiveImages();
-	}
-	
-	private function massiveClips128k(evt:Event):Void
-	{
-		this.numObjects = 128000;
-		startMassiveImages();
-	}
-	
-	private function massiveClips256k(evt:Event):Void
-	{
-		this.numObjects = 256000;
-		startMassiveImages();
-	}
-	
-	private function massiveClips512k(evt:Event):Void
-	{
-		this.numObjects = 512000;
-		startMassiveImages();
-	}
-	
-	private function massiveQuads8k(evt:Event):Void
-	{
-		this.numObjects = 8000;
-		startMassiveQuads();
-	}
-	
-	private function massiveQuads16k(evt:Event):Void
-	{
-		this.numObjects = 16000;
-		startMassiveQuads();
-	}
-	
-	private function massiveQuads32k(evt:Event):Void
-	{
-		this.numObjects = 32000;
-		startMassiveQuads();
-	}
-	
-	private function massiveQuads64k(evt:Event):Void
-	{
-		this.numObjects = 64000;
-		startMassiveQuads();
-	}
-	
-	private function massiveQuads128k(evt:Event):Void
-	{
-		this.numObjects = 128000;
-		startMassiveQuads();
-	}
-	
-	private function massiveQuads256k(evt:Event):Void
-	{
-		this.numObjects = 256000;
-		startMassiveQuads();
-	}
-	
-	private function massiveQuads512k(evt:Event):Void
-	{
-		this.numObjects = 512000;
-		startMassiveQuads();
-	}
-	
-	private function movieClips4k(evt:Event):Void
-	{
-		this.numObjects = 4000;
-		startMovieClips();
-	}
-	
-	private function movieClips8k(evt:Event):Void
-	{
-		this.numObjects = 8000;
-		startMovieClips();
-	}
-	
-	private function movieClips16k(evt:Event):Void
-	{
-		this.numObjects = 16000;
-		startMovieClips();
-	}
-	
-	private function movieClips32k(evt:Event):Void
-	{
-		this.numObjects = 32000;
-		startMovieClips();
-	}
-	
-	private function movieClips64k(evt:Event):Void
-	{
-		this.numObjects = 64000;
-		startMovieClips();
-	}
-	
-	private function movieClips128k(evt:Event):Void
-	{
-		this.numObjects = 128000;
-		startMovieClips();
-	}
-	
-	private function movieClips256k(evt:Event):Void
-	{
-		this.numObjects = 256000;
-		startMovieClips();
-	}
-	
-	private function movieClips512k(evt:Event):Void
-	{
-		this.numObjects = 512000;
-		startMovieClips();
-	}
-	
-	private function classicQuads8k(evt:Event):Void
-	{
-		this.numObjects = 8000;
+		var btn:Button = cast evt.target;
+		var index:Int = btn.text.indexOf(" ");
+		this.numObjects = Std.parseInt(btn.text.substring(0, index));
 		startClassicQuads();
 	}
 	
-	private function classicQuads16k(evt:Event):Void
+	private function massiveClips(evt:Event):Void
 	{
-		this.numObjects = 16000;
-		startClassicQuads();
+		var btn:Button = cast evt.target;
+		var index:Int = btn.text.indexOf(" ");
+		this.numObjects = Std.parseInt(btn.text.substring(0, index));
+		startMassiveImages();
 	}
 	
-	private function classicQuads32k(evt:Event):Void
+	private function massiveQuads(evt:Event):Void
 	{
-		this.numObjects = 32000;
-		startClassicQuads();
-	}
-	
-	private function classicQuads64k(evt:Event):Void
-	{
-		this.numObjects = 64000;
-		startClassicQuads();
-	}
-	
-	private function classicQuads128k(evt:Event):Void
-	{
-		this.numObjects = 128000;
-		startClassicQuads();
-	}
-	
-	private function classicQuads256k(evt:Event):Void
-	{
-		this.numObjects = 256000;
-		startClassicQuads();
-	}
-	
-	private function classicQuads512k(evt:Event):Void
-	{
-		this.numObjects = 512000;
-		startClassicQuads();
+		var btn:Button = cast evt.target;
+		var index:Int = btn.text.indexOf(" ");
+		this.numObjects = Std.parseInt(btn.text.substring(0, index));
+		startMassiveQuads();
 	}
 	
 }

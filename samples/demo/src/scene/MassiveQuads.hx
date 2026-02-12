@@ -20,7 +20,6 @@ import starling.utils.Align;
  */
 class MassiveQuads extends Scene implements IAnimatable
 {
-	public var autoUpdateBounds:Bool;
 	public var colorMode:String;
 	public var displayScale:Float;
 	public var numObjects:Int = 2000;
@@ -31,7 +30,25 @@ class MassiveQuads extends Scene implements IAnimatable
 	public var useRandomRotation:Bool;
 	public var useSprite3D:Bool;
 	
-	private var _displayList:Array<MassiveDisplay> = new Array<MassiveDisplay>();
+	override function set_animation(value:Bool):Bool 
+	{
+		if (this._display != null)
+		{
+			this._display.animate = value;
+		}
+		return super.set_animation(value);
+	}
+	
+	override function set_autoUpdateBounds(value:Bool):Bool 
+	{
+		if (this._display != null)
+		{
+			this._display.autoUpdateBounds = value;
+		}
+		return super.set_autoUpdateBounds(value);
+	}
+	
+	private var _display:MassiveDisplay;
 	
 	private var _quads:#if flash Vector<MassiveQuad> #else Array<MassiveQuad> #end;
 	private var _quadWidth:Float = 100;
@@ -66,7 +83,6 @@ class MassiveQuads extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		var display:MassiveDisplay;
 		var layer:QuadLayer;
 		#if flash
 		this._quads = new Vector<MassiveQuad>();
@@ -77,11 +93,11 @@ class MassiveQuads extends Scene implements IAnimatable
 		var speedVariance:Float;
 		var velocity:Float;
 		
-		display = new MassiveDisplay(null, this.renderMode, this.colorMode, this.numObjects);
-		display.autoUpdateBounds = this.autoUpdateBounds;
+		this._display = new MassiveDisplay(null, this.renderMode, this.colorMode, this.numObjects);
+		this._display.autoUpdateBounds = this.autoUpdateBounds;
 		
 		layer = new QuadLayer();
-		display.addLayer(layer);
+		this._display.addLayer(layer);
 		
 		for (j in 0...this.numObjects)
 		{
@@ -103,8 +119,8 @@ class MassiveQuads extends Scene implements IAnimatable
 			
 			speedVariance = MathUtils.random();
 			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			quad.velocityX = LookUp.cos(quad.rotation) * velocity;
-			quad.velocityY = LookUp.sin(quad.rotation) * velocity;
+			quad.velocityX = Math.cos(quad.rotation) * velocity;
+			quad.velocityY = Math.sin(quad.rotation) * velocity;
 			
 			quad.alignPivot(Align.CENTER, Align.CENTER);
 			
@@ -114,11 +130,11 @@ class MassiveQuads extends Scene implements IAnimatable
 		
 		if (this.useSprite3D)
 		{
-			this._sprite3D.addChild(display);
+			this._sprite3D.addChild(this._display);
 		}
 		else
 		{
-			addChild(display);
+			addChild(this._display);
 		}
 		
 		if (this.useBlurFilter)
@@ -170,25 +186,28 @@ class MassiveQuads extends Scene implements IAnimatable
 		for (i in 0...this.numObjects)
 		{
 			quad = this._quads[i];
-			quad.x += quad.velocityX * time;
-			quad.y += quad.velocityY * time;
-			
-			if (quad.x < this._left)
+			if (this._movement)
 			{
-				quad.x = this._right;
-			}
-			else if (quad.x > this._right)
-			{
-				quad.x = this._left;
-			}
-			
-			if (quad.y < this._top)
-			{
-				quad.y = this._bottom;
-			}
-			else if (quad.y > this._bottom)
-			{
-				quad.y = this._top;
+				quad.x += quad.velocityX * time;
+				quad.y += quad.velocityY * time;
+				
+				if (quad.x < this._left)
+				{
+					quad.x = this._right;
+				}
+				else if (quad.x > this._right)
+				{
+					quad.x = this._left;
+				}
+				
+				if (quad.y < this._top)
+				{
+					quad.y = this._bottom;
+				}
+				else if (quad.y > this._bottom)
+				{
+					quad.y = this._top;
+				}
 			}
 		}
 	}

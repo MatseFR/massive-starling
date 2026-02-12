@@ -79,8 +79,8 @@ class ClassicQuads extends Scene implements IAnimatable
 			if (this.useRandomRotation) quad.rotation = MathUtils.random() * MathUtils.PI2;
 			
 			velocity = this._velocityBase + MathUtils.random() * this._velocityRange;
-			quad.velocityX = LookUp.cos(quad.rotation) * velocity;
-			quad.velocityY = LookUp.sin(quad.rotation) * velocity;
+			quad.velocityX = Math.cos(quad.rotation) * velocity;
+			quad.velocityY = Math.sin(quad.rotation) * velocity;
 			
 			this._quads[i] = quad;
 			if (this.useSprite3D)
@@ -142,25 +142,28 @@ class ClassicQuads extends Scene implements IAnimatable
 		for (i in 0...this.numQuads)
 		{
 			quad = this._quads[i];
-			quad.x += quad.velocityX * time;
-			quad.y += quad.velocityY * time;
-			
-			if (quad.x < this._left)
+			if (this._movement)
 			{
-				quad.x = this._right;
-			}
-			else if (quad.x > this._right)
-			{
-				quad.x = this._left;
-			}
-			
-			if (quad.y < this._top)
-			{
-				quad.y = this._bottom;
-			}
-			else if (quad.y > this._bottom)
-			{
-				quad.y = this._top;
+				quad.x += quad.velocityX * time;
+				quad.y += quad.velocityY * time;
+				
+				if (quad.x < this._left)
+				{
+					quad.x = this._right;
+				}
+				else if (quad.x > this._right)
+				{
+					quad.x = this._left;
+				}
+				
+				if (quad.y < this._top)
+				{
+					quad.y = this._bottom;
+				}
+				else if (quad.y > this._bottom)
+				{
+					quad.y = this._top;
+				}
 			}
 		}
 	}

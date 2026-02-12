@@ -4,10 +4,13 @@ import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
+import starling.display.Mesh;
 import starling.display.MovieClip;
 import starling.display.Sprite3D;
 import starling.events.Event;
 import starling.filters.BlurFilter;
+import starling.styles.MeshStyle;
+import starling.styles.MultiTextureStyle;
 import starling.textures.Texture;
 import starling.utils.Color;
 
@@ -15,12 +18,13 @@ import starling.utils.Color;
  * ...
  * @author Matse
  */
-class MovieClips extends Scene implements IAnimatable
+class ClassicClips extends Scene implements IAnimatable
 {
 	public var frameRateBase:Int = 6;
 	public var frameRateVariance:Int = 30;
+	public var multiTextureStyle:Bool;
 	public var numClips:Int = 1000;
-	public var textures:Vector<Texture>;
+	public var textures:Array<Vector<Texture>>;
 	public var clipScale:Float = 1;
 	public var useBlurFilter:Bool;
 	public var useRandomAlpha:Bool;
@@ -44,11 +48,21 @@ class MovieClips extends Scene implements IAnimatable
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 		
-		var frameCount:Int = this.textures.length;
+		var numTextures:Int = this.textures.length;
 		var stageWidth:Float = this.stage.stageWidth;
 		var stageHeight:Float = this.stage.stageHeight;
 		
 		updateBounds();
+		
+		if (this.multiTextureStyle)
+		{
+			MultiTextureStyle.maxTextures = numTextures;
+			Mesh.defaultStyle = MultiTextureStyle;
+		}
+		else
+		{
+			Mesh.defaultStyle = MeshStyle;
+		}
 		
 		if (this.useSprite3D)
 		{
@@ -67,12 +81,16 @@ class MovieClips extends Scene implements IAnimatable
 		#end
 		var clip:MovingClip;
 		var speedVariance:Float;
+		var variant:Int;
 		var velocity:Float;
+		
 		for (i in 0...this.numClips)
 		{
+			variant = Std.random(numTextures);
+			
 			speedVariance = MathUtils.random();
-			clip = new MovingClip(this.textures, this.frameRateBase + Std.int(this.frameRateVariance * speedVariance));
-			clip.currentFrame = Std.random(frameCount);
+			clip = new MovingClip(this.textures[variant], this.frameRateBase + Std.int(this.frameRateVariance * speedVariance));
+			clip.currentFrame = Std.random(this.textures[variant].length);
 			clip.touchable = false;
 			clip.alignPivot();
 			if (this.useRandomAlpha) clip.alpha = MathUtils.random();
@@ -83,8 +101,8 @@ class MovieClips extends Scene implements IAnimatable
 			if (this.useRandomRotation)	clip.rotation = MathUtils.random() * MathUtils.PI2;
 			
 			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			clip.velocityX = LookUp.cos(clip.rotation) * velocity;
-			clip.velocityY = LookUp.sin(clip.rotation) * velocity;
+			clip.velocityX = Math.cos(clip.rotation) * velocity;
+			clip.velocityY = Math.sin(clip.rotation) * velocity;
 			
 			this._clips[i] = clip;
 			if (this.useSprite3D)
@@ -146,27 +164,30 @@ class MovieClips extends Scene implements IAnimatable
 		for (i in 0...this.numClips)
 		{
 			clip = this._clips[i];
-			clip.x += clip.velocityX * time;
-			clip.y += clip.velocityY * time;
-			
-			if (clip.x < this._left)
+			if (this._movement)
 			{
-				clip.x = this._right;
+				clip.x += clip.velocityX * time;
+				clip.y += clip.velocityY * time;
+				
+				if (clip.x < this._left)
+				{
+					clip.x = this._right;
+				}
+				else if (clip.x > this._right)
+				{
+					clip.x = this._left;
+				}
+				
+				if (clip.y < this._top)
+				{
+					clip.y = this._bottom;
+				}
+				else if (clip.y > this._bottom)
+				{
+					clip.y = this._top;
+				}
 			}
-			else if (clip.x > this._right)
-			{
-				clip.x = this._left;
-			}
-			
-			if (clip.y < this._top)
-			{
-				clip.y = this._bottom;
-			}
-			else if (clip.y > this._bottom)
-			{
-				clip.y = this._top;
-			}
-			clip.advanceTime(time);
+			if (this._animation) clip.advanceTime(time);
 		}
 	}
 	

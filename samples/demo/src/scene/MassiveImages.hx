@@ -3,10 +3,9 @@ package scene;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
-import massive.util.LookUp;
-import massive.data.MassiveConstants;
-import massive.display.MassiveDisplay;
 import massive.display.ImageLayer;
+import massive.display.MassiveDisplay;
+import massive.util.LookUp;
 import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
@@ -15,6 +14,7 @@ import starling.display.Sprite3D;
 import starling.events.Event;
 import starling.filters.BlurFilter;
 import starling.textures.Texture;
+import starling.textures.TextureAtlas;
 import starling.utils.Align;
 
 /**
@@ -23,7 +23,6 @@ import starling.utils.Align;
  */
 class MassiveImages extends Scene implements IAnimatable
 {
-	public var autoUpdateBounds:Bool;
 	public var colorMode:String;
 	public var frameDeltaBase:Float = 0.1;
 	public var frameDeltaVariance:Float = 0.5;
@@ -35,12 +34,30 @@ class MassiveImages extends Scene implements IAnimatable
 	public var useRandomRotation:Bool;
 	public var useSprite3D:Bool;
 	public var imgScale:Float = 1;
-	public var atlasTexture:Texture;
-	public var textures:Vector<Texture>;
+	public var atlasTextures:Array<Texture> = new Array<Texture>();
+	public var textures:Array<Vector<Texture>>;
 	
-	private var _displayList:Array<MassiveDisplay> = new Array<MassiveDisplay>();
-	private var _frames:#if flash Vector<Frame> #else Array<Frame> #end;
-	private var _timings:Array<Float>;
+	override function set_animation(value:Bool):Bool 
+	{
+		if (this._display != null)
+		{
+			this._display.animate = value;
+		}
+		return super.set_animation(value);
+	}
+	
+	override function set_autoUpdateBounds(value:Bool):Bool 
+	{
+		if (this._display != null)
+		{
+			this._display.autoUpdateBounds = value;
+		}
+		return super.set_autoUpdateBounds(value);
+	}
+	
+	private var _display:MassiveDisplay;
+	private var _frames:#if flash Array<Vector<Frame>> #else Array<Array<Frame>> #end = new #if flash Array<Vector<Frame>>() #else Array<Array<Frame>>() #end;
+	private var _timings:Array<Array<Float>> = new Array<Array<Float>>();
 	
 	private var _imgList:#if flash Vector<MassiveImage> #else Array<MassiveImage> #end;
 	private var _velocityBase:Float = 30;
@@ -54,13 +71,38 @@ class MassiveImages extends Scene implements IAnimatable
 		addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 	}
 	
+	public function addAtlases(atlases:Array<TextureAtlas>):Void
+	{
+		for (i in 0...atlases.length)
+		{
+			this.atlasTextures.push(atlases[i].texture);
+		}
+	}
+	
 	private function addedToStageHandler(evt:Event):Void
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 		
-		this._frames = Frame.fromTextureVectorWithAlign(this.textures, Align.CENTER, Align.CENTER);
-		var frameCount:Int = this._frames.length;
-		this._timings = Animator.generateTimings(this._frames);
+		var numTextures:Int = this.atlasTextures.length;
+		
+		#if flash
+		var frames:Vector<Frame>;
+		#else
+		var frames:Array<Frame>;
+		#end
+		var timings:Array<Float>;
+		
+		for (i in 0...numTextures)
+		{
+			frames = Frame.fromTextureVectorWithAlign(this.textures[i], Align.CENTER, Align.CENTER);
+			this._frames.push(frames);
+			timings = Animator.generateTimings(frames);
+			this._timings.push(timings);
+		}
+		
+		//this._frames = Frame.fromTextureVectorWithAlign(this.textures, Align.CENTER, Align.CENTER);
+		//var frameCount:Int = this._frames.length;
+		//this._timings = Animator.generateTimings(this._frames);
 		
 		var stageWidth:Float = this.stage.stageWidth;
 		var stageHeight:Float = this.stage.stageHeight;
@@ -77,8 +119,6 @@ class MassiveImages extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		
-		var display:MassiveDisplay;
 		var layer:ImageLayer;
 		#if flash
 		this._imgList = new Vector<MassiveImage>();
@@ -87,18 +127,23 @@ class MassiveImages extends Scene implements IAnimatable
 		#end
 		var img:MassiveImage;
 		var speedVariance:Float;
+		var variant:Int;
 		var velocity:Float;
 		
-		display = new MassiveDisplay(this.atlasTexture, this.renderMode, this.colorMode, this.numObjects);
-		display.autoUpdateBounds = this.autoUpdateBounds;
+		this._display = new MassiveDisplay(this.atlasTextures, this.renderMode, this.colorMode, this.numObjects);
+		this._display.animate = this._animation;
+		this._display.autoUpdateBounds = this._autoUpdateBounds;
 		
 		layer = new ImageLayer();
-		display.addLayer(layer);
+		this._display.addLayer(layer);
 		
 		for (j in 0...this.numObjects)
 		{
+			variant = Std.random(numTextures);
+			
 			img = new MassiveImage();
-			img.setFrames(this._frames, this._timings, true, 0, Std.random(frameCount));
+			img.textureIndex = variant / 4;
+			img.setFrames(this._frames[variant], this._timings[variant], true, 0, Std.random(this._frames[variant].length));
 			img.x = MathUtils.random() * stageWidth;
 			img.y = MathUtils.random() * stageHeight;
 			img.scaleX = img.scaleY = this.imgScale;
@@ -116,8 +161,8 @@ class MassiveImages extends Scene implements IAnimatable
 			img.frameDelta = this.frameDeltaBase + speedVariance * this.frameDeltaVariance;
 			
 			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			img.velocityX = LookUp.cos(img.rotation) * velocity;
-			img.velocityY = LookUp.sin(img.rotation) * velocity;
+			img.velocityX = Math.cos(img.rotation) * velocity;
+			img.velocityY = Math.sin(img.rotation) * velocity;
 			
 			this._imgList[this._imgList.length] = img;
 			layer.addImage(img);
@@ -125,11 +170,11 @@ class MassiveImages extends Scene implements IAnimatable
 		
 		if (this.useSprite3D)
 		{
-			this._sprite3D.addChild(display);
+			this._sprite3D.addChild(this._display);
 		}
 		else
 		{
-			addChild(display);
+			addChild(this._display);
 		}
 		
 		if (this.useBlurFilter)
@@ -181,25 +226,28 @@ class MassiveImages extends Scene implements IAnimatable
 		for (i in 0...this.numObjects)
 		{
 			img = this._imgList[i];
-			img.x += img.velocityX * time;
-			img.y += img.velocityY * time;
-			
-			if (img.x < this._left)
+			if (this._movement)
 			{
-				img.x = this._right;
-			}
-			else if (img.x > this._right)
-			{
-				img.x = this._left;
-			}
-			
-			if (img.y < this._top)
-			{
-				img.y = this._bottom;
-			}
-			else if (img.y > this._bottom)
-			{
-				img.y = this._top;
+				img.x += img.velocityX * time;
+				img.y += img.velocityY * time;
+				
+				if (img.x < this._left)
+				{
+					img.x = this._right;
+				}
+				else if (img.x > this._right)
+				{
+					img.x = this._left;
+				}
+				
+				if (img.y < this._top)
+				{
+					img.y = this._bottom;
+				}
+				else if (img.y > this._bottom)
+				{
+					img.y = this._top;
+				}
 			}
 		}
 	}
