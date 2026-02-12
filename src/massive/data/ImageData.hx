@@ -138,6 +138,8 @@ class ImageData extends DisplayData
 	public var loopCount:Int = 0;
 	/* how many loops, 0 == infinite */
 	public var numLoops:Int = 0;
+	/* texture index when using multitexturing */
+	public var textureIndex:Float;
 	public var width(get, set):Float;
 	
 	private function get_frameCurrent():Frame { return this.frameList[this.frameIndex]; }
