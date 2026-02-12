@@ -6,6 +6,7 @@ package massive.display;
  */
 class RenderData 
 {
+	public var multiTexturing:Bool;
 	public var numQuads:Int;
 	public var position:Int;
 	public var quadOffset:Int;
