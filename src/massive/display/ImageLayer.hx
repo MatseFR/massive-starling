@@ -180,6 +180,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	{
 		if (this._datas == null) return true;
 		
+		var multiTexturing:Bool = renderData.multiTexturing;
 		var quadsWritten:Int = 0;
 		
 		var x:Float, y:Float;
@@ -356,6 +357,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						byteData.writeFloat(alpha);
 					}
 				}
+				if (multiTexturing)
+				{
+					byteData.writeFloat(data.textureIndex);
+				}
 				
 				byteData.writeFloat(x + cosRight + sinTop);
 				byteData.writeFloat(y + sinRight - cosTop);
@@ -374,6 +379,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						byteData.writeFloat(blue);
 						byteData.writeFloat(alpha);
 					}
+				}
+				if (multiTexturing)
+				{
+					byteData.writeFloat(data.textureIndex);
 				}
 				
 				byteData.writeFloat(x - cosLeft - sinBottom);
@@ -394,6 +403,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						byteData.writeFloat(alpha);
 					}
 				}
+				if (multiTexturing)
+				{
+					byteData.writeFloat(data.textureIndex);
+				}
 				
 				byteData.writeFloat(x + cosRight - sinBottom);
 				byteData.writeFloat(y + sinRight + cosBottom);
@@ -412,6 +425,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						byteData.writeFloat(blue);
 						byteData.writeFloat(alpha);
 					}
+				}
+				if (multiTexturing)
+				{
+					byteData.writeFloat(data.textureIndex);
 				}
 			}
 			else
@@ -446,6 +463,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						byteData.writeFloat(alpha);
 					}
 				}
+				if (multiTexturing)
+				{
+					byteData.writeFloat(data.textureIndex);
+				}
 				
 				byteData.writeFloat(x + rightOffset);
 				byteData.writeFloat(y - topOffset);
@@ -464,6 +485,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						byteData.writeFloat(blue);
 						byteData.writeFloat(alpha);
 					}
+				}
+				if (multiTexturing)
+				{
+					byteData.writeFloat(data.textureIndex);
 				}
 				
 				byteData.writeFloat(x - leftOffset);
@@ -484,6 +509,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						byteData.writeFloat(alpha);
 					}
 				}
+				if (multiTexturing)
+				{
+					byteData.writeFloat(data.textureIndex);
+				}
 				
 				byteData.writeFloat(x + rightOffset);
 				byteData.writeFloat(y + bottomOffset);
@@ -502,6 +531,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						byteData.writeFloat(blue);
 						byteData.writeFloat(alpha);
 					}
+				}
+				if (multiTexturing)
+				{
+					byteData.writeFloat(data.textureIndex);
 				}
 			}
 		}
@@ -530,6 +563,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		if (this._datas == null) return true;
 		
 		var position:Int = renderData.position;
+		var multiTexturing:Bool = renderData.multiTexturing;
 		
 		var quadsWritten:Int = 0;
 		
@@ -707,6 +741,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						Memory.setFloat(position += 4, alpha);
 					}
 				}
+				if (multiTexturing)
+				{
+					Memory.setFloat(position += 4, data.textureIndex);
+				}
 				
 				Memory.setFloat(position += 4, x + cosRight + sinTop);
 				Memory.setFloat(position += 4, y + sinRight - cosTop);
@@ -725,6 +763,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						Memory.setFloat(position += 4, blue);
 						Memory.setFloat(position += 4, alpha);
 					}
+				}
+				if (multiTexturing)
+				{
+					Memory.setFloat(position += 4, data.textureIndex);
 				}
 				
 				Memory.setFloat(position += 4, x - cosLeft - sinBottom);
@@ -745,6 +787,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						Memory.setFloat(position += 4, alpha);
 					}
 				}
+				if (multiTexturing)
+				{
+					Memory.setFloat(position += 4, data.textureIndex);
+				}
 				
 				Memory.setFloat(position += 4, x + cosRight - sinBottom);
 				Memory.setFloat(position += 4, y + sinRight + cosBottom);
@@ -763,6 +809,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						Memory.setFloat(position += 4, blue);
 						Memory.setFloat(position += 4, alpha);
 					}
+				}
+				if (multiTexturing)
+				{
+					Memory.setFloat(position += 4, data.textureIndex);
 				}
 			}
 			else
@@ -797,6 +847,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						Memory.setFloat(position += 4, alpha);
 					}
 				}
+				if (multiTexturing)
+				{
+					Memory.setFloat(position += 4, data.textureIndex);
+				}
 				
 				Memory.setFloat(position += 4, x + rightOffset);
 				Memory.setFloat(position += 4, y - topOffset);
@@ -815,6 +869,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						Memory.setFloat(position += 4, blue);
 						Memory.setFloat(position += 4, alpha);
 					}
+				}
+				if (multiTexturing)
+				{
+					Memory.setFloat(position += 4, data.textureIndex);
 				}
 				
 				Memory.setFloat(position += 4, x - leftOffset);
@@ -835,6 +893,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						Memory.setFloat(position += 4, alpha);
 					}
 				}
+				if (multiTexturing)
+				{
+					Memory.setFloat(position += 4, data.textureIndex);
+				}
 				
 				Memory.setFloat(position += 4, x + rightOffset);
 				Memory.setFloat(position += 4, y + bottomOffset);
@@ -853,6 +915,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						Memory.setFloat(position += 4, blue);
 						Memory.setFloat(position += 4, alpha);
 					}
+				}
+				if (multiTexturing)
+				{
+					Memory.setFloat(position += 4, data.textureIndex);
 				}
 			}
 			position += 4;
@@ -884,6 +950,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		if (this._datas == null) return true;
 		
 		var position:Int = renderData.position;
+		var multiTexturing:Bool = renderData.multiTexturing;
 		
 		var quadsWritten:Int = 0;
 		
@@ -1061,6 +1128,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						floatData[++position] = alpha;
 					}
 				}
+				if (multiTexturing)
+				{
+					floatData[++position] = data.textureIndex;
+				}
 				
 				floatData[++position] = x + cosRight + sinTop;
 				floatData[++position] = y + sinRight - cosTop;
@@ -1079,6 +1150,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						floatData[++position] = blue;
 						floatData[++position] = alpha;
 					}
+				}
+				if (multiTexturing)
+				{
+					floatData[++position] = data.textureIndex;
 				}
 				
 				floatData[++position] = x - cosLeft - sinBottom;
@@ -1099,6 +1174,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						floatData[++position] = alpha;
 					}
 				}
+				if (multiTexturing)
+				{
+					floatData[++position] = data.textureIndex;
+				}
 				
 				floatData[++position] = x + cosRight - sinBottom;
 				floatData[++position] = y + sinRight + cosBottom;
@@ -1117,6 +1196,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						floatData[++position] = blue;
 						floatData[++position] = alpha;
 					}
+				}
+				if (multiTexturing)
+				{
+					floatData[++position] = data.textureIndex;
 				}
 			}
 			else
@@ -1151,6 +1234,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						floatData[++position] = alpha;
 					}
 				}
+				if (multiTexturing)
+				{
+					floatData[++position] = data.textureIndex;
+				}
 				
 				floatData[++position] = x + rightOffset;
 				floatData[++position] = y - topOffset;
@@ -1169,6 +1256,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						floatData[++position] = blue;
 						floatData[++position] = alpha;
 					}
+				}
+				if (multiTexturing)
+				{
+					floatData[++position] = data.textureIndex;
 				}
 				
 				floatData[++position] = x - leftOffset;
@@ -1189,6 +1280,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						floatData[++position] = alpha;
 					}
 				}
+				if (multiTexturing)
+				{
+					floatData[++position] = data.textureIndex;
+				}
 				
 				floatData[++position] = x + rightOffset;
 				floatData[++position] = y + bottomOffset;
@@ -1207,6 +1302,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						floatData[++position] = blue;
 						floatData[++position] = alpha;
 					}
+				}
+				if (multiTexturing)
+				{
+					floatData[++position] = data.textureIndex;
 				}
 			}
 			++position;
@@ -1237,6 +1336,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		if (this._datas == null) return true;
 		
 		var position:Int = renderData.position;
+		var multiTexturing:Bool = renderData.multiTexturing;
 		
 		var quadsWritten:Int = 0;
 		
@@ -1414,6 +1514,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						vectorData[++position] = alpha;
 					}
 				}
+				if (multiTexturing)
+				{
+					vectorData[++position] = data.textureIndex;
+				}
 				
 				vectorData[++position] = x + cosRight + sinTop;
 				vectorData[++position] = y + sinRight - cosTop;
@@ -1432,6 +1536,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						vectorData[++position] = blue;
 						vectorData[++position] = alpha;
 					}
+				}
+				if (multiTexturing)
+				{
+					vectorData[++position] = data.textureIndex;
 				}
 				
 				vectorData[++position] = x - cosLeft - sinBottom;
@@ -1452,6 +1560,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						vectorData[++position] = alpha;
 					}
 				}
+				if (multiTexturing)
+				{
+					vectorData[++position] = data.textureIndex;
+				}
 				
 				vectorData[++position] = x + cosRight - sinBottom;
 				vectorData[++position] = y + sinRight + cosBottom;
@@ -1470,6 +1582,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						vectorData[++position] = blue;
 						vectorData[++position] = alpha;
 					}
+				}
+				if (multiTexturing)
+				{
+					vectorData[++position] = data.textureIndex;
 				}
 			}
 			else
@@ -1504,6 +1620,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						vectorData[++position] = alpha;
 					}
 				}
+				if (multiTexturing)
+				{
+					vectorData[++position] = data.textureIndex;
+				}
 				
 				vectorData[++position] = x + rightOffset;
 				vectorData[++position] = y - topOffset;
@@ -1522,6 +1642,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						vectorData[++position] = blue;
 						vectorData[++position] = alpha;
 					}
+				}
+				if (multiTexturing)
+				{
+					vectorData[++position] = data.textureIndex;
 				}
 				
 				vectorData[++position] = x - leftOffset;
@@ -1542,6 +1666,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						vectorData[++position] = alpha;
 					}
 				}
+				if (multiTexturing)
+				{
+					vectorData[++position] = data.textureIndex;
+				}
 				
 				vectorData[++position] = x + rightOffset;
 				vectorData[++position] = y + bottomOffset;
@@ -1560,6 +1688,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 						vectorData[++position] = blue;
 						vectorData[++position] = alpha;
 					}
+				}
+				if (multiTexturing)
+				{
+					vectorData[++position] = data.textureIndex;
 				}
 			}
 			++position;
