@@ -6,6 +6,7 @@ import massive.util.ReverseIterator;
 import openfl.Vector;
 import openfl.display3D.Context3D;
 import openfl.display3D.Context3DBufferUsage;
+import openfl.display3D.Context3DProfile;
 import openfl.display3D.Context3DProgramType;
 import openfl.display3D.Context3DTextureFormat;
 import openfl.display3D.Context3DVertexBufferFormat;
@@ -121,6 +122,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	static public var programNoColorTextureDefaultPMA:Program;
 	
+	static private var _baselineCheckDone:Bool = false;
+	static private var _isBaseline:Bool;
 	#if flash
 	static private var _byteIndices:ByteArray;
 	#else
@@ -128,7 +131,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	#end
 	static private var _helperMatrix:Matrix = new Matrix();
 	static private var _helperPoint:Point = new Point();
+	static private var _multiTextureIndices:Vector<Float> = new Vector<Float>([0.125, 0.375, 0.625, 0.875, 1, 0, 0, 0]);
 	
+	/**
+	   Tells whether to animate layers
+	   @default true
+	**/
+	public var animate:Bool = true;
 	/**
 	   If set to true, the MassiveDisplay instance will automatically add itself to the juggler 
 	   when added to stage and remove itself when removed from stage. Default is true.
@@ -224,7 +233,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	/**
 	   The texture used by this MassiveDisplay instance, typically from a TextureAtlas.
 	**/
-	public var texture(get, set):Texture;
+	//public var texture(get, set):Texture;
 	/**
 	   Tells whether texture should repeat or not
 	   @default false
@@ -464,30 +473,30 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._renderMode = value;
 	}
 	
-	private var _texture:Texture;
-	private function get_texture():Texture { return this._texture; }
-	private function set_texture(value:Texture):Texture
-	{
-		if (this._texture == value) return value;
-		var textureWasNull:Bool = this._texture == null;
-		this._texture = value;
-		this.pma = this._texture != null ? this._texture.premultipliedAlpha : true;
-		updateColor();
-		if (textureWasNull || this._texture == null)
-		{
-			updateElements();
-			if (this._buffersCreated)
-			{
-				updateBuffers();
-			}
-			updateData();
-		}
-		if (this._program != null)
-		{
-			updateProgram();
-		}
-		return this._texture;
-	}
+	//private var _texture:Texture;
+	//private function get_texture():Texture { return this._texture; }
+	//private function set_texture(value:Texture):Texture
+	//{
+		//if (this._texture == value) return value;
+		//var textureWasNull:Bool = this._texture == null;
+		//this._texture = value;
+		//this.pma = this._texture != null ? this._texture.premultipliedAlpha : true;
+		//updateColor();
+		//if (textureWasNull || this._texture == null)
+		//{
+			//updateElements();
+			//if (this._buffersCreated)
+			//{
+				//updateBuffers();
+			//}
+			//updateData();
+		//}
+		//if (this._program != null)
+		//{
+			//updateProgram();
+		//}
+		//return this._texture;
+	//}
 	
 	private var _textureRepeat:Bool = false;
 	private function get_textureRepeat():Bool { return this._textureRepeat; }
@@ -573,6 +582,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _positionOffset:Int = 0;
 	private var _colorOffset:Int;
 	private var _uvOffset:Int;
+	private var _textureOffset:Int;
 	
 	#if flash
 	private var _zeroBytes:ByteArray = new ByteArray();
@@ -581,6 +591,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var contextBufferIndex:Int;
 	private var _renderData:RenderData = new RenderData();
 	
+	private var _textures:Array<Texture> = new Array<Texture>();
+	private var _numTextures:Int = 0;
+	private var _multiTexturing:Bool = false;
+	private var _isMultiTexturingProgram:Bool = false;
+	
 	/**
 	   
 	   @param	texture
@@ -588,11 +603,31 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	colorMode
 	   @param	maxQuads
 	**/
-	public function new(texture:Texture = null, renderMode:String = null, colorMode:String = null, maxQuads:Int = MassiveConstants.MAX_QUADS)
+	public function new(textures:Array<Texture> = null, renderMode:String = null, colorMode:String = null, maxQuads:Int = MassiveConstants.MAX_QUADS)
 	{
 		super();
 		
-		this.texture = texture;
+		if (!_baselineCheckDone)
+		{
+			_isBaseline = Starling.current.profile == Context3DProfile.BASELINE ||
+						  Starling.current.profile == Context3DProfile.BASELINE_CONSTRAINED ||
+						  Starling.current.profile == Context3DProfile.BASELINE_EXTENDED;
+			_baselineCheckDone = true;
+			
+			if (_isBaseline)
+			{
+				
+			}
+			else
+			{
+				
+			}
+		}
+		
+		if (textures != null)
+		{
+			addTextures(textures);
+		}
 		this.maxQuads = maxQuads;
 		
 		if (colorMode == null) colorMode = defaultColorMode;
@@ -634,12 +669,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	override public function dispose():Void 
 	{
 		disposeBuffers();
-		if (this._program != null)
+		if (this._isMultiTexturingProgram && this._program != null)
 		{
 			this._program.dispose();
 			this._program = null;
 		}
-		this._texture = null;
+		this._textures = null;
 		
 		super.dispose();
 	}
@@ -683,6 +718,53 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		updateBuffers();
 	}
 	
+	public function addTexture(texture:Texture):Void
+	{
+		this._textures[this._numTextures] = texture;
+		++this._numTextures;
+		this._multiTexturing = this._numTextures > 1;
+		this._renderData.multiTexturing = this._multiTexturing;
+		
+		updateElements();
+		if (this._buffersCreated)
+		{
+			updateBuffers();
+		}
+		updateData();
+		
+		if (this._program != null)
+		{
+			updateProgram();
+		}
+	}
+	
+	public function addTextures(textures:Array<Texture>):Void
+	{
+		for (i in 0...textures.length)
+		{
+			this._textures[this._numTextures++] = textures[i];
+		}
+		this._multiTexturing = this._numTextures > 1;
+		this._renderData.multiTexturing = this._multiTexturing;
+		
+		updateElements();
+		if (this._buffersCreated)
+		{
+			updateBuffers();
+		}
+		updateData();
+		
+		if (this._program != null)
+		{
+			updateProgram();
+		}
+	}
+	
+	public function removeTexture(texture:Texture):Void
+	{
+		
+	}
+	
 	/**
 	   
 	**/
@@ -690,17 +772,26 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		if (this._isUserProgram) return;
 		
-		if (this._texture != null)
+		if (this._isMultiTexturingProgram)
 		{
+			this._program.dispose();
+			this._isMultiTexturingProgram = false;
+		}
+		
+		var texture:Texture;
+		
+		if (this._numTextures == 1)
+		{
+			texture = this._textures[0];
 			if (this._useColor)
 			{
-				if (this._texture.format == Context3DTextureFormat.COMPRESSED)
+				if (texture.format == Context3DTextureFormat.COMPRESSED)
 				{
-					if (this._texture.premultipliedAlpha)
+					if (texture.premultipliedAlpha)
 					{
 						if (programColorTextureCompressedPMA == null)
 						{
-							programColorTextureCompressedPMA = createProgramWithTexture(this._useColor, this._texture);
+							programColorTextureCompressedPMA = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programColorTextureCompressedPMA;
 					}
@@ -708,18 +799,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 					{
 						if (programColorTextureCompressed == null)
 						{
-							programColorTextureCompressed = createProgramWithTexture(this._useColor, this._texture);
+							programColorTextureCompressed = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programColorTextureCompressed;
 					}
 				}
-				else if (this._texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
+				else if (texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
 				{
-					if (this._texture.premultipliedAlpha)
+					if (texture.premultipliedAlpha)
 					{
 						if (programColorTextureCompressedAlphaPMA == null)
 						{
-							programColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, this._texture);
+							programColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programColorTextureCompressedAlphaPMA;
 					}
@@ -727,18 +818,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 					{
 						if (programColorTextureCompressedAlpha == null)
 						{
-							programColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, this._texture);
+							programColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programColorTextureCompressedAlpha;
 					}
 				}
 				else
 				{
-					if (this._texture.premultipliedAlpha)
+					if (texture.premultipliedAlpha)
 					{
 						if (programColorTextureDefaultPMA == null)
 						{
-							programColorTextureDefaultPMA = createProgramWithTexture(this._useColor, this._texture);
+							programColorTextureDefaultPMA = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programColorTextureDefaultPMA;
 					}
@@ -746,7 +837,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 					{
 						if (programColorTextureDefault == null)
 						{
-							programColorTextureDefault = createProgramWithTexture(this._useColor, this._texture);
+							programColorTextureDefault = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programColorTextureDefault;
 					}
@@ -754,13 +845,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			}
 			else
 			{
-				if (this._texture.format == Context3DTextureFormat.COMPRESSED)
+				if (texture.format == Context3DTextureFormat.COMPRESSED)
 				{
-					if (this._texture.premultipliedAlpha)
+					if (texture.premultipliedAlpha)
 					{
 						if (programNoColorTextureCompressedPMA == null)
 						{
-							programNoColorTextureCompressedPMA = createProgramWithTexture(this._useColor, this._texture);
+							programNoColorTextureCompressedPMA = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programNoColorTextureCompressedPMA;
 					}
@@ -768,18 +859,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 					{
 						if (programNoColorTextureCompressed == null)
 						{
-							programNoColorTextureCompressed = createProgramWithTexture(this._useColor, this._texture);
+							programNoColorTextureCompressed = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programNoColorTextureCompressed;
 					}
 				}
-				else if (this._texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
+				else if (texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
 				{
-					if (this._texture.premultipliedAlpha)
+					if (texture.premultipliedAlpha)
 					{
 						if (programNoColorTextureCompressedAlphaPMA == null)
 						{
-							programNoColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, this._texture);
+							programNoColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programNoColorTextureCompressedAlphaPMA;
 					}
@@ -787,18 +878,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 					{
 						if (programNoColorTextureCompressedAlpha == null)
 						{
-							programNoColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, this._texture);
+							programNoColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programNoColorTextureCompressedAlpha;
 					}
 				}
 				else
 				{
-					if (this._texture.premultipliedAlpha)
+					if (texture.premultipliedAlpha)
 					{
 						if (programNoColorTextureDefaultPMA == null)
 						{
-							programNoColorTextureDefaultPMA = createProgramWithTexture(this._useColor, this._texture);
+							programNoColorTextureDefaultPMA = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programNoColorTextureDefaultPMA;
 					}
@@ -806,12 +897,17 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 					{
 						if (programNoColorTextureDefault == null)
 						{
-							programNoColorTextureDefault = createProgramWithTexture(this._useColor, this._texture);
+							programNoColorTextureDefault = createProgramWithTexture(this._useColor, texture);
 						}
 						this._program = programNoColorTextureDefault;
 					}
 				}
 			}
+		}
+		else if (this._numTextures > 1)
+		{
+			this._program = createProgramWithMultiTexture(this._useColor, this._textures);
+			this._isMultiTexturingProgram = true;
 		}
 		else
 		{
@@ -856,7 +952,179 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			fragmentShader = RenderUtil.createAGALTexOperation("oc", "v0", 0, texture); // output color is texel color
 		}
 		
-		return Program.fromSource(vertexShader, fragmentShader);
+		return Program.fromSource(vertexShader, fragmentShader, 2);
+	}
+	
+	private function createProgramWithMultiTexture(useColor:Bool, textures:Array<Texture>):Program
+	{
+		var numTextures:Int = textures.length;
+		var fragmentShader:Array<String> = new Array<String>();
+		var vertexShader:String;
+		
+		if (useColor)
+		{
+			vertexShader = 
+				"m44 op, va0, vc0\n" +	// 4x4 matrix transform to output clip-space
+				"mov v0, va1\n" +		// pass texture coordinates to fragment program
+				"mul v1, va2, vc4\n" +	// multiply alpha (vc4) with color (va2), pass to fp
+				"mov v2, va3";			// pass texture sampler index to fp
+		}
+		else
+		{
+			vertexShader = 
+				"m44 op, va0, vc0\n" +	// 4x4 matrix transform to output clip-space
+				"mov v0, va1\n" +		// pass texture coordinates to fragment program
+				//"mul v1, va2, vc4\n" +	// multiply alpha (vc4) with color (va2), pass to fp
+				"mov v1, va2";			// pass texture sampler index to fp
+		}
+		
+		if (_isBaseline)
+		{
+			if (useColor) {
+				fragmentShader.push("slt ft4, v2.xxxx, fc0");
+			} else {
+				fragmentShader.push("slt ft4, v1.xxxx, fc0");
+			}
+			fragmentShader.push(RenderUtil.createAGALTexOperation("ft0", "v0", 0, textures[0]));
+			fragmentShader.push("min ft5, ft4.xxxx, ft0");
+			
+			fragmentShader.push("sub ft6, fc1.xxxx, ft4");
+			fragmentShader.push(RenderUtil.createAGALTexOperation("ft1", "v0", 1, textures[1]));
+			
+			if (numTextures > 2)
+			{
+				fragmentShader.push("min ft6.xyz, ft6.xyz, ft4.yzw");
+				fragmentShader.push("min ft0, ft6.xxxx, ft1");
+				fragmentShader.push("add ft5, ft5, ft0");
+				fragmentShader.push(RenderUtil.createAGALTexOperation("ft2", "v0", 2, textures[2]));
+				fragmentShader.push("min ft0, ft6.yyyy, ft2");
+				
+				if (numTextures > 3)
+				{
+					fragmentShader.push("add ft5, ft5, ft0");
+					fragmentShader.push(RenderUtil.createAGALTexOperation("ft3", "v0", 3, textures[3]));
+					fragmentShader.push("min ft0, ft6.zzzz, ft3");
+					
+					if (numTextures > 4)
+					{
+						fragmentShader.push("add ft5, ft5, ft0");
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft4", "v0", 4, textures[4]));
+						fragmentShader.push("min ft0, ft6.wwww, ft4");
+					}
+				}
+			}
+			else
+			{
+				fragmentShader.push("min ft0, ft6.xxxx, ft1");
+			}
+			fragmentShader.push("add ft5, ft5, ft0");
+			if (useColor) {
+				fragmentShader.push("mul oc, ft5, v1");	// multiply color with texel color
+			} else {
+				fragmentShader.push("mov oc, ft5");
+			}
+		}
+		else
+		{
+			if (numTextures > 2)
+			{
+				if (useColor) {
+					fragmentShader.push("slt ft4, v2.xxxx, fc0");
+				} else {
+					fragmentShader.push("slt ft4, v1.xxxx, fc0");
+				}
+				fragmentShader.push("sub ft6, fc1.xxxx, ft4");
+				fragmentShader.push("min ft6.xyz, ft6.xyz, ft4.yzw");
+				fragmentShader.push("ifg ft4.x, fc0.z");
+				fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
+				fragmentShader.push("els");
+				fragmentShader.push("ifg ft6.x, fc0.z");
+				fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
+				fragmentShader.push("els");
+				if (numTextures == 3)
+				{
+					fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
+				}
+				else
+				{
+					fragmentShader.push("ifg ft6.y, fc0.z");
+					fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
+					fragmentShader.push("els");
+					if (numTextures == 4)
+					{
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
+					}
+					else
+					{
+						fragmentShader.push("ifg ft6.z, fc0.z");
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
+						fragmentShader.push("els");
+						if (numTextures == 5)
+						{
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
+						}
+						else
+						{
+							fragmentShader.push("ifg ft6.w, fc0.z");
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
+							fragmentShader.push("els");
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 5, textures[5]));
+							fragmentShader.push("eif");
+						}
+						fragmentShader.push("eif");
+					}
+					fragmentShader.push("eif");
+				}
+				fragmentShader.push("eif");
+				fragmentShader.push("eif");
+				
+				// PREVIOUS
+				//fragmentShader.push("slt ft4, v2.xxxx, fc0");
+				//fragmentShader.push("sub ft6, fc1.xxxx, ft4");
+				//fragmentShader.push("min ft6.xyz, ft6.xyz, ft4.yzw");
+				//fragmentShader.push("ifg ft4.x, fc0.z");
+				//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
+				//fragmentShader.push("eif");
+				//fragmentShader.push("ifg ft6.x, fc0.z");
+				//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
+				//fragmentShader.push("eif");
+				//fragmentShader.push("ifg ft6.y, fc0.z");
+				//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
+				//fragmentShader.push("eif");
+				//
+				//if (numTextures > 3)
+				//{
+					//fragmentShader.push("ifg ft6.z, fc0.z");
+					//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
+					//fragmentShader.push("eif");
+					//
+					//if (numTextures > 4)
+					//{
+						//fragmentShader.push("ifg ft6.w, fc0.z");
+						//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
+						//fragmentShader.push("eif");
+					//}
+				//}
+			}
+			else
+			{
+				if (useColor) {
+					fragmentShader.push("ifl v2.x, fc0.x");
+				} else {
+					fragmentShader.push("ifl v1.x, fc0.x");
+				}
+				fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
+				fragmentShader.push("els");
+				fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
+				fragmentShader.push("eif");
+			}
+			if (useColor) {
+				fragmentShader.push("mul oc, ft5, v1");	// multiply color with texel color
+			} else {
+				fragmentShader.push("mov oc, ft5");
+			}
+		}
+		return Program.fromSource(vertexShader, fragmentShader.join("\n"), _isBaseline ? 1 : 2);
 	}
 	
 	private function createProgramWithoutTexture(useColor:Bool):Program
@@ -1029,11 +1297,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	 */
 	private function updateElements():Void
 	{
+		// x/y position is not optionnal
+		var offset:Int = 2;
 		this._elementsPerVertex = 2;
-		if (this._texture != null) 
+		if (this._numTextures > 0) 
 		{
 			this._elementsPerVertex += 2;
-			this._uvOffset = 2;
+			this._uvOffset = offset;
+			offset += 2;
 		}
 		else
 		{
@@ -1041,19 +1312,28 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		if (this._useColor) 
 		{
+			this._colorOffset = offset;
 			if (this._simpleColorMode)
 			{
 				this._elementsPerVertex += 1;
+				offset += 1;
 			}
 			else
 			{
 				this._elementsPerVertex += 4;
+				offset += 4;
 			}
-			this._colorOffset = this._uvOffset + 2;
 		}
 		else
 		{
 			this._colorOffset = 0;
+		}
+		
+		if (this._numTextures > 1)
+		{
+			this._elementsPerVertex += 1;
+			this._textureOffset = offset;
+			offset += 1;
 		}
 		
 		this._elementsPerQuad = MassiveConstants.VERTICES_PER_QUAD * this._elementsPerVertex;
@@ -1176,10 +1456,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public function advanceTime(time:Float):Void
 	{
-		this._numLayers = this._layers.length;
-		for (i in 0...this._numLayers)
+		if (this.animate)
 		{
-			if (this._layers[i].animate) this._layers[i].advanceTime(time);
+			this._numLayers = this._layers.length;
+			for (i in 0...this._numLayers)
+			{
+				if (this._layers[i].animate) this._layers[i].advanceTime(time);
+			}
 		}
 		
 		setRequiresRedraw();
@@ -1239,13 +1522,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		
 		this._program.activate(context);
-		if (this._texture != null)
+		for (i in 0...this._numTextures)
 		{
-			context.setTextureAt(0, this._texture.base);
-			RenderUtil.setSamplerStateAt(0, this._texture.mipMapping, this._textureSmoothing, this._textureRepeat);
+			context.setTextureAt(i, this._textures[i].base);
+			RenderUtil.setSamplerStateAt(i, this._textures[i].mipMapping, this._textureSmoothing, this._textureRepeat);
 		}
 		
 		context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, painter.state.mvpMatrix3D, true);
+		
+		if (this._multiTexturing)
+		{
+			context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 0, _multiTextureIndices, this._numTextures > 2 || _isBaseline ? -1 : 1);
+		}
 		
 		var forceBuffer:Bool = true;
 		var boundsData:#if flash Vector<Float> #else Array<Float> #end = this._autoUpdateBounds ? this._boundsData : null;
@@ -1393,9 +1681,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			context.setVertexBufferAt(i, null);
 		}
 		
-		if (this._texture != null)
+		for (i in 0...this._numTextures)
 		{
-			context.setTextureAt(0, null);
+			context.setTextureAt(i, null);
 		}
 	}
 	
@@ -1409,9 +1697,13 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			this.contextBufferIndex = -1;
 			context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
-			if (this._texture != null)
+			if (this._numTextures > 0)
 			{
 				context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._uvOffset, Context3DVertexBufferFormat.FLOAT_2);
+				//if (this._multiTexturing)
+				//{
+					//context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._textureOffset, Context3DVertexBufferFormat.FLOAT_1);
+				//}
 			}
 			
 			if (this._useColor)
@@ -1424,6 +1716,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				{
 					context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
 				}
+			}
+			
+			if (this._multiTexturing)
+			{
+				context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._textureOffset, Context3DVertexBufferFormat.FLOAT_1);
 			}
 		}
 	}
