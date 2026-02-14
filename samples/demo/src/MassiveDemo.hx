@@ -84,7 +84,7 @@ class MassiveDemo extends Sprite
 	private var colorModeButtons:Array<Button> = new Array<Button>();
 	private var renderModeButtons:Array<Button> = new Array<Button>();
 	
-	private var numAtlases:Int = 8;
+	private var numAtlases:Int = 16;
 	private var numClips:Array<Int> = [4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000];
 	private var numQuads:Array<Int> = [8000, 16000, 32000, 64000, 128000, 256000, 512000];
 	private var scales:Array<Float> = [2.0, 1.0, 0.5, 0.2, 0.1];
@@ -104,7 +104,7 @@ class MassiveDemo extends Sprite
 		this.stage.color = 0x333333;
 		
 		var assets:Array<Dynamic> = [];
-		for (i in 0...numAtlases)
+		for (i in 0...this.numAtlases)
 		{
 			assets[assets.length] = Assets.getPath("img/zombi" + i + ".png");
 			assets[assets.length] = Assets.getPath("img/zombi" + i + ".xml");
@@ -120,7 +120,11 @@ class MassiveDemo extends Sprite
 	{
 		trace("assetsLoaded");
 		
-		setAtlas("zombi0");
+		//setAtlas("zombi0");
+		for (i in 0...this.numAtlases)
+		{
+			setAtlas("zombi" + i);
+		}
 		
 		//trace(GL.getParameter(GL.MAX_TEXTURE_SIZE));
 		//trace(GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
@@ -213,6 +217,7 @@ class MassiveDemo extends Sprite
 		}
 		
 		var btn:Button = null;
+		var btnHeight:Float = quad.height;
 		var tf:TextField;
 		var gap:Float = 2;
 		var tX:Float;
@@ -233,20 +238,26 @@ class MassiveDemo extends Sprite
 		this.atlasSprite = new Sprite();
 		this.atlasSprite.y = tY;
 		this.menuSprite.addChild(this.atlasSprite);
-		tf = new TextField(0, 0, "atlas");
+		tf = new TextField(0, 0, "atlas(es)");
 		tf.format.color = 0xffffff;
 		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
-		tf.y = (this.mediumButtonTextureOFF.height - tf.height) / 2;
+		tf.y = (this.mediumButtonTextureOFF.height * 2 + gap - tf.height) / 2;
 		this.atlasSprite.addChild(tf);
 		tX = tf.width + gap;
+		tY = 0;
 		
 		var atlasID:String;
 		for (i in 0...this.numAtlases)
 		{
+			if (i == 8)
+			{
+				tX = tf.width + gap;
+				tY += btnHeight + gap;
+			}
 			atlasID = "zombi" + i;
-			btn = new Button(this.atlasIDs.indexOf(atlasID) != -1 ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, atlasID, this.mediumButtonTextureON);
+			btn = new Button(this.atlasIDs.indexOf(atlasID) != -1 ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, atlasID, null, this.mediumButtonTextureON);
 			btn.x = tX;
-			btn.y = tf.y + (tf.height - btn.height) / 2;
+			btn.y = tY;
 			btn.addEventListener(Event.TRIGGERED, toggleAtlas);
 			this.atlasButtons.push(btn);
 			this.atlasSprite.addChild(btn);
@@ -255,7 +266,7 @@ class MassiveDemo extends Sprite
 		
 		this.atlasSprite.x = (this.buttonTextureOFF.width - this.atlasSprite.width) / 2;
 		
-		tY += btn.height + gap;
+		tY = this.atlasSprite.y + this.atlasSprite.height + gap;
 		btn = new Button(this.useRandomAlpha ? this.buttonTextureON : this.buttonTextureOFF, "randomize alpha", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleRandomAlpha);

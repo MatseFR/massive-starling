@@ -142,7 +142,8 @@ class MassiveImages extends Scene implements IAnimatable
 			variant = Std.random(numTextures);
 			
 			img = new MassiveImage();
-			img.textureIndex = variant / 4;
+			img.textureIndex = variant;
+			//img.textureIndex = 0;
 			img.setFrames(this._frames[variant], this._timings[variant], true, 0, Std.random(this._frames[variant].length));
 			img.x = MathUtils.random() * stageWidth;
 			img.y = MathUtils.random() * stageHeight;
