@@ -595,6 +595,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _numTextures:Int = 0;
 	private var _multiTexturing:Bool = false;
 	private var _isMultiTexturingProgram:Bool = false;
+	private var _multiTexturingConstants:Vector<Float>;
 	
 	/**
 	   
@@ -613,15 +614,15 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 						  Starling.current.profile == Context3DProfile.BASELINE_CONSTRAINED ||
 						  Starling.current.profile == Context3DProfile.BASELINE_EXTENDED;
 			_baselineCheckDone = true;
-			
-			if (_isBaseline)
-			{
-				
-			}
-			else
-			{
-				
-			}
+		}
+		
+		if (_isBaseline)
+		{
+			this._multiTexturingConstants = _multiTextureIndices;
+		}
+		else
+		{
+			this._multiTexturingConstants = new Vector<Float>();
 		}
 		
 		if (textures != null)
@@ -776,6 +777,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			this._program.dispose();
 			this._isMultiTexturingProgram = false;
+			if (!_isBaseline) this._multiTexturingConstants.length = 0;
 		}
 		
 		var texture:Texture;
@@ -908,6 +910,39 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			this._program = createProgramWithMultiTexture(this._useColor, this._textures);
 			this._isMultiTexturingProgram = true;
+			
+			if (!_isBaseline)
+			{
+				//fc0
+				this._multiTexturingConstants[0] = 0.5;
+				this._multiTexturingConstants[1] = 1.5;
+				this._multiTexturingConstants[2] = 2.5;
+				this._multiTexturingConstants[3] = 3.5;
+				if (this._numTextures > 4)
+				{
+					//fc1
+					this._multiTexturingConstants[4] = 4.5;
+					this._multiTexturingConstants[5] = 5.5;
+					this._multiTexturingConstants[6] = 6.5;
+					this._multiTexturingConstants[7] = 7.5;
+					if (this._numTextures > 8)
+					{
+						//fc2
+						this._multiTexturingConstants[8] = 8.5;
+						this._multiTexturingConstants[9] = 9.5;
+						this._multiTexturingConstants[10] = 10.5;
+						this._multiTexturingConstants[11] = 11.5;
+						if (this._numTextures > 12)
+						{
+							//fc3
+							this._multiTexturingConstants[12] = 12.5;
+							this._multiTexturingConstants[13] = 13.5;
+							this._multiTexturingConstants[14] = 14.5;
+							this._multiTexturingConstants[15] = 15.5;
+						}
+					}
+				}
+			}
 		}
 		else
 		{
@@ -1026,98 +1061,136 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		else
 		{
-			if (numTextures > 2)
-			{
-				if (useColor) {
-					fragmentShader.push("slt ft4, v2.xxxx, fc0");
-				} else {
-					fragmentShader.push("slt ft4, v1.xxxx, fc0");
-				}
-				fragmentShader.push("sub ft6, fc1.xxxx, ft4");
-				fragmentShader.push("min ft6.xyz, ft6.xyz, ft4.yzw");
-				fragmentShader.push("ifg ft4.x, fc0.z");
-				fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
-				fragmentShader.push("els");
-				fragmentShader.push("ifg ft6.x, fc0.z");
-				fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
-				fragmentShader.push("els");
-				if (numTextures == 3)
-				{
-					fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
-				}
-				else
-				{
-					fragmentShader.push("ifg ft6.y, fc0.z");
-					fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
-					fragmentShader.push("els");
-					if (numTextures == 4)
-					{
-						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
-					}
-					else
-					{
-						fragmentShader.push("ifg ft6.z, fc0.z");
-						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
+			fragmentShader.push("ifl v2.x fc1.w");
+			// tex 0-7
+				fragmentShader.push("ifl v2.x fc0.w");
+				// tex 0-3
+					fragmentShader.push("ifl v2.x fc0.y");
+					// tex 0-1
+						fragmentShader.push("ifl v2.x fc0.x");
+							// tex 0
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
 						fragmentShader.push("els");
-						if (numTextures == 5)
-						{
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
-						}
-						else
-						{
-							fragmentShader.push("ifg ft6.w, fc0.z");
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
-							fragmentShader.push("els");
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 5, textures[5]));
-							fragmentShader.push("eif");
-						}
+							// tex 1
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
 						fragmentShader.push("eif");
-					}
+					fragmentShader.push("els");
+					// tex 2-3
+						fragmentShader.push("ifl v2.x fc0.z");
+							// tex 2
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
+						fragmentShader.push("els");
+							// tex 3
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
+						fragmentShader.push("eif");
 					fragmentShader.push("eif");
-				}
-				fragmentShader.push("eif");
-				fragmentShader.push("eif");
-				
-				// PREVIOUS
-				//fragmentShader.push("slt ft4, v2.xxxx, fc0");
-				//fragmentShader.push("sub ft6, fc1.xxxx, ft4");
-				//fragmentShader.push("min ft6.xyz, ft6.xyz, ft4.yzw");
-				//fragmentShader.push("ifg ft4.x, fc0.z");
-				//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
-				//fragmentShader.push("eif");
-				//fragmentShader.push("ifg ft6.x, fc0.z");
-				//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
-				//fragmentShader.push("eif");
-				//fragmentShader.push("ifg ft6.y, fc0.z");
-				//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
-				//fragmentShader.push("eif");
-				//
-				//if (numTextures > 3)
-				//{
-					//fragmentShader.push("ifg ft6.z, fc0.z");
-					//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
-					//fragmentShader.push("eif");
-					//
-					//if (numTextures > 4)
-					//{
-						//fragmentShader.push("ifg ft6.w, fc0.z");
-						//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
-						//fragmentShader.push("eif");
-					//}
-				//}
-			}
-			else
-			{
-				if (useColor) {
-					fragmentShader.push("ifl v2.x, fc0.x");
-				} else {
-					fragmentShader.push("ifl v1.x, fc0.x");
-				}
-				fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
 				fragmentShader.push("els");
-				fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
+				// tex 4-7
+					fragmentShader.push("ifl v2.x fc1.y");
+					// tex 4-5
+						fragmentShader.push("ifl v2.x fc1.x");
+							// tex 4
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
+						fragmentShader.push("els");
+							// tex 5
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 5, textures[5]));
+						fragmentShader.push("eif");
+					fragmentShader.push("els");
+					// tex 6-7
+						fragmentShader.push("ifl v2.x fc1.z");
+							// tex 6
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 6, textures[6]));
+						fragmentShader.push("els");
+							// tex 7
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 7, textures[7]));
+						fragmentShader.push("eif");
+					fragmentShader.push("eif");
 				fragmentShader.push("eif");
-			}
+			
+			fragmentShader.push("els");
+			// tex 8-15
+				fragmentShader.push("ifl v2.x fc2.w");
+				// tex 8-11
+					fragmentShader.push("ifl v2.x fc2.y");
+					// tex 8-9
+						fragmentShader.push("ifl v2.x fc2.x");
+							// tex 8
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 8, textures[8]));
+						fragmentShader.push("els");
+							// tex 9
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 9, textures[9]));
+						fragmentShader.push("eif");
+					fragmentShader.push("els");
+					// tex 2-3
+						fragmentShader.push("ifl v2.x fc2.z");
+							// tex 10
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 10, textures[10]));
+						fragmentShader.push("els");
+							// tex 11
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 11, textures[11]));
+						fragmentShader.push("eif");
+					fragmentShader.push("eif");
+				fragmentShader.push("els");
+				// tex 12-15
+					fragmentShader.push("ifl v2.x fc3.y");
+					// tex 12-13
+						fragmentShader.push("ifl v2.x fc3.x");
+							// tex 12
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 12, textures[12]));
+						fragmentShader.push("els");
+							// tex 13
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 13, textures[13]));
+						fragmentShader.push("eif");
+					fragmentShader.push("els");
+					// tex 14-15
+						fragmentShader.push("ifl v2.x fc3.z");
+							// tex 14
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 14, textures[14]));
+						fragmentShader.push("els");
+							// tex 15
+							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 15, textures[15]));
+						fragmentShader.push("eif");
+					fragmentShader.push("eif");
+				fragmentShader.push("eif");
+			
+			fragmentShader.push("eif");
+			
+			// 8 TEXTURES
+			//fragmentShader.push("ifg v2.x fc0.w");
+			//fragmentShader.push("ifl v2.x fc1.x");
+			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
+			//fragmentShader.push("els");
+			//fragmentShader.push("ifl v2.x fc1.y");
+			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 5, textures[5]));
+			//fragmentShader.push("els");
+			//fragmentShader.push("ifl v2.x fc1.z");
+			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 6, textures[6]));
+			//fragmentShader.push("els");
+			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 7, textures[7]));
+			//fragmentShader.push("eif");
+			//fragmentShader.push("eif");
+			//fragmentShader.push("eif");
+			//fragmentShader.push("els");
+			////fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
+			////fragmentShader.push("eif");
+			//
+			////fragmentShader.push("ifl v2.x fc1.x");
+			//fragmentShader.push("ifl v2.x fc0.x");
+			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
+			//fragmentShader.push("els");
+			//fragmentShader.push("ifl v2.x fc0.y");
+			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
+			//fragmentShader.push("els");
+			//fragmentShader.push("ifl v2.x fc0.z");
+			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
+			//fragmentShader.push("els");
+			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
+			//fragmentShader.push("eif");
+			//fragmentShader.push("eif");
+			//fragmentShader.push("eif");
+			//fragmentShader.push("eif");
+			//\8 TEXTURES
+			
 			if (useColor) {
 				fragmentShader.push("mul oc, ft5, v1");	// multiply color with texel color
 			} else {
@@ -1532,7 +1605,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		if (this._multiTexturing)
 		{
-			context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 0, _multiTextureIndices, this._numTextures > 2 || _isBaseline ? -1 : 1);
+			//context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 0, _multiTextureIndices, this._numTextures > 2 || _isBaseline ? -1 : 1);
+			context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 0, _multiTexturingConstants, -1);
 		}
 		
 		var forceBuffer:Bool = true;
