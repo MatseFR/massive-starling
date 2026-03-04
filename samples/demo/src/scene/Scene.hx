@@ -42,7 +42,6 @@ abstract class Scene extends Sprite
 	public function new() 
 	{
 		super();
-		
 	}
 	
 	public function updateBounds():Void

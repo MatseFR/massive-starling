@@ -137,7 +137,7 @@ class MassiveImages extends Scene implements IAnimatable
 		layer = new ImageLayer();
 		this._display.addLayer(layer);
 		
-		for (j in 0...this.numObjects)
+		for (i in 0...this.numObjects)
 		{
 			variant = Std.random(numTextures);
 			

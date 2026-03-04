@@ -3,8 +3,10 @@ package;
 import massive.display.MassiveColorMode;
 import massive.display.MassiveDisplay;
 import massive.display.MassiveRenderMode;
+import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.system.Capabilities;
+import openfl.system.System;
 import openfl.utils.Assets;
 import scene.ClassicClips;
 import scene.ClassicQuads;
@@ -83,11 +85,16 @@ class MassiveDemo extends Sprite
 	private var scaleButtons:Array<Button> = new Array<Button>();
 	private var colorModeButtons:Array<Button> = new Array<Button>();
 	private var renderModeButtons:Array<Button> = new Array<Button>();
+	private var classicClipsButtons:Array<Button> = new Array<Button>();
 	
 	private var numAtlases:Int = 16;
-	private var numClips:Array<Int> = [4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000];
+	private var numClips:Array<Int> = [1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000];
 	private var numQuads:Array<Int> = [8000, 16000, 32000, 64000, 128000, 256000, 512000];
 	private var scales:Array<Float> = [2.0, 1.0, 0.5, 0.2, 0.1];
+	
+	private var maxClipsWithoutMultiTextureStyle:Int = #if flash 2000 #else 8000 #end;
+	
+	private var maxTextures:Int;
 	
 	public function new() 
 	{
@@ -100,6 +107,9 @@ class MassiveDemo extends Sprite
 	private function addedToStageHandler(evt:Event):Void
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
+		
+		MassiveDisplay.init();
+		this.maxTextures = MassiveDisplay.maxNumTextures;
 		
 		this.stage.color = 0x333333;
 		
@@ -119,15 +129,6 @@ class MassiveDemo extends Sprite
 	private function assetsLoaded():Void
 	{
 		trace("assetsLoaded");
-		
-		//setAtlas("zombi0");
-		for (i in 0...this.numAtlases)
-		{
-			setAtlas("zombi" + i);
-		}
-		
-		//trace(GL.getParameter(GL.MAX_TEXTURE_SIZE));
-		//trace(GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
 		
 		var colorUP:Int = 0xcccccc;
 		var colorOVER:Int = 0xffffff;
@@ -454,6 +455,7 @@ class MassiveDemo extends Sprite
 			btn.y = tY;
 			btn.addEventListener(Event.TRIGGERED, classicClips);
 			this.classicSprite.addChild(btn);
+			this.classicClipsButtons.push(btn);
 		}
 		
 		tY += btn.height + gap * 4;
@@ -543,6 +545,12 @@ class MassiveDemo extends Sprite
 		
 		this.stage.addEventListener(Event.RESIZE, stageResizeHandler);
 		
+		var count:Int = MathUtils.minInt(this.numAtlases, this.maxTextures);
+		for (i in 0...count)
+		{
+			setAtlas("zombi" + i);
+		}
+		
 		updateUIPositions();
 		showMenu();
 	}
@@ -617,6 +625,8 @@ class MassiveDemo extends Sprite
 		this.demoMenuSprite.removeFromParent();
 		
 		showMenu();
+		
+		System.gc();
 	}
 	
 	private function toggleAnimation(evt:Event):Void
@@ -643,8 +653,11 @@ class MassiveDemo extends Sprite
 		var index:Int = this.atlasIDs.indexOf(btn.text);
 		if (index == -1)
 		{
-			setAtlas(btn.text);
-			btn.upState = this.miniButtonTextureON;
+			if (this.atlases.length < this.maxTextures)
+			{
+				setAtlas(btn.text);
+				//btn.upState = this.miniButtonTextureON;
+			}
 		}
 		else if (this.atlasIDs.length > 1)
 		{
@@ -652,6 +665,8 @@ class MassiveDemo extends Sprite
 			this.atlases.splice(index, 1);
 			this.textures.splice(index, 1);
 			btn.upState = this.miniButtonTextureOFF;
+			
+			updateClassicStarling();
 		}
 	}
 	
@@ -680,6 +695,17 @@ class MassiveDemo extends Sprite
 				this.frameRateBase = 3;
 				this.frameRateVariance = 15;
 		}
+		
+		for (i in 0...this.atlasButtons.length)
+		{
+			if (this.atlasButtons[i].text == id)
+			{
+				this.atlasButtons[i].upState = this.miniButtonTextureON;
+				break;
+			}
+		}
+		
+		updateClassicStarling();
 	}
 	
 	private function toggleAutoUpdateBounds(evt:Event):Void
@@ -780,6 +806,8 @@ class MassiveDemo extends Sprite
 		{
 			btn.upState = this.buttonTextureOFF;
 		}
+		
+		updateClassicStarling();
 	}
 	
 	private function toggleRandomAlpha(evt:Event):Void
@@ -865,6 +893,34 @@ class MassiveDemo extends Sprite
 		else
 		{
 			btn.upState = this.buttonTextureOFF;
+		}
+	}
+	
+	private function updateClassicStarling():Void
+	{
+		var count:Int = this.numClips.length;
+		var i:Int;
+		var multiTexturing:Bool = this.atlases.length > 1;
+		if (multiTexturing && !this.multiTextureStyle)
+		{
+			for (i in 0...count)
+			{
+				if (this.numClips[i] <= this.maxClipsWithoutMultiTextureStyle)
+				{
+					this.classicClipsButtons[i].enabled = true;
+				}
+				else
+				{
+					this.classicClipsButtons[i].enabled = false;
+				}
+			}
+		}
+		else
+		{
+			for (i in 0...count)
+			{
+				this.classicClipsButtons[i].enabled = true;
+			}
 		}
 	}
 	
