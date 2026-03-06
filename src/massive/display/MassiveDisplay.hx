@@ -1,5 +1,6 @@
 package massive.display;
 
+import massive.data.ImageData;
 import massive.data.MassiveConstants;
 import massive.util.MathUtils;
 import massive.util.ReverseIterator;
@@ -32,6 +33,7 @@ import starling.textures.TextureSmoothing;
 import starling.utils.MatrixUtil;
 import starling.utils.RenderUtil;
 #if !flash
+import lime.graphics.opengl.GL;
 import lime.utils.UInt16Array;
 import openfl.utils._internal.Float32Array;
 #end
@@ -42,12 +44,53 @@ import openfl.Memory;
 
 /**
  * MassiveDisplay is a starling DisplayObject
- * setup should be done before adding it to stage
  * in order to display anything you need to add at least a layer to it, and then add data to that layer
  * @author Matse
  */
 class MassiveDisplay extends DisplayObject implements IAnimatable
 {
+	/**
+	   Call this to initialize Massive
+	   if you don't, it will be called by the first MassiveDisplay instance you create
+	**/
+	static public function init():Void
+	{
+		if (_initDone) return;
+		
+		if (Starling.current == null)
+		{
+			throw new Error("MassiveDisplay.init should be called after Starling is started");
+		}
+		
+		_isBaseline = Starling.current.profile == Context3DProfile.BASELINE ||
+					  Starling.current.profile == Context3DProfile.BASELINE_CONSTRAINED ||
+					  Starling.current.profile == Context3DProfile.BASELINE_EXTENDED;
+		
+		if (_isBaseline)
+		{
+			maxNumTextures = 5;
+			ImageData.TEXTURE_INDEX_MULTIPLIER = 0.25;
+		}
+		else
+		{
+			#if flash
+			maxNumTextures = 16; // TODO : find a way to detect max simultaneous textures on flash/air target
+			#else
+			maxNumTextures = GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS);
+			#end
+			ImageData.TEXTURE_INDEX_MULTIPLIER = 1.0;
+		}
+		
+		_initDone = true;
+	}
+	
+	static private var _POOL:Array<MassiveDisplay> = new Array<MassiveDisplay>();
+	
+	static public function fromPool(textureOrTextures:Dynamic = null, renderMode:String = null, colorMode:String = null, maxQuads:Int = MassiveConstants.MAX_QUADS):MassiveDisplay
+	{
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(textureOrTextures, renderMode, colorMode, maxQuads);
+		return new MassiveDisplay(textureOrTextures, renderMode, colorMode, maxQuads);
+	}
 	
 	/**
 	   The default Juggler instance to use for all MassiveDisplay objects when their juggler property is null.
@@ -64,6 +107,16 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   Default renderMode, used when renderMode parameter is null.
 	**/
 	static public var defaultRenderMode:String = #if flash MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY #else MassiveRenderMode.FLOAT32ARRAY #end;
+	
+	/**
+	 * Default texture smoothing
+	 */
+	static public var defaultTextureSmoothing:String = TextureSmoothing.BILINEAR;
+	
+	/**
+	   Maximum number of textures for a single MassiveDisplay instance.
+	**/
+	static public var maxNumTextures(default, null):Int;
 	
 	/**
 	   Default program used when `useColor` is `true` and `texture` is `null`
@@ -122,7 +175,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	static public var programNoColorTextureDefaultPMA:Program;
 	
-	static private var _baselineCheckDone:Bool = false;
+	static private var _initDone:Bool = false;
 	static private var _isBaseline:Bool;
 	#if flash
 	static private var _byteIndices:ByteArray;
@@ -131,7 +184,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	#end
 	static private var _helperMatrix:Matrix = new Matrix();
 	static private var _helperPoint:Point = new Point();
-	static private var _multiTextureIndices:Vector<Float> = new Vector<Float>([0.125, 0.375, 0.625, 0.875, 1, 0, 0, 0]);
+	static private var _baselineMultiTextureIndices:Vector<Float> = new Vector<Float>([0.125, 0.375, 0.625, 0.875, 1, 0, 0, 0]);
 	
 	/**
 	   Tells whether to animate layers
@@ -156,7 +209,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var boundsRect:Rectangle;
 	/**
-	   color as Int
+	   Color as Int
 	**/
 	public var color(get, set):Int;
 	/**
@@ -209,6 +262,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var numQuads(get, never):Int;
 	/**
+	 * Tells how many textures have been added
+	 */
+	public var numTextures(get, never):Int;
+	/**
 	   
 	**/
 	public var pma(default, null):Bool = true;
@@ -224,16 +281,16 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   Offsets all layers by the specified amount on x axis when rendering
 	   @default 0
 	**/
-	public var renderOffsetX:Float = 0;
+	public var renderOffsetX:Float = 0.0;
 	/**
 	   Offsets all layers by the specified amount on y axis when rendering
 	   @default 0
 	**/
-	public var renderOffsetY:Float = 0;
+	public var renderOffsetY:Float = 0.0;
 	/**
-	   The texture used by this MassiveDisplay instance, typically from a TextureAtlas.
+	   Default texture
 	**/
-	//public var texture(get, set):Texture;
+	public var texture(get, set):Texture;
 	/**
 	   Tells whether texture should repeat or not
 	   @default false
@@ -396,6 +453,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _numQuads:Int = 0;
 	private function get_numQuads():Int { return this._numQuads; }
 	
+	private function get_numTextures():Int { return this._textures.length; }
+	
 	private var _program:Program;
 	private function get_program():Program { return this._program; }
 	private function set_program(value:Program):Program
@@ -473,30 +532,24 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._renderMode = value;
 	}
 	
-	//private var _texture:Texture;
-	//private function get_texture():Texture { return this._texture; }
-	//private function set_texture(value:Texture):Texture
-	//{
-		//if (this._texture == value) return value;
-		//var textureWasNull:Bool = this._texture == null;
-		//this._texture = value;
-		//this.pma = this._texture != null ? this._texture.premultipliedAlpha : true;
-		//updateColor();
-		//if (textureWasNull || this._texture == null)
-		//{
-			//updateElements();
-			//if (this._buffersCreated)
-			//{
-				//updateBuffers();
-			//}
-			//updateData();
-		//}
-		//if (this._program != null)
-		//{
-			//updateProgram();
-		//}
-		//return this._texture;
-	//}
+	private function get_texture():Texture { return this._textures.length == 0 ? null : this._textures[0]; }
+	private function set_texture(value:Texture):Texture
+	{
+		if (this._textures.length != 0 && this._textures[0] == value) return value;
+		if (value == null)
+		{
+			if (this._textures.length != 0)
+			{
+				removeTextureAt(0);
+			}
+		}
+		else
+		{
+			this._textures[0] = value;
+			updateTextures();
+		}
+		return value;
+	}
 	
 	private var _textureRepeat:Bool = false;
 	private function get_textureRepeat():Bool { return this._textureRepeat; }
@@ -588,7 +641,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _zeroBytes:ByteArray = new ByteArray();
 	#end
 	
-	private var contextBufferIndex:Int;
+	private var _contextBufferIndex:Int;
 	private var _renderData:RenderData = new RenderData();
 	
 	private var _textures:Array<Texture> = new Array<Texture>();
@@ -599,35 +652,36 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	/**
 	   
-	   @param	texture
+	   @param	textureOrTextures	either a Texture or an Array<Texture>
 	   @param	renderMode
 	   @param	colorMode
 	   @param	maxQuads
 	**/
-	public function new(textures:Array<Texture> = null, renderMode:String = null, colorMode:String = null, maxQuads:Int = MassiveConstants.MAX_QUADS)
+	public function new(textureOrTextures:Dynamic = null, renderMode:String = null, colorMode:String = null, maxQuads:Int = MassiveConstants.MAX_QUADS)
 	{
 		super();
 		
-		if (!_baselineCheckDone)
-		{
-			_isBaseline = Starling.current.profile == Context3DProfile.BASELINE ||
-						  Starling.current.profile == Context3DProfile.BASELINE_CONSTRAINED ||
-						  Starling.current.profile == Context3DProfile.BASELINE_EXTENDED;
-			_baselineCheckDone = true;
-		}
+		if (!_initDone) init();
 		
 		if (_isBaseline)
 		{
-			this._multiTexturingConstants = _multiTextureIndices;
+			this._multiTexturingConstants = _baselineMultiTextureIndices;
 		}
 		else
 		{
 			this._multiTexturingConstants = new Vector<Float>();
 		}
 		
-		if (textures != null)
+		if (textureOrTextures != null)
 		{
-			addTextures(textures);
+			if (Std.isOfType(textureOrTextures, Texture))
+			{
+				addTexture(cast textureOrTextures);
+			}
+			else
+			{
+				addTextures(cast textureOrTextures);
+			}
 		}
 		this.maxQuads = maxQuads;
 		
@@ -661,23 +715,83 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._vectorColor = new Vector<Float>(4, true, [this._red, this._green, this._blue, this.__alpha]);
 		#end
 		
-		updateElements();
-		
 		if (defaultJuggler == null) defaultJuggler = Starling.currentJuggler;
 		if (this._juggler == null) this._juggler = defaultJuggler;
+	}
+	
+	private function setFromPool(textureOrTextures:Dynamic, renderMode:String, colorMode:String, maxQuads:Int):MassiveDisplay
+	{
+		if (textureOrTextures != null)
+		{
+			if (Std.isOfType(textureOrTextures, Texture))
+			{
+				addTexture(cast textureOrTextures);
+			}
+			else
+			{
+				addTextures(cast textureOrTextures);
+			}
+		}
+		this.maxQuads = maxQuads;
+		
+		if (colorMode == null) colorMode = defaultColorMode;
+		if (colorMode == null) colorMode = MassiveColorMode.EXTENDED;
+		this.colorMode = colorMode;
+		
+		if (renderMode == null) renderMode = defaultRenderMode;
+		if (renderMode == null)
+		{
+			#if flash
+			renderMode = MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY;
+			#else
+			renderMode = MassiveRenderMode.FLOAT32ARRAY;
+			#end
+		}
+		this.renderMode = renderMode;
+		return this;
 	}
 	
 	override public function dispose():Void 
 	{
 		disposeBuffers();
-		if (this._isMultiTexturingProgram && this._program != null)
+		if (!this._isUserProgram && this._isMultiTexturingProgram && this._program != null)
 		{
 			this._program.dispose();
-			this._program = null;
 		}
+		this._program = null;
+		removeAllLayers(true, false);
 		this._textures = null;
 		
 		super.dispose();
+	}
+	
+	public function clear(disposeLayers:Bool = true, poolDatas:Bool = true):Void
+	{
+		disposeBuffers();
+		if (!this._isUserProgram && this._isMultiTexturingProgram && this._program != null)
+		{
+			this._program.dispose();
+		}
+		this._program = null;
+		removeAllLayers(disposeLayers, poolDatas);
+		this._textures.resize(0);
+		
+		this.animate = true;
+		this._autoHandleJuggler = true;
+		this._autoUpdateBounds = false;
+		this.blendMode = BlendMode.NORMAL;
+		this.boundsRect = null;
+		this.alpha = this.blue = this.green = this.red = 1.0;
+		this._juggler = defaultJuggler;
+		this.renderOffsetX = this.renderOffsetY = 0.0;
+		this._textureRepeat = false;
+		this._textureSmoothing = defaultTextureSmoothing;
+	}
+	
+	public function pool():Void
+	{
+		clear();
+		_POOL[_POOL.length] = this;
 	}
 	
 	/**
@@ -721,508 +835,91 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function addTexture(texture:Texture):Void
 	{
-		this._textures[this._numTextures] = texture;
-		++this._numTextures;
-		this._multiTexturing = this._numTextures > 1;
-		this._renderData.multiTexturing = this._multiTexturing;
-		
-		updateElements();
-		if (this._buffersCreated)
-		{
-			updateBuffers();
-		}
-		updateData();
-		
-		if (this._program != null)
-		{
-			updateProgram();
-		}
+		this._textures[this._textures.length] = texture;
+		updateTextures();
+	}
+	
+	public function addTextureAt(texture:Texture, index:Int):Void
+	{
+		this._textures.insert(index, texture);
+		updateTextures();
 	}
 	
 	public function addTextures(textures:Array<Texture>):Void
 	{
 		for (i in 0...textures.length)
 		{
-			this._textures[this._numTextures++] = textures[i];
+			this._textures[this._textures.length] = textures[i];
 		}
-		this._multiTexturing = this._numTextures > 1;
-		this._renderData.multiTexturing = this._multiTexturing;
-		
-		updateElements();
-		if (this._buffersCreated)
+		updateTextures();
+	}
+	
+	public function addTexturesAt(textures:Array<Texture>, index:Int):Void
+	{
+		for (i in 0...textures.length)
 		{
-			updateBuffers();
+			this._textures.insert(index + i, textures[i]);
 		}
-		updateData();
-		
-		if (this._program != null)
-		{
-			updateProgram();
-		}
+		updateTextures();
+	}
+	
+	public function clearTextures():Void
+	{
+		this._textures.resize(0);
+		updateTextures();
+	}
+	
+	public function getTextureAt(index:Int):Texture
+	{
+		return this._textures[index];
 	}
 	
 	public function removeTexture(texture:Texture):Void
 	{
-		
-	}
-	
-	/**
-	   
-	**/
-	private function updateProgram():Void
-	{
-		if (this._isUserProgram) return;
-		
-		if (this._isMultiTexturingProgram)
+		var index:Int = this._textures.indexOf(texture);
+		if (index != -1)
 		{
-			this._program.dispose();
-			this._isMultiTexturingProgram = false;
-			if (!_isBaseline) this._multiTexturingConstants.length = 0;
-		}
-		
-		var texture:Texture;
-		
-		if (this._numTextures == 1)
-		{
-			texture = this._textures[0];
-			if (this._useColor)
-			{
-				if (texture.format == Context3DTextureFormat.COMPRESSED)
-				{
-					if (texture.premultipliedAlpha)
-					{
-						if (programColorTextureCompressedPMA == null)
-						{
-							programColorTextureCompressedPMA = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programColorTextureCompressedPMA;
-					}
-					else
-					{
-						if (programColorTextureCompressed == null)
-						{
-							programColorTextureCompressed = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programColorTextureCompressed;
-					}
-				}
-				else if (texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
-				{
-					if (texture.premultipliedAlpha)
-					{
-						if (programColorTextureCompressedAlphaPMA == null)
-						{
-							programColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programColorTextureCompressedAlphaPMA;
-					}
-					else
-					{
-						if (programColorTextureCompressedAlpha == null)
-						{
-							programColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programColorTextureCompressedAlpha;
-					}
-				}
-				else
-				{
-					if (texture.premultipliedAlpha)
-					{
-						if (programColorTextureDefaultPMA == null)
-						{
-							programColorTextureDefaultPMA = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programColorTextureDefaultPMA;
-					}
-					else
-					{
-						if (programColorTextureDefault == null)
-						{
-							programColorTextureDefault = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programColorTextureDefault;
-					}
-				}
-			}
-			else
-			{
-				if (texture.format == Context3DTextureFormat.COMPRESSED)
-				{
-					if (texture.premultipliedAlpha)
-					{
-						if (programNoColorTextureCompressedPMA == null)
-						{
-							programNoColorTextureCompressedPMA = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programNoColorTextureCompressedPMA;
-					}
-					else
-					{
-						if (programNoColorTextureCompressed == null)
-						{
-							programNoColorTextureCompressed = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programNoColorTextureCompressed;
-					}
-				}
-				else if (texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
-				{
-					if (texture.premultipliedAlpha)
-					{
-						if (programNoColorTextureCompressedAlphaPMA == null)
-						{
-							programNoColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programNoColorTextureCompressedAlphaPMA;
-					}
-					else
-					{
-						if (programNoColorTextureCompressedAlpha == null)
-						{
-							programNoColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programNoColorTextureCompressedAlpha;
-					}
-				}
-				else
-				{
-					if (texture.premultipliedAlpha)
-					{
-						if (programNoColorTextureDefaultPMA == null)
-						{
-							programNoColorTextureDefaultPMA = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programNoColorTextureDefaultPMA;
-					}
-					else
-					{
-						if (programNoColorTextureDefault == null)
-						{
-							programNoColorTextureDefault = createProgramWithTexture(this._useColor, texture);
-						}
-						this._program = programNoColorTextureDefault;
-					}
-				}
-			}
-		}
-		else if (this._numTextures > 1)
-		{
-			this._program = createProgramWithMultiTexture(this._useColor, this._textures);
-			this._isMultiTexturingProgram = true;
-			
-			if (!_isBaseline)
-			{
-				//fc0
-				this._multiTexturingConstants[0] = 0.5;
-				this._multiTexturingConstants[1] = 1.5;
-				this._multiTexturingConstants[2] = 2.5;
-				this._multiTexturingConstants[3] = 3.5;
-				if (this._numTextures > 4)
-				{
-					//fc1
-					this._multiTexturingConstants[4] = 4.5;
-					this._multiTexturingConstants[5] = 5.5;
-					this._multiTexturingConstants[6] = 6.5;
-					this._multiTexturingConstants[7] = 7.5;
-					if (this._numTextures > 8)
-					{
-						//fc2
-						this._multiTexturingConstants[8] = 8.5;
-						this._multiTexturingConstants[9] = 9.5;
-						this._multiTexturingConstants[10] = 10.5;
-						this._multiTexturingConstants[11] = 11.5;
-						if (this._numTextures > 12)
-						{
-							//fc3
-							this._multiTexturingConstants[12] = 12.5;
-							this._multiTexturingConstants[13] = 13.5;
-							this._multiTexturingConstants[14] = 14.5;
-							this._multiTexturingConstants[15] = 15.5;
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			if (this._useColor)
-			{
-				if (programColorNoTexture == null)
-				{
-					programColorNoTexture = createProgramWithoutTexture(this._useColor);
-				}
-				this._program = programColorNoTexture;
-			}
-			else
-			{
-				if (programNoColorNoTexture == null)
-				{
-					programNoColorNoTexture = createProgramWithoutTexture(this._useColor);
-				}
-				this._program = programNoColorNoTexture;
-			}
+			this._textures.splice(index, 1);
+			updateTextures();
 		}
 	}
 	
-	private function createProgramWithTexture(useColor:Bool, texture:Texture):Program
+	public function removeTextureAt(index:Int):Void
 	{
-		var vertexShader:String;
-		var fragmentShader:String;
-		
-		if (useColor)
-		{
-			vertexShader = 
-			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
-			"mov v0, va1      \n" + // pass texture coordinates to fragment program
-			"mul v1, va2, vc4 \n";  // multiply alpha (vc4) with color (va2), pass to fp
-			fragmentShader = RenderUtil.createAGALTexOperation("ft0", "v0", 0, texture) ; // read texel color
-			fragmentShader += "mul oc, ft0, v1  \n";  // multiply color with texel color
-		}
-		else
-		{
-			vertexShader = 
-			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
-			"mov v0, va1      \n" ; // pass texture coordinates to fragment program
-			fragmentShader = RenderUtil.createAGALTexOperation("oc", "v0", 0, texture); // output color is texel color
-		}
-		
-		return Program.fromSource(vertexShader, fragmentShader, 2);
+		this._textures.splice(index, 1);
+		updateTextures();
 	}
 	
-	private function createProgramWithMultiTexture(useColor:Bool, textures:Array<Texture>):Program
+	public function removeTextures(textures:Array<Texture>):Void
 	{
-		var numTextures:Int = textures.length;
-		var fragmentShader:Array<String> = new Array<String>();
-		var vertexShader:String;
-		
-		if (useColor)
+		var index:Int;
+		for (i in 0...textures.length)
 		{
-			vertexShader = 
-				"m44 op, va0, vc0\n" +	// 4x4 matrix transform to output clip-space
-				"mov v0, va1\n" +		// pass texture coordinates to fragment program
-				"mul v1, va2, vc4\n" +	// multiply alpha (vc4) with color (va2), pass to fp
-				"mov v2, va3";			// pass texture sampler index to fp
+			index = this._textures.indexOf(textures[i]);
+			if (index != -1) this._textures.splice(index, 1);
 		}
-		else
-		{
-			vertexShader = 
-				"m44 op, va0, vc0\n" +	// 4x4 matrix transform to output clip-space
-				"mov v0, va1\n" +		// pass texture coordinates to fragment program
-				//"mul v1, va2, vc4\n" +	// multiply alpha (vc4) with color (va2), pass to fp
-				"mov v1, va2";			// pass texture sampler index to fp
-		}
-		
-		if (_isBaseline)
-		{
-			if (useColor) {
-				fragmentShader.push("slt ft4, v2.xxxx, fc0");
-			} else {
-				fragmentShader.push("slt ft4, v1.xxxx, fc0");
-			}
-			fragmentShader.push(RenderUtil.createAGALTexOperation("ft0", "v0", 0, textures[0]));
-			fragmentShader.push("min ft5, ft4.xxxx, ft0");
-			
-			fragmentShader.push("sub ft6, fc1.xxxx, ft4");
-			fragmentShader.push(RenderUtil.createAGALTexOperation("ft1", "v0", 1, textures[1]));
-			
-			if (numTextures > 2)
-			{
-				fragmentShader.push("min ft6.xyz, ft6.xyz, ft4.yzw");
-				fragmentShader.push("min ft0, ft6.xxxx, ft1");
-				fragmentShader.push("add ft5, ft5, ft0");
-				fragmentShader.push(RenderUtil.createAGALTexOperation("ft2", "v0", 2, textures[2]));
-				fragmentShader.push("min ft0, ft6.yyyy, ft2");
-				
-				if (numTextures > 3)
-				{
-					fragmentShader.push("add ft5, ft5, ft0");
-					fragmentShader.push(RenderUtil.createAGALTexOperation("ft3", "v0", 3, textures[3]));
-					fragmentShader.push("min ft0, ft6.zzzz, ft3");
-					
-					if (numTextures > 4)
-					{
-						fragmentShader.push("add ft5, ft5, ft0");
-						fragmentShader.push(RenderUtil.createAGALTexOperation("ft4", "v0", 4, textures[4]));
-						fragmentShader.push("min ft0, ft6.wwww, ft4");
-					}
-				}
-			}
-			else
-			{
-				fragmentShader.push("min ft0, ft6.xxxx, ft1");
-			}
-			fragmentShader.push("add ft5, ft5, ft0");
-			if (useColor) {
-				fragmentShader.push("mul oc, ft5, v1");	// multiply color with texel color
-			} else {
-				fragmentShader.push("mov oc, ft5");
-			}
-		}
-		else
-		{
-			fragmentShader.push("ifl v2.x fc1.w");
-			// tex 0-7
-				fragmentShader.push("ifl v2.x fc0.w");
-				// tex 0-3
-					fragmentShader.push("ifl v2.x fc0.y");
-					// tex 0-1
-						fragmentShader.push("ifl v2.x fc0.x");
-							// tex 0
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
-						fragmentShader.push("els");
-							// tex 1
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
-						fragmentShader.push("eif");
-					fragmentShader.push("els");
-					// tex 2-3
-						fragmentShader.push("ifl v2.x fc0.z");
-							// tex 2
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
-						fragmentShader.push("els");
-							// tex 3
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
-						fragmentShader.push("eif");
-					fragmentShader.push("eif");
-				fragmentShader.push("els");
-				// tex 4-7
-					fragmentShader.push("ifl v2.x fc1.y");
-					// tex 4-5
-						fragmentShader.push("ifl v2.x fc1.x");
-							// tex 4
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
-						fragmentShader.push("els");
-							// tex 5
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 5, textures[5]));
-						fragmentShader.push("eif");
-					fragmentShader.push("els");
-					// tex 6-7
-						fragmentShader.push("ifl v2.x fc1.z");
-							// tex 6
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 6, textures[6]));
-						fragmentShader.push("els");
-							// tex 7
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 7, textures[7]));
-						fragmentShader.push("eif");
-					fragmentShader.push("eif");
-				fragmentShader.push("eif");
-			
-			fragmentShader.push("els");
-			// tex 8-15
-				fragmentShader.push("ifl v2.x fc2.w");
-				// tex 8-11
-					fragmentShader.push("ifl v2.x fc2.y");
-					// tex 8-9
-						fragmentShader.push("ifl v2.x fc2.x");
-							// tex 8
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 8, textures[8]));
-						fragmentShader.push("els");
-							// tex 9
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 9, textures[9]));
-						fragmentShader.push("eif");
-					fragmentShader.push("els");
-					// tex 2-3
-						fragmentShader.push("ifl v2.x fc2.z");
-							// tex 10
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 10, textures[10]));
-						fragmentShader.push("els");
-							// tex 11
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 11, textures[11]));
-						fragmentShader.push("eif");
-					fragmentShader.push("eif");
-				fragmentShader.push("els");
-				// tex 12-15
-					fragmentShader.push("ifl v2.x fc3.y");
-					// tex 12-13
-						fragmentShader.push("ifl v2.x fc3.x");
-							// tex 12
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 12, textures[12]));
-						fragmentShader.push("els");
-							// tex 13
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 13, textures[13]));
-						fragmentShader.push("eif");
-					fragmentShader.push("els");
-					// tex 14-15
-						fragmentShader.push("ifl v2.x fc3.z");
-							// tex 14
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 14, textures[14]));
-						fragmentShader.push("els");
-							// tex 15
-							fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 15, textures[15]));
-						fragmentShader.push("eif");
-					fragmentShader.push("eif");
-				fragmentShader.push("eif");
-			
-			fragmentShader.push("eif");
-			
-			// 8 TEXTURES
-			//fragmentShader.push("ifg v2.x fc0.w");
-			//fragmentShader.push("ifl v2.x fc1.x");
-			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
-			//fragmentShader.push("els");
-			//fragmentShader.push("ifl v2.x fc1.y");
-			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 5, textures[5]));
-			//fragmentShader.push("els");
-			//fragmentShader.push("ifl v2.x fc1.z");
-			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 6, textures[6]));
-			//fragmentShader.push("els");
-			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 7, textures[7]));
-			//fragmentShader.push("eif");
-			//fragmentShader.push("eif");
-			//fragmentShader.push("eif");
-			//fragmentShader.push("els");
-			////fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
-			////fragmentShader.push("eif");
-			//
-			////fragmentShader.push("ifl v2.x fc1.x");
-			//fragmentShader.push("ifl v2.x fc0.x");
-			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
-			//fragmentShader.push("els");
-			//fragmentShader.push("ifl v2.x fc0.y");
-			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
-			//fragmentShader.push("els");
-			//fragmentShader.push("ifl v2.x fc0.z");
-			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
-			//fragmentShader.push("els");
-			//fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
-			//fragmentShader.push("eif");
-			//fragmentShader.push("eif");
-			//fragmentShader.push("eif");
-			//fragmentShader.push("eif");
-			//\8 TEXTURES
-			
-			if (useColor) {
-				fragmentShader.push("mul oc, ft5, v1");	// multiply color with texel color
-			} else {
-				fragmentShader.push("mov oc, ft5");
-			}
-		}
-		return Program.fromSource(vertexShader, fragmentShader.join("\n"), _isBaseline ? 1 : 2);
+		updateTextures();
 	}
 	
-	private function createProgramWithoutTexture(useColor:Bool):Program
+	public function setTextureAt(texture:Texture, index:Int):Void
 	{
-		var vertexShader:String;
-		var fragmentShader:String;
-		
-		if (useColor)
+		this._textures[index] = texture;
+		updateTextures();
+	}
+	
+	public function setTextures(textures:Array<Texture>):Void
+	{
+		this._textures.resize(0);
+		addTextures(textures);
+	}
+	
+	public function setTexturesAt(textures:Array<Texture>, index:Int):Void
+	{
+		for (i in 0...textures.length)
 		{
-			vertexShader = 
-			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
-			"mul v0, va1, vc4 \n";  // multiply alpha (vc4) with color (va1)
-			fragmentShader =
-			"mov oc, v0";       // output color
+			this._textures[index + i] = textures[i];
 		}
-		else
-		{
-			vertexShader = 
-			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
-			"sge v0, va0, va0" ; // this is a hack that always produces "1"
-			fragmentShader =
-			"mov oc, v0";       // output color
-		}
-		
-		return Program.fromSource(vertexShader, fragmentShader);
+		updateTextures();
 	}
 	
 	/**
@@ -1413,6 +1110,520 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	}
 	
 	/**
+	   
+	**/
+	private function updateProgram():Void
+	{
+		if (this._isUserProgram) return;
+		
+		if (this._isMultiTexturingProgram)
+		{
+			this._program.dispose();
+			this._isMultiTexturingProgram = false;
+			if (!_isBaseline) this._multiTexturingConstants.length = 0;
+		}
+		
+		var texture:Texture;
+		
+		if (this._numTextures == 1)
+		{
+			texture = this._textures[0];
+			if (this._useColor)
+			{
+				if (texture.format == Context3DTextureFormat.COMPRESSED)
+				{
+					if (texture.premultipliedAlpha)
+					{
+						if (programColorTextureCompressedPMA == null)
+						{
+							programColorTextureCompressedPMA = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programColorTextureCompressedPMA;
+					}
+					else
+					{
+						if (programColorTextureCompressed == null)
+						{
+							programColorTextureCompressed = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programColorTextureCompressed;
+					}
+				}
+				else if (texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
+				{
+					if (texture.premultipliedAlpha)
+					{
+						if (programColorTextureCompressedAlphaPMA == null)
+						{
+							programColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programColorTextureCompressedAlphaPMA;
+					}
+					else
+					{
+						if (programColorTextureCompressedAlpha == null)
+						{
+							programColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programColorTextureCompressedAlpha;
+					}
+				}
+				else
+				{
+					if (texture.premultipliedAlpha)
+					{
+						if (programColorTextureDefaultPMA == null)
+						{
+							programColorTextureDefaultPMA = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programColorTextureDefaultPMA;
+					}
+					else
+					{
+						if (programColorTextureDefault == null)
+						{
+							programColorTextureDefault = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programColorTextureDefault;
+					}
+				}
+			}
+			else
+			{
+				if (texture.format == Context3DTextureFormat.COMPRESSED)
+				{
+					if (texture.premultipliedAlpha)
+					{
+						if (programNoColorTextureCompressedPMA == null)
+						{
+							programNoColorTextureCompressedPMA = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programNoColorTextureCompressedPMA;
+					}
+					else
+					{
+						if (programNoColorTextureCompressed == null)
+						{
+							programNoColorTextureCompressed = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programNoColorTextureCompressed;
+					}
+				}
+				else if (texture.format == Context3DTextureFormat.COMPRESSED_ALPHA)
+				{
+					if (texture.premultipliedAlpha)
+					{
+						if (programNoColorTextureCompressedAlphaPMA == null)
+						{
+							programNoColorTextureCompressedAlphaPMA = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programNoColorTextureCompressedAlphaPMA;
+					}
+					else
+					{
+						if (programNoColorTextureCompressedAlpha == null)
+						{
+							programNoColorTextureCompressedAlpha = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programNoColorTextureCompressedAlpha;
+					}
+				}
+				else
+				{
+					if (texture.premultipliedAlpha)
+					{
+						if (programNoColorTextureDefaultPMA == null)
+						{
+							programNoColorTextureDefaultPMA = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programNoColorTextureDefaultPMA;
+					}
+					else
+					{
+						if (programNoColorTextureDefault == null)
+						{
+							programNoColorTextureDefault = createProgramWithTexture(this._useColor, texture);
+						}
+						this._program = programNoColorTextureDefault;
+					}
+				}
+			}
+		}
+		else if (this._numTextures > 1)
+		{
+			this._program = createProgramWithMultiTexture(this._useColor, this._textures);
+			this._isMultiTexturingProgram = true;
+			this._multiTexturingConstants.length = 0;
+			
+			if (!_isBaseline)
+			{
+				//fc0
+				this._multiTexturingConstants[0] = 0.5;
+				this._multiTexturingConstants[1] = 1.5;
+				this._multiTexturingConstants[2] = 2.5;
+				this._multiTexturingConstants[3] = 3.5;
+				if (this._numTextures > 4)
+				{
+					//fc1
+					this._multiTexturingConstants[4] = 4.5;
+					this._multiTexturingConstants[5] = 5.5;
+					this._multiTexturingConstants[6] = 6.5;
+					this._multiTexturingConstants[7] = 7.5;
+					if (this._numTextures > 8)
+					{
+						//fc2
+						this._multiTexturingConstants[8] = 8.5;
+						this._multiTexturingConstants[9] = 9.5;
+						this._multiTexturingConstants[10] = 10.5;
+						this._multiTexturingConstants[11] = 11.5;
+						if (this._numTextures > 12)
+						{
+							//fc3
+							this._multiTexturingConstants[12] = 12.5;
+							this._multiTexturingConstants[13] = 13.5;
+							this._multiTexturingConstants[14] = 14.5;
+							this._multiTexturingConstants[15] = 15.5;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if (this._useColor)
+			{
+				if (programColorNoTexture == null)
+				{
+					programColorNoTexture = createProgramWithoutTexture(this._useColor);
+				}
+				this._program = programColorNoTexture;
+			}
+			else
+			{
+				if (programNoColorNoTexture == null)
+				{
+					programNoColorNoTexture = createProgramWithoutTexture(this._useColor);
+				}
+				this._program = programNoColorNoTexture;
+			}
+		}
+	}
+	
+	private function createProgramWithTexture(useColor:Bool, texture:Texture):Program
+	{
+		var vertexShader:String;
+		var fragmentShader:String;
+		
+		if (useColor)
+		{
+			vertexShader = 
+			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
+			"mov v0, va1      \n" + // pass texture coordinates to fragment program
+			"mul v1, va2, vc4 \n";  // multiply alpha (vc4) with color (va2), pass to fp
+			fragmentShader = RenderUtil.createAGALTexOperation("ft0", "v0", 0, texture) ; // read texel color
+			fragmentShader += "mul oc, ft0, v1  \n";  // multiply color with texel color
+		}
+		else
+		{
+			vertexShader = 
+			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
+			"mov v0, va1      \n" ; // pass texture coordinates to fragment program
+			fragmentShader = RenderUtil.createAGALTexOperation("oc", "v0", 0, texture); // output color is texel color
+		}
+		
+		return Program.fromSource(vertexShader, fragmentShader, 2);
+	}
+	
+	private function createProgramWithMultiTexture(useColor:Bool, textures:Array<Texture>):Program
+	{
+		var numTextures:Int = textures.length;
+		var fragmentShader:Array<String> = new Array<String>();
+		var vertexShader:String;
+		
+		if (useColor)
+		{
+			vertexShader = 
+				"m44 op, va0, vc0\n" +	// 4x4 matrix transform to output clip-space
+				"mov v0, va1\n" +		// pass texture coordinates to fragment program
+				"mul v1, va2, vc4\n" +	// multiply alpha (vc4) with color (va2), pass to fp
+				"mov v2, va3";			// pass texture sampler index to fp
+		}
+		else
+		{
+			vertexShader = 
+				"m44 op, va0, vc0\n" +	// 4x4 matrix transform to output clip-space
+				"mov v0, va1\n" +		// pass texture coordinates to fragment program
+				"mov v1, va2";			// pass texture sampler index to fp
+		}
+		
+		if (_isBaseline)
+		{
+			if (useColor) {
+				fragmentShader[fragmentShader.length] = "slt ft4, v2.xxxx, fc0";
+			} else {
+				fragmentShader[fragmentShader.length] = "slt ft4, v1.xxxx, fc0";
+			}
+			fragmentShader[fragmentShader.length] = RenderUtil.createAGALTexOperation("ft0", "v0", 0, textures[0]);
+			fragmentShader[fragmentShader.length] = "min ft5, ft4.xxxx, ft0";
+			
+			fragmentShader[fragmentShader.length] = "sub ft6, fc1.xxxx, ft4";
+			fragmentShader[fragmentShader.length] = RenderUtil.createAGALTexOperation("ft1", "v0", 1, textures[1]);
+			
+			if (numTextures > 2)
+			{
+				fragmentShader[fragmentShader.length] = "min ft6.xyz, ft6.xyz, ft4.yzw";
+				fragmentShader[fragmentShader.length] = "min ft0, ft6.xxxx, ft1";
+				fragmentShader[fragmentShader.length] = "add ft5, ft5, ft0";
+				fragmentShader[fragmentShader.length] = RenderUtil.createAGALTexOperation("ft2", "v0", 2, textures[2]);
+				fragmentShader[fragmentShader.length] = "min ft0, ft6.yyyy, ft2";
+				
+				if (numTextures > 3)
+				{
+					fragmentShader[fragmentShader.length] = "add ft5, ft5, ft0";
+					fragmentShader[fragmentShader.length] = RenderUtil.createAGALTexOperation("ft3", "v0", 3, textures[3]);
+					fragmentShader[fragmentShader.length] = "min ft0, ft6.zzzz, ft3";
+					
+					if (numTextures > 4)
+					{
+						fragmentShader[fragmentShader.length] = "add ft5, ft5, ft0";
+						fragmentShader[fragmentShader.length] = RenderUtil.createAGALTexOperation("ft4", "v0", 4, textures[4]);
+						fragmentShader[fragmentShader.length] = "min ft0, ft6.wwww, ft4";
+					}
+				}
+			}
+			else
+			{
+				fragmentShader[fragmentShader.length] = "min ft0, ft6.xxxx, ft1";
+			}
+			fragmentShader[fragmentShader.length] = "add ft5, ft5, ft0";
+			
+			if (useColor) {
+			fragmentShader[fragmentShader.length] = "mul oc, ft5, v1";	// multiply color with texel color
+			} else {
+				fragmentShader[fragmentShader.length] = "mov oc, ft5";
+			}
+		}
+		else
+		{
+			multiTexturing(textures, "ft0", useColor ? "v2.x" : "v1.x", 0, fragmentShader);
+			
+			if (useColor) {
+				fragmentShader[fragmentShader.length] = "mul oc, ft0, v1";	// multiply color with texel color
+			} else {
+				fragmentShader[fragmentShader.length] = "mov oc, ft0";
+			}
+		}
+		
+		return Program.fromSource(vertexShader, fragmentShader.join("\n"), _isBaseline ? 1 : 2, !_isBaseline);
+	}
+	
+	/**
+	   Generates the AGAL code required to handle the specified textures (max 16)
+	   
+	   output is equivalent to this for 16 textures
+	   
+		fragmentShader.push("ifl v2.x fc1.w");
+		// tex 0-7
+			fragmentShader.push("ifl v2.x fc0.w");
+			// tex 0-3
+				fragmentShader.push("ifl v2.x fc0.y");
+				// tex 0-1
+					fragmentShader.push("ifl v2.x fc0.x");
+						// tex 0
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 0, textures[0]));
+					fragmentShader.push("els");
+						// tex 1
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 1, textures[1]));
+					fragmentShader.push("eif");
+				fragmentShader.push("els");
+				// tex 2-3
+					fragmentShader.push("ifl v2.x fc0.z");
+						// tex 2
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 2, textures[2]));
+					fragmentShader.push("els");
+						// tex 3
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 3, textures[3]));
+					fragmentShader.push("eif");
+				fragmentShader.push("eif");
+			fragmentShader.push("els");
+			// tex 4-7
+				fragmentShader.push("ifl v2.x fc1.y");
+				// tex 4-5
+					fragmentShader.push("ifl v2.x fc1.x");
+						// tex 4
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 4, textures[4]));
+					fragmentShader.push("els");
+						// tex 5
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 5, textures[5]));
+					fragmentShader.push("eif");
+				fragmentShader.push("els");
+				// tex 6-7
+					fragmentShader.push("ifl v2.x fc1.z");
+						// tex 6
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 6, textures[6]));
+					fragmentShader.push("els");
+						// tex 7
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 7, textures[7]));
+					fragmentShader.push("eif");
+				fragmentShader.push("eif");
+			fragmentShader.push("eif");
+		
+		fragmentShader.push("els");
+		// tex 8-15
+			fragmentShader.push("ifl v2.x fc2.w");
+			// tex 8-11
+				fragmentShader.push("ifl v2.x fc2.y");
+				// tex 8-9
+					fragmentShader.push("ifl v2.x fc2.x");
+						// tex 8
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 8, textures[8]));
+					fragmentShader.push("els");
+						// tex 9
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 9, textures[9]));
+					fragmentShader.push("eif");
+				fragmentShader.push("els");
+				// tex 2-3
+					fragmentShader.push("ifl v2.x fc2.z");
+						// tex 10
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 10, textures[10]));
+					fragmentShader.push("els");
+						// tex 11
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 11, textures[11]));
+					fragmentShader.push("eif");
+				fragmentShader.push("eif");
+			fragmentShader.push("els");
+			// tex 12-15
+				fragmentShader.push("ifl v2.x fc3.y");
+				// tex 12-13
+					fragmentShader.push("ifl v2.x fc3.x");
+						// tex 12
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 12, textures[12]));
+					fragmentShader.push("els");
+						// tex 13
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 13, textures[13]));
+					fragmentShader.push("eif");
+				fragmentShader.push("els");
+				// tex 14-15
+					fragmentShader.push("ifl v2.x fc3.z");
+						// tex 14
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 14, textures[14]));
+					fragmentShader.push("els");
+						// tex 15
+						fragmentShader.push(RenderUtil.createAGALTexOperation("ft5", "v0", 15, textures[15]));
+					fragmentShader.push("eif");
+				fragmentShader.push("eif");
+			fragmentShader.push("eif");
+		fragmentShader.push("eif");
+	   
+	   @param	textures
+	   @param	textureRegister
+	   @param	textureIndexSource
+	   @param	constantsStartIndex
+	   @param	fragmentShader
+	   @return
+	**/
+	private function multiTexturing(textures:Array<Texture>, textureRegister:String = "ft0", textureIndexSource:String = "v2.x", constantsStartIndex:Int = 0, ?fragmentShader:Array<String>):Array<String>
+	{
+		if (fragmentShader == null) fragmentShader = new Array<String>();
+		multiTex(fragmentShader, textures, textures.length, 0, textureRegister, textureIndexSource, constantsStartIndex);
+		return fragmentShader;
+	}
+	
+	private function multiTex(data:Array<String>, textures:Array<Texture>, numTextures:Int, textureOffset:Int, textureRegister:String, textureIndexSource:String, constantsStartIndex:Int):Void
+	{
+		if (numTextures <= 2)
+		{
+			if (numTextures == 2)
+			{
+				checkTexIndex(data, textureOffset, textureIndexSource, constantsStartIndex);
+				data[data.length] = RenderUtil.createAGALTexOperation(textureRegister, "v0", textureOffset, textures[textureOffset]);
+				data[data.length] = "els";
+				data[data.length] = RenderUtil.createAGALTexOperation(textureRegister, "v0", textureOffset + 1, textures[textureOffset + 1]);
+				data[data.length] = "eif";
+			}
+			else
+			{
+				data[data.length] = RenderUtil.createAGALTexOperation(textureRegister, "v0", textureOffset, textures[textureOffset]);
+			}
+		}
+		else
+		{
+			var halfNumTextures:Int = Math.ceil(numTextures / 2);
+			var remainingTextures:Int = numTextures - halfNumTextures;
+			
+			checkTexIndex(data, textureOffset + halfNumTextures - 1, textureIndexSource, constantsStartIndex);
+			multiTex(data, textures, halfNumTextures, textureOffset, textureRegister, textureIndexSource, constantsStartIndex);
+			data[data.length] = "els";
+			multiTex(data, textures, remainingTextures, textureOffset + halfNumTextures, textureRegister, textureIndexSource, constantsStartIndex);
+			data[data.length] = "eif";
+		}
+	}
+	
+	private function checkTexIndex(data:Array<String>, textureNum:Int, textureIndexSource:String, constantsStartIndex:Int):Void
+	{
+		var constantIndex:Int = constantsStartIndex + Math.floor(textureNum / 4);
+		var constantSubIndex:Int = textureNum % 4;
+		var constant:String;
+		
+		switch (constantSubIndex)
+		{
+			case 0 :
+				constant = " fc" + constantIndex + ".x";
+			
+			case 1 :
+				constant = " fc" + constantIndex + ".y";
+			
+			case 2 :
+				constant = " fc" + constantIndex + ".z";
+			
+			case 3 :
+				constant = " fc" + constantIndex + ".w";
+			
+			default :
+				throw new Error("incorrect constant sub index");
+		}
+		
+		data[data.length] = "ifl " + textureIndexSource + constant;
+	}
+	
+	private function createProgramWithoutTexture(useColor:Bool):Program
+	{
+		var vertexShader:String;
+		var fragmentShader:String;
+		
+		if (useColor)
+		{
+			vertexShader = 
+			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
+			"mul v0, va1, vc4 \n";  // multiply alpha (vc4) with color (va1)
+			fragmentShader =
+			"mov oc, v0";       // output color
+		}
+		else
+		{
+			vertexShader = 
+			"m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clip-space
+			"sge v0, va0, va0" ; // this is a hack that always produces "1"
+			fragmentShader =
+			"mov oc, v0";       // output color
+		}
+		
+		return Program.fromSource(vertexShader, fragmentShader);
+	}
+	
+	private function updateTextures():Void
+	{
+		this._numTextures = this._textures.length;
+		this._multiTexturing = this._numTextures > 1;
+		this._renderData.multiTexturing = this._multiTexturing;
+		
+		updateElements();
+		if (this._buffersCreated) updateBuffers();
+		updateData();
+		if (this._program != null) updateProgram();
+	}
+	
+	/**
 	   Adds specified layer on top of other existing layers
 	   @param	layer
 	**/
@@ -1460,6 +1671,33 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function getLayerAt(index:Int):MassiveLayer
 	{
 		return this._layers[index];
+	}
+	
+	/**
+	   Removes all layers, optionally disposing them and/or pooling their data
+	   @param	dispose
+	   @param	poolDatas
+	**/
+	public function removeAllLayers(dispose:Bool = true, poolDatas:Bool = true):Void
+	{
+		this._numLayers = this._layers.length;
+		for (i in 0...this._numLayers)
+		{
+			this._layers[i].display = null;
+			if (dispose)
+			{
+				this._layers[i].dispose(poolDatas);
+			}
+			else if (poolDatas)
+			{
+				this._layers[i].removeAllData(poolDatas);
+			}
+		}
+		#if flash
+		this._layers.length = 0;
+		#else
+		this._layers.resize(0);
+		#end
 	}
 	
 	/**
@@ -1611,14 +1849,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		var forceBuffer:Bool = true;
 		var boundsData:#if flash Vector<Float> #else Array<Float> #end = this._autoUpdateBounds ? this._boundsData : null;
-		if (boundsData != null)
-		{
-			#if flash
-			boundsData.length = 0;
-			#else
-			boundsData.resize(0);
-			#end
-		}
+		#if flash
+		if (boundsData != null) boundsData.length = 0;
+		#else
+		if (boundsData != null)boundsData.resize(0);
+		#end
 		
 		var layerDone:Bool;
 		var layerIndex:Int = 0;
@@ -1634,7 +1869,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				while (layerIndex < this._numLayers)
 				{
 					if (!this._layers[layerIndex].visible) continue;
-					layerDone = this._layers[layerIndex].writeDataBytesMemory(this._byteData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData, boundsData);
+					layerDone = this._layers[layerIndex].writeDataBytesMemory(this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this.pma, this._useColor, this._simpleColorMode, this._renderData, boundsData);
 					if (this._renderData.numQuads == this._bufferSize)
 					{
 						nextBuffer(context, forceBuffer);
@@ -1750,7 +1985,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._numQuads = this._renderData.totalQuads;
 		if (this._autoUpdateBounds) updateExactBounds();
 		
-		for (i in new ReverseIterator(this.contextBufferIndex, 0))
+		for (i in new ReverseIterator(this._contextBufferIndex, 0))
 		{
 			context.setVertexBufferAt(i, null);
 		}
@@ -1769,32 +2004,28 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		if (forced || this._vertexBuffer != prevBuffer)
 		{
-			this.contextBufferIndex = -1;
-			context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
+			this._contextBufferIndex = -1;
+			context.setVertexBufferAt(++this._contextBufferIndex, this._vertexBuffer, this._positionOffset, Context3DVertexBufferFormat.FLOAT_2);
 			if (this._numTextures > 0)
 			{
-				context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._uvOffset, Context3DVertexBufferFormat.FLOAT_2);
-				//if (this._multiTexturing)
-				//{
-					//context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._textureOffset, Context3DVertexBufferFormat.FLOAT_1);
-				//}
+				context.setVertexBufferAt(++this._contextBufferIndex, this._vertexBuffer, this._uvOffset, Context3DVertexBufferFormat.FLOAT_2);
 			}
 			
 			if (this._useColor)
 			{
 				if (this._simpleColorMode)
 				{
-					context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.BYTES_4);
+					context.setVertexBufferAt(++this._contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.BYTES_4);
 				}
 				else
 				{
-					context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
+					context.setVertexBufferAt(++this._contextBufferIndex, this._vertexBuffer, this._colorOffset, Context3DVertexBufferFormat.FLOAT_4);
 				}
 			}
 			
 			if (this._multiTexturing)
 			{
-				context.setVertexBufferAt(++this.contextBufferIndex, this._vertexBuffer, this._textureOffset, Context3DVertexBufferFormat.FLOAT_1);
+				context.setVertexBufferAt(++this._contextBufferIndex, this._vertexBuffer, this._textureOffset, Context3DVertexBufferFormat.FLOAT_1);
 			}
 		}
 	}
@@ -1805,7 +2036,15 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			if (this.boundsRect != null)
 			{
-				return this.boundsRect;
+				if (out == null)
+				{
+					return this.boundsRect;
+				}
+				else
+				{
+					out.copyFrom(this.boundsRect);
+					return out;
+				}
 			}
 			else if (this.stage != null)
 			{
