@@ -33,10 +33,16 @@ To include Massive in an OpenFL project, add this line to your [_project.xml_](h
 ## Quick setup
 Massive is meant to be as easy as possible to work with, startup Starling like you would normally do
 ```haxe
+// first init Massive
+// you only have to do this once, and currently you don't need it if you don't use multitexturing
+// but later updates might rely on this for non-multitexturing stuff so it's safer to do it anyway
+MassiveDisplay.init();
+
+// create a Massive DisplayObject
 var massive:MassiveDisplay = new MassiveDisplay();
 // by default a MassiveDisplay instance will use the maximum buffer size, which is MassiveConstants.MAX_QUADS (16383)
 // if you know you're gonna use less than that you can set the buffer size for better performance
-massive.bufferSize = 5000; // display up to 5000 quads
+massive.maxQuads = 5000; // display up to 5000 quads
 massive.texture = assetManager.getTextureAtlas("my-atlas").texture;
 addChild(massive);
 
@@ -57,5 +63,15 @@ img.x = 200;
 img.y = 100;
 layer.addImage(img);
 
+// note that we don't use multitexturing here : MassiveDisplay only has one texture
+// with multitexturing, unless we want our image to use the first texture we would
+// have to set the image's textureIndex
 ```
 You can also look at the [samples](https://github.com/MatseFR/massive-starling/tree/main/samples) source code for starters
+
+## Frequently Asked Questions
+### Why is Massive so fast ?
+There are several reasons to this :
+- every object in a MassiveDisplay is batchable with the others, no need to check anything
+- Massive display objects are simple : they only have x y position, x y offset, x y scaling, rotation, red/green/blue/alpha and visible properties. Those are public and changing their values doesn't trigger any additionnal code like setting vertices properties etc They also aren't touchable, can't have individual blend modes or filters
+- ByteArray is slow + on non-flash targets it needs to be copied before being sent to OpenGL. In Massive the ByteArray renderMode is only there to show that you shouldn't use ByteArray for that kind of stuff :)
