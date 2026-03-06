@@ -1,4 +1,5 @@
 package massive.data;
+
 #if flash
 import openfl.Vector;
 #end
@@ -9,6 +10,8 @@ import openfl.Vector;
  */
 class ImageData extends DisplayData
 {
+	static public var TEXTURE_INDEX_MULTIPLIER:Float;
+	
 	static private var _POOL:Array<ImageData> = new Array<ImageData>();
 	
 	/**
@@ -24,54 +27,54 @@ class ImageData extends DisplayData
 	/**
 	   Returns an Array of ImageData, taken from pool if possible and created otherwise
 	   @param	numImages
-	   @param	imgList
+	   @param	images
 	   @return
 	**/
-	static public function fromPoolArray(numImages:Int, imgList:Array<ImageData> = null):Array<ImageData>
+	static public function fromPoolArray(numImages:Int, images:Array<ImageData> = null):Array<ImageData>
 	{
-		if (imgList == null) imgList = new Array<ImageData>();
+		if (images == null) images = new Array<ImageData>();
 		
 		while (numImages != 0)
 		{
 			if (_POOL.length == 0) break;
-			imgList[imgList.length] = _POOL.pop();
+			images[images.length] = _POOL.pop();
 			numImages--;
 		}
 		
 		while (numImages != 0)
 		{
-			imgList[imgList.length] = new ImageData();
+			images[images.length] = new ImageData();
 			numImages--;
 		}
 		
-		return imgList;
+		return images;
 	}
 	
 	#if flash
 	/**
 	   Returns a Vector of ImageData, taken from pool if possible and created otherwise
 	   @param	numImages
-	   @param	imgList
+	   @param	images
 	   @return
 	**/
-	static public function fromPoolVector(numImages:Int, imgList:Vector<ImageData> = null):Vector<ImageData>
+	static public function fromPoolVector(numImages:Int, images:Vector<ImageData> = null):Vector<ImageData>
 	{
-		if (imgList == null) imgList = new Vector<ImageData>();
+		if (images == null) images = new Vector<ImageData>();
 		
 		while (numImages != 0)
 		{
 			if (_POOL.length == 0) break;
-			imgList[imgList.length] = _POOL.pop();
+			images[images.length] = _POOL.pop();
 			numImages--;
 		}
 		
 		while (numImages != 0)
 		{
-			imgList[imgList.length] = new ImageData();
+			images[images.length] = new ImageData();
 			numImages--;
 		}
 		
-		return imgList;
+		return images;
 	}
 	#end
 	
@@ -87,77 +90,142 @@ class ImageData extends DisplayData
 	
 	/**
 	   Pools all ImageData objects in the specified Array
-	   @param	imgList
+	   @param	images
 	**/
-	static public function toPoolArray(imgList:Array<ImageData>):Void
+	static public function toPoolArray(images:Array<ImageData>):Void
 	{
-		for (img in imgList)
+		var count:Int = images.length;
+		for (i in 0...count)
 		{
-			img.clear();
-			_POOL[_POOL.length] = img;
+			images[i].pool();
 		}
 	}
 	
 	#if flash
 	/**
 	   Pools all ImageData objects in the specified Vector
-	   @param	imgList
+	   @param	images
 	**/
-	static public function toPoolVector(imgList:Vector<ImageData>):Void
+	static public function toPoolVector(images:Vector<ImageData>):Void
 	{
-		for (img in imgList)
+		var count:Int = images.length;
+		for (i in 0...count)
 		{
-			img.pool();
+			images[i].pool();
 		}
 	}
 	#end
 	
-	/* tells whether the ImageData is animated (if it has frames) or not */
+	/**
+	   Tells whether the ImageData is animated (if it has frames) or not
+	   @default	false
+	**/
 	public var animate:Bool = false;
-	/* how many frames */
-	public var frameCount:Int;
+	/**
+	   How many frames
+	   @default	0
+	**/
+	public var frameCount:Int = 0;
+	/**
+	   Current Frame, if any (null otherwise)
+	**/
 	public var frameCurrent(get, never):Frame;
-	/* playback speed */
-	public var frameDelta:Float = 1;
-	/* index of the current frame */
+	/**
+	   Playback speed
+	   @default	1
+	**/
+	public var frameDelta:Float = 1.0;
+	/**
+	   Index of the current frame
+	   @default	0
+	**/
 	public var frameIndex:Int = 0;
-	/* lists all frames */
+	/**
+	   Lists all frames
+	   @default	null
+	**/
 	public var frameList:#if flash Vector<Frame> #else Array<Frame> #end;
-	/* time elapsed on current frame */
-	public var frameTime:Float;
-	/* duration of each frame */
+	/**
+	   Time elapsed on current frame
+	   @default	0
+	**/
+	public var frameTime:Float = 0.0;
+	/**
+	   Duration of each frame
+	   @default	null
+	**/
 	public var frameTimings:Array<Float>;
+	/**
+	   Current frame's height, if any, multiplied by scaleY (0 otherwise)
+	**/
 	public var height(get, set):Float;
-	/* inverts display on horizontal axis */
+	/**
+	   Tells whether to invert display on horizontal axis or not
+	   @default	false
+	**/
 	public var invertX:Bool = false;
-	/* inverts display on vertical axis */
+	/**
+	   Tells whether to invert display on vertical axis or not
+	   @default	false
+	**/
 	public var invertY:Bool = false;
-	/* tells whether to loop frames */
+	/**
+	   Tells whether to loop frames
+	   @default	true
+	**/
 	public var loop:Bool = true;
-	/* tells how many loops have been done */
+	/**
+	   Tells how many loops have been done
+	   @default	0
+	**/
 	public var loopCount:Int = 0;
-	/* how many loops, 0 == infinite */
+	/**
+	   How many loops, 0 == infinite
+	   @default	0
+	**/
 	public var numLoops:Int = 0;
-	/* texture index when using multitexturing */
-	public var textureIndex:Float;
+	/**
+	   Texture index when using multitexturing
+	   @default	0
+	**/
+	public var textureIndex(get, set):Float;
+	/**
+	   Texture index used for rendering, if the profile is baseline it will differ from textureIndex
+	   @default	0
+	**/
+	public var textureIndexReal:Float = 0.0;
+	/**
+	   Current frame's width, if any, multiplied by scaleX (0 otherwise)
+	**/
 	public var width(get, set):Float;
 	
-	private function get_frameCurrent():Frame { return this.frameList[this.frameIndex]; }
+	private function get_frameCurrent():Frame { return (this.frameList == null || this.frameList.length == 0) ? null : this.frameList[this.frameIndex]; }
 	
-	private function get_height():Float { return this.frameList[this.frameIndex].height * this.scaleY; }
+	private function get_height():Float { return (this.frameList == null || this.frameList.length == 0) ? 0.0 : this.frameList[this.frameIndex].height * this.scaleY; }
 	private function set_height(value:Float):Float
 	{
+		if (this.frameList == null || this.frameList.length == 0) return 0.0;
 		this.scaleY = value / this.frameList[this.frameIndex].height;
 		return value;
 	}
 	
-	private function get_width():Float { return this.frameList[this.frameIndex].width * this.scaleX; }
+	inline private function get_textureIndex():Float { return this.textureIndexReal / TEXTURE_INDEX_MULTIPLIER; }
+	inline private function set_textureIndex(value:Float):Float
+	{
+		return this.textureIndexReal = value * TEXTURE_INDEX_MULTIPLIER;
+	}
+	
+	private function get_width():Float { return (this.frameList == null || this.frameList.length == 0) ? 0.0 : this.frameList[this.frameIndex].width * this.scaleX; }
 	private function set_width(value:Float):Float
 	{
+		if (this.frameList == null || this.frameList.length == 0) return 0.0;
 		this.scaleX = value / this.frameList[this.frameIndex].width;
 		return value;
 	}
 	
+	/**
+	   Constructor
+	**/
 	public function new() 
 	{
 		super();
@@ -169,8 +237,8 @@ class ImageData extends DisplayData
 	override public function clear():Void
 	{
 		this.invertX = this.invertY = this.animate = false;
-		this.frameDelta = 1;
-		this.frameTime = 0;
+		this.frameDelta = 1.0;
+		this.frameTime = this.textureIndexReal = 0.0;
 		this.loop = true;
 		this.loopCount = this.numLoops = 0;
 		
