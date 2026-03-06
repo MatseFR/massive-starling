@@ -75,8 +75,12 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function dispose():Void
+	public function dispose(poolData:Bool = true):Void
 	{
+		if (poolData)
+		{
+			removeAllData(poolData);
+		}
 		this._datas = null;
 	}
 	
@@ -109,10 +113,7 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	public function removeQuad(data:T):Void
 	{
 		var index:Int = this._datas.indexOf(data);
-		if (index != -1)
-		{
-			removeQuadAt(index);
-		}
+		if (index != -1) removeQuadAt(index);
 	}
 	
 	/**
@@ -139,18 +140,23 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		for (i in 0...count)
 		{
 			index = this._datas.indexOf(datas[i]);
-			if (index != -1)
-			{
-				removeQuadAt(index);
-			}
+			if (index != -1) removeQuadAt(index);
 		}
 	}
 	
 	/**
 	   @inheritDoc
 	**/
-	public function removeAllData():Void 
+	public function removeAllData(pool:Bool = true):Void 
 	{
+		if (pool)
+		{
+			var count:Int = this._datas.length;
+			for (i in 0...count)
+			{
+				this._datas[i].pool();
+			}
+		}
 		#if flash
 		this._datas.length = 0;
 		#else
@@ -179,10 +185,10 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
 		var rotation:Float;
 		
-		var red:Float = 0;
-		var green:Float = 0;
-		var blue:Float = 0;
-		var alpha:Float = 0;
+		var red:Float = 0.0;
+		var green:Float = 0.0;
+		var blue:Float = 0.0;
+		var alpha:Float = 0.0;
 		var color:Int = 0;
 		
 		var cos:Float;
@@ -472,7 +478,7 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytesMemory(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
+	public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
 	{
 		if (this._datas == null) return true;
 		
@@ -484,10 +490,10 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
 		var rotation:Float;
 		
-		var red:Float = 0;
-		var green:Float = 0;
-		var blue:Float = 0;
-		var alpha:Float = 0;
+		var red:Float = 0.0;
+		var green:Float = 0.0;
+		var blue:Float = 0.0;
+		var alpha:Float = 0.0;
 		var color:Int = 0;
 		
 		var cos:Float;
@@ -1099,11 +1105,11 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
 		var rotation:Float;
 		
-		var red:Float = 0;
-		var green:Float = 0;
-		var blue:Float = 0;
-		var alpha:Float = 0;
-		var color:Float = 0;
+		var red:Float = 0.0;
+		var green:Float = 0.0;
+		var blue:Float = 0.0;
+		var alpha:Float = 0.0;
+		var color:Float = 0.0;
 		
 		var cos:Float;
 		var sin:Float;

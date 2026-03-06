@@ -1,4 +1,5 @@
 package massive.display;
+
 import haxe.io.FPHelper;
 import massive.animation.Animator;
 import massive.data.Frame;
@@ -31,12 +32,6 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	**/
 	public var datas(get, set):Array<T>;
 	#end
-	/**
-	   Tells whether this layer should animate textures or not.
-	   If you are displaying non-animated images, consider setting this to false for better performance
-	   @default true
-	**/
-	public var textureAnimation:Bool = true;
 	
 	#if flash
 	private var _datas:Vector<T>;
@@ -53,6 +48,13 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		return this._datas = value;
 	}
 	#end
+	
+	/**
+	   Tells whether this layer should animate textures or not.
+	   If you are displaying non-animated images, consider setting this to false for better performance
+	   @default true
+	**/
+	public var textureAnimation:Bool = true;
 	
 	private function get_totalDatas():Int { return this._datas == null ? 0 : this._datas.length; }
 	
@@ -82,8 +84,12 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function dispose():Void 
+	public function dispose(poolData:Bool = true):Void 
 	{
+		if (poolData)
+		{
+			removeAllData(poolData);
+		}
 		this._datas = null;
 	}
 	
@@ -116,10 +122,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	public function removeImage(data:T):Void
 	{
 		var index:Int = this._datas.indexOf(data);
-		if (index != -1)
-		{
-			removeImageAt(index);
-		}
+		if (index != -1) removeImageAt(index);
 	}
 	
 	/**
@@ -146,18 +149,23 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		for (i in 0...count)
 		{
 			index = this._datas.indexOf(datas[i]);
-			if (index != -1)
-			{
-				removeImageAt(index);
-			}
+			if (index != -1) removeImageAt(index);
 		}
 	}
 	
 	/**
 	   @inheritDoc
 	**/
-	public function removeAllData():Void 
+	public function removeAllData(pool:Bool = true):Void 
 	{
+		if (pool)
+		{
+			var count:Int = this._datas.length;
+			for (i in 0...count)
+			{
+				this._datas[i].pool();
+			}
+		}
 		#if flash
 		this._datas.length = 0;
 		#else
@@ -187,10 +195,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
 		var rotation:Float;
 		
-		var red:Float = 0;
-		var green:Float = 0;
-		var blue:Float = 0;
-		var alpha:Float = 0;
+		var red:Float = 0.0;
+		var green:Float = 0.0;
+		var blue:Float = 0.0;
+		var alpha:Float = 0.0;
 		var color:Int = 0;
 		
 		var cos:Float;
@@ -558,7 +566,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytesMemory(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
+	public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
 	{
 		if (this._datas == null) return true;
 		
@@ -571,10 +579,10 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
 		var rotation:Float;
 		
-		var red:Float = 0;
-		var green:Float = 0;
-		var blue:Float = 0;
-		var alpha:Float = 0;
+		var red:Float = 0.0;
+		var green:Float = 0.0;
+		var blue:Float = 0.0;
+		var alpha:Float = 0.0;
 		var color:Int = 0;
 		
 		var cos:Float;
@@ -958,11 +966,11 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
 		var rotation:Float;
 		
-		var red:Float = 0;
-		var green:Float = 0;
-		var blue:Float = 0;
-		var alpha:Float = 0;
-		var color:Float = 0;
+		var red:Float = 0.0;
+		var green:Float = 0.0;
+		var blue:Float = 0.0;
+		var alpha:Float = 0.0;
+		var color:Float = 0.0;
 		
 		var cos:Float;
 		var sin:Float;
@@ -1344,11 +1352,11 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
 		var rotation:Float;
 		
-		var red:Float = 0;
-		var green:Float = 0;
-		var blue:Float = 0;
-		var alpha:Float = 0;
-		var color:Float = 0;
+		var red:Float = 0.0;
+		var green:Float = 0.0;
+		var blue:Float = 0.0;
+		var alpha:Float = 0.0;
+		var color:Float = 0.0;
 		
 		var cos:Float;
 		var sin:Float;

@@ -57,25 +57,28 @@ abstract class MassiveLayer extends EventDispatcher
 	abstract private function get_totalDatas():Int;
 	
 	/**
-	 * Disposes the layer
-	 */
-	abstract public function dispose():Void;
+	   Disposes the layer, optionally pooling its data
+	   @param	poolData
+	**/
+	abstract public function dispose(poolData:Bool = true):Void;
 	
 	/**
-	 * Removes all data in the layer
-	 */
-	abstract public function removeAllData():Void;
+	   Removes all data in the layer, optionally pooling it
+	   @param	pool
+	**/
+	abstract public function removeAllData(pool:Bool = true):Void;
 	
 	/**
 	   Writes the layer's quads data to the specified ByteArray
 	   @param	byteData
-	   @param	offset
+	   @param	maxQuads
 	   @param	renderOffsetX
 	   @param	renderOffsetY
 	   @param	pma
 	   @param	useColor
 	   @param	simpleColor
 	   @param	renderData
+	   @param	boundsData
 	   @return
 	**/
 	abstract public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
@@ -83,31 +86,31 @@ abstract class MassiveLayer extends EventDispatcher
 	#if flash
 	/**
 	   Writes the layer's quads data to the domain memory ByteArray
-	   byteData is still passed as a parameter so that the layer can set its length
-	   @param	byteData
-	   @param	offset
+	   @param	maxQuads
 	   @param	renderOffsetX
 	   @param	renderOffsetY
 	   @param	pma
 	   @param	useColor
 	   @param	simpleColor
 	   @param	renderData
+	   @param	boundsData
 	   @return
 	**/
-	abstract public function writeDataBytesMemory(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
+	abstract public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
 	#end
 	
 	#if !flash
 	/**
 	   Writes the layer's quads data to the specified Float32Array
 	   @param	floatData
-	   @param	offset
+	   @param	maxQuads
 	   @param	renderOffsetX
 	   @param	renderOffsetY
 	   @param	pma
 	   @param	useColor
 	   @param	simpleColor
 	   @param	renderData
+	   @param	boundsData
 	   @return
 	**/
 	abstract public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
@@ -116,13 +119,14 @@ abstract class MassiveLayer extends EventDispatcher
 	/**
 	   Writes the layer's quads data to the specified Vector
 	   @param	vectorData
-	   @param	offset
+	   @param	maxQuads
 	   @param	renderOffsetX
 	   @param	renderOffsetY
 	   @param	pma
 	   @param	useColor
 	   @param	simpleColor
 	   @param	renderData
+	   @param	boundsData
 	   @return
 	**/
 	abstract public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
