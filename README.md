@@ -73,5 +73,5 @@ You can also look at the [samples](https://github.com/MatseFR/massive-starling/t
 ### Why is Massive so fast ?
 There are several reasons to this :
 - every object in a MassiveDisplay is batchable with the others, no need to check anything
-- Massive display objects are simple : they only have x y position, x y offset, x y scaling, rotation, red/green/blue/alpha and visible properties. Those are public and changing their values doesn't trigger any additionnal code like setting vertices properties etc They also aren't touchable, can't have individual blend modes or filters
+- Massive display objects are simple : they only have x y position, x y offset, x y scaling, rotation, red/green/blue/alpha and visible properties. Those are public and changing their values doesn't trigger any additionnal code like setting vertex data etc They also aren't touchable, can't have individual blend modes or filters
 - ByteArray is slow + on non-flash targets it needs to be copied before being sent to OpenGL. In Massive the ByteArray renderMode is only there to show that you shouldn't use ByteArray for that kind of stuff :)
