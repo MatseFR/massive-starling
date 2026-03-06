@@ -185,6 +185,16 @@ class MathUtils
 		#end
 	}
 	
+	inline static public function randomWithSeed(seed:Int):Float
+	{
+		return ((seed * 16807) & 0x7FFFFFFF) / 2147483648;
+	}
+	
+	inline static public function seedUpdate(seed:Int):Int
+	{
+		return (seed * 16807) & 0x7FFFFFFF;
+	}
+	
 	/**
 	   Converts an angle from degrees into radians.
 	   flash/air		~400% faster than starling's MathUtil.deg2rad(deg)
@@ -256,7 +266,7 @@ class MathUtils
 	**/
 	inline static public function fasterCos(rad:Float):Float
 	{
-		return fasterSin(rad + 1.57079632);
+		return fasterSin(rad + HALF_PI);
 	}
 	
 	/**
