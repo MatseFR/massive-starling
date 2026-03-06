@@ -53,11 +53,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		if (this._maxNumParticles == value) return value;
 		returnParticlesToPool();
 		this._maxNumParticles = value;
-		getParticlesFromPool();
-		if (this._autoSetEmissionRate)
+		if (this.particlesFromPoolFunction != null && this._frames.length != 0)
 		{
-			updateEmissionRate();
+			getParticlesFromPool();
 		}
+		else
+		{
+			this._isParticlePoolUpdatePending = true;
+		}
+		if (this._autoSetEmissionRate) updateEmissionRate();
 		return this._maxNumParticles;
 	}
 	
@@ -104,10 +108,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	{
 		if (this._emissionRatio == value) return value;
 		this._emissionRatio = value;
-		if (this._autoSetEmissionRate)
-		{
-			updateEmissionRate();
-		}
+		if (this._autoSetEmissionRate) updateEmissionRate();
 		return this._emissionRatio;
 	}
 	
@@ -247,10 +248,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	{
 		if (this._useAnimationLifeSpan == value) return value;
 		this._useAnimationLifeSpan = value;
-		if (this._autoSetEmissionRate)
-		{
-			updateEmissionRate();
-		}
+		if (this._autoSetEmissionRate) updateEmissionRate();
 		return this._useAnimationLifeSpan;
 	}
 	
@@ -264,10 +262,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	{
 		this._lifeSpan = MathUtils.max(0.01, value);
 		this._lifeSpanVariance = MathUtils.min(this._lifeSpan, this._lifeSpanVariance);
-		if (this._autoSetEmissionRate)
-		{
-			updateEmissionRate();
-		}
+		if (this._autoSetEmissionRate) updateEmissionRate();
 		return this._lifeSpan;
 	}
 	
@@ -545,18 +540,18 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	{
 		if (this._frameDelta == value) return value;
 		this._frameDelta = value;
-		if (this.useAnimationLifeSpan)
-		{
-			updateEmissionRate();
-		}
+		if (this._useAnimationLifeSpan) updateEmissionRate();
 		return this._frameDelta;
 	}
 	
+	/**
+	   @default	0.0
+	**/
 	public var frameDeltaVariance:Float = 0.0;
 	
 	/**
 	   Tells whether texture animation should loop or not
-	   @default true
+	   @default false
 	**/
 	public var loopAnimation(get, set):Bool;
 	private var _loopAnimation:Bool = false;
@@ -574,7 +569,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	}
 	
 	/**
-	   Number of loops if textureAnimation is on, 0 = infinite
+	   Number of loops if loopAnimation is true, 0 = infinite
 	   @default 0
 	**/
 	public var animationLoops(get, set):Int;
@@ -597,14 +592,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default false
 	**/
 	public var randomStartFrame:Bool = false;
-	
-	/**
-	   Index of the first frame
-	   @default 0
-	**/
-	public var firstFrame:Int = 0;// TODO (?)
-	
-	public var lastFrame:Int = -1;// TODO (?)
 	//##################################################
 	//\ANIMATION
 	//##################################################
@@ -1355,7 +1342,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   @default	false
 	**/
-	public var oscillationScaleXUnifiedFrequencyVariance:Bool;
+	public var oscillationScaleXUnifiedFrequencyVariance(get, set):Bool;
 	private var _oscillationScaleXUnifiedFrequencyVariance:Bool = false;
 	private function get_oscillationScaleXUnifiedFrequencyVariance():Bool { return this._oscillationScaleXUnifiedFrequencyVariance; }
 	private function set_oscillationScaleXUnifiedFrequencyVariance(value:Bool):Bool
@@ -1764,7 +1751,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		return this._oscillationColorFrequencyStart = value;
 	}
-	
 	//##################################################
 	//\OSCILLATION
 	//##################################################
@@ -1827,6 +1813,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _frameTimings:Array<Array<Float>> = new Array<Array<Float>>();
 	private var _numFrameSets:Int = 0;
 	private var _useMultipleFrameSets:Bool = false;
+	
+	private var _isParticlePoolUpdatePending:Bool = false;
 
 	public function new(options:ParticleSystemOptions = null) 
 	{
@@ -1858,10 +1846,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	public function addFrames(frames:#if flash Vector<Frame> #else Array<Frame>#end, timings:Array<Float> = null, refreshParticles:Bool = true):Void
 	{
-		if (timings == null) 
-		{
-			timings = Animator.generateTimings(frames);
-		}
+		if (timings == null) timings = Animator.generateTimings(frames);
 		
 		this._frames[this._frames.length] = frames;
 		this._frameTimings[this._frameTimings.length] = timings;
@@ -1871,7 +1856,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		if (refreshParticles)
 		{
 			returnParticlesToPool();
-			getParticlesFromPool();
+			if (this.particlesFromPoolFunction != null)
+			{
+				getParticlesFromPool();
+			}
+			else
+			{
+				this._isParticlePoolUpdatePending = true;
+			}
 		}
 	}
 	
@@ -1886,7 +1878,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		if (refreshParticles)
 		{
 			returnParticlesToPool();
-			getParticlesFromPool();
+			if (this.particlesFromPoolFunction != null)
+			{
+				getParticlesFromPool();
+			}
+			else
+			{
+				this._isParticlePoolUpdatePending = true;
+			}
 		}
 	}
 	
@@ -3080,6 +3079,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._emissionRate != 0.0 && !this._completed)
 		{
+			if (this._isParticlePoolUpdatePending)
+			{
+				getParticlesFromPool();
+			}
 			if (duration == 0.0)
 			{
 				duration = this._emissionTimePredefined;
@@ -3179,6 +3182,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				this._particles[i].setFrames(this._frames[0], this._frameTimings[0], this._loopAnimation, this._animationLoops);
 			}
 		}
+		
+		this._isParticlePoolUpdatePending = false;
 	}
 	
 	private function returnParticlesToPool():Void
@@ -3283,8 +3288,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.textureAnimation = options.textureAnimation;
 		this.frameDelta = options.frameDelta;
 		this.frameDeltaVariance = options.frameDeltaVariance;
-		this.firstFrame = options.firstFrame;
-		this.lastFrame = options.lastFrame;
 		this.loopAnimation = options.loopAnimation;
 		this.animationLoops = options.animationLoops;
 		this.randomStartFrame = options.randomStartFrame;
@@ -3406,7 +3409,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			updateEmissionRate();
 		}
 		returnParticlesToPool();
-		getParticlesFromPool();
+		if (this.particlesFromPoolFunction != null && this._frames.length != 0)
+		{
+			getParticlesFromPool();
+		}
+		else
+		{
+			this._isParticlePoolUpdatePending = true;
+		}
 	}
 	
 	public function writeSystemOptions(options:ParticleSystemOptions = null):ParticleSystemOptions
@@ -3484,11 +3494,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		// Animation
 		options.textureAnimation = this.textureAnimation;
-		//options.frameRate = this._frameRate;
 		options.frameDelta = this._frameDelta;
 		options.frameDeltaVariance = this.frameDeltaVariance;
-		options.firstFrame = this.firstFrame;
-		options.lastFrame = this.lastFrame;
 		options.loopAnimation = this._loopAnimation;
 		options.animationLoops = this._animationLoops;
 		options.randomStartFrame = this.randomStartFrame;
