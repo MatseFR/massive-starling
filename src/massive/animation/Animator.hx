@@ -46,18 +46,18 @@ class Animator
 	
 	/**
 	   Generates timings for the specified frameList, with the specified frameRate
-	   @param	frameList
+	   @param	frames
 	   @param	frameRate
 	   @param	timings
 	   @return
 	**/
-	static public function generateTimings(frameList:#if flash Vector<Frame> #else Array<Frame> #end, frameRate:Float = 60, timings:Array<Float> = null):Array<Float>
+	static public function generateTimings(frames:#if flash Vector<Frame> #else Array<Frame> #end, frameRate:Float = 60, timings:Array<Float> = null):Array<Float>
 	{
 		if (timings == null) timings = new Array<Float>();
 		
 		var frameTime:Float = 1.0 / frameRate;
 		var total:Float = 0;
-		var count:Int = frameList.length;
+		var count:Int = frames.length;
 		
 		for (i in 0...count)
 		{

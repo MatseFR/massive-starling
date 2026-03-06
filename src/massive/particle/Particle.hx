@@ -203,7 +203,6 @@ class Particle extends ImageData
 	public function new() 
 	{
 		super();
-		//this.visible = false;
 	}
 	
 	override public function pool():Void 

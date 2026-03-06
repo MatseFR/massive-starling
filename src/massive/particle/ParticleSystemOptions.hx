@@ -281,7 +281,7 @@ class ParticleSystemOptions
 	// ANIMATION
 	//##################################################
 	/**
-	   Tells whether the texture should be animated or not
+	   Tells whether textures should be animated or not
 	   @default true
 	**/
 	public var textureAnimation:Bool = true;
@@ -310,16 +310,6 @@ class ParticleSystemOptions
 	   @default false
 	**/
 	public var randomStartFrame:Bool = false;
-	/**
-	   Index of the first frame
-	   @default 0
-	**/
-	public var firstFrame:Int = 0;
-	/**
-	   Index of the last frame, -1 = last one
-	   @default -1
-	**/
-	public var lastFrame:Int = -1;
 	//##################################################
 	//\ANIMATION
 	//##################################################
@@ -333,7 +323,7 @@ class ParticleSystemOptions
 	**/
 	public var speed:Float = 100;
 	/**
-	   @default 0
+	   @default 20
 	**/
 	public var speedVariance:Float = 20;
 	/**
@@ -724,11 +714,11 @@ class ParticleSystemOptions
 	//##################################################
 	
 	/**
-	   
+	   @default	null
 	**/
 	public var customFunction:Array<Particle>->Int->Void;
 	/**
-	   
+	   @default	null
 	**/
 	public var sortFunction:Particle->Particle->Int;
 	public var forceSortFlag:Bool = false;
@@ -818,8 +808,6 @@ class ParticleSystemOptions
 		this.textureAnimation = true;
 		this.frameDelta = 1.0;
 		this.frameDeltaVariance = 0.0;
-		this.firstFrame = 0;
-		this.lastFrame = -1;
 		this.loopAnimation = false;
 		this.animationLoops = 0;
 		this.randomStartFrame = false;
@@ -951,6 +939,7 @@ class ParticleSystemOptions
 		this.exactBounds = false;
 	}
 	
+	
 	public function pool():Void
 	{
 		clear();
@@ -1034,8 +1023,6 @@ class ParticleSystemOptions
 		target.textureAnimation = this.textureAnimation;
 		target.frameDelta = this.frameDelta;
 		target.frameDeltaVariance = this.frameDeltaVariance;
-		target.firstFrame = this.firstFrame;
-		target.lastFrame = this.lastFrame;
 		target.loopAnimation = this.loopAnimation;
 		target.animationLoops = this.animationLoops;
 		target.randomStartFrame = this.randomStartFrame;
@@ -1245,8 +1232,6 @@ class ParticleSystemOptions
 		this.textureAnimation = json.textureAnimation;
 		this.frameDelta = json.frameDelta;
 		this.frameDeltaVariance = json.frameDeltaVariance;
-		this.firstFrame = json.firstFrame;
-		this.lastFrame = json.lastFrame;
 		this.loopAnimation = json.loopAnimation;
 		this.animationLoops = json.animationLoops;
 		this.randomStartFrame = json.randomStartFrame;
@@ -1455,8 +1440,6 @@ class ParticleSystemOptions
 		json.textureAnimation = this.textureAnimation;
 		json.frameDelta = this.frameDelta;
 		json.frameDeltaVariance = this.frameDeltaVariance;
-		json.firstFrame = this.firstFrame;
-		json.lastFrame = this.lastFrame;
 		json.loopAnimation = this.loopAnimation;
 		json.animationLoops = this.animationLoops;
 		json.randomStartFrame = this.randomStartFrame;
@@ -1686,27 +1669,6 @@ class ParticleSystemOptions
 			{
 				this.textureAnimation = getBoolValue(anim.node.isAnimated.att.value);
 			}
-			//if (anim.hasNode.firstFrame)
-			//{
-				//target.firstFrameName = anim.node.firstFrame.att.value;
-				//if (target.firstFrameName == "")
-				//{
-					//target.firstFrame = getIntValue(anim.node.firstFrame.att.value);
-				//}
-			//}
-			//if (anim.hasNode.lastFrame)
-			//{
-				//target.lastFrameName = anim.node.lastFrame.att.value;
-				//if (target.lastFrameName == "")
-				//{
-					//target.lastFrame = getIntValue(anim.node.lastFrame.att.value);
-				//}
-			//}
-			//if (anim.hasNode.numberOfAnimatedFrames)
-			//{
-				//target.animationLength = getIntValue(anim.node.numberOfAnimatedFrames.att.value);
-				//target.lastFrame = target.firstFrame + target.animationLength;
-			//}
 			if (anim.hasNode.loops)
 			{
 				this.animationLoops = Std.parseInt(anim.node.loops.att.value);
@@ -1717,18 +1679,6 @@ class ParticleSystemOptions
 			}
 		}
 		
-		//if (xml.hasNode.tinted)
-		//{
-			//target.tinted = getBoolValue(xml.node.tinted.att.value);
-		//}
-		//if (xml.hasNode.premultipliedAlpha)
-		//{
-			//target.premultipliedAlpha = getBoolValue(xml.node.premultipliedAlpha.att.value);
-		//}
-		//if (xml.hasNode.spawnTime)
-		//{
-			//target.spawnTime = Std.parseFloat(xml.node.spawnTime.att.value);
-		//}
 		if (xml.hasNode.fadeInTime)
 		{
 			this.fadeInTime = Std.parseFloat(xml.node.fadeInTime.att.value);

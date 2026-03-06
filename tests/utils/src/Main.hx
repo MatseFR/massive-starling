@@ -411,7 +411,7 @@ class Main extends Sprite
 		var y:Float;
 		var result:Float;
 		
-		x = -iterations / 2;
+		x = -iterations / 2 + 0.5; // avoid x==0 & y==0
 		y = iterations / 2;
 		
 		t1 = timeStamp();
@@ -424,7 +424,7 @@ class Main extends Sprite
 		t2 = timeStamp();
 		time1 = t2 - t1;
 		
-		x = -iterations / 2;
+		x = -iterations / 2 + 0.5; // avoid x==0 & y==0
 		y = iterations / 2;
 		
 		t1 = timeStamp();

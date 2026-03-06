@@ -6,7 +6,6 @@ package massive.particle;
  */
 class ParticleSystemDefaults 
 {
-
 	static public var AUTO_CLEAR_ON_COMPLETE:Bool = true;
 	static public var RANDOM_SEED:Int = 1;
 	
@@ -22,5 +21,4 @@ class ParticleSystemDefaults
 		#end
 		return ps;
 	}
-	
 }

@@ -30,7 +30,7 @@ class MassiveTint
 	public var blue:Float;
 	
 	/**
-	   amount of alpha tinting, from 0.0 to 1.0
+	   transparency, from 0.0 to 1.0
 	**/
 	public var alpha:Float;
 	

@@ -260,6 +260,16 @@ class Frame
 	**/
 	public var bottomHeight:Float;
 	
+	/**
+	 * Constructor
+	 * @param	nativeTextureWidth
+	 * @param	nativeTextureHeight
+	 * @param	x
+	 * @param	y
+	 * @param	width
+	 * @param	height
+	 * @param	rotated
+	 */
 	public function new(nativeTextureWidth:Float, nativeTextureHeight:Float, x:Float, y:Float,
 						width:Float, height:Float, rotated:Bool) 
 	{

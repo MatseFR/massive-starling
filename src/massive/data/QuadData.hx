@@ -6,7 +6,7 @@ import openfl.errors.ArgumentError;
 import starling.utils.Align;
 
 /**
- * ...
+ * Quad display object
  * @author Matse
  */
 class QuadData extends DisplayData
@@ -26,59 +26,59 @@ class QuadData extends DisplayData
 	/**
 	   Returns an Array of ImageData, taken from pool if possible and created otherwise
 	   @param	numQuads
-	   @param	quadList
+	   @param	quads
 	   @return
 	**/
-	static public function fromPoolArray(numQuads:Int, quadList:Array<QuadData> = null):Array<QuadData>
+	static public function fromPoolArray(numQuads:Int, quads:Array<QuadData> = null):Array<QuadData>
 	{
-		if (quadList == null) quadList = new Array<QuadData>();
+		if (quads == null) quads = new Array<QuadData>();
 		
 		while (numQuads != 0)
 		{
 			if (_POOL.length == 0) break;
-			quadList[quadList.length] = _POOL.pop();
+			quads[quads.length] = _POOL.pop();
 			numQuads--;
 		}
 		
 		while (numQuads != 0)
 		{
-			quadList[quadList.length] = new QuadData();
+			quads[quads.length] = new QuadData();
 			numQuads--;
 		}
 		
-		return quadList;
+		return quads;
 	}
 	
 	#if flash
 	/**
-	   Returns an Array of QuadData, taken from pool if possible and created otherwise
+	   Returns a Vector of QuadData, taken from pool if possible and created otherwise
 	   @param	numQuads
-	   @param	quadList
+	   @param	quads
 	   @return
 	**/
-	static public function fromPoolVector(numQuads:Int, quadList:Vector<QuadData> = null):Vector<QuadData>
+	static public function fromPoolVector(numQuads:Int, quads:Vector<QuadData> = null):Vector<QuadData>
 	{
-		if (quadList == null) quadList = new Vector<QuadData>();
+		if (quads == null) quads = new Vector<QuadData>();
 		
 		while (numQuads != 0)
 		{
 			if (_POOL.length == 0) break;
-			quadList[quadList.length] = _POOL.pop();
+			quads[quads.length] = _POOL.pop();
 			numQuads--;
 		}
 		
 		while (numQuads != 0)
 		{
-			quadList[quadList.length] = new QuadData();
+			quads[quads.length] = new QuadData();
 			numQuads--;
 		}
 		
-		return quadList;
+		return quads;
 	}
 	#end
 	
 	/**
-	   Equivalent to calling ImageData's pool function
+	   Equivalent to calling QuadData's pool function
 	   @param	quad
 	**/
 	static public function toPool(quad:QuadData):Void
@@ -88,44 +88,56 @@ class QuadData extends DisplayData
 	}
 	
 	/**
-	   Pools all ImageData objects in the specified Array
-	   @param	quadList
+	   Pools all QuadData objects in the specified Array
+	   @param	quads
 	**/
-	static public function toPoolArray(quadList:Array<QuadData>):Void
+	static public function toPoolArray(quads:Array<QuadData>):Void
 	{
-		for (quad in quadList)
+		var count:Int = quads.length;
+		for (i in 0...count)
 		{
-			quad.clear();
-			_POOL[_POOL.length] = quad;
+			quads[i].pool();
 		}
 	}
 	
 	#if flash
 	/**
-	   Pools all ImageData objects in the specified Vector
-	   @param	quadList
+	   Pools all QuadData objects in the specified Vector
+	   @param	quads
 	**/
-	static public function toPoolVector(quadList:Array<QuadData>):Void
+	static public function toPoolVector(quads:Array<QuadData>):Void
 	{
-		for (quad in quadList)
+		var count:Int = quads.length;
+		for (i in 0...count)
 		{
-			quad.clear();
-			_POOL[_POOL.length] = quad;
+			quads[i].pool();
 		}
 	}
 	#end
 	
-	/* size from left border to pivotX */
+	/**
+	   Size from left border to pivotX
+	**/
 	public var leftWidth:Float;
-	/* size from pivotX to right border */
+	/**
+	   Size from pivotX to right border
+	**/
 	public var rightWidth:Float;
-	/* size from top border to pivotY */
+	/**
+	   Size from top border to pivotY
+	**/
 	public var topHeight:Float;
-	/* size from pivotY to bottom border */
+	/**
+	   Size from pivotY to bottom border
+	**/
 	public var bottomHeight:Float;
-	/* base width */
+	/**
+	   Base width
+	**/
 	public var width:Float;
-	/* base height */
+	/**
+	   Base height
+	**/
 	public var height:Float;
 	/**
 	   Pivot location on x-axis
@@ -138,6 +150,9 @@ class QuadData extends DisplayData
 	**/
 	public var pivotY:Float;
 	
+	/**
+	   Constructor
+	**/
 	public function new() 
 	{
 		super();
@@ -194,7 +209,7 @@ class QuadData extends DisplayData
 	}
 	
 	/**
-	 * updates pivot-related values
+	 * Updates pivot-related values
 	 */
 	public function pivotUpdate():Void
 	{

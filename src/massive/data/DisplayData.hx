@@ -28,14 +28,17 @@ abstract class DisplayData
 	public var offsetY:Float = 0;
 	/**
 	   rotation in radians
+	   @default	0
 	**/
 	public var rotation:Float = 0;
 	/**
 	   horizontal scale factor
+	   @default	1
 	**/
 	public var scaleX:Float = 1;
 	/**
 	   vertical scale factor
+	   @default	1
 	**/
 	public var scaleY:Float = 1;
 	/**
