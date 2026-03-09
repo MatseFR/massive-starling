@@ -367,7 +367,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					byteData.writeFloat(data.textureIndex);
+					byteData.writeFloat(data.textureIndexReal);
 				}
 				
 				byteData.writeFloat(x + cosRight + sinTop);
@@ -390,7 +390,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					byteData.writeFloat(data.textureIndex);
+					byteData.writeFloat(data.textureIndexReal);
 				}
 				
 				byteData.writeFloat(x - cosLeft - sinBottom);
@@ -413,7 +413,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					byteData.writeFloat(data.textureIndex);
+					byteData.writeFloat(data.textureIndexReal);
 				}
 				
 				byteData.writeFloat(x + cosRight - sinBottom);
@@ -436,7 +436,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					byteData.writeFloat(data.textureIndex);
+					byteData.writeFloat(data.textureIndexReal);
 				}
 			}
 			else
@@ -473,7 +473,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					byteData.writeFloat(data.textureIndex);
+					byteData.writeFloat(data.textureIndexReal);
 				}
 				
 				byteData.writeFloat(x + rightOffset);
@@ -496,7 +496,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					byteData.writeFloat(data.textureIndex);
+					byteData.writeFloat(data.textureIndexReal);
 				}
 				
 				byteData.writeFloat(x - leftOffset);
@@ -519,7 +519,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					byteData.writeFloat(data.textureIndex);
+					byteData.writeFloat(data.textureIndexReal);
 				}
 				
 				byteData.writeFloat(x + rightOffset);
@@ -542,7 +542,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					byteData.writeFloat(data.textureIndex);
+					byteData.writeFloat(data.textureIndexReal);
 				}
 			}
 		}
@@ -751,7 +751,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					Memory.setFloat(position += 4, data.textureIndex);
+					Memory.setFloat(position += 4, data.textureIndexReal);
 				}
 				
 				Memory.setFloat(position += 4, x + cosRight + sinTop);
@@ -774,7 +774,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					Memory.setFloat(position += 4, data.textureIndex);
+					Memory.setFloat(position += 4, data.textureIndexReal);
 				}
 				
 				Memory.setFloat(position += 4, x - cosLeft - sinBottom);
@@ -797,7 +797,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					Memory.setFloat(position += 4, data.textureIndex);
+					Memory.setFloat(position += 4, data.textureIndexReal);
 				}
 				
 				Memory.setFloat(position += 4, x + cosRight - sinBottom);
@@ -820,7 +820,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					Memory.setFloat(position += 4, data.textureIndex);
+					Memory.setFloat(position += 4, data.textureIndexReal);
 				}
 			}
 			else
@@ -857,7 +857,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					Memory.setFloat(position += 4, data.textureIndex);
+					Memory.setFloat(position += 4, data.textureIndexReal);
 				}
 				
 				Memory.setFloat(position += 4, x + rightOffset);
@@ -880,7 +880,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					Memory.setFloat(position += 4, data.textureIndex);
+					Memory.setFloat(position += 4, data.textureIndexReal);
 				}
 				
 				Memory.setFloat(position += 4, x - leftOffset);
@@ -903,7 +903,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					Memory.setFloat(position += 4, data.textureIndex);
+					Memory.setFloat(position += 4, data.textureIndexReal);
 				}
 				
 				Memory.setFloat(position += 4, x + rightOffset);
@@ -926,7 +926,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					Memory.setFloat(position += 4, data.textureIndex);
+					Memory.setFloat(position += 4, data.textureIndexReal);
 				}
 			}
 			position += 4;
@@ -1138,7 +1138,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					floatData[++position] = data.textureIndex;
+					floatData[++position] = data.textureIndexReal;
 				}
 				
 				floatData[++position] = x + cosRight + sinTop;
@@ -1161,7 +1161,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					floatData[++position] = data.textureIndex;
+					floatData[++position] = data.textureIndexReal;
 				}
 				
 				floatData[++position] = x - cosLeft - sinBottom;
@@ -1184,7 +1184,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					floatData[++position] = data.textureIndex;
+					floatData[++position] = data.textureIndexReal;
 				}
 				
 				floatData[++position] = x + cosRight - sinBottom;
@@ -1207,7 +1207,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					floatData[++position] = data.textureIndex;
+					floatData[++position] = data.textureIndexReal;
 				}
 			}
 			else
@@ -1244,7 +1244,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					floatData[++position] = data.textureIndex;
+					floatData[++position] = data.textureIndexReal;
 				}
 				
 				floatData[++position] = x + rightOffset;
@@ -1267,7 +1267,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					floatData[++position] = data.textureIndex;
+					floatData[++position] = data.textureIndexReal;
 				}
 				
 				floatData[++position] = x - leftOffset;
@@ -1290,7 +1290,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					floatData[++position] = data.textureIndex;
+					floatData[++position] = data.textureIndexReal;
 				}
 				
 				floatData[++position] = x + rightOffset;
@@ -1313,7 +1313,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					floatData[++position] = data.textureIndex;
+					floatData[++position] = data.textureIndexReal;
 				}
 			}
 			++position;
@@ -1524,7 +1524,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					vectorData[++position] = data.textureIndex;
+					vectorData[++position] = data.textureIndexReal;
 				}
 				
 				vectorData[++position] = x + cosRight + sinTop;
@@ -1547,7 +1547,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					vectorData[++position] = data.textureIndex;
+					vectorData[++position] = data.textureIndexReal;
 				}
 				
 				vectorData[++position] = x - cosLeft - sinBottom;
@@ -1570,7 +1570,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					vectorData[++position] = data.textureIndex;
+					vectorData[++position] = data.textureIndexReal;
 				}
 				
 				vectorData[++position] = x + cosRight - sinBottom;
@@ -1593,7 +1593,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					vectorData[++position] = data.textureIndex;
+					vectorData[++position] = data.textureIndexReal;
 				}
 			}
 			else
@@ -1630,7 +1630,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					vectorData[++position] = data.textureIndex;
+					vectorData[++position] = data.textureIndexReal;
 				}
 				
 				vectorData[++position] = x + rightOffset;
@@ -1653,7 +1653,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					vectorData[++position] = data.textureIndex;
+					vectorData[++position] = data.textureIndexReal;
 				}
 				
 				vectorData[++position] = x - leftOffset;
@@ -1676,7 +1676,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					vectorData[++position] = data.textureIndex;
+					vectorData[++position] = data.textureIndexReal;
 				}
 				
 				vectorData[++position] = x + rightOffset;
@@ -1699,7 +1699,7 @@ class ImageLayer<T:ImageData = ImageData> extends MassiveLayer
 				}
 				if (multiTexturing)
 				{
-					vectorData[++position] = data.textureIndex;
+					vectorData[++position] = data.textureIndexReal;
 				}
 			}
 			++position;
