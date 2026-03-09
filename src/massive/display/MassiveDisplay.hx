@@ -1253,10 +1253,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			this._program = createProgramWithMultiTexture(this._useColor, this._textures);
 			this._isMultiTexturingProgram = true;
-			this._multiTexturingConstants.length = 0;
 			
 			if (!_isBaseline)
 			{
+				this._multiTexturingConstants.length = 0;
+				
 				//fc0
 				this._multiTexturingConstants[0] = 0.5;
 				this._multiTexturingConstants[1] = 1.5;
@@ -1844,7 +1845,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (this._multiTexturing)
 		{
 			//context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 0, _multiTextureIndices, this._numTextures > 2 || _isBaseline ? -1 : 1);
-			context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 0, _multiTexturingConstants, -1);
+			context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 0, this._multiTexturingConstants, -1);
 		}
 		
 		var forceBuffer:Bool = true;
