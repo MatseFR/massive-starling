@@ -6,6 +6,8 @@ import openfl.display.StageScaleMode;
 import openfl.display3D.Context3DRenderMode;
 import openfl.system.Capabilities;
 import starling.core.Starling;
+import starling.display.Mesh;
+import starling.styles.MultiTextureStyle;
 
 /**
  * ...
@@ -33,6 +35,8 @@ class Main extends Sprite
 	private function start():Void
 	{
 		this.stage.scaleMode = StageScaleMode.NO_SCALE;
+		
+		Mesh.defaultStyle = MultiTextureStyle;
 		
 		this._starling = new Starling(MassiveDemo, this.stage, null, null, Context3DRenderMode.AUTO, "auto");
 		//this._starling = new Starling(MassiveDemo, this.stage, null, null, Context3DRenderMode.AUTO, Context3DProfile.BASELINE);

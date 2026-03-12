@@ -16,10 +16,13 @@ import scene.Scene;
 import starling.assets.AssetManager;
 import starling.core.Starling;
 import starling.display.Button;
+import starling.display.Mesh;
 import starling.display.Quad;
 import starling.display.Sprite;
 import starling.events.Event;
 import starling.events.ResizeEvent;
+import starling.styles.MeshStyle;
+import starling.styles.MultiTextureStyle;
 import starling.text.TextField;
 import starling.text.TextFieldAutoSize;
 import starling.textures.ConcreteTexture;
@@ -37,11 +40,15 @@ class MassiveDemo extends Sprite
 	
 	private var _sceneList:Array<Scene>;
 	
+	private var _allButtons:Array<Button> = new Array<Button>();
+	private var _allTextFields:Array<TextField> = new Array<TextField>();
+	
 	private var menuSprite:Sprite;
 	private var atlasSprite:Sprite;
 	private var scaleSprite:Sprite;
 	private var colorModeSprite:Sprite;
 	private var renderModeSprite:Sprite;
+	private var maxTextureSprite:Sprite;
 	private var classicSprite:Sprite;
 	private var massiveSprite:Sprite;
 	
@@ -85,6 +92,7 @@ class MassiveDemo extends Sprite
 	private var scaleButtons:Array<Button> = new Array<Button>();
 	private var colorModeButtons:Array<Button> = new Array<Button>();
 	private var renderModeButtons:Array<Button> = new Array<Button>();
+	private var maxTextureButtons:Array<Button> = new Array<Button>();
 	private var classicClipsButtons:Array<Button> = new Array<Button>();
 	
 	private var numAtlases:Int = 16;
@@ -130,12 +138,16 @@ class MassiveDemo extends Sprite
 	{
 		trace("assetsLoaded");
 		
+		this.multiTextureStyle = Mesh.defaultStyle == MultiTextureStyle;
+		
+		var btnHeight:Float = 19;
+		
 		var colorUP:Int = 0xcccccc;
 		var colorOVER:Int = 0xffffff;
-		var quad:Quad = new Quad(230, 20);
-		var menuQuad:Quad = new Quad(140, 20);
-		var mediumQuad:Quad = new Quad(90, 20);
-		var miniQuad:Quad = new Quad(36, 20);
+		var quad:Quad = new Quad(230, btnHeight);
+		var menuQuad:Quad = new Quad(140, btnHeight);
+		var mediumQuad:Quad = new Quad(90, btnHeight);
+		var miniQuad:Quad = new Quad(36, btnHeight);
 		
 		quad.color = colorUP;
 		this.buttonTextureOFF = new RenderTexture(Std.int(quad.width), Std.int(quad.height));
@@ -218,7 +230,6 @@ class MassiveDemo extends Sprite
 		}
 		
 		var btn:Button = null;
-		var btnHeight:Float = quad.height;
 		var tf:TextField;
 		var gap:Float = 2;
 		var tX:Float;
@@ -228,9 +239,7 @@ class MassiveDemo extends Sprite
 		
 		this.menuSprite = new Sprite();
 		
-		tf = new TextField(0, 0, "Options");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf = createTextField("Options");
 		tf.y = tY;
 		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
 		this.menuSprite.addChild(tf);
@@ -239,10 +248,8 @@ class MassiveDemo extends Sprite
 		this.atlasSprite = new Sprite();
 		this.atlasSprite.y = tY;
 		this.menuSprite.addChild(this.atlasSprite);
-		tf = new TextField(0, 0, "atlas(es)");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
-		tf.y = (this.mediumButtonTextureOFF.height * 2 + gap - tf.height) / 2;
+		tf = createTextField("atlas(es)");
+		tf.y = (btnHeight * 2 + gap - tf.height) / 2;
 		this.atlasSprite.addChild(tf);
 		tX = tf.width + gap;
 		tY = 0;
@@ -256,7 +263,7 @@ class MassiveDemo extends Sprite
 				tY += btnHeight + gap;
 			}
 			atlasID = "zombi" + i;
-			btn = new Button(this.atlasIDs.indexOf(atlasID) != -1 ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, atlasID, null, this.mediumButtonTextureON);
+			btn = createButton(this.atlasIDs.indexOf(atlasID) != -1 ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, atlasID, null, this.mediumButtonTextureON);
 			btn.x = tX;
 			btn.y = tY;
 			btn.addEventListener(Event.TRIGGERED, toggleAtlas);
@@ -268,31 +275,29 @@ class MassiveDemo extends Sprite
 		this.atlasSprite.x = (this.buttonTextureOFF.width - this.atlasSprite.width) / 2;
 		
 		tY = this.atlasSprite.y + this.atlasSprite.height + gap;
-		btn = new Button(this.useRandomAlpha ? this.buttonTextureON : this.buttonTextureOFF, "randomize alpha", null, this.buttonTextureON);
+		btn = createButton(this.useRandomAlpha ? this.buttonTextureON : this.buttonTextureOFF, "randomize alpha", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleRandomAlpha);
 		this.menuSprite.addChild(btn);
 		
-		tY += btn.height + gap;
-		btn = new Button(this.useRandomColor ? this.buttonTextureON : this.buttonTextureOFF, "randomize color", null, this.buttonTextureON);
+		tY += btnHeight + gap;
+		btn = createButton(this.useRandomColor ? this.buttonTextureON : this.buttonTextureOFF, "randomize color", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleRandomColor);
 		this.menuSprite.addChild(btn);
 		
-		tY += btn.height + gap;
-		btn = new Button(this.useRandomRotation ? this.buttonTextureON : this.buttonTextureOFF, "randomize rotation", null, this.buttonTextureON);
+		tY += btnHeight + gap;
+		btn = createButton(this.useRandomRotation ? this.buttonTextureON : this.buttonTextureOFF, "randomize rotation", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleRandomRotation);
 		this.menuSprite.addChild(btn);
 		
-		tY += btn.height + gap;
+		tY += btnHeight + gap;
 		this.scaleSprite = new Sprite();
 		this.scaleSprite.y = tY;
 		this.menuSprite.addChild(this.scaleSprite);
-		tf = new TextField(0, 0, "scale");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
-		tf.y = (btn.height - tf.height) / 2;
+		tf = createTextField("scale");
+		tf.y = (btnHeight - tf.height) / 2;
 		this.scaleSprite.addChild(tf);
 		tX = tf.width + gap;
 		
@@ -301,33 +306,31 @@ class MassiveDemo extends Sprite
 		{
 			scaleFactor = this.scales[i];
 			
-			btn = new Button(this.displayScale == scaleFactor ? this.miniButtonTextureON : this.miniButtonTextureOFF, Std.string(scaleFactor), null, this.miniButtonTextureON);
+			btn = createButton(this.displayScale == scaleFactor ? this.miniButtonTextureON : this.miniButtonTextureOFF, Std.string(scaleFactor), null, this.miniButtonTextureON);
 			btn.x = tX;
-			btn.y = tf.y + (tf.height - btn.height) / 2;
+			btn.y = tf.y + (tf.height - btnHeight) / 2;
 			btn.addEventListener(Event.TRIGGERED, toggleDisplayScale);
 			this.scaleButtons.push(btn);
 			this.scaleSprite.addChild(btn);
 			tX += btn.width + gap;
 		}
 		
-		tY += btn.height + gap;
-		btn = new Button(this.useSprite3D ? this.buttonTextureON : this.buttonTextureOFF, "Sprite3D", null, this.buttonTextureON);
+		tY += btnHeight + gap;
+		btn = createButton(this.useSprite3D ? this.buttonTextureON : this.buttonTextureOFF, "Sprite3D", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleSprite3D);
 		this.menuSprite.addChild(btn);
 		
-		tY += btn.height + gap;
-		btn = new Button(this.useBlurFilter ? this.buttonTextureON : this.buttonTextureOFF, "BlurFilter", null, this.buttonTextureON);
+		tY += btnHeight + gap;
+		btn = createButton(this.useBlurFilter ? this.buttonTextureON : this.buttonTextureOFF, "BlurFilter", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleBlurFilter);
 		this.menuSprite.addChild(btn);
 		
 		this.scaleSprite.x = (this.buttonTextureOFF.width - this.scaleSprite.width) / 2;
 		
-		tY += btn.height + gap * 2;
-		tf = new TextField(0, 0, "Massive options");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tY += btnHeight + gap * 2;
+		tf = createTextField("Massive options");
 		tf.y = tY;
 		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
 		this.menuSprite.addChild(tf);
@@ -336,25 +339,23 @@ class MassiveDemo extends Sprite
 		this.renderModeSprite = new Sprite();
 		this.renderModeSprite.y = tY;
 		this.menuSprite.addChild(this.renderModeSprite);
-		tf = new TextField(0, 0, "renderMode");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
-		tf.y = (btn.height - tf.height) / 2;
+		tf = createTextField("renderMode");
+		tf.y = (btnHeight - tf.height) / 2;
 		this.renderModeSprite.addChild(tf);
 		tX = tf.width + gap;
 		
-		btn = new Button(this.renderMode == MassiveRenderMode.BYTEARRAY ? this.buttonTextureON : this.buttonTextureOFF, "ByteArray", null, this.buttonTextureON);
+		btn = createButton(this.renderMode == MassiveRenderMode.BYTEARRAY ? this.buttonTextureON : this.buttonTextureOFF, "ByteArray", null, this.buttonTextureON);
 		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
+		btn.y = tf.y + (tf.height - btnHeight) / 2;
 		btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
 		this.renderModeButtons.push(btn);
 		this.renderModeSprite.addChild(btn);
 		
 		#if flash
 		tX += btn.width + gap;
-		btn = new Button(this.renderMode == MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY ? this.buttonTextureON : this.buttonTextureOFF, "DomainMemoryByteArray", null, this.buttonTextureON);
+		btn = createButton(this.renderMode == MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY ? this.buttonTextureON : this.buttonTextureOFF, "DomainMemoryByteArray", null, this.buttonTextureON);
 		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
+		btn.y = tf.y + (tf.height - btnHeight) / 2;
 		btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
 		this.renderModeButtons.push(btn);
 		this.renderModeSprite.addChild(btn);
@@ -362,75 +363,100 @@ class MassiveDemo extends Sprite
 		
 		#if !flash
 		tX += btn.width + gap;
-		btn = new Button(this.renderMode == MassiveRenderMode.FLOAT32ARRAY ? this.buttonTextureON : this.buttonTextureOFF, "Float32Array", null, this.buttonTextureON);
+		btn = createButton(this.renderMode == MassiveRenderMode.FLOAT32ARRAY ? this.buttonTextureON : this.buttonTextureOFF, "Float32Array", null, this.buttonTextureON);
 		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
+		btn.y = tf.y + (tf.height - btnHeight) / 2;
 		btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
 		this.renderModeButtons.push(btn);
 		this.renderModeSprite.addChild(btn);
 		#end
 		
 		tX += btn.width + gap;
-		btn = new Button(this.renderMode == MassiveRenderMode.VECTOR ? this.buttonTextureON : this.buttonTextureOFF, "Vector", null, this.buttonTextureON);
+		btn = createButton(this.renderMode == MassiveRenderMode.VECTOR ? this.buttonTextureON : this.buttonTextureOFF, "Vector", null, this.buttonTextureON);
 		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
+		btn.y = tf.y + (tf.height - btnHeight) / 2;
 		btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
 		this.renderModeButtons.push(btn);
 		this.renderModeSprite.addChild(btn);
 		
 		this.renderModeSprite.x = (this.buttonTextureOFF.width - this.renderModeSprite.width) / 2;
 		
-		tY += btn.height + gap;
+		tY += btnHeight + gap;
 		this.colorModeSprite = new Sprite();
 		this.colorModeSprite.y = tY;
 		this.menuSprite.addChild(this.colorModeSprite);
-		tf = new TextField(0, 0, "colorMode");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
-		tf.y = (btn.height - tf.height) / 2;
+		tf = createTextField("colorMode");
+		tf.y = (btnHeight - tf.height) / 2;
 		this.colorModeSprite.addChild(tf);
 		tX = tf.width + gap;
 		
-		btn = new Button(this.colorMode == MassiveColorMode.NONE ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "none", null, this.mediumButtonTextureON);
+		btn = createButton(this.colorMode == MassiveColorMode.NONE ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "none", null, this.mediumButtonTextureON);
 		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
+		btn.y = tf.y + (tf.height - btnHeight) / 2;
 		btn.addEventListener(Event.TRIGGERED, toggleColorMode);
 		this.colorModeButtons.push(btn);
 		this.colorModeSprite.addChild(btn);
 		
 		tX += btn.width + gap;
-		btn = new Button(this.colorMode == MassiveColorMode.REGULAR ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "regular", null, this.mediumButtonTextureON);
+		btn = createButton(this.colorMode == MassiveColorMode.REGULAR ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "regular", null, this.mediumButtonTextureON);
 		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
+		btn.y = tf.y + (tf.height - btnHeight) / 2;
 		btn.addEventListener(Event.TRIGGERED, toggleColorMode);
 		this.colorModeButtons.push(btn);
 		this.colorModeSprite.addChild(btn);
 		
 		tX += btn.width + gap;
-		btn = new Button(this.colorMode == MassiveColorMode.EXTENDED ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "extended", null, this.mediumButtonTextureON);
+		btn = createButton(this.colorMode == MassiveColorMode.EXTENDED ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "extended", null, this.mediumButtonTextureON);
 		btn.x = tX;
-		btn.y = tf.y + (tf.height - btn.height) / 2;
+		btn.y = tf.y + (tf.height - btnHeight) / 2;
 		btn.addEventListener(Event.TRIGGERED, toggleColorMode);
 		this.colorModeButtons.push(btn);
 		this.colorModeSprite.addChild(btn);
 		
 		this.colorModeSprite.x = (this.buttonTextureOFF.width - this.colorModeSprite.width) / 2;
 		
-		tY += btn.height + gap * 2;
-		tf = new TextField(0, 0, "Starling options");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tY += btnHeight + gap * 2;
+		tf = createTextField("Starling options");
 		tf.y = tY;
 		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
 		this.menuSprite.addChild(tf);
 		tY += tf.height + gap;
 		
-		btn = new Button(this.multiTextureStyle ? this.buttonTextureON : this.buttonTextureOFF, "MultiTextureStyle", null, this.buttonTextureON);
+		btn = createButton(this.multiTextureStyle ? this.buttonTextureON : this.buttonTextureOFF, "MultiTextureStyle", null, this.buttonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleMultiTextureStyle);
 		this.menuSprite.addChild(btn);
 		
-		tY += btn.height * 2 + gap * 4;
+		tY += btnHeight + gap;
+		this.maxTextureSprite = new Sprite();
+		this.maxTextureSprite.y = tY;
+		this.menuSprite.addChild(this.maxTextureSprite);
+		tf = createTextField("MultiTextureStyle max textures");
+		tf.y = (btnHeight * 2 + gap - tf.height) / 2;
+		this.maxTextureSprite.addChild(tf);
+		tX = tf.width + gap;
+		tY = 0;
+		
+		for (i in 1...17)
+		{
+			if (i == 9)
+			{
+				tX = tf.width + gap;
+				tY += btnHeight + gap;
+			}
+			btn = createButton(i == MultiTextureStyle.maxTextures ? this.miniButtonTextureON : this.miniButtonTextureOFF, Std.string(i), null, this.miniButtonTextureON);
+			btn.enabled = i <= MultiTextureStyle.MAX_NUM_TEXTURES;
+			btn.x = tX;
+			btn.y = tY;
+			btn.addEventListener(Event.TRIGGERED, toggleMultiTextureStyleMaxTexture);
+			this.maxTextureSprite.addChild(btn);
+			this.maxTextureButtons.push(btn);
+			tX += btn.width + gap;
+		}
+		
+		this.maxTextureSprite.x = (this.buttonTextureOFF.width - this.maxTextureSprite.width) / 2;
+		tY = this.maxTextureSprite.y + this.maxTextureSprite.height + gap;
+		
 		demoY = tY + btn.height + gap * 2;
 		
 		// CLASSIC STARLING
@@ -440,9 +466,7 @@ class MassiveDemo extends Sprite
 		this.menuSprite.addChild(this.classicSprite);
 		tY = 0;
 		
-		tf = new TextField(0, 0, "Classic Starling");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf = createTextField("Classic Starling");
 		tf.y = tY;
 		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
 		this.classicSprite.addChild(tf);
@@ -450,20 +474,20 @@ class MassiveDemo extends Sprite
 		
 		for (i in 0...this.numClips.length)
 		{
-			if (i != 0) tY += btn.height + gap;
-			btn = new Button(this.buttonTextureOFF, this.numClips[i] + " clips", null, this.buttonTextureON);
+			if (i != 0) tY += btnHeight + gap;
+			btn = createButton(this.buttonTextureOFF, this.numClips[i] + " clips", null, this.buttonTextureON);
 			btn.y = tY;
 			btn.addEventListener(Event.TRIGGERED, classicClips);
 			this.classicSprite.addChild(btn);
 			this.classicClipsButtons.push(btn);
 		}
 		
-		tY += btn.height + gap * 4;
+		tY += btnHeight + gap * 4;
 		
 		for (i in 0...this.numQuads.length)
 		{
-			if (i != 0) tY += btn.height + gap;
-			btn = new Button(this.buttonTextureOFF, this.numQuads[i] + " quads", null, this.buttonTextureON);
+			if (i != 0) tY += btnHeight + gap;
+			btn = createButton(this.buttonTextureOFF, this.numQuads[i] + " quads", null, this.buttonTextureON);
 			btn.y = tY;
 			btn.addEventListener(Event.TRIGGERED, classicQuads);
 			this.classicSprite.addChild(btn);
@@ -477,9 +501,7 @@ class MassiveDemo extends Sprite
 		this.menuSprite.addChild(this.massiveSprite);
 		tY = 0;
 		
-		tf = new TextField(0, 0, "Massive Starling");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf = createTextField("Massive Starling");
 		tf.y = tY;
 		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
 		this.massiveSprite.addChild(tf);
@@ -487,8 +509,8 @@ class MassiveDemo extends Sprite
 		
 		for (i in 0...this.numClips.length)
 		{
-			if (i != 0) tY += btn.height + gap;
-			btn = new Button(this.buttonTextureOFF, this.numClips[i] + " clips", null, this.buttonTextureON);
+			if (i != 0) tY += btnHeight + gap;
+			btn = createButton(this.buttonTextureOFF, this.numClips[i] + " clips", null, this.buttonTextureON);
 			btn.y = tY;
 			btn.addEventListener(Event.TRIGGERED, massiveClips);
 			this.massiveSprite.addChild(btn);
@@ -498,8 +520,8 @@ class MassiveDemo extends Sprite
 		
 		for (i in 0...this.numQuads.length)
 		{
-			if (i != 0) tY += btn.height + gap;
-			btn = new Button(this.buttonTextureOFF, this.numQuads[i] + " quads", null, this.buttonTextureON);
+			if (i != 0) tY += btnHeight + gap;
+			btn = createButton(this.buttonTextureOFF, this.numQuads[i] + " quads", null, this.buttonTextureON);
 			btn.y = tY;
 			btn.addEventListener(Event.TRIGGERED, massiveQuads);
 			this.massiveSprite.addChild(btn);
@@ -507,9 +529,7 @@ class MassiveDemo extends Sprite
 		//\MASSIVE STARLING
 		
 		tY = this.massiveSprite.y + this.massiveSprite.height + gap * 4;
-		tf = new TextField(0, 0, "zombi assets from www.kenney.nl");
-		tf.format.color = 0xffffff;
-		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf = createTextField("zombi assets from www.kenney.nl");
 		tf.y = tY;
 		tf.x = (this.buttonTextureOFF.width - tf.width) / 2;
 		this.menuSprite.addChild(tf);
@@ -517,27 +537,27 @@ class MassiveDemo extends Sprite
 		this.demoMenuSprite = new Sprite();
 		
 		tY = 0;
-		btn = new Button(this.menuButtonTextureOFF, "Menu", null, this.menuButtonTextureON);
+		btn = createButton(this.menuButtonTextureOFF, "Menu", null, this.menuButtonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, backToMenu);
 		this.demoMenuSprite.addChild(btn);
 		
-		tY += btn.height + gap * 4;
-		btn = new Button(this.movement ? this.menuButtonTextureON : this.menuButtonTextureOFF, "Movement", null, this.menuButtonTextureON);
+		tY += btnHeight + gap * 4;
+		btn = createButton(this.movement ? this.menuButtonTextureON : this.menuButtonTextureOFF, "Movement", null, this.menuButtonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleMovement);
 		this.demoMenuSprite.addChild(btn);
 		this.movementButton = btn;
 		
-		tY += btn.height + gap;
-		btn = new Button(this.animation ? this.menuButtonTextureON : this.menuButtonTextureOFF, "Animation", null, this.menuButtonTextureON);
+		tY += btnHeight + gap;
+		btn = createButton(this.animation ? this.menuButtonTextureON : this.menuButtonTextureOFF, "Animation", null, this.menuButtonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleAnimation);
 		this.demoMenuSprite.addChild(btn);
 		this.animationButton = btn;
 		
-		tY += btn.height + gap;
-		btn = new Button(this.autoUpdateBounds ? this.menuButtonTextureON : this.menuButtonTextureOFF, "autoUpdateBounds", null, this.menuButtonTextureON);
+		tY += btnHeight + gap;
+		btn = createButton(this.autoUpdateBounds ? this.menuButtonTextureON : this.menuButtonTextureOFF, "autoUpdateBounds", null, this.menuButtonTextureON);
 		btn.y = tY;
 		btn.addEventListener(Event.TRIGGERED, toggleAutoUpdateBounds);
 		this.demoMenuSprite.addChild(btn);
@@ -553,6 +573,25 @@ class MassiveDemo extends Sprite
 		
 		updateUIPositions();
 		showMenu();
+	}
+	
+	private function createButton(upState:Texture, text:String, downState:Texture, overState:Texture, disabledState:Texture = null):Button
+	{
+		var btn:Button = new Button(upState, text, downState, overState, disabledState);
+		btn.textFormat.setTo("_sans", 12);
+		this._allButtons[this._allButtons.length] = btn;
+		return btn;
+	}
+	
+	private function createTextField(text:String = ""):TextField
+	{
+		var tf:TextField = new TextField(0, 0, text);
+		tf.format.setTo("_sans", 12, 0xffffff);
+		tf.autoSize = TextFieldAutoSize.BOTH_DIRECTIONS;
+		tf.batchable = true;
+		tf.pixelSnapping = true;
+		this._allTextFields[this._allTextFields.length] = tf;
+		return tf;
 	}
 	
 	private function stageResizeHandler(evt:ResizeEvent):Void
@@ -800,14 +839,32 @@ class MassiveDemo extends Sprite
 		this.multiTextureStyle = !this.multiTextureStyle;
 		if (this.multiTextureStyle)
 		{
+			Mesh.defaultStyle = MultiTextureStyle;
 			btn.upState = this.buttonTextureON;
 		}
 		else
 		{
+			Mesh.defaultStyle = MeshStyle;
 			btn.upState = this.buttonTextureOFF;
 		}
 		
 		updateClassicStarling();
+		updateMeshStyle();
+	}
+	
+	private function toggleMultiTextureStyleMaxTexture(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		for (i in 0...this.maxTextureButtons.length)
+		{
+			if (this.maxTextureButtons[i] == btn) continue;
+			this.maxTextureButtons[i].upState = this.miniButtonTextureOFF;
+		}
+		
+		MultiTextureStyle.maxTextures = Std.parseInt(btn.text);
+		btn.upState = this.miniButtonTextureON;
+		
+		updateMeshStyle();
 	}
 	
 	private function toggleRandomAlpha(evt:Event):Void
@@ -920,6 +977,37 @@ class MassiveDemo extends Sprite
 			for (i in 0...count)
 			{
 				this.classicClipsButtons[i].enabled = true;
+			}
+		}
+	}
+	
+	private function updateMeshStyle():Void
+	{
+		var count:Int = this._allButtons.length;
+		for (i in 0...count)
+		{
+			if (this.multiTextureStyle)
+			{
+				this._allButtons[i].style = new MultiTextureStyle();
+				this._allButtons[i].textStyle = new MultiTextureStyle();
+			}
+			else
+			{
+				this._allButtons[i].style = new MeshStyle();
+				this._allButtons[i].textStyle = new MeshStyle();
+			}
+		}
+		
+		count = this._allTextFields.length;
+		for (i in 0...count)
+		{
+			if (this.multiTextureStyle)
+			{
+				this._allTextFields[i].style = new MultiTextureStyle();
+			}
+			else
+			{
+				this._allTextFields[i].style = new MeshStyle();
 			}
 		}
 	}

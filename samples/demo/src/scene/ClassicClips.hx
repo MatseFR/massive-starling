@@ -54,16 +54,6 @@ class ClassicClips extends Scene implements IAnimatable
 		
 		updateBounds();
 		
-		if (this.multiTextureStyle)
-		{
-			MultiTextureStyle.maxTextures = numTextures;
-			Mesh.defaultStyle = MultiTextureStyle;
-		}
-		else
-		{
-			Mesh.defaultStyle = MeshStyle;
-		}
-		
 		if (this.useSprite3D)
 		{
 			this._sprite3D = new Sprite3D();
