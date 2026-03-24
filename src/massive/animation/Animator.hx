@@ -27,15 +27,15 @@ class Animator
 			if (!data.animate) continue;
 			
 			data.frameTime += time * data.frameDelta;
-			if (data.frameTime >= data.frameTimings[data.frameIndex])
+			if (data.frameTime >= data.frameTimingCurrent)
 			{
-				if (data.frameIndex < data.frameCount)
+				if (data._frameIndex < data.frameCount)
 				{
 					data.frameIndex++;
 				}
 				else if (data.loop && (data.numLoops == 0 || data.loopCount < data.numLoops))
 				{
-					data.frameTime -= data.frameTimings[data.frameIndex];
+					data.frameTime -= data.frameTimingCurrent;
 					data.frameIndex = 0;
 					data.loopCount++;
 				}
