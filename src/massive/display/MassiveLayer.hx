@@ -81,7 +81,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	boundsData
 	   @return
 	**/
-	abstract public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
+	abstract public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
 	
 	#if flash
 	/**
@@ -96,7 +96,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	boundsData
 	   @return
 	**/
-	abstract public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
+	abstract public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:Vector<Float>):Bool;
 	#end
 	
 	#if !flash
@@ -113,7 +113,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	boundsData
 	   @return
 	**/
-	abstract public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
+	abstract public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
 	#end
 	
 	/**
@@ -129,7 +129,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	boundsData
 	   @return
 	**/
-	abstract public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
+	abstract public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool;
 	
 	/**
 	   Writes the layer's quads bounds to the specified Vector (flash target) or Array (other targets)
@@ -138,7 +138,7 @@ abstract class MassiveLayer extends EventDispatcher
 	   @param	renderOffsetX
 	   @param	renderOffsetY
 	**/
-	abstract public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderData:RenderData, renderOffsetX:Float, renderOffsetY:Float):Void;
+	abstract public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderOffsetX:Float, renderOffsetY:Float):Void;
 	
 	/**
 	 * Advances time for the layer, controlled by the MassiveDisplay instance this layer was added to
