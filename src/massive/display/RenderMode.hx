@@ -4,7 +4,7 @@ package massive.display;
  * ...
  * @author Matse
  */
-class MassiveRenderMode 
+class RenderMode 
 {
 	/**
 	   Use a `ByteArray` to store and upload vertex data. This seems to result in faster upload on flash/air target, but at a higher cpu cost.
