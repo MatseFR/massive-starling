@@ -3,6 +3,8 @@ import haxe.io.FPHelper;
 import massive.data.QuadData;
 import massive.util.MathUtils;
 import openfl.Vector;
+import openfl.geom.Matrix;
+import openfl.geom.Point;
 import openfl.utils.ByteArray;
 #if !flash
 import openfl.utils._internal.Float32Array;
@@ -48,6 +50,11 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	#end
 	
 	private function get_totalDatas():Int { return this._datas == null ? 0 : this._datas.length; }
+	
+	private var _matrix:Matrix = new Matrix();
+	private var _inPt:Point = new Point();
+	private var _outPt:Point = new Point();
+	private var _useMatrix:Bool = false;
 	
 	//#if flash
 	//private var COS:Vector<Float>;
@@ -172,304 +179,431 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		// nothing
 	}
 	
+	private var _x:Float;
+	private var _y:Float;
+	private var _leftOffset:Float;
+	private var _rightOffset:Float;
+	private var _topOffset:Float;
+	private var _bottomOffset:Float;
+	private var _rotation:Float;
+	private var _skewX:Float;
+	private var _skewY:Float;
+	private var _red:Float;
+	private var _redOffset:Float;
+	private var _green:Float;
+	private var _greenOffset:Float;
+	private var _blue:Float;
+	private var _blueOffset:Float;
+	private var _alpha:Float;
+	private var _alphaOffset:Float;
+	private var _color:Int;
+	private var _colorOffset:Int;
+	private var _cosRotation:Float;
+	private var _sinRotation:Float;
+	private var _cosSkewX:Float;
+	private var _sinSkewX:Float;
+	private var _cosSkewY:Float;
+	private var _sinSkewY:Float;
+	private var _a:Float;
+	private var _b:Float;
+	private var _c:Float;
+	private var _d:Float;
+	private var _x1:Float;
+	private var _y1:Float;
+	private var _x2:Float;
+	private var _y2:Float;
+	private var _x3:Float;
+	private var _y3:Float;
+	private var _x4:Float;
+	private var _y4:Float;
+	private var _rotationChanged:Bool;
+	private var _skewXChanged:Bool;
+	private var _skewYChanged:Bool;
+	
+	private var _position:Int;
+	private var _quadsWritten:Int;
+	private var _pma:Bool;
+	private var _useColor:Bool;
+	private var _useColorOffset:Bool;
+	private var _simpleColor:Bool;
+	private var _numQuads:Int;
+	private var _totalQuads:Int;
+	private var _storeBounds:Bool;
+	private var _boundsIndex:Int;
+	private var _data:T;
+	
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool 
+	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool 
 	{
 		if (this._datas == null) return true;
 		
-		var quadsWritten:Int = 0;
-		
-		var x:Float, y:Float;
-		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
-		var rotation:Float;
-		
-		var red:Float = 0.0;
-		var green:Float = 0.0;
-		var blue:Float = 0.0;
-		var alpha:Float = 0.0;
-		var color:Int = 0;
-		
-		var cos:Float;
-		var sin:Float;
-		
-		var cosLeft:Float;
-		var cosRight:Float;
-		var cosTop:Float;
-		var cosBottom:Float;
-		var sinLeft:Float;
-		var sinRight:Float;
-		var sinTop:Float;
-		var sinBottom:Float;
+		this._quadsWritten = 0;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
-		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
-		var totalQuads:Int = renderData.quadOffset + numQuads;
-		var storeBounds:Bool = boundsData != null;
-		var boundsIndex:Int = storeBounds ? boundsData.length - 1 : -1;
+		this._pma = renderData.pma;
+		this._useColor = renderData.useColor;
+		this._useColorOffset = renderData.useColorOffset;
+		this._simpleColor = renderData.useSimpleColor;
+		this._numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		this._totalQuads = renderData.quadOffset + this._numQuads;
+		this._storeBounds = boundsData != null;
+		this._boundsIndex = this._storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
-		var data:T;
-		for (i in renderData.quadOffset...totalQuads)
+		for (i in renderData.quadOffset...this._totalQuads)
 		{
-			data = this._datas[i];
-			if (!data.visible) continue;
+			this._data = this._datas[i];
+			if (!this._data.visible) continue;
 			
-			++quadsWritten;
+			++this._quadsWritten;
 			
-			x = data.x + data.offsetX + renderOffsetX;
-			y = data.y + data.offsetY + renderOffsetY;
-			rotation = data.rotation;
+			this._x = this._data.x + this._data.offsetX + renderOffsetX;
+			this._y = this._data.y + this._data.offsetY + renderOffsetY;
 			
-			if (useColor)
+			if (this._data._transformChanged)
 			{
-				if (pma)
+				this._rotationChanged = this._data._rotationChanged;
+				this._skewXChanged = this._data._skewXChanged;
+				this._skewYChanged = this._data._skewYChanged;
+				
+				if (this._rotationChanged)
 				{
-					if (simpleColor)
+					this._rotation = this._data._rotation;
+					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
+					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
+					this._data._rotationChanged = false;
+				}
+				else
+				{
+					this._cosRotation = this._data._cosRotation;
+					this._sinRotation = this._data._sinRotation;
+				}
+				
+				if (this._skewXChanged)
+				{
+					this._skewX = this._data._skewX;
+					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
+					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
+					this._data._skewXChanged = false;
+				}
+				else
+				{
+					this._cosSkewX = this._data._cosSkewX;
+					this._sinSkewX = this._data._sinSkewX;
+				}
+				
+				if (this._skewYChanged)
+				{
+					this._skewY = this._data._skewY;
+					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
+					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
+					this._data._skewYChanged = false;
+				}
+				else
+				{
+					this._cosSkewY = this._data._cosSkewY;
+					this._sinSkewY = this._data._sinSkewY;
+				}
+				
+				if (this._data._sizeXChanged)
+				{
+					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
+					this._data._sizeXChanged = false;
+				}
+				else
+				{
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset;
+				}
+				
+				if (this._data._sizeYChanged)
+				{
+					this._data._topOffset = this._data.topHeight * this._data._scaleY;
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
+					this._data._sizeYChanged = false;
+				}
+				else
+				{
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset;
+				}
+				
+				this._data._transformChanged = false;
+				
+				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				{
+					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
+					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
+					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
+					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+				}
+				else
+				{
+					this._a = this._data._a;
+					this._b = this._data._b;
+					this._c = this._data._c;
+					this._d = this._data._d;
+				}
+				
+				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
+				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
+				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
+				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
+				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
+				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
+				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
+				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+			}
+			else
+			{
+				this._x1 = this._data._x1;
+				this._y1 = this._data._y1;
+				this._x2 = this._data._x2;
+				this._y2 = this._data._y2;
+				this._x3 = this._data._x3;
+				this._y3 = this._data._y3;
+				this._x4 = this._data._x4;
+				this._y4 = this._data._y4;
+			}
+			
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					this._alpha = this._data.alpha;
+					this._alpha = this._alpha < 0.0 ? 0.0 : this._alpha > 1.0 ? 1.0 : this._alpha;
+					this._red = this._data.red;
+					this._red = this._red < 0.0 ? 0.0 : this._red > 1.0 ? 1.0 : this._red;
+					this._green = this._data.green;
+					this._green = this._green < 0.0 ? 0.0 : this._green > 1.0 ? 1.0 : this._green;
+					this._blue = this._data.blue;
+					this._blue = this._blue < 0.0 ? 0.0 : this._blue > 1.0 ? 1.0 : this._blue;
+					if (this._pma)
 					{
-						alpha = data.alpha;
-						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.red;
-						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.green;
-						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.blue;
-						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
-						color = Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24;
+						this._color = Std.int(this._red * this._alpha * 255) | Std.int(this._green * this._alpha * 255) << 8 | Std.int(this._blue * this._alpha * 255) << 16 | Std.int(this._alpha * 255) << 24;
 					}
 					else
 					{
-						alpha = data.alpha;
-						red = data.red * alpha;
-						green = data.green * alpha;
-						blue = data.blue * alpha;
+						this._color = Std.int(this._red * 255) | Std.int(this._green * 255) << 8 | Std.int(this._blue * 255) << 16 | Std.int(this._alpha * 255) << 24;
 					}
 				}
 				else
 				{
-					if (simpleColor)
+					this._alpha = this._data.alpha;
+					if (this._pma)
 					{
-						alpha = data.alpha;
-						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.red;
-						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.green;
-						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.blue;
-						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
-						color = Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24;
+						this._red = this._data.red * this._alpha;
+						this._green = this._data.green * this._alpha;
+						this._blue = this._data.blue * this._alpha;
 					}
 					else
 					{
-						red = data.red;
-						green = data.green;
-						blue = data.blue;
-						alpha = data.alpha;
+						this._red = this._data.red;
+						this._green = this._data.green;
+						this._blue = this._data.blue;
 					}
 				}
 			}
 			
-			leftOffset = data.leftWidth * data.scaleX;
-			rightOffset = data.rightWidth * data.scaleX;
-			topOffset = data.topHeight * data.scaleY;
-			bottomOffset = data.bottomHeight * data.scaleY;
-			
-			if (rotation != 0.0)
+			if (this._useColorOffset)
 			{
-				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-				//cos = COS[angle];
-				//sin = SIN[angle];
-				cos = Math.cos(rotation);
-				sin = Math.sin(rotation);
-				
-				cosLeft = cos * leftOffset;
-				cosRight = cos * rightOffset;
-				cosTop = cos * topOffset;
-				cosBottom = cos * bottomOffset;
-				sinLeft = sin * leftOffset;
-				sinRight = sin * rightOffset;
-				sinTop = sin * topOffset;
-				sinBottom = sin * bottomOffset;
-				
-				if (storeBounds)
+				if (this._simpleColor)
 				{
-					boundsData[++boundsIndex] = x - cosLeft + sinTop;
-					boundsData[++boundsIndex] = y - sinLeft - cosTop;
-					boundsData[++boundsIndex] = x + cosRight + sinTop;
-					boundsData[++boundsIndex] = y + sinRight - cosTop;
-					boundsData[++boundsIndex] = x - cosLeft - sinBottom;
-					boundsData[++boundsIndex] = y - sinLeft + cosBottom;
-					boundsData[++boundsIndex] = x + cosRight - sinBottom;
-					boundsData[++boundsIndex] = y + sinRight + cosBottom;
-				}
-				
-				byteData.writeFloat(x - cosLeft + sinTop);
-				byteData.writeFloat(y - sinLeft - cosTop);
-				if (useColor)
-				{
-					if (simpleColor)
+					this._alphaOffset = this._data.alphaOffset;
+					this._alphaOffset = this._alphaOffset < 0.0 ? 0.0 : this._alphaOffset > 1.0 ? 1.0 : this._alphaOffset;
+					this._redOffset = this._data.redOffset;
+					this._redOffset = this._redOffset < 0.0 ? 0.0 : this._redOffset > 1.0 ? 1.0 : this._redOffset;
+					this._greenOffset = this._data.greenOffset;
+					this._greenOffset = this._greenOffset < 0.0 ? 0.0 : this._greenOffset > 1.0 ? 1.0 : this._greenOffset;
+					this._blueOffset = this._data.blueOffset;
+					this._blueOffset = this._blueOffset < 0.0 ? 0.0 : this._blueOffset > 1.0 ? 1.0 : this._blueOffset;
+					if (this._useColor || renderData.useDisplayColor)
 					{
-						byteData.writeInt(color);
+						this._colorOffset = Std.int(this._redOffset * 255) | Std.int(this._greenOffset * 255) << 8 | Std.int(this._blueOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
 					}
 					else
 					{
-						byteData.writeFloat(red);
-						byteData.writeFloat(green);
-						byteData.writeFloat(blue);
-						byteData.writeFloat(alpha);
+						this._colorOffset = Std.int(this._redOffset * this._alphaOffset * 255) | Std.int(this._greenOffset * this._alphaOffset * 255) << 8 | Std.int(this._blueOffset * this._alphaOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
 					}
 				}
-				
-				byteData.writeFloat(x + cosRight + sinTop);
-				byteData.writeFloat(y + sinRight - cosTop);
-				if (useColor)
+				else
 				{
-					if (simpleColor)
+					this._alphaOffset = this._data.alphaOffset;
+					if (this._useColor || renderData.useDisplayColor)
 					{
-						byteData.writeInt(color);
+						this._redOffset = this._data.redOffset;
+						this._greenOffset = this._data.greenOffset;
+						this._blueOffset = this._data.blueOffset;
 					}
 					else
 					{
-						byteData.writeFloat(red);
-						byteData.writeFloat(green);
-						byteData.writeFloat(blue);
-						byteData.writeFloat(alpha);
-					}
-				}
-				
-				byteData.writeFloat(x - cosLeft - sinBottom);
-				byteData.writeFloat(y - sinLeft + cosBottom);
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						byteData.writeInt(color);
-					}
-					else
-					{
-						byteData.writeFloat(red);
-						byteData.writeFloat(green);
-						byteData.writeFloat(blue);
-						byteData.writeFloat(alpha);
-					}
-				}
-				
-				byteData.writeFloat(x + cosRight - sinBottom);
-				byteData.writeFloat(y + sinRight + cosBottom);
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						byteData.writeInt(color);
-					}
-					else
-					{
-						byteData.writeFloat(red);
-						byteData.writeFloat(green);
-						byteData.writeFloat(blue);
-						byteData.writeFloat(alpha);
+						this._redOffset = this._data.redOffset * this._alphaOffset;
+						this._greenOffset = this._data.greenOffset * this._alphaOffset;
+						this._blueOffset = this._data.blueOffset * this._alphaOffset;
 					}
 				}
 			}
-			else
+			
+			if (this._storeBounds)
 			{
-				if (storeBounds)
+				boundsData[++this._boundsIndex] = this._x + this._x1;
+				boundsData[++this._boundsIndex] = this._y + this._y1;
+				boundsData[++this._boundsIndex] = this._x + this._x2;
+				boundsData[++this._boundsIndex] = this._y + this._y2;
+				boundsData[++this._boundsIndex] = this._x + this._x3;
+				boundsData[++this._boundsIndex] = this._y + this._y3;
+				boundsData[++this._boundsIndex] = this._x + this._x4;
+				boundsData[++this._boundsIndex] = this._y + this._y4;
+			}
+			
+			// TOP LEFT
+			byteData.writeFloat(this._x + this._x1);
+			byteData.writeFloat(this._y + this._y1);
+			if (this._useColor)
+			{
+				if (this._simpleColor)
 				{
-					boundsData[++boundsIndex] = x - leftOffset;
-					boundsData[++boundsIndex] = y - topOffset;
-					boundsData[++boundsIndex] = x + rightOffset;
-					boundsData[++boundsIndex] = y - topOffset;
-					boundsData[++boundsIndex] = x - leftOffset;
-					boundsData[++boundsIndex] = y + bottomOffset;
-					boundsData[++boundsIndex] = x + rightOffset;
-					boundsData[++boundsIndex] = y + bottomOffset;
+					byteData.writeInt(this._color);
 				}
-				
-				byteData.writeFloat(x - leftOffset);
-				byteData.writeFloat(y - topOffset);
-				if (useColor)
+				else
 				{
-					if (simpleColor)
-					{
-						byteData.writeInt(color);
-					}
-					else
-					{
-						byteData.writeFloat(red);
-						byteData.writeFloat(green);
-						byteData.writeFloat(blue);
-						byteData.writeFloat(alpha);
-					}
+					byteData.writeFloat(this._red);
+					byteData.writeFloat(this._green);
+					byteData.writeFloat(this._blue);
+					byteData.writeFloat(this._alpha);
 				}
-				
-				byteData.writeFloat(x + rightOffset);
-				byteData.writeFloat(y - topOffset);
-				if (useColor)
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
 				{
-					if (simpleColor)
-					{
-						byteData.writeInt(color);
-					}
-					else
-					{
-						byteData.writeFloat(red);
-						byteData.writeFloat(green);
-						byteData.writeFloat(blue);
-						byteData.writeFloat(alpha);
-					}
+					byteData.writeInt(this._colorOffset);
 				}
-				
-				byteData.writeFloat(x - leftOffset);
-				byteData.writeFloat(y + bottomOffset);
-				if (useColor)
+				else
 				{
-					if (simpleColor)
-					{
-						byteData.writeInt(color);
-					}
-					else
-					{
-						byteData.writeFloat(red);
-						byteData.writeFloat(green);
-						byteData.writeFloat(blue);
-						byteData.writeFloat(alpha);
-					}
+					byteData.writeFloat(this._redOffset);
+					byteData.writeFloat(this._greenOffset);
+					byteData.writeFloat(this._blueOffset);
+					byteData.writeFloat(this._alphaOffset);
 				}
-				
-				byteData.writeFloat(x + rightOffset);
-				byteData.writeFloat(y + bottomOffset);
-				if (useColor)
+			}
+			
+			// TOP RIGHT
+			byteData.writeFloat(this._x + this._x2);
+			byteData.writeFloat(this._y + this._y2);
+			if (this._useColor)
+			{
+				if (this._simpleColor)
 				{
-					if (simpleColor)
-					{
-						byteData.writeInt(color);
-					}
-					else
-					{
-						byteData.writeFloat(red);
-						byteData.writeFloat(green);
-						byteData.writeFloat(blue);
-						byteData.writeFloat(alpha);
-					}
+					byteData.writeInt(this._color);
+				}
+				else
+				{
+					byteData.writeFloat(this._red);
+					byteData.writeFloat(this._green);
+					byteData.writeFloat(this._blue);
+					byteData.writeFloat(this._alpha);
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					byteData.writeInt(this._colorOffset);
+				}
+				else
+				{
+					byteData.writeFloat(this._redOffset);
+					byteData.writeFloat(this._greenOffset);
+					byteData.writeFloat(this._blueOffset);
+					byteData.writeFloat(this._alphaOffset);
+				}
+			}
+			
+			// BOTTOM LEFT
+			byteData.writeFloat(this._x + this._x3);
+			byteData.writeFloat(this._y + this._y3);
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					byteData.writeInt(this._color);
+				}
+				else
+				{
+					byteData.writeFloat(this._red);
+					byteData.writeFloat(this._green);
+					byteData.writeFloat(this._blue);
+					byteData.writeFloat(this._alpha);
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					byteData.writeInt(this._colorOffset);
+				}
+				else
+				{
+					byteData.writeFloat(this._redOffset);
+					byteData.writeFloat(this._greenOffset);
+					byteData.writeFloat(this._blueOffset);
+					byteData.writeFloat(this._alphaOffset);
+				}
+			}
+			
+			// BOTTOM RIGHT
+			byteData.writeFloat(this._x + this._x4);
+			byteData.writeFloat(this._y + this._y4);
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					byteData.writeInt(this._color);
+				}
+				else
+				{
+					byteData.writeFloat(this._red);
+					byteData.writeFloat(this._green);
+					byteData.writeFloat(this._blue);
+					byteData.writeFloat(this._alpha);
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					byteData.writeInt(this._colorOffset);
+				}
+				else
+				{
+					byteData.writeFloat(this._redOffset);
+					byteData.writeFloat(this._greenOffset);
+					byteData.writeFloat(this._blueOffset);
+					byteData.writeFloat(this._alphaOffset);
 				}
 			}
 		}
 		
-		renderData.numQuads += quadsWritten;
-		renderData.totalQuads += quadsWritten;
+		renderData.numQuads += this._quadsWritten;
+		renderData.totalQuads += this._quadsWritten;
 		
-		if (this.numDatas == totalQuads)
+		if (this.numDatas == this._totalQuads)
 		{
 			renderData.quadOffset = 0;
 			return true;
 		}
 		else
 		{
-			renderData.quadOffset += numQuads;
+			renderData.quadOffset += this._numQuads;
 			return false;
 		}
 	}
@@ -478,305 +612,379 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
+	public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:Vector<Float>):Bool
 	{
 		if (this._datas == null) return true;
 		
-		var position:Int = renderData.position;
-		
-		var quadsWritten:Int = 0;
-		
-		var x:Float, y:Float;
-		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
-		var rotation:Float;
-		
-		var red:Float = 0.0;
-		var green:Float = 0.0;
-		var blue:Float = 0.0;
-		var alpha:Float = 0.0;
-		var color:Int = 0;
-		
-		var cos:Float;
-		var sin:Float;
-		
-		var cosLeft:Float;
-		var cosRight:Float;
-		var cosTop:Float;
-		var cosBottom:Float;
-		var sinLeft:Float;
-		var sinRight:Float;
-		var sinTop:Float;
-		var sinBottom:Float;
+		this._position = renderData.position;
+		this._quadsWritten = 0;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
-		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
-		var totalQuads:Int = renderData.quadOffset + numQuads;
-		var storeBounds:Bool = boundsData != null;
-		var boundsIndex:Int = storeBounds ? boundsData.length - 1 : -1;
+		this._pma = renderData.pma;
+		this._useColor = renderData.useColor;
+		this._useColorOffset = renderData.useColorOffset;
+		this._simpleColor = renderData.useSimpleColor;
+		this._numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		this._totalQuads = renderData.quadOffset + this._numQuads;
+		this._storeBounds = boundsData != null;
+		this._boundsIndex = this._storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
-		var data:T;
-		for (i in renderData.quadOffset...totalQuads)
+		for (i in renderData.quadOffset...this._totalQuads)
 		{
-			data = this._datas[i];
-			if (!data.visible) continue;
+			this._data = this._datas[i];
+			if (!this._data.visible) continue;
 			
-			++quadsWritten;
+			++this._quadsWritten;
 			
-			x = data.x + data.offsetX + renderOffsetX;
-			y = data.y + data.offsetY + renderOffsetY;
-			rotation = data.rotation;
+			this._x = this._data.x + this._data.offsetX + renderOffsetX;
+			this._y = this._data.y + this._data.offsetY + renderOffsetY;
 			
-			if (useColor)
+			if (this._data._transformChanged)
 			{
-				if (pma)
+				this._rotationChanged = this._data._rotationChanged;
+				this._skewXChanged = this._data._skewXChanged;
+				this._skewYChanged = this._data._skewYChanged;
+				
+				if (this._rotationChanged)
 				{
-					if (simpleColor)
+					this._rotation = this._data._rotation;
+					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
+					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
+					this._data._rotationChanged = false;
+				}
+				else
+				{
+					this._cosRotation = this._data._cosRotation;
+					this._sinRotation = this._data._sinRotation;
+				}
+				
+				if (this._skewXChanged)
+				{
+					this._skewX = this._data._skewX;
+					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
+					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
+					this._data._skewXChanged = false;
+				}
+				else
+				{
+					this._cosSkewX = this._data._cosSkewX;
+					this._sinSkewX = this._data._sinSkewX;
+				}
+				
+				if (this._skewYChanged)
+				{
+					this._skewY = this._data._skewY;
+					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
+					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
+					this._data._skewYChanged = false;
+				}
+				else
+				{
+					this._cosSkewY = this._data._cosSkewY;
+					this._sinSkewY = this._data._sinSkewY;
+				}
+				
+				if (this._data._sizeXChanged)
+				{
+					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
+					this._data._sizeXChanged = false;
+				}
+				else
+				{
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset;
+				}
+				
+				if (this._data._sizeYChanged)
+				{
+					this._data._topOffset = this._data.topHeight * this._data._scaleY;
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
+					this._data._sizeYChanged = false;
+				}
+				else
+				{
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset;
+				}
+				
+				this._data._transformChanged = false;
+				
+				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				{
+					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
+					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
+					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
+					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+				}
+				else
+				{
+					this._a = this._data._a;
+					this._b = this._data._b;
+					this._c = this._data._c;
+					this._d = this._data._d;
+				}
+				
+				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
+				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
+				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
+				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
+				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
+				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
+				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
+				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+			}
+			else
+			{
+				this._x1 = this._data._x1;
+				this._y1 = this._data._y1;
+				this._x2 = this._data._x2;
+				this._y2 = this._data._y2;
+				this._x3 = this._data._x3;
+				this._y3 = this._data._y3;
+				this._x4 = this._data._x4;
+				this._y4 = this._data._y4;
+			}
+			
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					this._alpha = this._data.alpha;
+					this._alpha = this._alpha < 0.0 ? 0.0 : this._alpha > 1.0 ? 1.0 : this._alpha;
+					this._red = this._data.red;
+					this._red = this._red < 0.0 ? 0.0 : this._red > 1.0 ? 1.0 : this._red;
+					this._green = this._data.green;
+					this._green = this._green < 0.0 ? 0.0 : this._green > 1.0 ? 1.0 : this._green;
+					this._blue = this._data.blue;
+					this._blue = this._blue < 0.0 ? 0.0 : this._blue > 1.0 ? 1.0 : this._blue;
+					if (this._pma)
 					{
-						alpha = data.alpha;
-						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.red;
-						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.green;
-						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.blue;
-						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
-						color = Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24;
+						this._color = Std.int(this._red * this._alpha * 255) | Std.int(this._green * this._alpha * 255) << 8 | Std.int(this._blue * this._alpha * 255) << 16 | Std.int(this._alpha * 255) << 24;
 					}
 					else
 					{
-						alpha = data.alpha;
-						red = data.red * alpha;
-						green = data.green * alpha;
-						blue = data.blue * alpha;
+						this._color = Std.int(this._red * 255) | Std.int(this._green * 255) << 8 | Std.int(this._blue * 255) << 16 | Std.int(this._alpha * 255) << 24;
 					}
 				}
 				else
 				{
-					if (simpleColor)
+					this._alpha = this._data.alpha;
+					if (this._pma)
 					{
-						alpha = data.alpha;
-						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.red;
-						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.green;
-						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.blue;
-						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
-						color = Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24;
+						this._red = this._data.red * this._alpha;
+						this._green = this._data.green * this._alpha;
+						this._blue = this._data.blue * this._alpha;
 					}
 					else
 					{
-						red = data.red;
-						green = data.green;
-						blue = data.blue;
-						alpha = data.alpha;
+						this._red = this._data.red;
+						this._green = this._data.green;
+						this._blue = this._data.blue;
 					}
 				}
 			}
 			
-			leftOffset = data.leftWidth * data.scaleX;
-			rightOffset = data.rightWidth * data.scaleX;
-			topOffset = data.topHeight * data.scaleY;
-			bottomOffset = data.bottomHeight * data.scaleY;
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					this._alphaOffset = this._data.alphaOffset;
+					this._alphaOffset = this._alphaOffset < 0.0 ? 0.0 : this._alphaOffset > 1.0 ? 1.0 : this._alphaOffset;
+					this._redOffset = this._data.redOffset;
+					this._redOffset = this._redOffset < 0.0 ? 0.0 : this._redOffset > 1.0 ? 1.0 : this._redOffset;
+					this._greenOffset = this._data.greenOffset;
+					this._greenOffset = this._greenOffset < 0.0 ? 0.0 : this._greenOffset > 1.0 ? 1.0 : this._greenOffset;
+					this._blueOffset = this._data.blueOffset;
+					this._blueOffset = this._blueOffset < 0.0 ? 0.0 : this._blueOffset > 1.0 ? 1.0 : this._blueOffset;
+					if (this._useColor || renderData.useDisplayColor)
+					{
+						this._colorOffset = Std.int(this._redOffset * 255) | Std.int(this._greenOffset * 255) << 8 | Std.int(this._blueOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+					}
+					else
+					{
+						this._colorOffset = Std.int(this._redOffset * this._alphaOffset * 255) | Std.int(this._greenOffset * this._alphaOffset * 255) << 8 | Std.int(this._blueOffset * this._alphaOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+					}
+				}
+				else
+				{
+					this._alphaOffset = this._data.alphaOffset;
+					if (this._useColor || renderData.useDisplayColor)
+					{
+						this._redOffset = this._data.redOffset;
+						this._greenOffset = this._data.greenOffset;
+						this._blueOffset = this._data.blueOffset;
+					}
+					else
+					{
+						this._redOffset = this._data.redOffset * this._alphaOffset;
+						this._greenOffset = this._data.greenOffset * this._alphaOffset;
+						this._blueOffset = this._data.blueOffset * this._alphaOffset;
+					}
+				}
+			}
 			
-			if (rotation != 0.0)
+			if (this._storeBounds)
 			{
-				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-				//cos = COS[angle];
-				//sin = SIN[angle];
-				cos = Math.cos(rotation);
-				sin = Math.sin(rotation);
-				
-				cosLeft = cos * leftOffset;
-				cosRight = cos * rightOffset;
-				cosTop = cos * topOffset;
-				cosBottom = cos * bottomOffset;
-				sinLeft = sin * leftOffset;
-				sinRight = sin * rightOffset;
-				sinTop = sin * topOffset;
-				sinBottom = sin * bottomOffset;
-				
-				if (storeBounds)
+				boundsData[++this._boundsIndex] = this._x + this._x1;
+				boundsData[++this._boundsIndex] = this._y + this._y1;
+				boundsData[++this._boundsIndex] = this._x + this._x2;
+				boundsData[++this._boundsIndex] = this._y + this._y2;
+				boundsData[++this._boundsIndex] = this._x + this._x3;
+				boundsData[++this._boundsIndex] = this._y + this._y3;
+				boundsData[++this._boundsIndex] = this._x + this._x4;
+				boundsData[++this._boundsIndex] = this._y + this._y4;
+			}
+			
+			// TOP LEFT
+			Memory.setFloat(this._position, this._x + this._x1);
+			Memory.setFloat(this._position += 4, this._y + this._y1);
+			if (this._useColor)
+			{
+				if (this._simpleColor)
 				{
-					boundsData[++boundsIndex] = x - cosLeft + sinTop;
-					boundsData[++boundsIndex] = y - sinLeft - cosTop;
-					boundsData[++boundsIndex] = x + cosRight + sinTop;
-					boundsData[++boundsIndex] = y + sinRight - cosTop;
-					boundsData[++boundsIndex] = x - cosLeft - sinBottom;
-					boundsData[++boundsIndex] = y - sinLeft + cosBottom;
-					boundsData[++boundsIndex] = x + cosRight - sinBottom;
-					boundsData[++boundsIndex] = y + sinRight + cosBottom;
+					Memory.setI32(this._position += 4, this._color);
 				}
-				
-				Memory.setFloat(position, x - cosLeft + sinTop);
-				Memory.setFloat(position += 4, y - sinLeft - cosTop);
-				if (useColor)
+				else
 				{
-					if (simpleColor)
-					{
-						Memory.setI32(position += 4, color);
-					}
-					else
-					{
-						Memory.setFloat(position += 4, red);
-						Memory.setFloat(position += 4, green);
-						Memory.setFloat(position += 4, blue);
-						Memory.setFloat(position += 4, alpha);
-					}
-				}
-				
-				Memory.setFloat(position += 4, x + cosRight + sinTop);
-				Memory.setFloat(position += 4, y + sinRight - cosTop);
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						Memory.setI32(position += 4, color);
-					}
-					else
-					{
-						Memory.setFloat(position += 4, red);
-						Memory.setFloat(position += 4, green);
-						Memory.setFloat(position += 4, blue);
-						Memory.setFloat(position += 4, alpha);
-					}
-				}
-				
-				Memory.setFloat(position += 4, x - cosLeft - sinBottom);
-				Memory.setFloat(position += 4, y - sinLeft + cosBottom);
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						Memory.setI32(position += 4, color);
-					}
-					else
-					{
-						Memory.setFloat(position += 4, red);
-						Memory.setFloat(position += 4, green);
-						Memory.setFloat(position += 4, blue);
-						Memory.setFloat(position += 4, alpha);
-					}
-				}
-				
-				Memory.setFloat(position += 4, x + cosRight - sinBottom);
-				Memory.setFloat(position += 4, y + sinRight + cosBottom);
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						Memory.setI32(position += 4, color);
-					}
-					else
-					{
-						Memory.setFloat(position += 4, red);
-						Memory.setFloat(position += 4, green);
-						Memory.setFloat(position += 4, blue);
-						Memory.setFloat(position += 4, alpha);
-					}
+					Memory.setFloat(this._position += 4, this._red);
+					Memory.setFloat(this._position += 4, this._green);
+					Memory.setFloat(this._position += 4, this._blue);
+					Memory.setFloat(this._position += 4, this._alpha);
 				}
 			}
-			else
+			if (this._useColorOffset)
 			{
-				if (storeBounds)
+				if (this._simpleColor)
 				{
-					boundsData[++boundsIndex] = x - leftOffset;
-					boundsData[++boundsIndex] = y - topOffset;
-					boundsData[++boundsIndex] = x + rightOffset;
-					boundsData[++boundsIndex] = y - topOffset;
-					boundsData[++boundsIndex] = x - leftOffset;
-					boundsData[++boundsIndex] = y + bottomOffset;
-					boundsData[++boundsIndex] = x + rightOffset;
-					boundsData[++boundsIndex] = y + bottomOffset;
+					Memory.setI32(this._position += 4, this._colorOffset);
 				}
-				
-				Memory.setFloat(position, x - leftOffset);
-				Memory.setFloat(position += 4, y - topOffset);
-				if (useColor)
+				else
 				{
-					if (simpleColor)
-					{
-						Memory.setI32(position += 4, color);
-					}
-					else
-					{
-						Memory.setFloat(position += 4, red);
-						Memory.setFloat(position += 4, green);
-						Memory.setFloat(position += 4, blue);
-						Memory.setFloat(position += 4, alpha);
-					}
-				}
-				
-				Memory.setFloat(position += 4, x + rightOffset);
-				Memory.setFloat(position += 4, y - topOffset);
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						Memory.setI32(position += 4, color);
-					}
-					else
-					{
-						Memory.setFloat(position += 4, red);
-						Memory.setFloat(position += 4, green);
-						Memory.setFloat(position += 4, blue);
-						Memory.setFloat(position += 4, alpha);
-					}
-				}
-				
-				Memory.setFloat(position += 4, x - leftOffset);
-				Memory.setFloat(position += 4, y + bottomOffset);
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						Memory.setI32(position += 4, color);
-					}
-					else
-					{
-						Memory.setFloat(position += 4, red);
-						Memory.setFloat(position += 4, green);
-						Memory.setFloat(position += 4, blue);
-						Memory.setFloat(position += 4, alpha);
-					}
-				}
-				
-				Memory.setFloat(position += 4, x + rightOffset);
-				Memory.setFloat(position += 4, y + bottomOffset);
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						Memory.setI32(position += 4, color);
-					}
-					else
-					{
-						Memory.setFloat(position += 4, red);
-						Memory.setFloat(position += 4, green);
-						Memory.setFloat(position += 4, blue);
-						Memory.setFloat(position += 4, alpha);
-					}
+					Memory.setFloat(this._position += 4, this._redOffset);
+					Memory.setFloat(this._position += 4, this._greenOffset);
+					Memory.setFloat(this._position += 4, this._blueOffset);
+					Memory.setFloat(this._position += 4, this._alphaOffset);
 				}
 			}
-			position += 4;
+			
+			// TOP RIGHT
+			Memory.setFloat(this._position += 4, this._x + this._x2);
+			Memory.setFloat(this._position += 4, this._y + this._y2);
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					Memory.setI32(this._position += 4, this._color);
+				}
+				else
+				{
+					Memory.setFloat(this._position += 4, this._red);
+					Memory.setFloat(this._position += 4, this._green);
+					Memory.setFloat(this._position += 4, this._blue);
+					Memory.setFloat(this._position += 4, this._alpha);
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					Memory.setI32(this._position += 4, this._colorOffset);
+				}
+				else
+				{
+					Memory.setFloat(this._position += 4, this._redOffset);
+					Memory.setFloat(this._position += 4, this._greenOffset);
+					Memory.setFloat(this._position += 4, this._blueOffset);
+					Memory.setFloat(this._position += 4, this._alphaOffset);
+				}
+			}
+			
+			// BOTTOM LEFT
+			Memory.setFloat(this._position += 4, this._x + this._x3);
+			Memory.setFloat(this._position += 4, this._y + this._y3);
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					Memory.setI32(this._position += 4, this._color);
+				}
+				else
+				{
+					Memory.setFloat(this._position += 4, this._red);
+					Memory.setFloat(this._position += 4, this._green);
+					Memory.setFloat(this._position += 4, this._blue);
+					Memory.setFloat(this._position += 4, this._alpha);
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					Memory.setI32(this._position += 4, this._colorOffset);
+				}
+				else
+				{
+					Memory.setFloat(this._position += 4, this._redOffset);
+					Memory.setFloat(this._position += 4, this._greenOffset);
+					Memory.setFloat(this._position += 4, this._blueOffset);
+					Memory.setFloat(this._position += 4, this._alphaOffset);
+				}
+			}
+			
+			// BOTTOM RIGHT
+			Memory.setFloat(this._position += 4, this._x + this._x4);
+			Memory.setFloat(this._position += 4, this._y + this._y4);
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					Memory.setI32(this._position += 4, this._color);
+				}
+				else
+				{
+					Memory.setFloat(this._position += 4, this._red);
+					Memory.setFloat(this._position += 4, this._green);
+					Memory.setFloat(this._position += 4, this._blue);
+					Memory.setFloat(this._position += 4, this._alpha);
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					Memory.setI32(this._position += 4, this._colorOffset);
+				}
+				else
+				{
+					Memory.setFloat(this._position += 4, this._redOffset);
+					Memory.setFloat(this._position += 4, this._greenOffset);
+					Memory.setFloat(this._position += 4, this._blueOffset);
+					Memory.setFloat(this._position += 4, this._alphaOffset);
+				}
+			}
+			
+			this._position += 4;
 		}
 		
-		renderData.numQuads += quadsWritten;
-		renderData.position = position;
-		renderData.totalQuads += quadsWritten;
+		renderData.numQuads += this._quadsWritten;
+		renderData.position = this._position;
+		renderData.totalQuads += this._quadsWritten;
 		
-		if (this.numDatas == totalQuads)
+		if (this.numDatas == this._totalQuads)
 		{
 			renderData.quadOffset = 0;
 			return true;
 		}
 		else
 		{
-			renderData.quadOffset += numQuads;
+			renderData.quadOffset += this._numQuads;
 			return false;
 		}
 	}
@@ -786,305 +994,378 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
+	public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool
 	{
 		if (this._datas == null) return true;
 		
-		var position:Int = renderData.position;
-		
-		var quadsWritten:Int = 0;
-		
-		var x:Float, y:Float;
-		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
-		var rotation:Float;
-		
-		var red:Float = 0;
-		var green:Float = 0;
-		var blue:Float = 0;
-		var alpha:Float = 0;
-		var color:Float = 0;
-		
-		var cos:Float;
-		var sin:Float;
-		
-		var cosLeft:Float;
-		var cosRight:Float;
-		var cosTop:Float;
-		var cosBottom:Float;
-		var sinLeft:Float;
-		var sinRight:Float;
-		var sinTop:Float;
-		var sinBottom:Float;
+		this._position = renderData.position;
+		this._quadsWritten = 0;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
-		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
-		var totalQuads:Int = renderData.quadOffset + numQuads;
-		var storeBounds:Bool = boundsData != null;
-		var boundsIndex:Int = storeBounds ? boundsData.length - 1 : -1;
+		this._pma = renderData.pma;
+		this._useColor = renderData.useColor;
+		this._useColorOffset = renderData.useColorOffset;
+		this._simpleColor = renderData.useSimpleColor;
+		this._numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		this._totalQuads = renderData.quadOffset + this._numQuads;
+		this._storeBounds = boundsData != null;
+		this._boundsIndex = this._storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
-		
-		var data:T;
-		for (i in renderData.quadOffset...totalQuads)
+		for (i in renderData.quadOffset...this._totalQuads)
 		{
-			data = this._datas[i];
-			if (!data.visible) continue;
+			this._data = this._datas[i];
+			if (!this._data.visible) continue;
 			
-			++quadsWritten;
+			++this._quadsWritten;
 			
-			x = data.x + data.offsetX + renderOffsetX;
-			y = data.y + data.offsetY + renderOffsetY;
-			rotation = data.rotation;
+			this._x = this._data.x + this._data.offsetX + renderOffsetX;
+			this._y = this._data.y + this._data.offsetY + renderOffsetY;
 			
-			if (useColor)
+			if (this._data._transformChanged)
 			{
-				if (pma)
+				this._rotationChanged = this._data._rotationChanged;
+				this._skewXChanged = this._data._skewXChanged;
+				this._skewYChanged = this._data._skewYChanged;
+				
+				if (this._rotationChanged)
 				{
-					if (simpleColor)
+					this._rotation = this._data._rotation;
+					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
+					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
+					this._data._rotationChanged = false;
+				}
+				else
+				{
+					this._cosRotation = this._data._cosRotation;
+					this._sinRotation = this._data._sinRotation;
+				}
+				
+				if (this._skewXChanged)
+				{
+					this._skewX = this._data._skewX;
+					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
+					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
+					this._data._skewXChanged = false;
+				}
+				else
+				{
+					this._cosSkewX = this._data._cosSkewX;
+					this._sinSkewX = this._data._sinSkewX;
+				}
+				
+				if (this._skewYChanged)
+				{
+					this._skewY = this._data._skewY;
+					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
+					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
+					this._data._skewYChanged = false;
+				}
+				else
+				{
+					this._cosSkewY = this._data._cosSkewY;
+					this._sinSkewY = this._data._sinSkewY;
+				}
+				
+				if (this._data._sizeXChanged)
+				{
+					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
+					this._data._sizeXChanged = false;
+				}
+				else
+				{
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset;
+				}
+				
+				if (this._data._sizeYChanged)
+				{
+					this._data._topOffset = this._data.topHeight * this._data._scaleY;
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
+					this._data._sizeYChanged = false;
+				}
+				else
+				{
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset;
+				}
+				
+				this._data._transformChanged = false;
+				
+				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				{
+					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
+					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
+					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
+					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+				}
+				else
+				{
+					this._a = this._data._a;
+					this._b = this._data._b;
+					this._c = this._data._c;
+					this._d = this._data._d;
+				}
+				
+				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
+				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
+				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
+				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
+				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
+				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
+				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
+				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+			}
+			else
+			{
+				this._x1 = this._data._x1;
+				this._y1 = this._data._y1;
+				this._x2 = this._data._x2;
+				this._y2 = this._data._y2;
+				this._x3 = this._data._x3;
+				this._y3 = this._data._y3;
+				this._x4 = this._data._x4;
+				this._y4 = this._data._y4;
+			}
+			
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					this._alpha = this._data.alpha;
+					this._alpha = this._alpha < 0.0 ? 0.0 : this._alpha > 1.0 ? 1.0 : this._alpha;
+					this._red = this._data.red;
+					this._red = this._red < 0.0 ? 0.0 : this._red > 1.0 ? 1.0 : this._red;
+					this._green = this._data.green;
+					this._green = this._green < 0.0 ? 0.0 : this._green > 1.0 ? 1.0 : this._green;
+					this._blue = this._data.blue;
+					this._blue = this._blue < 0.0 ? 0.0 : this._blue > 1.0 ? 1.0 : this._blue;
+					if (this._pma)
 					{
-						alpha = data.alpha;
-						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.red;
-						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.green;
-						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.blue;
-						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
-						color = FPHelper.i32ToFloat(Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24);
+						this._color = Std.int(this._red * this._alpha * 255) | Std.int(this._green * this._alpha * 255) << 8 | Std.int(this._blue * this._alpha * 255) << 16 | Std.int(this._alpha * 255) << 24;
 					}
 					else
 					{
-						alpha = data.alpha;
-						red = data.red * alpha;
-						green = data.green * alpha;
-						blue = data.blue * alpha;
+						this._color = Std.int(this._red * 255) | Std.int(this._green * 255) << 8 | Std.int(this._blue * 255) << 16 | Std.int(this._alpha * 255) << 24;
 					}
 				}
 				else
 				{
-					if (simpleColor)
+					this._alpha = this._data.alpha;
+					if (this._pma)
 					{
-						alpha = data.alpha;
-						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.red;
-						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.green;
-						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.blue;
-						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
-						color = FPHelper.i32ToFloat(Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24);
+						this._red = this._data.red * this._alpha;
+						this._green = this._data.green * this._alpha;
+						this._blue = this._data.blue * this._alpha;
 					}
 					else
 					{
-						red = data.red;
-						green = data.green;
-						blue = data.blue;
-						alpha = data.alpha;
+						this._red = this._data.red;
+						this._green = this._data.green;
+						this._blue = this._data.blue;
 					}
 				}
 			}
 			
-			leftOffset = data.leftWidth * data.scaleX;
-			rightOffset = data.rightWidth * data.scaleX;
-			topOffset = data.topHeight * data.scaleY;
-			bottomOffset = data.bottomHeight * data.scaleY;
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					this._alphaOffset = this._data.alphaOffset;
+					this._alphaOffset = this._alphaOffset < 0.0 ? 0.0 : this._alphaOffset > 1.0 ? 1.0 : this._alphaOffset;
+					this._redOffset = this._data.redOffset;
+					this._redOffset = this._redOffset < 0.0 ? 0.0 : this._redOffset > 1.0 ? 1.0 : this._redOffset;
+					this._greenOffset = this._data.greenOffset;
+					this._greenOffset = this._greenOffset < 0.0 ? 0.0 : this._greenOffset > 1.0 ? 1.0 : this._greenOffset;
+					this._blueOffset = this._data.blueOffset;
+					this._blueOffset = this._blueOffset < 0.0 ? 0.0 : this._blueOffset > 1.0 ? 1.0 : this._blueOffset;
+					if (this._useColor || renderData.useDisplayColor)
+					{
+						this._colorOffset = Std.int(this._redOffset * 255) | Std.int(this._greenOffset * 255) << 8 | Std.int(this._blueOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+					}
+					else
+					{
+						this._colorOffset = Std.int(this._redOffset * this._alphaOffset * 255) | Std.int(this._greenOffset * this._alphaOffset * 255) << 8 | Std.int(this._blueOffset * this._alphaOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+					}
+				}
+				else
+				{
+					this._alphaOffset = this._data.alphaOffset;
+					if (this._useColor || renderData.useDisplayColor)
+					{
+						this._redOffset = this._data.redOffset;
+						this._greenOffset = this._data.greenOffset;
+						this._blueOffset = this._data.blueOffset;
+					}
+					else
+					{
+						this._redOffset = this._data.redOffset * this._alphaOffset;
+						this._greenOffset = this._data.greenOffset * this._alphaOffset;
+						this._blueOffset = this._data.blueOffset * this._alphaOffset;
+					}
+				}
+			}
 			
-			if (rotation != 0.0)
+			if (this._storeBounds)
 			{
-				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-				//cos = COS[angle];
-				//sin = SIN[angle];
-				cos = Math.cos(rotation);
-				sin = Math.sin(rotation);
-				
-				cosLeft = cos * leftOffset;
-				cosRight = cos * rightOffset;
-				cosTop = cos * topOffset;
-				cosBottom = cos * bottomOffset;
-				sinLeft = sin * leftOffset;
-				sinRight = sin * rightOffset;
-				sinTop = sin * topOffset;
-				sinBottom = sin * bottomOffset;
-				
-				if (storeBounds)
+				boundsData[++this._boundsIndex] = this._x + this._x1;
+				boundsData[++this._boundsIndex] = this._y + this._y1;
+				boundsData[++this._boundsIndex] = this._x + this._x2;
+				boundsData[++this._boundsIndex] = this._y + this._y2;
+				boundsData[++this._boundsIndex] = this._x + this._x3;
+				boundsData[++this._boundsIndex] = this._y + this._y3;
+				boundsData[++this._boundsIndex] = this._x + this._x4;
+				boundsData[++this._boundsIndex] = this._y + this._y4;
+			}
+			
+			// TOP LEFT
+			floatData[this._position]   = this._x + this._x1;
+			floatData[++this._position] = this._y + this._y1;
+			if (this._useColor)
+			{
+				if (this._simpleColor)
 				{
-					boundsData[++boundsIndex] = x - cosLeft + sinTop;
-					boundsData[++boundsIndex] = y - sinLeft - cosTop;
-					boundsData[++boundsIndex] = x + cosRight + sinTop;
-					boundsData[++boundsIndex] = y + sinRight - cosTop;
-					boundsData[++boundsIndex] = x - cosLeft - sinBottom;
-					boundsData[++boundsIndex] = y - sinLeft + cosBottom;
-					boundsData[++boundsIndex] = x + cosRight - sinBottom;
-					boundsData[++boundsIndex] = y + sinRight + cosBottom;
+					floatData[++this._position] = this._color;
 				}
-				
-				floatData[position]   = x - cosLeft + sinTop;
-				floatData[++position] = y - sinLeft - cosTop;
-				if (useColor)
+				else
 				{
-					if (simpleColor)
-					{
-						floatData[++position] = color;
-					}
-					else
-					{
-						floatData[++position] = red;
-						floatData[++position] = green;
-						floatData[++position] = blue;
-						floatData[++position] = alpha;
-					}
-				}
-				
-				floatData[++position] = x + cosRight + sinTop;
-				floatData[++position] = y + sinRight - cosTop;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						floatData[++position] = color;
-					}
-					else
-					{
-						floatData[++position] = red;
-						floatData[++position] = green;
-						floatData[++position] = blue;
-						floatData[++position] = alpha;
-					}
-				}
-				
-				floatData[++position] = x - cosLeft - sinBottom;
-				floatData[++position] = y - sinLeft + cosBottom;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						floatData[++position] = color;
-					}
-					else
-					{
-						floatData[++position] = red;
-						floatData[++position] = green;
-						floatData[++position] = blue;
-						floatData[++position] = alpha;
-					}
-				}
-				
-				floatData[++position] = x + cosRight - sinBottom;
-				floatData[++position] = y + sinRight + cosBottom;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						floatData[++position] = color;
-					}
-					else
-					{
-						floatData[++position] = red;
-						floatData[++position] = green;
-						floatData[++position] = blue;
-						floatData[++position] = alpha;
-					}
+					floatData[++this._position] = this._red;
+					floatData[++this._position] = this._green;
+					floatData[++this._position] = this._blue;
+					floatData[++this._position] = this._alpha;
 				}
 			}
-			else
+			if (this._useColorOffset)
 			{
-				if (storeBounds)
+				if (this._simpleColor)
 				{
-					boundsData[++boundsIndex] = x - leftOffset;
-					boundsData[++boundsIndex] = y - topOffset;
-					boundsData[++boundsIndex] = x + rightOffset;
-					boundsData[++boundsIndex] = y - topOffset;
-					boundsData[++boundsIndex] = x - leftOffset;
-					boundsData[++boundsIndex] = y + bottomOffset;
-					boundsData[++boundsIndex] = x + rightOffset;
-					boundsData[++boundsIndex] = y + bottomOffset;
+					floatData[++this._position] = this._colorOffset;
 				}
-				
-				floatData[position]   = x - leftOffset;
-				floatData[++position] = y - topOffset;
-				if (useColor)
+				else
 				{
-					if (simpleColor)
-					{
-						floatData[++position] = color;
-					}
-					else
-					{
-						floatData[++position] = red;
-						floatData[++position] = green;
-						floatData[++position] = blue;
-						floatData[++position] = alpha;
-					}
-				}
-				
-				floatData[++position] = x + rightOffset;
-				floatData[++position] = y - topOffset;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						floatData[++position] = color;
-					}
-					else
-					{
-						floatData[++position] = red;
-						floatData[++position] = green;
-						floatData[++position] = blue;
-						floatData[++position] = alpha;
-					}
-				}
-				
-				floatData[++position] = x - leftOffset;
-				floatData[++position] = y + bottomOffset;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						floatData[++position] = color;
-					}
-					else
-					{
-						floatData[++position] = red;
-						floatData[++position] = green;
-						floatData[++position] = blue;
-						floatData[++position] = alpha;
-					}
-				}
-				
-				floatData[++position] = x + rightOffset;
-				floatData[++position] = y + bottomOffset;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						floatData[++position] = color;
-					}
-					else
-					{
-						floatData[++position] = red;
-						floatData[++position] = green;
-						floatData[++position] = blue;
-						floatData[++position] = alpha;
-					}
+					floatData[++this._position] = this._redOffset;
+					floatData[++this._position] = this._greenOffset;
+					floatData[++this._position] = this._blueOffset;
+					floatData[++this._position] = this._alphaOffset;
 				}
 			}
-			++position;
+			
+			// TOP RIGHT
+			floatData[++this._position] = this._x + this._x2;
+			floatData[++this._position] = this._y + this._y2;
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					floatData[++this._position] = this._color;
+				}
+				else
+				{
+					floatData[++this._position] = this._red;
+					floatData[++this._position] = this._green;
+					floatData[++this._position] = this._blue;
+					floatData[++this._position] = this._alpha;
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					floatData[++this._position] = this._colorOffset;
+				}
+				else
+				{
+					floatData[++this._position] = this._redOffset;
+					floatData[++this._position] = this._greenOffset;
+					floatData[++this._position] = this._blueOffset;
+					floatData[++this._position] = this._alphaOffset;
+				}
+			}
+			
+			// BOTTOM LEFT
+			floatData[++this._position] = this._x + this._x3;
+			floatData[++this._position] = this._y + this._y3;
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					floatData[++this._position] = this._color;
+				}
+				else
+				{
+					floatData[++this._position] = this._red;
+					floatData[++this._position] = this._green;
+					floatData[++this._position] = this._blue;
+					floatData[++this._position] = this._alpha;
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					floatData[++this._position] = this._colorOffset;
+				}
+				else
+				{
+					floatData[++this._position] = this._redOffset;
+					floatData[++this._position] = this._greenOffset;
+					floatData[++this._position] = this._blueOffset;
+					floatData[++this._position] = this._alphaOffset;
+				}
+			}
+			
+			// BOTTOM RIGHT
+			floatData[++this._position] = this._x + this._x4;
+			floatData[++this._position] = this._y + this._y4;
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					floatData[++this._position] = this._color;
+				}
+				else
+				{
+					floatData[++this._position] = this._red;
+					floatData[++this._position] = this._green;
+					floatData[++this._position] = this._blue;
+					floatData[++this._position] = this._alpha;
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					floatData[++this._position] = this._colorOffset;
+				}
+				else
+				{
+					floatData[++this._position] = this._redOffset;
+					floatData[++this._position] = this._greenOffset;
+					floatData[++this._position] = this._blueOffset;
+					floatData[++this._position] = this._alphaOffset;
+				}
+			}
+			
+			++this._position;
 		}
 		
-		renderData.numQuads += quadsWritten;
-		renderData.position = position;
-		renderData.totalQuads += quadsWritten;
+		renderData.numQuads += this._quadsWritten;
+		renderData.position = this._position;
+		renderData.totalQuads += this._quadsWritten;
 		
-		if (this.numDatas == totalQuads)
+		if (this.numDatas == this._totalQuads)
 		{
 			renderData.quadOffset = 0;
 			return true;
 		}
 		else
 		{
-			renderData.quadOffset += numQuads;
+			renderData.quadOffset += this._numQuads;
 			return false;
 		}
 	}
@@ -1093,305 +1374,378 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, pma:Bool, useColor:Bool, simpleColor:Bool, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool 
+	public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Bool 
 	{
 		if (this._datas == null) return true;
 		
-		var position:Int = renderData.position;
-		
-		var quadsWritten:Int = 0;
-		
-		var x:Float, y:Float;
-		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
-		var rotation:Float;
-		
-		var red:Float = 0.0;
-		var green:Float = 0.0;
-		var blue:Float = 0.0;
-		var alpha:Float = 0.0;
-		var color:Float = 0.0;
-		
-		var cos:Float;
-		var sin:Float;
-		
-		var cosLeft:Float;
-		var cosRight:Float;
-		var cosTop:Float;
-		var cosBottom:Float;
-		var sinLeft:Float;
-		var sinRight:Float;
-		var sinTop:Float;
-		var sinBottom:Float;
+		this._position = renderData.position;
+		this._quadsWritten = 0;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
-		var numQuads:Int = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
-		var totalQuads:Int = renderData.quadOffset + numQuads;
-		var storeBounds:Bool = boundsData != null;
-		var boundsIndex:Int = storeBounds ? boundsData.length - 1 : -1;
+		this._pma = renderData.pma;
+		this._useColor = renderData.useColor;
+		this._useColorOffset = renderData.useColorOffset;
+		this._simpleColor = renderData.useSimpleColor;
+		this._numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		this._totalQuads = renderData.quadOffset + this._numQuads;
+		this._storeBounds = boundsData != null;
+		this._boundsIndex = this._storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
-		
-		var data:T;
-		for (i in renderData.quadOffset...totalQuads)
+		for (i in renderData.quadOffset...this._totalQuads)
 		{
-			data = this._datas[i];
-			if (!data.visible) continue;
+			this._data = this._datas[i];
+			if (!this._data.visible) continue;
 			
-			++quadsWritten;
+			++this._quadsWritten;
 			
-			x = data.x + data.offsetX + renderOffsetX;
-			y = data.y + data.offsetY + renderOffsetY;
-			rotation = data.rotation;
+			this._x = this._data.x + this._data.offsetX + renderOffsetX;
+			this._y = this._data.y + this._data.offsetY + renderOffsetY;
 			
-			if (useColor)
+			if (this._data._transformChanged)
 			{
-				if (pma)
+				this._rotationChanged = this._data._rotationChanged;
+				this._skewXChanged = this._data._skewXChanged;
+				this._skewYChanged = this._data._skewYChanged;
+				
+				if (this._rotationChanged)
 				{
-					if (simpleColor)
+					this._rotation = this._data._rotation;
+					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
+					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
+					this._data._rotationChanged = false;
+				}
+				else
+				{
+					this._cosRotation = this._data._cosRotation;
+					this._sinRotation = this._data._sinRotation;
+				}
+				
+				if (this._skewXChanged)
+				{
+					this._skewX = this._data._skewX;
+					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
+					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
+					this._data._skewXChanged = false;
+				}
+				else
+				{
+					this._cosSkewX = this._data._cosSkewX;
+					this._sinSkewX = this._data._sinSkewX;
+				}
+				
+				if (this._skewYChanged)
+				{
+					this._skewY = this._data._skewY;
+					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
+					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
+					this._data._skewYChanged = false;
+				}
+				else
+				{
+					this._cosSkewY = this._data._cosSkewY;
+					this._sinSkewY = this._data._sinSkewY;
+				}
+				
+				if (this._data._sizeXChanged)
+				{
+					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
+					this._data._sizeXChanged = false;
+				}
+				else
+				{
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset;
+				}
+				
+				if (this._data._sizeYChanged)
+				{
+					this._data._topOffset = this._data.topHeight * this._data._scaleY;
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
+					this._data._sizeYChanged = false;
+				}
+				else
+				{
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset;
+				}
+				
+				this._data._transformChanged = false;
+				
+				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				{
+					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
+					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
+					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
+					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+				}
+				else
+				{
+					this._a = this._data._a;
+					this._b = this._data._b;
+					this._c = this._data._c;
+					this._d = this._data._d;
+				}
+				
+				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
+				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
+				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
+				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
+				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
+				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
+				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
+				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+			}
+			else
+			{
+				this._x1 = this._data._x1;
+				this._y1 = this._data._y1;
+				this._x2 = this._data._x2;
+				this._y2 = this._data._y2;
+				this._x3 = this._data._x3;
+				this._y3 = this._data._y3;
+				this._x4 = this._data._x4;
+				this._y4 = this._data._y4;
+			}
+			
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					this._alpha = this._data.alpha;
+					this._alpha = this._alpha < 0.0 ? 0.0 : this._alpha > 1.0 ? 1.0 : this._alpha;
+					this._red = this._data.red;
+					this._red = this._red < 0.0 ? 0.0 : this._red > 1.0 ? 1.0 : this._red;
+					this._green = this._data.green;
+					this._green = this._green < 0.0 ? 0.0 : this._green > 1.0 ? 1.0 : this._green;
+					this._blue = this._data.blue;
+					this._blue = this._blue < 0.0 ? 0.0 : this._blue > 1.0 ? 1.0 : this._blue;
+					if (this._pma)
 					{
-						alpha = data.alpha;
-						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.red;
-						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.green;
-						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.blue;
-						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
-						color = FPHelper.i32ToFloat(Std.int(red * alpha * 255) | Std.int(green * alpha * 255) << 8 | Std.int(blue * alpha * 255) << 16 | Std.int(alpha * 255) << 24);
+						this._color = Std.int(this._red * this._alpha * 255) | Std.int(this._green * this._alpha * 255) << 8 | Std.int(this._blue * this._alpha * 255) << 16 | Std.int(this._alpha * 255) << 24;
 					}
 					else
 					{
-						alpha = data.alpha;
-						red = data.red * alpha;
-						green = data.green * alpha;
-						blue = data.blue * alpha;
+						this._color = Std.int(this._red * 255) | Std.int(this._green * 255) << 8 | Std.int(this._blue * 255) << 16 | Std.int(this._alpha * 255) << 24;
 					}
 				}
 				else
 				{
-					if (simpleColor)
+					this._alpha = this._data.alpha;
+					if (this._pma)
 					{
-						alpha = data.alpha;
-						alpha = alpha < 0.0 ? 0.0 : alpha > 1.0 ? 1.0 : alpha;
-						red = data.red;
-						red = red < 0.0 ? 0.0 : red > 1.0 ? 1.0 : red;
-						green = data.green;
-						green = green < 0.0 ? 0.0 : green > 1.0 ? 1.0 : green;
-						blue = data.blue;
-						blue = blue < 0.0 ? 0.0 : blue > 1.0 ? 1.0 : blue;
-						color = FPHelper.i32ToFloat(Std.int(red * 255) | Std.int(green * 255) << 8 | Std.int(blue * 255) << 16 | Std.int(alpha * 255) << 24);
+						this._red = this._data.red * this._alpha;
+						this._green = this._data.green * this._alpha;
+						this._blue = this._data.blue * this._alpha;
 					}
 					else
 					{
-						red = data.red;
-						green = data.green;
-						blue = data.blue;
-						alpha = data.alpha;
+						this._red = this._data.red;
+						this._green = this._data.green;
+						this._blue = this._data.blue;
 					}
 				}
 			}
 			
-			leftOffset = data.leftWidth * data.scaleX;
-			rightOffset = data.rightWidth * data.scaleX;
-			topOffset = data.topHeight * data.scaleY;
-			bottomOffset = data.bottomHeight * data.scaleY;
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					this._alphaOffset = this._data.alphaOffset;
+					this._alphaOffset = this._alphaOffset < 0.0 ? 0.0 : this._alphaOffset > 1.0 ? 1.0 : this._alphaOffset;
+					this._redOffset = this._data.redOffset;
+					this._redOffset = this._redOffset < 0.0 ? 0.0 : this._redOffset > 1.0 ? 1.0 : this._redOffset;
+					this._greenOffset = this._data.greenOffset;
+					this._greenOffset = this._greenOffset < 0.0 ? 0.0 : this._greenOffset > 1.0 ? 1.0 : this._greenOffset;
+					this._blueOffset = this._data.blueOffset;
+					this._blueOffset = this._blueOffset < 0.0 ? 0.0 : this._blueOffset > 1.0 ? 1.0 : this._blueOffset;
+					if (this._useColor || renderData.useDisplayColor)
+					{
+						this._colorOffset = Std.int(this._redOffset * 255) | Std.int(this._greenOffset * 255) << 8 | Std.int(this._blueOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+					}
+					else
+					{
+						this._colorOffset = Std.int(this._redOffset * this._alphaOffset * 255) | Std.int(this._greenOffset * this._alphaOffset * 255) << 8 | Std.int(this._blueOffset * this._alphaOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+					}
+				}
+				else
+				{
+					this._alphaOffset = this._data.alphaOffset;
+					if (this._useColor || renderData.useDisplayColor)
+					{
+						this._redOffset = this._data.redOffset;
+						this._greenOffset = this._data.greenOffset;
+						this._blueOffset = this._data.blueOffset;
+					}
+					else
+					{
+						this._redOffset = this._data.redOffset * this._alphaOffset;
+						this._greenOffset = this._data.greenOffset * this._alphaOffset;
+						this._blueOffset = this._data.blueOffset * this._alphaOffset;
+					}
+				}
+			}
 			
-			if (rotation != 0.0)
+			if (this._storeBounds)
 			{
-				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-				//cos = COS[angle];
-				//sin = SIN[angle];
-				cos = Math.cos(rotation);
-				sin = Math.sin(rotation);
-				
-				cosLeft = cos * leftOffset;
-				cosRight = cos * rightOffset;
-				cosTop = cos * topOffset;
-				cosBottom = cos * bottomOffset;
-				sinLeft = sin * leftOffset;
-				sinRight = sin * rightOffset;
-				sinTop = sin * topOffset;
-				sinBottom = sin * bottomOffset;
-				
-				if (storeBounds)
+				boundsData[++this._boundsIndex] = this._x + this._x1;
+				boundsData[++this._boundsIndex] = this._y + this._y1;
+				boundsData[++this._boundsIndex] = this._x + this._x2;
+				boundsData[++this._boundsIndex] = this._y + this._y2;
+				boundsData[++this._boundsIndex] = this._x + this._x3;
+				boundsData[++this._boundsIndex] = this._y + this._y3;
+				boundsData[++this._boundsIndex] = this._x + this._x4;
+				boundsData[++this._boundsIndex] = this._y + this._y4;
+			}
+			
+			// TOP LEFT
+			vectorData[this._position]   = this._x + this._x1;
+			vectorData[++this._position] = this._y + this._y1;
+			if (this._useColor)
+			{
+				if (this._simpleColor)
 				{
-					boundsData[++boundsIndex] = x - cosLeft + sinTop;
-					boundsData[++boundsIndex] = y - sinLeft - cosTop;
-					boundsData[++boundsIndex] = x + cosRight + sinTop;
-					boundsData[++boundsIndex] = y + sinRight - cosTop;
-					boundsData[++boundsIndex] = x - cosLeft - sinBottom;
-					boundsData[++boundsIndex] = y - sinLeft + cosBottom;
-					boundsData[++boundsIndex] = x + cosRight - sinBottom;
-					boundsData[++boundsIndex] = y + sinRight + cosBottom;
+					vectorData[++this._position] = this._color;
 				}
-				
-				vectorData[position]   = x - cosLeft + sinTop;
-				vectorData[++position] = y - sinLeft - cosTop;
-				if (useColor)
+				else
 				{
-					if (simpleColor)
-					{
-						vectorData[++position] = color;
-					}
-					else
-					{
-						vectorData[++position] = red;
-						vectorData[++position] = green;
-						vectorData[++position] = blue;
-						vectorData[++position] = alpha;
-					}
-				}
-				
-				vectorData[++position] = x + cosRight + sinTop;
-				vectorData[++position] = y + sinRight - cosTop;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						vectorData[++position] = color;
-					}
-					else
-					{
-						vectorData[++position] = red;
-						vectorData[++position] = green;
-						vectorData[++position] = blue;
-						vectorData[++position] = alpha;
-					}
-				}
-				
-				vectorData[++position] = x - cosLeft - sinBottom;
-				vectorData[++position] = y - sinLeft + cosBottom;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						vectorData[++position] = color;
-					}
-					else
-					{
-						vectorData[++position] = red;
-						vectorData[++position] = green;
-						vectorData[++position] = blue;
-						vectorData[++position] = alpha;
-					}
-				}
-				
-				vectorData[++position] = x + cosRight - sinBottom;
-				vectorData[++position] = y + sinRight + cosBottom;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						vectorData[++position] = color;
-					}
-					else
-					{
-						vectorData[++position] = red;
-						vectorData[++position] = green;
-						vectorData[++position] = blue;
-						vectorData[++position] = alpha;
-					}
+					vectorData[++this._position] = this._red;
+					vectorData[++this._position] = this._green;
+					vectorData[++this._position] = this._blue;
+					vectorData[++this._position] = this._alpha;
 				}
 			}
-			else
+			if (this._useColorOffset)
 			{
-				if (storeBounds)
+				if (this._simpleColor)
 				{
-					boundsData[++boundsIndex] = x - leftOffset;
-					boundsData[++boundsIndex] = y - topOffset;
-					boundsData[++boundsIndex] = x + rightOffset;
-					boundsData[++boundsIndex] = y - topOffset;
-					boundsData[++boundsIndex] = x - leftOffset;
-					boundsData[++boundsIndex] = y + bottomOffset;
-					boundsData[++boundsIndex] = x + rightOffset;
-					boundsData[++boundsIndex] = y + bottomOffset;
+					vectorData[++this._position] = this._colorOffset;
 				}
-				
-				vectorData[position]   = x - leftOffset;
-				vectorData[++position] = y - topOffset;
-				if (useColor)
+				else
 				{
-					if (simpleColor)
-					{
-						vectorData[++position] = color;
-					}
-					else
-					{
-						vectorData[++position] = red;
-						vectorData[++position] = green;
-						vectorData[++position] = blue;
-						vectorData[++position] = alpha;
-					}
-				}
-				
-				vectorData[++position] = x + rightOffset;
-				vectorData[++position] = y - topOffset;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						vectorData[++position] = color;
-					}
-					else
-					{
-						vectorData[++position] = red;
-						vectorData[++position] = green;
-						vectorData[++position] = blue;
-						vectorData[++position] = alpha;
-					}
-				}
-				
-				vectorData[++position] = x - leftOffset;
-				vectorData[++position] = y + bottomOffset;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						vectorData[++position] = color;
-					}
-					else
-					{
-						vectorData[++position] = red;
-						vectorData[++position] = green;
-						vectorData[++position] = blue;
-						vectorData[++position] = alpha;
-					}
-				}
-				
-				vectorData[++position] = x + rightOffset;
-				vectorData[++position] = y + bottomOffset;
-				if (useColor)
-				{
-					if (simpleColor)
-					{
-						vectorData[++position] = color;
-					}
-					else
-					{
-						vectorData[++position] = red;
-						vectorData[++position] = green;
-						vectorData[++position] = blue;
-						vectorData[++position] = alpha;
-					}
+					vectorData[++this._position] = this._redOffset;
+					vectorData[++this._position] = this._greenOffset;
+					vectorData[++this._position] = this._blueOffset;
+					vectorData[++this._position] = this._alphaOffset;
 				}
 			}
-			++position;
+			
+			// TOP RIGHT
+			vectorData[++this._position] = this._x + this._x2;
+			vectorData[++this._position] = this._y + this._y2;
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					vectorData[++this._position] = this._color;
+				}
+				else
+				{
+					vectorData[++this._position] = this._red;
+					vectorData[++this._position] = this._green;
+					vectorData[++this._position] = this._blue;
+					vectorData[++this._position] = this._alpha;
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					vectorData[++this._position] = this._colorOffset;
+				}
+				else
+				{
+					vectorData[++this._position] = this._redOffset;
+					vectorData[++this._position] = this._greenOffset;
+					vectorData[++this._position] = this._blueOffset;
+					vectorData[++this._position] = this._alphaOffset;
+				}
+			}
+			
+			// BOTTOM LEFT
+			vectorData[++this._position] = this._x + this._x3;
+			vectorData[++this._position] = this._y + this._y3;
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					vectorData[++this._position] = this._color;
+				}
+				else
+				{
+					vectorData[++this._position] = this._red;
+					vectorData[++this._position] = this._green;
+					vectorData[++this._position] = this._blue;
+					vectorData[++this._position] = this._alpha;
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					vectorData[++this._position] = this._colorOffset;
+				}
+				else
+				{
+					vectorData[++this._position] = this._redOffset;
+					vectorData[++this._position] = this._greenOffset;
+					vectorData[++this._position] = this._blueOffset;
+					vectorData[++this._position] = this._alphaOffset;
+				}
+			}
+			
+			// BOTTOM RIGHT
+			vectorData[++this._position] = this._x + this._x4;
+			vectorData[++this._position] = this._y + this._y4;
+			if (this._useColor)
+			{
+				if (this._simpleColor)
+				{
+					vectorData[++this._position] = this._color;
+				}
+				else
+				{
+					vectorData[++this._position] = this._red;
+					vectorData[++this._position] = this._green;
+					vectorData[++this._position] = this._blue;
+					vectorData[++this._position] = this._alpha;
+				}
+			}
+			if (this._useColorOffset)
+			{
+				if (this._simpleColor)
+				{
+					vectorData[++this._position] = this._colorOffset;
+				}
+				else
+				{
+					vectorData[++this._position] = this._redOffset;
+					vectorData[++this._position] = this._greenOffset;
+					vectorData[++this._position] = this._blueOffset;
+					vectorData[++this._position] = this._alphaOffset;
+				}
+			}
+			
+			++this._position;
 		}
 		
-		renderData.numQuads += quadsWritten;
-		renderData.position = position;
-		renderData.totalQuads += quadsWritten;
+		renderData.numQuads += this._quadsWritten;
+		renderData.position = this._position;
+		renderData.totalQuads += this._quadsWritten;
 		
-		if (this.numDatas == totalQuads)
+		if (this.numDatas == this._totalQuads)
 		{
 			renderData.quadOffset = 0;
 			return true;
 		}
 		else
 		{
-			renderData.quadOffset += numQuads;
+			renderData.quadOffset += this._numQuads;
 			return false;
 		}
 	}
@@ -1399,98 +1753,144 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderData:RenderData, renderOffsetX:Float, renderOffsetY:Float):Void
+	//public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderData:RenderData, renderOffsetX:Float, renderOffsetY:Float):Void
+	public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderOffsetX:Float, renderOffsetY:Float):Void
 	{
-		var x:Float, y:Float;
-		var leftOffset:Float, rightOffset:Float, topOffset:Float, bottomOffset:Float;
-		var rotation:Float;
-		
-		var cos:Float;
-		var sin:Float;
-		
-		var cosLeft:Float;
-		var cosRight:Float;
-		var cosTop:Float;
-		var cosBottom:Float;
-		var sinLeft:Float;
-		var sinRight:Float;
-		var sinTop:Float;
-		var sinBottom:Float;
-		
-		var position:Int = boundsData.length;
-		var quadsWritten:Int = 0;
+		this._position = boundsData.length;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
-		var data:T;
 		for (i in 0...this.numDatas)
 		{
-			data = this._datas[i];
-			if (!data.visible) continue;
+			this._data = this._datas[i];
+			if (!this._data.visible) continue;
 			
-			++quadsWritten;
+			this._x = this._data.x + this._data.offsetX + renderOffsetX;
+			this._y = this._data.y + this._data.offsetY + renderOffsetY;
 			
-			x = data.x + data.offsetX + renderOffsetX;
-			y = data.y + data.offsetY + renderOffsetY;
-			rotation = data.rotation;
-			
-			leftOffset = data.leftWidth * data.scaleX;
-			rightOffset = data.rightWidth * data.scaleX;
-			topOffset = data.topHeight * data.scaleY;
-			bottomOffset = data.bottomHeight * data.scaleY;
-			
-			if (rotation != 0.0)
+			if (this._data._transformChanged)
 			{
-				//angle = Std.int(rotation * MassiveConstants.ANGLE_CONSTANT) & MassiveConstants.ANGLE_CONSTANT_2;
-				//cos = COS[angle];
-				//sin = SIN[angle];
-				cos = Math.cos(rotation);
-				sin = Math.sin(rotation);
+				this._rotationChanged = this._data._rotationChanged;
+				this._skewXChanged = this._data._skewXChanged;
+				this._skewYChanged = this._data._skewYChanged;
 				
-				cosLeft = cos * leftOffset;
-				cosRight = cos * rightOffset;
-				cosTop = cos * topOffset;
-				cosBottom = cos * bottomOffset;
-				sinLeft = sin * leftOffset;
-				sinRight = sin * rightOffset;
-				sinTop = sin * topOffset;
-				sinBottom = sin * bottomOffset;
+				if (this._rotationChanged)
+				{
+					this._rotation = this._data._rotation;
+					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
+					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
+					this._data._rotationChanged = false;
+				}
+				else
+				{
+					this._cosRotation = this._data._cosRotation;
+					this._sinRotation = this._data._sinRotation;
+				}
 				
-				boundsData[position]   = x - cosLeft + sinTop;
-				boundsData[++position] = y - sinLeft - cosTop;
+				if (this._skewXChanged)
+				{
+					this._skewX = this._data._skewX;
+					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
+					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
+					this._data._skewXChanged = false;
+				}
+				else
+				{
+					this._cosSkewX = this._data._cosSkewX;
+					this._sinSkewX = this._data._sinSkewX;
+				}
 				
-				boundsData[++position] = x + cosRight + sinTop;
-				boundsData[++position] = y + sinRight - cosTop;
+				if (this._skewYChanged)
+				{
+					this._skewY = this._data._skewY;
+					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
+					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
+					this._data._skewYChanged = false;
+				}
+				else
+				{
+					this._cosSkewY = this._data._cosSkewY;
+					this._sinSkewY = this._data._sinSkewY;
+				}
 				
-				boundsData[++position] = x - cosLeft - sinBottom;
-				boundsData[++position] = y - sinLeft + cosBottom;
+				if (this._data._sizeXChanged)
+				{
+					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
+					this._data._sizeXChanged = false;
+				}
+				else
+				{
+					this._leftOffset = -this._data._leftOffset;
+					this._rightOffset = this._data._rightOffset;
+				}
 				
-				boundsData[++position] = x + cosRight - sinBottom;
-				boundsData[++position] = y + sinRight + cosBottom;
+				if (this._data._sizeYChanged)
+				{
+					this._data._topOffset = this._data.topHeight * this._data._scaleY;
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
+					this._data._sizeYChanged = false;
+				}
+				else
+				{
+					this._topOffset = -this._data._topOffset;
+					this._bottomOffset = this._data._bottomOffset;
+				}
 				
+				this._data._transformChanged = false;
+				
+				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				{
+					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
+					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
+					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
+					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+				}
+				else
+				{
+					this._a = this._data._a;
+					this._b = this._data._b;
+					this._c = this._data._c;
+					this._d = this._data._d;
+				}
+				
+				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
+				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
+				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
+				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
+				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
+				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
+				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
+				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
 			}
 			else
 			{
-				boundsData[position]   = x - leftOffset;
-				boundsData[++position] = y - topOffset;
-				
-				boundsData[++position] = x + rightOffset;
-				boundsData[++position] = y - topOffset;
-				
-				boundsData[++position] = x - leftOffset;
-				boundsData[++position] = y + bottomOffset;
-				
-				boundsData[++position] = x + rightOffset;
-				boundsData[++position] = y + bottomOffset;
+				this._x1 = this._data._x1;
+				this._y1 = this._data._y1;
+				this._x2 = this._data._x2;
+				this._y2 = this._data._y2;
+				this._x3 = this._data._x3;
+				this._y3 = this._data._y3;
+				this._x4 = this._data._x4;
+				this._y4 = this._data._y4;
 			}
 			
-			++position;
+			boundsData[this._position]   = this._x + this._x1;
+			boundsData[++this._position] = this._y + this._y1;
+			boundsData[++this._position] = this._x + this._x2;
+			boundsData[++this._position] = this._y + this._y2;
+			boundsData[++this._position] = this._x + this._x3;
+			boundsData[++this._position] = this._y + this._y3;
+			boundsData[++this._position] = this._x + this._x4;
+			boundsData[++this._position] = this._y + this._y4;
+			
+			++this._position;
 		}
-		
-		renderData.totalQuads += quadsWritten;
 	}
 	
 }
