@@ -8,6 +8,8 @@ import openfl.Vector;
  * Image display object with optionnal texture animation
  * @author Matse
  */
+@:allow(massive.animation.Animator)
+@:allow(massive.display.ImageLayer)
 class ImageData extends DisplayData
 {
 	static public var TEXTURE_INDEX_MULTIPLIER:Float;
@@ -129,7 +131,7 @@ class ImageData extends DisplayData
 	/**
 	   Current Frame, if any (null otherwise)
 	**/
-	public var frameCurrent(get, never):Frame;
+	public var frameCurrent(default, null):Frame;
 	/**
 	   Playback speed
 	   @default	1
@@ -139,7 +141,7 @@ class ImageData extends DisplayData
 	   Index of the current frame
 	   @default	0
 	**/
-	public var frameIndex:Int = 0;
+	public var frameIndex(get, set):Int;
 	/**
 	   Lists all frames
 	   @default	null
@@ -150,6 +152,10 @@ class ImageData extends DisplayData
 	   @default	0
 	**/
 	public var frameTime:Float = 0.0;
+	/**
+	   Timing of the current frame
+	**/
+	public var frameTimingCurrent(default, null):Float;
 	/**
 	   Duration of each frame
 	   @default	null
@@ -163,12 +169,12 @@ class ImageData extends DisplayData
 	   Tells whether to invert display on horizontal axis or not
 	   @default	false
 	**/
-	public var invertX:Bool = false;
+	public var invertX(get, set):Bool;
 	/**
 	   Tells whether to invert display on vertical axis or not
 	   @default	false
 	**/
-	public var invertY:Bool = false;
+	public var invertY(get, set):Bool;
 	/**
 	   Tells whether to loop frames
 	   @default	true
@@ -199,7 +205,18 @@ class ImageData extends DisplayData
 	**/
 	public var width(get, set):Float;
 	
-	private function get_frameCurrent():Frame { return (this.frameList == null || this.frameList.length == 0) ? null : this.frameList[this.frameIndex]; }
+	//private function get_frameCurrent():Frame { return (this.frameList == null || this.frameList.length == 0) ? null : this.frameList[this.frameIndex]; }
+	
+	private var _frameIndex:Int = -1;
+	inline private function get_frameIndex():Int { return this._frameIndex; }
+	inline private function set_frameIndex(value:Int):Int
+	{
+		if (this._frameIndex == value) return value;
+		this.frameCurrent = this.frameList[value];
+		this.frameTimingCurrent = this.frameTimings[value];
+		this._transformChanged = this._sizeXChanged = this._sizeYChanged = true;
+		return this._frameIndex = value;
+	}
 	
 	private function get_height():Float { return (this.frameList == null || this.frameList.length == 0) ? 0.0 : this.frameList[this.frameIndex].height * this.scaleY; }
 	private function set_height(value:Float):Float
@@ -207,6 +224,24 @@ class ImageData extends DisplayData
 		if (this.frameList == null || this.frameList.length == 0) return 0.0;
 		this.scaleY = value / this.frameList[this.frameIndex].height;
 		return value;
+	}
+	
+	private var _invertX:Bool = false;
+	inline private function get_invertX():Bool { return this._invertX; }
+	inline private function set_invertX(value:Bool):Bool
+	{
+		if (this._invertX == value) return value;
+		this._transformChanged = this._sizeXChanged = true;
+		return this._invertX = value;
+	}
+	
+	private var _invertY:Bool = false;
+	inline private function get_invertY():Bool {return this._invertY; }
+	inline private function set_invertY(value:Bool):Bool
+	{
+		if (this._invertY == value) return value;
+		this._transformChanged = this._sizeYChanged = true;
+		return this._invertY = value;
 	}
 	
 	inline private function get_textureIndex():Float { return this.textureIndexReal / TEXTURE_INDEX_MULTIPLIER; }
@@ -238,6 +273,7 @@ class ImageData extends DisplayData
 	{
 		this.invertX = this.invertY = this.animate = false;
 		this.frameDelta = 1.0;
+		this._frameIndex = -1;
 		this.frameTime = this.textureIndexReal = 0.0;
 		this.loop = true;
 		this.loopCount = this.numLoops = 0;
@@ -293,13 +329,13 @@ class ImageData extends DisplayData
 			}
 			else
 			{
-				if (this.frameIndex == 0)
+				if (this._frameIndex == 0)
 				{
-					this.frameTime = 0;
+					this.frameTime = 0.0;
 				}
 				else
 				{
-					this.frameTime = this.frameTimings[this.frameIndex - 1];
+					this.frameTime = this.frameTimings[this._frameIndex - 1];
 				}
 			}
 		}
