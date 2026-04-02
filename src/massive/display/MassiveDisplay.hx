@@ -288,6 +288,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var textureSmoothing(get, set):String;
 	
+	override function set_alpha(value:Float):Float 
+	{
+		return this.__alpha = value;
+	}
+	
 	private var _alphaOffset:Float = 0.0;
 	private function get_alphaOffset():Float { return this._alphaOffset; }
 	private function set_alphaOffset(value:Float):Float
@@ -1174,7 +1179,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			var numVertices:UInt = 0;
 			_uint16Indices = new UInt16Array(MassiveConstants.MAX_QUADS * MassiveConstants.INDICES_PER_QUAD);
-			
+
 			var position:Int = -1;
 			for (i in 0...MassiveConstants.MAX_QUADS)
 			{
