@@ -25,4 +25,9 @@ class ColorOffsetMode
 	   
 	**/
 	static public inline var OBJECT:String = "object";
+	
+	static public function getValues():Array<String>
+	{
+		return [NONE, DISPLAY, DISPLAY_AND_OBJECT, OBJECT];
+	}
 }
