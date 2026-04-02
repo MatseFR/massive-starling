@@ -179,58 +179,58 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		// nothing
 	}
 	
-	private var _x:Float;
-	private var _y:Float;
-	private var _leftOffset:Float;
-	private var _rightOffset:Float;
-	private var _topOffset:Float;
-	private var _bottomOffset:Float;
-	private var _rotation:Float;
-	private var _skewX:Float;
-	private var _skewY:Float;
-	private var _red:Float;
-	private var _redOffset:Float;
-	private var _green:Float;
-	private var _greenOffset:Float;
-	private var _blue:Float;
-	private var _blueOffset:Float;
-	private var _alpha:Float;
-	private var _alphaOffset:Float;
-	private var _color:Int;
-	private var _colorOffset:Int;
-	private var _cosRotation:Float;
-	private var _sinRotation:Float;
-	private var _cosSkewX:Float;
-	private var _sinSkewX:Float;
-	private var _cosSkewY:Float;
-	private var _sinSkewY:Float;
-	private var _a:Float;
-	private var _b:Float;
-	private var _c:Float;
-	private var _d:Float;
-	private var _x1:Float;
-	private var _y1:Float;
-	private var _x2:Float;
-	private var _y2:Float;
-	private var _x3:Float;
-	private var _y3:Float;
-	private var _x4:Float;
-	private var _y4:Float;
-	private var _rotationChanged:Bool;
-	private var _skewXChanged:Bool;
-	private var _skewYChanged:Bool;
+	private var __x:Float;
+	private var __y:Float;
+	private var __leftOffset:Float;
+	private var __rightOffset:Float;
+	private var __topOffset:Float;
+	private var __bottomOffset:Float;
+	private var __rotation:Float;
+	private var __skewX:Float;
+	private var __skewY:Float;
+	private var __red:Float;
+	private var __redOffset:Float;
+	private var __green:Float;
+	private var __greenOffset:Float;
+	private var __blue:Float;
+	private var __blueOffset:Float;
+	private var __alpha:Float;
+	private var __alphaOffset:Float;
+	private var __color:Int;
+	private var __colorOffset:Int;
+	private var __cosRotation:Float;
+	private var __sinRotation:Float;
+	private var __cosSkewX:Float;
+	private var __sinSkewX:Float;
+	private var __cosSkewY:Float;
+	private var __sinSkewY:Float;
+	private var __a:Float;
+	private var __b:Float;
+	private var __c:Float;
+	private var __d:Float;
+	private var __x1:Float;
+	private var __y1:Float;
+	private var __x2:Float;
+	private var __y2:Float;
+	private var __x3:Float;
+	private var __y3:Float;
+	private var __x4:Float;
+	private var __y4:Float;
+	private var __rotationChanged:Bool;
+	private var __skewXChanged:Bool;
+	private var __skewYChanged:Bool;
 	
-	private var _position:Int;
-	private var _quadsWritten:Int;
-	private var _pma:Bool;
-	private var _useColor:Bool;
-	private var _useColorOffset:Bool;
-	private var _simpleColor:Bool;
-	private var _numQuads:Int;
-	private var _totalQuads:Int;
-	private var _storeBounds:Bool;
-	private var _boundsIndex:Int;
-	private var _data:T;
+	private var __position:Int;
+	private var __quadsWritten:Int;
+	private var __pma:Bool;
+	private var __useColor:Bool;
+	private var __useColorOffset:Bool;
+	private var __simpleColor:Bool;
+	private var __numQuads:Int;
+	private var __totalQuads:Int;
+	private var __storeBounds:Bool;
+	private var __boundsIndex:Int;
+	private var __data:T;
 	
 	/**
 	   @inheritDoc
@@ -239,371 +239,371 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	{
 		if (this._datas == null) return true;
 		
-		this._quadsWritten = 0;
+		this.__quadsWritten = 0;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
-		this._pma = renderData.pma;
-		this._useColor = renderData.useColor;
-		this._useColorOffset = renderData.useColorOffset;
-		this._simpleColor = renderData.useSimpleColor;
-		this._numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
-		this._totalQuads = renderData.quadOffset + this._numQuads;
-		this._storeBounds = boundsData != null;
-		this._boundsIndex = this._storeBounds ? boundsData.length - 1 : -1;
+		this.__pma = renderData.pma;
+		this.__useColor = renderData.useColor;
+		this.__useColorOffset = renderData.useColorOffset;
+		this.__simpleColor = renderData.useSimpleColor;
+		this.__numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		this.__totalQuads = renderData.quadOffset + this.__numQuads;
+		this.__storeBounds = boundsData != null;
+		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
-		for (i in renderData.quadOffset...this._totalQuads)
+		for (i in renderData.quadOffset...this.__totalQuads)
 		{
-			this._data = this._datas[i];
-			if (!this._data.visible) continue;
+			this.__data = this._datas[i];
+			if (!this.__data.visible) continue;
 			
-			++this._quadsWritten;
+			++this.__quadsWritten;
 			
-			this._x = this._data.x + this._data.offsetX + renderOffsetX;
-			this._y = this._data.y + this._data.offsetY + renderOffsetY;
+			this.__x = this.__data.x + this.__data.offsetX + renderOffsetX;
+			this.__y = this.__data.y + this.__data.offsetY + renderOffsetY;
 			
-			if (this._data._transformChanged)
+			if (this.__data._transformChanged)
 			{
-				this._rotationChanged = this._data._rotationChanged;
-				this._skewXChanged = this._data._skewXChanged;
-				this._skewYChanged = this._data._skewYChanged;
+				this.__rotationChanged = this.__data._rotationChanged;
+				this.__skewXChanged = this.__data._skewXChanged;
+				this.__skewYChanged = this.__data._skewYChanged;
 				
-				if (this._rotationChanged)
+				if (this.__rotationChanged)
 				{
-					this._rotation = this._data._rotation;
-					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
-					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
-					this._data._rotationChanged = false;
+					this.__rotation = this.__data._rotation;
+					this.__cosRotation = this.__data._cosRotation = Math.cos(this.__rotation);
+					this.__sinRotation = this.__data._sinRotation = Math.sin(this.__rotation);
+					this.__data._rotationChanged = false;
 				}
 				else
 				{
-					this._cosRotation = this._data._cosRotation;
-					this._sinRotation = this._data._sinRotation;
+					this.__cosRotation = this.__data._cosRotation;
+					this.__sinRotation = this.__data._sinRotation;
 				}
 				
-				if (this._skewXChanged)
+				if (this.__skewXChanged)
 				{
-					this._skewX = this._data._skewX;
-					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
-					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
-					this._data._skewXChanged = false;
+					this.__skewX = this.__data._skewX;
+					this.__cosSkewX = this.__data._cosSkewX = Math.cos(this.__skewX);
+					this.__sinSkewX = this.__data._sinSkewX = -Math.sin(this.__skewX);
+					this.__data._skewXChanged = false;
 				}
 				else
 				{
-					this._cosSkewX = this._data._cosSkewX;
-					this._sinSkewX = this._data._sinSkewX;
+					this.__cosSkewX = this.__data._cosSkewX;
+					this.__sinSkewX = this.__data._sinSkewX;
 				}
 				
-				if (this._skewYChanged)
+				if (this.__skewYChanged)
 				{
-					this._skewY = this._data._skewY;
-					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
-					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
-					this._data._skewYChanged = false;
+					this.__skewY = this.__data._skewY;
+					this.__cosSkewY = this.__data._cosSkewY = Math.cos(this.__skewY);
+					this.__sinSkewY = this.__data._sinSkewY = Math.sin(this.__skewY);
+					this.__data._skewYChanged = false;
 				}
 				else
 				{
-					this._cosSkewY = this._data._cosSkewY;
-					this._sinSkewY = this._data._sinSkewY;
+					this.__cosSkewY = this.__data._cosSkewY;
+					this.__sinSkewY = this.__data._sinSkewY;
 				}
 				
-				if (this._data._sizeXChanged)
+				if (this.__data._sizeXChanged)
 				{
-					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
-					this._data._sizeXChanged = false;
+					this.__data._leftOffset = this.__data.leftWidth * this.__data._scaleX;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset = this.__data.rightWidth * this.__data._scaleX;
+					this.__data._sizeXChanged = false;
 				}
 				else
 				{
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset;
 				}
 				
-				if (this._data._sizeYChanged)
+				if (this.__data._sizeYChanged)
 				{
-					this._data._topOffset = this._data.topHeight * this._data._scaleY;
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
-					this._data._sizeYChanged = false;
+					this.__data._topOffset = this.__data.topHeight * this.__data._scaleY;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset = this.__data.bottomHeight * this.__data._scaleY;
+					this.__data._sizeYChanged = false;
 				}
 				else
 				{
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset;
 				}
 				
-				this._data._transformChanged = false;
+				this.__data._transformChanged = false;
 				
-				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				if (this.__rotationChanged || this.__skewXChanged || this.__skewYChanged)
 				{
-					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
-					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
-					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
-					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+					this.__a = this.__data._a = this.__cosSkewY * this.__cosRotation - this.__sinSkewY * this.__sinRotation;
+					this.__b = this.__data._b = this.__cosSkewY * this.__sinRotation + this.__sinSkewY * this.__cosRotation;
+					this.__c = this.__data._c = this.__sinSkewX * this.__cosRotation - this.__cosSkewX * this.__sinRotation;
+					this.__d = this.__data._d = this.__sinSkewX * this.__sinRotation + this.__cosSkewX * this.__cosRotation;
 				}
 				else
 				{
-					this._a = this._data._a;
-					this._b = this._data._b;
-					this._c = this._data._c;
-					this._d = this._data._d;
+					this.__a = this.__data._a;
+					this.__b = this.__data._b;
+					this.__c = this.__data._c;
+					this.__d = this.__data._d;
 				}
 				
-				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
-				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
-				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
-				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
-				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
-				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
-				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
-				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+				this.__x1 = this.__data._x1 = this.__leftOffset * this.__a + this.__topOffset * this.__c;
+				this.__y1 = this.__data._y1 = this.__leftOffset * this.__b + this.__topOffset * this.__d;
+				this.__x2 = this.__data._x2 = this.__rightOffset * this.__a + this.__topOffset * this.__c;
+				this.__y2 = this.__data._y2 = this.__rightOffset * this.__b + this.__topOffset * this.__d;
+				this.__x3 = this.__data._x3 = this.__leftOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y3 = this.__data._y3 = this.__leftOffset * this.__b + this.__bottomOffset * this.__d;
+				this.__x4 = this.__data._x4 = this.__rightOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y4 = this.__data._y4 = this.__rightOffset * this.__b + this.__bottomOffset * this.__d;
 			}
 			else
 			{
-				this._x1 = this._data._x1;
-				this._y1 = this._data._y1;
-				this._x2 = this._data._x2;
-				this._y2 = this._data._y2;
-				this._x3 = this._data._x3;
-				this._y3 = this._data._y3;
-				this._x4 = this._data._x4;
-				this._y4 = this._data._y4;
+				this.__x1 = this.__data._x1;
+				this.__y1 = this.__data._y1;
+				this.__x2 = this.__data._x2;
+				this.__y2 = this.__data._y2;
+				this.__x3 = this.__data._x3;
+				this.__y3 = this.__data._y3;
+				this.__x4 = this.__data._x4;
+				this.__y4 = this.__data._y4;
 			}
 			
-			if (this._useColor)
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					this._alpha = this._data.alpha;
-					this._alpha = this._alpha < 0.0 ? 0.0 : this._alpha > 1.0 ? 1.0 : this._alpha;
-					this._red = this._data.red;
-					this._red = this._red < 0.0 ? 0.0 : this._red > 1.0 ? 1.0 : this._red;
-					this._green = this._data.green;
-					this._green = this._green < 0.0 ? 0.0 : this._green > 1.0 ? 1.0 : this._green;
-					this._blue = this._data.blue;
-					this._blue = this._blue < 0.0 ? 0.0 : this._blue > 1.0 ? 1.0 : this._blue;
-					if (this._pma)
+					this.__alpha = this.__data.alpha;
+					this.__alpha = this.__alpha < 0.0 ? 0.0 : this.__alpha > 1.0 ? 1.0 : this.__alpha;
+					this.__red = this.__data.red;
+					this.__red = this.__red < 0.0 ? 0.0 : this.__red > 1.0 ? 1.0 : this.__red;
+					this.__green = this.__data.green;
+					this.__green = this.__green < 0.0 ? 0.0 : this.__green > 1.0 ? 1.0 : this.__green;
+					this.__blue = this.__data.blue;
+					this.__blue = this.__blue < 0.0 ? 0.0 : this.__blue > 1.0 ? 1.0 : this.__blue;
+					if (this.__pma)
 					{
-						this._color = Std.int(this._red * this._alpha * 255) | Std.int(this._green * this._alpha * 255) << 8 | Std.int(this._blue * this._alpha * 255) << 16 | Std.int(this._alpha * 255) << 24;
+						this.__color = Std.int(this.__red * this.__alpha * 255) | Std.int(this.__green * this.__alpha * 255) << 8 | Std.int(this.__blue * this.__alpha * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 					}
 					else
 					{
-						this._color = Std.int(this._red * 255) | Std.int(this._green * 255) << 8 | Std.int(this._blue * 255) << 16 | Std.int(this._alpha * 255) << 24;
+						this.__color = Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 					}
 				}
 				else
 				{
-					this._alpha = this._data.alpha;
-					if (this._pma)
+					this.__alpha = this.__data.alpha;
+					if (this.__pma)
 					{
-						this._red = this._data.red * this._alpha;
-						this._green = this._data.green * this._alpha;
-						this._blue = this._data.blue * this._alpha;
+						this.__red = this.__data.red * this.__alpha;
+						this.__green = this.__data.green * this.__alpha;
+						this.__blue = this.__data.blue * this.__alpha;
 					}
 					else
 					{
-						this._red = this._data.red;
-						this._green = this._data.green;
-						this._blue = this._data.blue;
+						this.__red = this.__data.red;
+						this.__green = this.__data.green;
+						this.__blue = this.__data.blue;
 					}
 				}
 			}
 			
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					this._alphaOffset = this._data.alphaOffset;
-					this._alphaOffset = this._alphaOffset < 0.0 ? 0.0 : this._alphaOffset > 1.0 ? 1.0 : this._alphaOffset;
-					this._redOffset = this._data.redOffset;
-					this._redOffset = this._redOffset < 0.0 ? 0.0 : this._redOffset > 1.0 ? 1.0 : this._redOffset;
-					this._greenOffset = this._data.greenOffset;
-					this._greenOffset = this._greenOffset < 0.0 ? 0.0 : this._greenOffset > 1.0 ? 1.0 : this._greenOffset;
-					this._blueOffset = this._data.blueOffset;
-					this._blueOffset = this._blueOffset < 0.0 ? 0.0 : this._blueOffset > 1.0 ? 1.0 : this._blueOffset;
-					if (this._useColor || renderData.useDisplayColor)
+					this.__alphaOffset = this.__data.alphaOffset;
+					this.__alphaOffset = this.__alphaOffset < 0.0 ? 0.0 : this.__alphaOffset > 1.0 ? 1.0 : this.__alphaOffset;
+					this.__redOffset = this.__data.redOffset;
+					this.__redOffset = this.__redOffset < 0.0 ? 0.0 : this.__redOffset > 1.0 ? 1.0 : this.__redOffset;
+					this.__greenOffset = this.__data.greenOffset;
+					this.__greenOffset = this.__greenOffset < 0.0 ? 0.0 : this.__greenOffset > 1.0 ? 1.0 : this.__greenOffset;
+					this.__blueOffset = this.__data.blueOffset;
+					this.__blueOffset = this.__blueOffset < 0.0 ? 0.0 : this.__blueOffset > 1.0 ? 1.0 : this.__blueOffset;
+					if (this.__useColor || renderData.useDisplayColor)
 					{
-						this._colorOffset = Std.int(this._redOffset * 255) | Std.int(this._greenOffset * 255) << 8 | Std.int(this._blueOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+						this.__colorOffset = Std.int(this.__redOffset * 255) | Std.int(this.__greenOffset * 255) << 8 | Std.int(this.__blueOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
 					}
 					else
 					{
-						this._colorOffset = Std.int(this._redOffset * this._alphaOffset * 255) | Std.int(this._greenOffset * this._alphaOffset * 255) << 8 | Std.int(this._blueOffset * this._alphaOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+						this.__colorOffset = Std.int(this.__redOffset * this.__alphaOffset * 255) | Std.int(this.__greenOffset * this.__alphaOffset * 255) << 8 | Std.int(this.__blueOffset * this.__alphaOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
 					}
 				}
 				else
 				{
-					this._alphaOffset = this._data.alphaOffset;
-					if (this._useColor || renderData.useDisplayColor)
+					this.__alphaOffset = this.__data.alphaOffset;
+					if (this.__useColor || renderData.useDisplayColor)
 					{
-						this._redOffset = this._data.redOffset;
-						this._greenOffset = this._data.greenOffset;
-						this._blueOffset = this._data.blueOffset;
+						this.__redOffset = this.__data.redOffset;
+						this.__greenOffset = this.__data.greenOffset;
+						this.__blueOffset = this.__data.blueOffset;
 					}
 					else
 					{
-						this._redOffset = this._data.redOffset * this._alphaOffset;
-						this._greenOffset = this._data.greenOffset * this._alphaOffset;
-						this._blueOffset = this._data.blueOffset * this._alphaOffset;
+						this.__redOffset = this.__data.redOffset * this.__alphaOffset;
+						this.__greenOffset = this.__data.greenOffset * this.__alphaOffset;
+						this.__blueOffset = this.__data.blueOffset * this.__alphaOffset;
 					}
 				}
 			}
 			
-			if (this._storeBounds)
+			if (this.__storeBounds)
 			{
-				boundsData[++this._boundsIndex] = this._x + this._x1;
-				boundsData[++this._boundsIndex] = this._y + this._y1;
-				boundsData[++this._boundsIndex] = this._x + this._x2;
-				boundsData[++this._boundsIndex] = this._y + this._y2;
-				boundsData[++this._boundsIndex] = this._x + this._x3;
-				boundsData[++this._boundsIndex] = this._y + this._y3;
-				boundsData[++this._boundsIndex] = this._x + this._x4;
-				boundsData[++this._boundsIndex] = this._y + this._y4;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x1;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y1;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x2;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y2;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x3;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y3;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x4;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y4;
 			}
 			
 			// TOP LEFT
-			byteData.writeFloat(this._x + this._x1);
-			byteData.writeFloat(this._y + this._y1);
-			if (this._useColor)
+			byteData.writeFloat(this.__x + this.__x1);
+			byteData.writeFloat(this.__y + this.__y1);
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					byteData.writeInt(this._color);
+					byteData.writeInt(this.__color);
 				}
 				else
 				{
-					byteData.writeFloat(this._red);
-					byteData.writeFloat(this._green);
-					byteData.writeFloat(this._blue);
-					byteData.writeFloat(this._alpha);
+					byteData.writeFloat(this.__red);
+					byteData.writeFloat(this.__green);
+					byteData.writeFloat(this.__blue);
+					byteData.writeFloat(this.__alpha);
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					byteData.writeInt(this._colorOffset);
+					byteData.writeInt(this.__colorOffset);
 				}
 				else
 				{
-					byteData.writeFloat(this._redOffset);
-					byteData.writeFloat(this._greenOffset);
-					byteData.writeFloat(this._blueOffset);
-					byteData.writeFloat(this._alphaOffset);
+					byteData.writeFloat(this.__redOffset);
+					byteData.writeFloat(this.__greenOffset);
+					byteData.writeFloat(this.__blueOffset);
+					byteData.writeFloat(this.__alphaOffset);
 				}
 			}
 			
 			// TOP RIGHT
-			byteData.writeFloat(this._x + this._x2);
-			byteData.writeFloat(this._y + this._y2);
-			if (this._useColor)
+			byteData.writeFloat(this.__x + this.__x2);
+			byteData.writeFloat(this.__y + this.__y2);
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					byteData.writeInt(this._color);
+					byteData.writeInt(this.__color);
 				}
 				else
 				{
-					byteData.writeFloat(this._red);
-					byteData.writeFloat(this._green);
-					byteData.writeFloat(this._blue);
-					byteData.writeFloat(this._alpha);
+					byteData.writeFloat(this.__red);
+					byteData.writeFloat(this.__green);
+					byteData.writeFloat(this.__blue);
+					byteData.writeFloat(this.__alpha);
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					byteData.writeInt(this._colorOffset);
+					byteData.writeInt(this.__colorOffset);
 				}
 				else
 				{
-					byteData.writeFloat(this._redOffset);
-					byteData.writeFloat(this._greenOffset);
-					byteData.writeFloat(this._blueOffset);
-					byteData.writeFloat(this._alphaOffset);
+					byteData.writeFloat(this.__redOffset);
+					byteData.writeFloat(this.__greenOffset);
+					byteData.writeFloat(this.__blueOffset);
+					byteData.writeFloat(this.__alphaOffset);
 				}
 			}
 			
 			// BOTTOM LEFT
-			byteData.writeFloat(this._x + this._x3);
-			byteData.writeFloat(this._y + this._y3);
-			if (this._useColor)
+			byteData.writeFloat(this.__x + this.__x3);
+			byteData.writeFloat(this.__y + this.__y3);
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					byteData.writeInt(this._color);
+					byteData.writeInt(this.__color);
 				}
 				else
 				{
-					byteData.writeFloat(this._red);
-					byteData.writeFloat(this._green);
-					byteData.writeFloat(this._blue);
-					byteData.writeFloat(this._alpha);
+					byteData.writeFloat(this.__red);
+					byteData.writeFloat(this.__green);
+					byteData.writeFloat(this.__blue);
+					byteData.writeFloat(this.__alpha);
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					byteData.writeInt(this._colorOffset);
+					byteData.writeInt(this.__colorOffset);
 				}
 				else
 				{
-					byteData.writeFloat(this._redOffset);
-					byteData.writeFloat(this._greenOffset);
-					byteData.writeFloat(this._blueOffset);
-					byteData.writeFloat(this._alphaOffset);
+					byteData.writeFloat(this.__redOffset);
+					byteData.writeFloat(this.__greenOffset);
+					byteData.writeFloat(this.__blueOffset);
+					byteData.writeFloat(this.__alphaOffset);
 				}
 			}
 			
 			// BOTTOM RIGHT
-			byteData.writeFloat(this._x + this._x4);
-			byteData.writeFloat(this._y + this._y4);
-			if (this._useColor)
+			byteData.writeFloat(this.__x + this.__x4);
+			byteData.writeFloat(this.__y + this.__y4);
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					byteData.writeInt(this._color);
+					byteData.writeInt(this.__color);
 				}
 				else
 				{
-					byteData.writeFloat(this._red);
-					byteData.writeFloat(this._green);
-					byteData.writeFloat(this._blue);
-					byteData.writeFloat(this._alpha);
+					byteData.writeFloat(this.__red);
+					byteData.writeFloat(this.__green);
+					byteData.writeFloat(this.__blue);
+					byteData.writeFloat(this.__alpha);
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					byteData.writeInt(this._colorOffset);
+					byteData.writeInt(this.__colorOffset);
 				}
 				else
 				{
-					byteData.writeFloat(this._redOffset);
-					byteData.writeFloat(this._greenOffset);
-					byteData.writeFloat(this._blueOffset);
-					byteData.writeFloat(this._alphaOffset);
+					byteData.writeFloat(this.__redOffset);
+					byteData.writeFloat(this.__greenOffset);
+					byteData.writeFloat(this.__blueOffset);
+					byteData.writeFloat(this.__alphaOffset);
 				}
 			}
 		}
 		
-		renderData.numQuads += this._quadsWritten;
-		renderData.totalQuads += this._quadsWritten;
+		renderData.numQuads += this.__quadsWritten;
+		renderData.totalQuads += this.__quadsWritten;
 		
-		if (this.numDatas == this._totalQuads)
+		if (this.numDatas == this.__totalQuads)
 		{
 			renderData.quadOffset = 0;
 			return true;
 		}
 		else
 		{
-			renderData.quadOffset += this._numQuads;
+			renderData.quadOffset += this.__numQuads;
 			return false;
 		}
 	}
@@ -616,375 +616,375 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	{
 		if (this._datas == null) return true;
 		
-		this._position = renderData.position;
-		this._quadsWritten = 0;
+		this.__position = renderData.position;
+		this.__quadsWritten = 0;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
-		this._pma = renderData.pma;
-		this._useColor = renderData.useColor;
-		this._useColorOffset = renderData.useColorOffset;
-		this._simpleColor = renderData.useSimpleColor;
-		this._numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
-		this._totalQuads = renderData.quadOffset + this._numQuads;
-		this._storeBounds = boundsData != null;
-		this._boundsIndex = this._storeBounds ? boundsData.length - 1 : -1;
+		this.__pma = renderData.pma;
+		this.__useColor = renderData.useColor;
+		this.__useColorOffset = renderData.useColorOffset;
+		this.__simpleColor = renderData.useSimpleColor;
+		this.__numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		this.__totalQuads = renderData.quadOffset + this.__numQuads;
+		this.__storeBounds = boundsData != null;
+		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
 		
-		for (i in renderData.quadOffset...this._totalQuads)
+		for (i in renderData.quadOffset...this.__totalQuads)
 		{
-			this._data = this._datas[i];
-			if (!this._data.visible) continue;
+			this.__data = this._datas[i];
+			if (!this.__data.visible) continue;
 			
-			++this._quadsWritten;
+			++this.__quadsWritten;
 			
-			this._x = this._data.x + this._data.offsetX + renderOffsetX;
-			this._y = this._data.y + this._data.offsetY + renderOffsetY;
+			this.__x = this.__data.x + this.__data.offsetX + renderOffsetX;
+			this.__y = this.__data.y + this.__data.offsetY + renderOffsetY;
 			
-			if (this._data._transformChanged)
+			if (this.__data._transformChanged)
 			{
-				this._rotationChanged = this._data._rotationChanged;
-				this._skewXChanged = this._data._skewXChanged;
-				this._skewYChanged = this._data._skewYChanged;
+				this.__rotationChanged = this.__data._rotationChanged;
+				this.__skewXChanged = this.__data._skewXChanged;
+				this.__skewYChanged = this.__data._skewYChanged;
 				
-				if (this._rotationChanged)
+				if (this.__rotationChanged)
 				{
-					this._rotation = this._data._rotation;
-					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
-					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
-					this._data._rotationChanged = false;
+					this.__rotation = this.__data._rotation;
+					this.__cosRotation = this.__data._cosRotation = Math.cos(this.__rotation);
+					this.__sinRotation = this.__data._sinRotation = Math.sin(this.__rotation);
+					this.__data._rotationChanged = false;
 				}
 				else
 				{
-					this._cosRotation = this._data._cosRotation;
-					this._sinRotation = this._data._sinRotation;
+					this.__cosRotation = this.__data._cosRotation;
+					this.__sinRotation = this.__data._sinRotation;
 				}
 				
-				if (this._skewXChanged)
+				if (this.__skewXChanged)
 				{
-					this._skewX = this._data._skewX;
-					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
-					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
-					this._data._skewXChanged = false;
+					this.__skewX = this.__data._skewX;
+					this.__cosSkewX = this.__data._cosSkewX = Math.cos(this.__skewX);
+					this.__sinSkewX = this.__data._sinSkewX = -Math.sin(this.__skewX);
+					this.__data._skewXChanged = false;
 				}
 				else
 				{
-					this._cosSkewX = this._data._cosSkewX;
-					this._sinSkewX = this._data._sinSkewX;
+					this.__cosSkewX = this.__data._cosSkewX;
+					this.__sinSkewX = this.__data._sinSkewX;
 				}
 				
-				if (this._skewYChanged)
+				if (this.__skewYChanged)
 				{
-					this._skewY = this._data._skewY;
-					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
-					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
-					this._data._skewYChanged = false;
+					this.__skewY = this.__data._skewY;
+					this.__cosSkewY = this.__data._cosSkewY = Math.cos(this.__skewY);
+					this.__sinSkewY = this.__data._sinSkewY = Math.sin(this.__skewY);
+					this.__data._skewYChanged = false;
 				}
 				else
 				{
-					this._cosSkewY = this._data._cosSkewY;
-					this._sinSkewY = this._data._sinSkewY;
+					this.__cosSkewY = this.__data._cosSkewY;
+					this.__sinSkewY = this.__data._sinSkewY;
 				}
 				
-				if (this._data._sizeXChanged)
+				if (this.__data._sizeXChanged)
 				{
-					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
-					this._data._sizeXChanged = false;
+					this.__data._leftOffset = this.__data.leftWidth * this.__data._scaleX;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset = this.__data.rightWidth * this.__data._scaleX;
+					this.__data._sizeXChanged = false;
 				}
 				else
 				{
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset;
 				}
 				
-				if (this._data._sizeYChanged)
+				if (this.__data._sizeYChanged)
 				{
-					this._data._topOffset = this._data.topHeight * this._data._scaleY;
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
-					this._data._sizeYChanged = false;
+					this.__data._topOffset = this.__data.topHeight * this.__data._scaleY;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset = this.__data.bottomHeight * this.__data._scaleY;
+					this.__data._sizeYChanged = false;
 				}
 				else
 				{
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset;
 				}
 				
-				this._data._transformChanged = false;
+				this.__data._transformChanged = false;
 				
-				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				if (this.__rotationChanged || this.__skewXChanged || this.__skewYChanged)
 				{
-					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
-					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
-					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
-					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+					this.__a = this.__data._a = this.__cosSkewY * this.__cosRotation - this.__sinSkewY * this.__sinRotation;
+					this.__b = this.__data._b = this.__cosSkewY * this.__sinRotation + this.__sinSkewY * this.__cosRotation;
+					this.__c = this.__data._c = this.__sinSkewX * this.__cosRotation - this.__cosSkewX * this.__sinRotation;
+					this.__d = this.__data._d = this.__sinSkewX * this.__sinRotation + this.__cosSkewX * this.__cosRotation;
 				}
 				else
 				{
-					this._a = this._data._a;
-					this._b = this._data._b;
-					this._c = this._data._c;
-					this._d = this._data._d;
+					this.__a = this.__data._a;
+					this.__b = this.__data._b;
+					this.__c = this.__data._c;
+					this.__d = this.__data._d;
 				}
 				
-				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
-				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
-				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
-				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
-				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
-				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
-				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
-				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+				this.__x1 = this.__data._x1 = this.__leftOffset * this.__a + this.__topOffset * this.__c;
+				this.__y1 = this.__data._y1 = this.__leftOffset * this.__b + this.__topOffset * this.__d;
+				this.__x2 = this.__data._x2 = this.__rightOffset * this.__a + this.__topOffset * this.__c;
+				this.__y2 = this.__data._y2 = this.__rightOffset * this.__b + this.__topOffset * this.__d;
+				this.__x3 = this.__data._x3 = this.__leftOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y3 = this.__data._y3 = this.__leftOffset * this.__b + this.__bottomOffset * this.__d;
+				this.__x4 = this.__data._x4 = this.__rightOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y4 = this.__data._y4 = this.__rightOffset * this.__b + this.__bottomOffset * this.__d;
 			}
 			else
 			{
-				this._x1 = this._data._x1;
-				this._y1 = this._data._y1;
-				this._x2 = this._data._x2;
-				this._y2 = this._data._y2;
-				this._x3 = this._data._x3;
-				this._y3 = this._data._y3;
-				this._x4 = this._data._x4;
-				this._y4 = this._data._y4;
+				this.__x1 = this.__data._x1;
+				this.__y1 = this.__data._y1;
+				this.__x2 = this.__data._x2;
+				this.__y2 = this.__data._y2;
+				this.__x3 = this.__data._x3;
+				this.__y3 = this.__data._y3;
+				this.__x4 = this.__data._x4;
+				this.__y4 = this.__data._y4;
 			}
 			
-			if (this._useColor)
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					this._alpha = this._data.alpha;
-					this._alpha = this._alpha < 0.0 ? 0.0 : this._alpha > 1.0 ? 1.0 : this._alpha;
-					this._red = this._data.red;
-					this._red = this._red < 0.0 ? 0.0 : this._red > 1.0 ? 1.0 : this._red;
-					this._green = this._data.green;
-					this._green = this._green < 0.0 ? 0.0 : this._green > 1.0 ? 1.0 : this._green;
-					this._blue = this._data.blue;
-					this._blue = this._blue < 0.0 ? 0.0 : this._blue > 1.0 ? 1.0 : this._blue;
-					if (this._pma)
+					this.__alpha = this.__data.alpha;
+					this.__alpha = this.__alpha < 0.0 ? 0.0 : this.__alpha > 1.0 ? 1.0 : this.__alpha;
+					this.__red = this.__data.red;
+					this.__red = this.__red < 0.0 ? 0.0 : this.__red > 1.0 ? 1.0 : this.__red;
+					this.__green = this.__data.green;
+					this.__green = this.__green < 0.0 ? 0.0 : this.__green > 1.0 ? 1.0 : this.__green;
+					this.__blue = this.__data.blue;
+					this.__blue = this.__blue < 0.0 ? 0.0 : this.__blue > 1.0 ? 1.0 : this.__blue;
+					if (this.__pma)
 					{
-						this._color = Std.int(this._red * this._alpha * 255) | Std.int(this._green * this._alpha * 255) << 8 | Std.int(this._blue * this._alpha * 255) << 16 | Std.int(this._alpha * 255) << 24;
+						this.__color = Std.int(this.__red * this.__alpha * 255) | Std.int(this.__green * this.__alpha * 255) << 8 | Std.int(this.__blue * this.__alpha * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 					}
 					else
 					{
-						this._color = Std.int(this._red * 255) | Std.int(this._green * 255) << 8 | Std.int(this._blue * 255) << 16 | Std.int(this._alpha * 255) << 24;
+						this.__color = Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 					}
 				}
 				else
 				{
-					this._alpha = this._data.alpha;
-					if (this._pma)
+					this.__alpha = this.__data.alpha;
+					if (this.__pma)
 					{
-						this._red = this._data.red * this._alpha;
-						this._green = this._data.green * this._alpha;
-						this._blue = this._data.blue * this._alpha;
+						this.__red = this.__data.red * this.__alpha;
+						this.__green = this.__data.green * this.__alpha;
+						this.__blue = this.__data.blue * this.__alpha;
 					}
 					else
 					{
-						this._red = this._data.red;
-						this._green = this._data.green;
-						this._blue = this._data.blue;
+						this.__red = this.__data.red;
+						this.__green = this.__data.green;
+						this.__blue = this.__data.blue;
 					}
 				}
 			}
 			
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					this._alphaOffset = this._data.alphaOffset;
-					this._alphaOffset = this._alphaOffset < 0.0 ? 0.0 : this._alphaOffset > 1.0 ? 1.0 : this._alphaOffset;
-					this._redOffset = this._data.redOffset;
-					this._redOffset = this._redOffset < 0.0 ? 0.0 : this._redOffset > 1.0 ? 1.0 : this._redOffset;
-					this._greenOffset = this._data.greenOffset;
-					this._greenOffset = this._greenOffset < 0.0 ? 0.0 : this._greenOffset > 1.0 ? 1.0 : this._greenOffset;
-					this._blueOffset = this._data.blueOffset;
-					this._blueOffset = this._blueOffset < 0.0 ? 0.0 : this._blueOffset > 1.0 ? 1.0 : this._blueOffset;
-					if (this._useColor || renderData.useDisplayColor)
+					this.__alphaOffset = this.__data.alphaOffset;
+					this.__alphaOffset = this.__alphaOffset < 0.0 ? 0.0 : this.__alphaOffset > 1.0 ? 1.0 : this.__alphaOffset;
+					this.__redOffset = this.__data.redOffset;
+					this.__redOffset = this.__redOffset < 0.0 ? 0.0 : this.__redOffset > 1.0 ? 1.0 : this.__redOffset;
+					this.__greenOffset = this.__data.greenOffset;
+					this.__greenOffset = this.__greenOffset < 0.0 ? 0.0 : this.__greenOffset > 1.0 ? 1.0 : this.__greenOffset;
+					this.__blueOffset = this.__data.blueOffset;
+					this.__blueOffset = this.__blueOffset < 0.0 ? 0.0 : this.__blueOffset > 1.0 ? 1.0 : this.__blueOffset;
+					if (this.__useColor || renderData.useDisplayColor)
 					{
-						this._colorOffset = Std.int(this._redOffset * 255) | Std.int(this._greenOffset * 255) << 8 | Std.int(this._blueOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+						this.__colorOffset = Std.int(this.__redOffset * 255) | Std.int(this.__greenOffset * 255) << 8 | Std.int(this.__blueOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
 					}
 					else
 					{
-						this._colorOffset = Std.int(this._redOffset * this._alphaOffset * 255) | Std.int(this._greenOffset * this._alphaOffset * 255) << 8 | Std.int(this._blueOffset * this._alphaOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+						this.__colorOffset = Std.int(this.__redOffset * this.__alphaOffset * 255) | Std.int(this.__greenOffset * this.__alphaOffset * 255) << 8 | Std.int(this.__blueOffset * this.__alphaOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
 					}
 				}
 				else
 				{
-					this._alphaOffset = this._data.alphaOffset;
-					if (this._useColor || renderData.useDisplayColor)
+					this.__alphaOffset = this.__data.alphaOffset;
+					if (this.__useColor || renderData.useDisplayColor)
 					{
-						this._redOffset = this._data.redOffset;
-						this._greenOffset = this._data.greenOffset;
-						this._blueOffset = this._data.blueOffset;
+						this.__redOffset = this.__data.redOffset;
+						this.__greenOffset = this.__data.greenOffset;
+						this.__blueOffset = this.__data.blueOffset;
 					}
 					else
 					{
-						this._redOffset = this._data.redOffset * this._alphaOffset;
-						this._greenOffset = this._data.greenOffset * this._alphaOffset;
-						this._blueOffset = this._data.blueOffset * this._alphaOffset;
+						this.__redOffset = this.__data.redOffset * this.__alphaOffset;
+						this.__greenOffset = this.__data.greenOffset * this.__alphaOffset;
+						this.__blueOffset = this.__data.blueOffset * this.__alphaOffset;
 					}
 				}
 			}
 			
-			if (this._storeBounds)
+			if (this.__storeBounds)
 			{
-				boundsData[++this._boundsIndex] = this._x + this._x1;
-				boundsData[++this._boundsIndex] = this._y + this._y1;
-				boundsData[++this._boundsIndex] = this._x + this._x2;
-				boundsData[++this._boundsIndex] = this._y + this._y2;
-				boundsData[++this._boundsIndex] = this._x + this._x3;
-				boundsData[++this._boundsIndex] = this._y + this._y3;
-				boundsData[++this._boundsIndex] = this._x + this._x4;
-				boundsData[++this._boundsIndex] = this._y + this._y4;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x1;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y1;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x2;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y2;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x3;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y3;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x4;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y4;
 			}
 			
 			// TOP LEFT
-			Memory.setFloat(this._position, this._x + this._x1);
-			Memory.setFloat(this._position += 4, this._y + this._y1);
-			if (this._useColor)
+			Memory.setFloat(this.__position, this.__x + this.__x1);
+			Memory.setFloat(this.__position += 4, this.__y + this.__y1);
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					Memory.setI32(this._position += 4, this._color);
+					Memory.setI32(this.__position += 4, this.__color);
 				}
 				else
 				{
-					Memory.setFloat(this._position += 4, this._red);
-					Memory.setFloat(this._position += 4, this._green);
-					Memory.setFloat(this._position += 4, this._blue);
-					Memory.setFloat(this._position += 4, this._alpha);
+					Memory.setFloat(this.__position += 4, this.__red);
+					Memory.setFloat(this.__position += 4, this.__green);
+					Memory.setFloat(this.__position += 4, this.__blue);
+					Memory.setFloat(this.__position += 4, this.__alpha);
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					Memory.setI32(this._position += 4, this._colorOffset);
+					Memory.setI32(this.__position += 4, this.__colorOffset);
 				}
 				else
 				{
-					Memory.setFloat(this._position += 4, this._redOffset);
-					Memory.setFloat(this._position += 4, this._greenOffset);
-					Memory.setFloat(this._position += 4, this._blueOffset);
-					Memory.setFloat(this._position += 4, this._alphaOffset);
+					Memory.setFloat(this.__position += 4, this.__redOffset);
+					Memory.setFloat(this.__position += 4, this.__greenOffset);
+					Memory.setFloat(this.__position += 4, this.__blueOffset);
+					Memory.setFloat(this.__position += 4, this.__alphaOffset);
 				}
 			}
 			
 			// TOP RIGHT
-			Memory.setFloat(this._position += 4, this._x + this._x2);
-			Memory.setFloat(this._position += 4, this._y + this._y2);
-			if (this._useColor)
+			Memory.setFloat(this.__position += 4, this.__x + this.__x2);
+			Memory.setFloat(this.__position += 4, this.__y + this.__y2);
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					Memory.setI32(this._position += 4, this._color);
+					Memory.setI32(this.__position += 4, this.__color);
 				}
 				else
 				{
-					Memory.setFloat(this._position += 4, this._red);
-					Memory.setFloat(this._position += 4, this._green);
-					Memory.setFloat(this._position += 4, this._blue);
-					Memory.setFloat(this._position += 4, this._alpha);
+					Memory.setFloat(this.__position += 4, this.__red);
+					Memory.setFloat(this.__position += 4, this.__green);
+					Memory.setFloat(this.__position += 4, this.__blue);
+					Memory.setFloat(this.__position += 4, this.__alpha);
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					Memory.setI32(this._position += 4, this._colorOffset);
+					Memory.setI32(this.__position += 4, this.__colorOffset);
 				}
 				else
 				{
-					Memory.setFloat(this._position += 4, this._redOffset);
-					Memory.setFloat(this._position += 4, this._greenOffset);
-					Memory.setFloat(this._position += 4, this._blueOffset);
-					Memory.setFloat(this._position += 4, this._alphaOffset);
+					Memory.setFloat(this.__position += 4, this.__redOffset);
+					Memory.setFloat(this.__position += 4, this.__greenOffset);
+					Memory.setFloat(this.__position += 4, this.__blueOffset);
+					Memory.setFloat(this.__position += 4, this.__alphaOffset);
 				}
 			}
 			
 			// BOTTOM LEFT
-			Memory.setFloat(this._position += 4, this._x + this._x3);
-			Memory.setFloat(this._position += 4, this._y + this._y3);
-			if (this._useColor)
+			Memory.setFloat(this.__position += 4, this.__x + this.__x3);
+			Memory.setFloat(this.__position += 4, this.__y + this.__y3);
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					Memory.setI32(this._position += 4, this._color);
+					Memory.setI32(this.__position += 4, this.__color);
 				}
 				else
 				{
-					Memory.setFloat(this._position += 4, this._red);
-					Memory.setFloat(this._position += 4, this._green);
-					Memory.setFloat(this._position += 4, this._blue);
-					Memory.setFloat(this._position += 4, this._alpha);
+					Memory.setFloat(this.__position += 4, this.__red);
+					Memory.setFloat(this.__position += 4, this.__green);
+					Memory.setFloat(this.__position += 4, this.__blue);
+					Memory.setFloat(this.__position += 4, this.__alpha);
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					Memory.setI32(this._position += 4, this._colorOffset);
+					Memory.setI32(this.__position += 4, this.__colorOffset);
 				}
 				else
 				{
-					Memory.setFloat(this._position += 4, this._redOffset);
-					Memory.setFloat(this._position += 4, this._greenOffset);
-					Memory.setFloat(this._position += 4, this._blueOffset);
-					Memory.setFloat(this._position += 4, this._alphaOffset);
+					Memory.setFloat(this.__position += 4, this.__redOffset);
+					Memory.setFloat(this.__position += 4, this.__greenOffset);
+					Memory.setFloat(this.__position += 4, this.__blueOffset);
+					Memory.setFloat(this.__position += 4, this.__alphaOffset);
 				}
 			}
 			
 			// BOTTOM RIGHT
-			Memory.setFloat(this._position += 4, this._x + this._x4);
-			Memory.setFloat(this._position += 4, this._y + this._y4);
-			if (this._useColor)
+			Memory.setFloat(this.__position += 4, this.__x + this.__x4);
+			Memory.setFloat(this.__position += 4, this.__y + this.__y4);
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					Memory.setI32(this._position += 4, this._color);
+					Memory.setI32(this.__position += 4, this.__color);
 				}
 				else
 				{
-					Memory.setFloat(this._position += 4, this._red);
-					Memory.setFloat(this._position += 4, this._green);
-					Memory.setFloat(this._position += 4, this._blue);
-					Memory.setFloat(this._position += 4, this._alpha);
+					Memory.setFloat(this.__position += 4, this.__red);
+					Memory.setFloat(this.__position += 4, this.__green);
+					Memory.setFloat(this.__position += 4, this.__blue);
+					Memory.setFloat(this.__position += 4, this.__alpha);
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					Memory.setI32(this._position += 4, this._colorOffset);
+					Memory.setI32(this.__position += 4, this.__colorOffset);
 				}
 				else
 				{
-					Memory.setFloat(this._position += 4, this._redOffset);
-					Memory.setFloat(this._position += 4, this._greenOffset);
-					Memory.setFloat(this._position += 4, this._blueOffset);
-					Memory.setFloat(this._position += 4, this._alphaOffset);
+					Memory.setFloat(this.__position += 4, this.__redOffset);
+					Memory.setFloat(this.__position += 4, this.__greenOffset);
+					Memory.setFloat(this.__position += 4, this.__blueOffset);
+					Memory.setFloat(this.__position += 4, this.__alphaOffset);
 				}
 			}
 			
-			this._position += 4;
+			this.__position += 4;
 		}
 		
-		renderData.numQuads += this._quadsWritten;
-		renderData.position = this._position;
-		renderData.totalQuads += this._quadsWritten;
+		renderData.numQuads += this.__quadsWritten;
+		renderData.position = this.__position;
+		renderData.totalQuads += this.__quadsWritten;
 		
-		if (this.numDatas == this._totalQuads)
+		if (this.numDatas == this.__totalQuads)
 		{
 			renderData.quadOffset = 0;
 			return true;
 		}
 		else
 		{
-			renderData.quadOffset += this._numQuads;
+			renderData.quadOffset += this.__numQuads;
 			return false;
 		}
 	}
@@ -998,374 +998,374 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	{
 		if (this._datas == null) return true;
 		
-		this._position = renderData.position;
-		this._quadsWritten = 0;
+		this.__position = renderData.position;
+		this.__quadsWritten = 0;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
-		this._pma = renderData.pma;
-		this._useColor = renderData.useColor;
-		this._useColorOffset = renderData.useColorOffset;
-		this._simpleColor = renderData.useSimpleColor;
-		this._numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
-		this._totalQuads = renderData.quadOffset + this._numQuads;
-		this._storeBounds = boundsData != null;
-		this._boundsIndex = this._storeBounds ? boundsData.length - 1 : -1;
+		this.__pma = renderData.pma;
+		this.__useColor = renderData.useColor;
+		this.__useColorOffset = renderData.useColorOffset;
+		this.__simpleColor = renderData.useSimpleColor;
+		this.__numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		this.__totalQuads = renderData.quadOffset + this.__numQuads;
+		this.__storeBounds = boundsData != null;
+		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
-		for (i in renderData.quadOffset...this._totalQuads)
+		for (i in renderData.quadOffset...this.__totalQuads)
 		{
-			this._data = this._datas[i];
-			if (!this._data.visible) continue;
+			this.__data = this._datas[i];
+			if (!this.__data.visible) continue;
 			
-			++this._quadsWritten;
+			++this.__quadsWritten;
 			
-			this._x = this._data.x + this._data.offsetX + renderOffsetX;
-			this._y = this._data.y + this._data.offsetY + renderOffsetY;
+			this.__x = this.__data.x + this.__data.offsetX + renderOffsetX;
+			this.__y = this.__data.y + this.__data.offsetY + renderOffsetY;
 			
-			if (this._data._transformChanged)
+			if (this.__data._transformChanged)
 			{
-				this._rotationChanged = this._data._rotationChanged;
-				this._skewXChanged = this._data._skewXChanged;
-				this._skewYChanged = this._data._skewYChanged;
+				this.__rotationChanged = this.__data._rotationChanged;
+				this.__skewXChanged = this.__data._skewXChanged;
+				this.__skewYChanged = this.__data._skewYChanged;
 				
-				if (this._rotationChanged)
+				if (this.__rotationChanged)
 				{
-					this._rotation = this._data._rotation;
-					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
-					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
-					this._data._rotationChanged = false;
+					this.__rotation = this.__data._rotation;
+					this.__cosRotation = this.__data._cosRotation = Math.cos(this.__rotation);
+					this.__sinRotation = this.__data._sinRotation = Math.sin(this.__rotation);
+					this.__data._rotationChanged = false;
 				}
 				else
 				{
-					this._cosRotation = this._data._cosRotation;
-					this._sinRotation = this._data._sinRotation;
+					this.__cosRotation = this.__data._cosRotation;
+					this.__sinRotation = this.__data._sinRotation;
 				}
 				
-				if (this._skewXChanged)
+				if (this.__skewXChanged)
 				{
-					this._skewX = this._data._skewX;
-					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
-					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
-					this._data._skewXChanged = false;
+					this.__skewX = this.__data._skewX;
+					this.__cosSkewX = this.__data._cosSkewX = Math.cos(this.__skewX);
+					this.__sinSkewX = this.__data._sinSkewX = -Math.sin(this.__skewX);
+					this.__data._skewXChanged = false;
 				}
 				else
 				{
-					this._cosSkewX = this._data._cosSkewX;
-					this._sinSkewX = this._data._sinSkewX;
+					this.__cosSkewX = this.__data._cosSkewX;
+					this.__sinSkewX = this.__data._sinSkewX;
 				}
 				
-				if (this._skewYChanged)
+				if (this.__skewYChanged)
 				{
-					this._skewY = this._data._skewY;
-					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
-					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
-					this._data._skewYChanged = false;
+					this.__skewY = this.__data._skewY;
+					this.__cosSkewY = this.__data._cosSkewY = Math.cos(this.__skewY);
+					this.__sinSkewY = this.__data._sinSkewY = Math.sin(this.__skewY);
+					this.__data._skewYChanged = false;
 				}
 				else
 				{
-					this._cosSkewY = this._data._cosSkewY;
-					this._sinSkewY = this._data._sinSkewY;
+					this.__cosSkewY = this.__data._cosSkewY;
+					this.__sinSkewY = this.__data._sinSkewY;
 				}
 				
-				if (this._data._sizeXChanged)
+				if (this.__data._sizeXChanged)
 				{
-					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
-					this._data._sizeXChanged = false;
+					this.__data._leftOffset = this.__data.leftWidth * this.__data._scaleX;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset = this.__data.rightWidth * this.__data._scaleX;
+					this.__data._sizeXChanged = false;
 				}
 				else
 				{
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset;
 				}
 				
-				if (this._data._sizeYChanged)
+				if (this.__data._sizeYChanged)
 				{
-					this._data._topOffset = this._data.topHeight * this._data._scaleY;
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
-					this._data._sizeYChanged = false;
+					this.__data._topOffset = this.__data.topHeight * this.__data._scaleY;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset = this.__data.bottomHeight * this.__data._scaleY;
+					this.__data._sizeYChanged = false;
 				}
 				else
 				{
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset;
 				}
 				
-				this._data._transformChanged = false;
+				this.__data._transformChanged = false;
 				
-				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				if (this.__rotationChanged || this.__skewXChanged || this.__skewYChanged)
 				{
-					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
-					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
-					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
-					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+					this.__a = this.__data._a = this.__cosSkewY * this.__cosRotation - this.__sinSkewY * this.__sinRotation;
+					this.__b = this.__data._b = this.__cosSkewY * this.__sinRotation + this.__sinSkewY * this.__cosRotation;
+					this.__c = this.__data._c = this.__sinSkewX * this.__cosRotation - this.__cosSkewX * this.__sinRotation;
+					this.__d = this.__data._d = this.__sinSkewX * this.__sinRotation + this.__cosSkewX * this.__cosRotation;
 				}
 				else
 				{
-					this._a = this._data._a;
-					this._b = this._data._b;
-					this._c = this._data._c;
-					this._d = this._data._d;
+					this.__a = this.__data._a;
+					this.__b = this.__data._b;
+					this.__c = this.__data._c;
+					this.__d = this.__data._d;
 				}
 				
-				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
-				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
-				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
-				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
-				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
-				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
-				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
-				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+				this.__x1 = this.__data._x1 = this.__leftOffset * this.__a + this.__topOffset * this.__c;
+				this.__y1 = this.__data._y1 = this.__leftOffset * this.__b + this.__topOffset * this.__d;
+				this.__x2 = this.__data._x2 = this.__rightOffset * this.__a + this.__topOffset * this.__c;
+				this.__y2 = this.__data._y2 = this.__rightOffset * this.__b + this.__topOffset * this.__d;
+				this.__x3 = this.__data._x3 = this.__leftOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y3 = this.__data._y3 = this.__leftOffset * this.__b + this.__bottomOffset * this.__d;
+				this.__x4 = this.__data._x4 = this.__rightOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y4 = this.__data._y4 = this.__rightOffset * this.__b + this.__bottomOffset * this.__d;
 			}
 			else
 			{
-				this._x1 = this._data._x1;
-				this._y1 = this._data._y1;
-				this._x2 = this._data._x2;
-				this._y2 = this._data._y2;
-				this._x3 = this._data._x3;
-				this._y3 = this._data._y3;
-				this._x4 = this._data._x4;
-				this._y4 = this._data._y4;
+				this.__x1 = this.__data._x1;
+				this.__y1 = this.__data._y1;
+				this.__x2 = this.__data._x2;
+				this.__y2 = this.__data._y2;
+				this.__x3 = this.__data._x3;
+				this.__y3 = this.__data._y3;
+				this.__x4 = this.__data._x4;
+				this.__y4 = this.__data._y4;
 			}
 			
-			if (this._useColor)
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					this._alpha = this._data.alpha;
-					this._alpha = this._alpha < 0.0 ? 0.0 : this._alpha > 1.0 ? 1.0 : this._alpha;
-					this._red = this._data.red;
-					this._red = this._red < 0.0 ? 0.0 : this._red > 1.0 ? 1.0 : this._red;
-					this._green = this._data.green;
-					this._green = this._green < 0.0 ? 0.0 : this._green > 1.0 ? 1.0 : this._green;
-					this._blue = this._data.blue;
-					this._blue = this._blue < 0.0 ? 0.0 : this._blue > 1.0 ? 1.0 : this._blue;
-					if (this._pma)
+					this.__alpha = this.__data.alpha;
+					this.__alpha = this.__alpha < 0.0 ? 0.0 : this.__alpha > 1.0 ? 1.0 : this.__alpha;
+					this.__red = this.__data.red;
+					this.__red = this.__red < 0.0 ? 0.0 : this.__red > 1.0 ? 1.0 : this.__red;
+					this.__green = this.__data.green;
+					this.__green = this.__green < 0.0 ? 0.0 : this.__green > 1.0 ? 1.0 : this.__green;
+					this.__blue = this.__data.blue;
+					this.__blue = this.__blue < 0.0 ? 0.0 : this.__blue > 1.0 ? 1.0 : this.__blue;
+					if (this.__pma)
 					{
-						this._color = Std.int(this._red * this._alpha * 255) | Std.int(this._green * this._alpha * 255) << 8 | Std.int(this._blue * this._alpha * 255) << 16 | Std.int(this._alpha * 255) << 24;
+						this.__color = Std.int(this.__red * this.__alpha * 255) | Std.int(this.__green * this.__alpha * 255) << 8 | Std.int(this.__blue * this.__alpha * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 					}
 					else
 					{
-						this._color = Std.int(this._red * 255) | Std.int(this._green * 255) << 8 | Std.int(this._blue * 255) << 16 | Std.int(this._alpha * 255) << 24;
+						this.__color = Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 					}
 				}
 				else
 				{
-					this._alpha = this._data.alpha;
-					if (this._pma)
+					this.__alpha = this.__data.alpha;
+					if (this.__pma)
 					{
-						this._red = this._data.red * this._alpha;
-						this._green = this._data.green * this._alpha;
-						this._blue = this._data.blue * this._alpha;
+						this.__red = this.__data.red * this.__alpha;
+						this.__green = this.__data.green * this.__alpha;
+						this.__blue = this.__data.blue * this.__alpha;
 					}
 					else
 					{
-						this._red = this._data.red;
-						this._green = this._data.green;
-						this._blue = this._data.blue;
+						this.__red = this.__data.red;
+						this.__green = this.__data.green;
+						this.__blue = this.__data.blue;
 					}
 				}
 			}
 			
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					this._alphaOffset = this._data.alphaOffset;
-					this._alphaOffset = this._alphaOffset < 0.0 ? 0.0 : this._alphaOffset > 1.0 ? 1.0 : this._alphaOffset;
-					this._redOffset = this._data.redOffset;
-					this._redOffset = this._redOffset < 0.0 ? 0.0 : this._redOffset > 1.0 ? 1.0 : this._redOffset;
-					this._greenOffset = this._data.greenOffset;
-					this._greenOffset = this._greenOffset < 0.0 ? 0.0 : this._greenOffset > 1.0 ? 1.0 : this._greenOffset;
-					this._blueOffset = this._data.blueOffset;
-					this._blueOffset = this._blueOffset < 0.0 ? 0.0 : this._blueOffset > 1.0 ? 1.0 : this._blueOffset;
-					if (this._useColor || renderData.useDisplayColor)
+					this.__alphaOffset = this.__data.alphaOffset;
+					this.__alphaOffset = this.__alphaOffset < 0.0 ? 0.0 : this.__alphaOffset > 1.0 ? 1.0 : this.__alphaOffset;
+					this.__redOffset = this.__data.redOffset;
+					this.__redOffset = this.__redOffset < 0.0 ? 0.0 : this.__redOffset > 1.0 ? 1.0 : this.__redOffset;
+					this.__greenOffset = this.__data.greenOffset;
+					this.__greenOffset = this.__greenOffset < 0.0 ? 0.0 : this.__greenOffset > 1.0 ? 1.0 : this.__greenOffset;
+					this.__blueOffset = this.__data.blueOffset;
+					this.__blueOffset = this.__blueOffset < 0.0 ? 0.0 : this.__blueOffset > 1.0 ? 1.0 : this.__blueOffset;
+					if (this.__useColor || renderData.useDisplayColor)
 					{
-						this._colorOffset = Std.int(this._redOffset * 255) | Std.int(this._greenOffset * 255) << 8 | Std.int(this._blueOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+						this.__colorOffset = Std.int(this.__redOffset * 255) | Std.int(this.__greenOffset * 255) << 8 | Std.int(this.__blueOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
 					}
 					else
 					{
-						this._colorOffset = Std.int(this._redOffset * this._alphaOffset * 255) | Std.int(this._greenOffset * this._alphaOffset * 255) << 8 | Std.int(this._blueOffset * this._alphaOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+						this.__colorOffset = Std.int(this.__redOffset * this.__alphaOffset * 255) | Std.int(this.__greenOffset * this.__alphaOffset * 255) << 8 | Std.int(this.__blueOffset * this.__alphaOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
 					}
 				}
 				else
 				{
-					this._alphaOffset = this._data.alphaOffset;
-					if (this._useColor || renderData.useDisplayColor)
+					this.__alphaOffset = this.__data.alphaOffset;
+					if (this.__useColor || renderData.useDisplayColor)
 					{
-						this._redOffset = this._data.redOffset;
-						this._greenOffset = this._data.greenOffset;
-						this._blueOffset = this._data.blueOffset;
+						this.__redOffset = this.__data.redOffset;
+						this.__greenOffset = this.__data.greenOffset;
+						this.__blueOffset = this.__data.blueOffset;
 					}
 					else
 					{
-						this._redOffset = this._data.redOffset * this._alphaOffset;
-						this._greenOffset = this._data.greenOffset * this._alphaOffset;
-						this._blueOffset = this._data.blueOffset * this._alphaOffset;
+						this.__redOffset = this.__data.redOffset * this.__alphaOffset;
+						this.__greenOffset = this.__data.greenOffset * this.__alphaOffset;
+						this.__blueOffset = this.__data.blueOffset * this.__alphaOffset;
 					}
 				}
 			}
 			
-			if (this._storeBounds)
+			if (this.__storeBounds)
 			{
-				boundsData[++this._boundsIndex] = this._x + this._x1;
-				boundsData[++this._boundsIndex] = this._y + this._y1;
-				boundsData[++this._boundsIndex] = this._x + this._x2;
-				boundsData[++this._boundsIndex] = this._y + this._y2;
-				boundsData[++this._boundsIndex] = this._x + this._x3;
-				boundsData[++this._boundsIndex] = this._y + this._y3;
-				boundsData[++this._boundsIndex] = this._x + this._x4;
-				boundsData[++this._boundsIndex] = this._y + this._y4;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x1;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y1;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x2;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y2;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x3;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y3;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x4;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y4;
 			}
 			
 			// TOP LEFT
-			floatData[this._position]   = this._x + this._x1;
-			floatData[++this._position] = this._y + this._y1;
-			if (this._useColor)
+			floatData[this.__position]   = this.__x + this.__x1;
+			floatData[++this.__position] = this.__y + this.__y1;
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					floatData[++this._position] = this._color;
+					floatData[++this.__position] = this.__color;
 				}
 				else
 				{
-					floatData[++this._position] = this._red;
-					floatData[++this._position] = this._green;
-					floatData[++this._position] = this._blue;
-					floatData[++this._position] = this._alpha;
+					floatData[++this.__position] = this.__red;
+					floatData[++this.__position] = this.__green;
+					floatData[++this.__position] = this.__blue;
+					floatData[++this.__position] = this.__alpha;
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					floatData[++this._position] = this._colorOffset;
+					floatData[++this.__position] = this.__colorOffset;
 				}
 				else
 				{
-					floatData[++this._position] = this._redOffset;
-					floatData[++this._position] = this._greenOffset;
-					floatData[++this._position] = this._blueOffset;
-					floatData[++this._position] = this._alphaOffset;
+					floatData[++this.__position] = this.__redOffset;
+					floatData[++this.__position] = this.__greenOffset;
+					floatData[++this.__position] = this.__blueOffset;
+					floatData[++this.__position] = this.__alphaOffset;
 				}
 			}
 			
 			// TOP RIGHT
-			floatData[++this._position] = this._x + this._x2;
-			floatData[++this._position] = this._y + this._y2;
-			if (this._useColor)
+			floatData[++this.__position] = this.__x + this.__x2;
+			floatData[++this.__position] = this.__y + this.__y2;
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					floatData[++this._position] = this._color;
+					floatData[++this.__position] = this.__color;
 				}
 				else
 				{
-					floatData[++this._position] = this._red;
-					floatData[++this._position] = this._green;
-					floatData[++this._position] = this._blue;
-					floatData[++this._position] = this._alpha;
+					floatData[++this.__position] = this.__red;
+					floatData[++this.__position] = this.__green;
+					floatData[++this.__position] = this.__blue;
+					floatData[++this.__position] = this.__alpha;
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					floatData[++this._position] = this._colorOffset;
+					floatData[++this.__position] = this.__colorOffset;
 				}
 				else
 				{
-					floatData[++this._position] = this._redOffset;
-					floatData[++this._position] = this._greenOffset;
-					floatData[++this._position] = this._blueOffset;
-					floatData[++this._position] = this._alphaOffset;
+					floatData[++this.__position] = this.__redOffset;
+					floatData[++this.__position] = this.__greenOffset;
+					floatData[++this.__position] = this.__blueOffset;
+					floatData[++this.__position] = this.__alphaOffset;
 				}
 			}
 			
 			// BOTTOM LEFT
-			floatData[++this._position] = this._x + this._x3;
-			floatData[++this._position] = this._y + this._y3;
-			if (this._useColor)
+			floatData[++this.__position] = this.__x + this.__x3;
+			floatData[++this.__position] = this.__y + this.__y3;
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					floatData[++this._position] = this._color;
+					floatData[++this.__position] = this.__color;
 				}
 				else
 				{
-					floatData[++this._position] = this._red;
-					floatData[++this._position] = this._green;
-					floatData[++this._position] = this._blue;
-					floatData[++this._position] = this._alpha;
+					floatData[++this.__position] = this.__red;
+					floatData[++this.__position] = this.__green;
+					floatData[++this.__position] = this.__blue;
+					floatData[++this.__position] = this.__alpha;
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					floatData[++this._position] = this._colorOffset;
+					floatData[++this.__position] = this.__colorOffset;
 				}
 				else
 				{
-					floatData[++this._position] = this._redOffset;
-					floatData[++this._position] = this._greenOffset;
-					floatData[++this._position] = this._blueOffset;
-					floatData[++this._position] = this._alphaOffset;
+					floatData[++this.__position] = this.__redOffset;
+					floatData[++this.__position] = this.__greenOffset;
+					floatData[++this.__position] = this.__blueOffset;
+					floatData[++this.__position] = this.__alphaOffset;
 				}
 			}
 			
 			// BOTTOM RIGHT
-			floatData[++this._position] = this._x + this._x4;
-			floatData[++this._position] = this._y + this._y4;
-			if (this._useColor)
+			floatData[++this.__position] = this.__x + this.__x4;
+			floatData[++this.__position] = this.__y + this.__y4;
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					floatData[++this._position] = this._color;
+					floatData[++this.__position] = this.__color;
 				}
 				else
 				{
-					floatData[++this._position] = this._red;
-					floatData[++this._position] = this._green;
-					floatData[++this._position] = this._blue;
-					floatData[++this._position] = this._alpha;
+					floatData[++this.__position] = this.__red;
+					floatData[++this.__position] = this.__green;
+					floatData[++this.__position] = this.__blue;
+					floatData[++this.__position] = this.__alpha;
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					floatData[++this._position] = this._colorOffset;
+					floatData[++this.__position] = this.__colorOffset;
 				}
 				else
 				{
-					floatData[++this._position] = this._redOffset;
-					floatData[++this._position] = this._greenOffset;
-					floatData[++this._position] = this._blueOffset;
-					floatData[++this._position] = this._alphaOffset;
+					floatData[++this.__position] = this.__redOffset;
+					floatData[++this.__position] = this.__greenOffset;
+					floatData[++this.__position] = this.__blueOffset;
+					floatData[++this.__position] = this.__alphaOffset;
 				}
 			}
 			
-			++this._position;
+			++this.__position;
 		}
 		
-		renderData.numQuads += this._quadsWritten;
-		renderData.position = this._position;
-		renderData.totalQuads += this._quadsWritten;
+		renderData.numQuads += this.__quadsWritten;
+		renderData.position = this.__position;
+		renderData.totalQuads += this.__quadsWritten;
 		
-		if (this.numDatas == this._totalQuads)
+		if (this.numDatas == this.__totalQuads)
 		{
 			renderData.quadOffset = 0;
 			return true;
 		}
 		else
 		{
-			renderData.quadOffset += this._numQuads;
+			renderData.quadOffset += this.__numQuads;
 			return false;
 		}
 	}
@@ -1378,374 +1378,374 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	{
 		if (this._datas == null) return true;
 		
-		this._position = renderData.position;
-		this._quadsWritten = 0;
+		this.__position = renderData.position;
+		this.__quadsWritten = 0;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
-		this._pma = renderData.pma;
-		this._useColor = renderData.useColor;
-		this._useColorOffset = renderData.useColorOffset;
-		this._simpleColor = renderData.useSimpleColor;
-		this._numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
-		this._totalQuads = renderData.quadOffset + this._numQuads;
-		this._storeBounds = boundsData != null;
-		this._boundsIndex = this._storeBounds ? boundsData.length - 1 : -1;
+		this.__pma = renderData.pma;
+		this.__useColor = renderData.useColor;
+		this.__useColorOffset = renderData.useColorOffset;
+		this.__simpleColor = renderData.useSimpleColor;
+		this.__numQuads = MathUtils.minInt(this.numDatas - renderData.quadOffset, maxQuads);
+		this.__totalQuads = renderData.quadOffset + this.__numQuads;
+		this.__storeBounds = boundsData != null;
+		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
 		
 		renderOffsetX += this.x;
 		renderOffsetY += this.y;
-		for (i in renderData.quadOffset...this._totalQuads)
+		for (i in renderData.quadOffset...this.__totalQuads)
 		{
-			this._data = this._datas[i];
-			if (!this._data.visible) continue;
+			this.__data = this._datas[i];
+			if (!this.__data.visible) continue;
 			
-			++this._quadsWritten;
+			++this.__quadsWritten;
 			
-			this._x = this._data.x + this._data.offsetX + renderOffsetX;
-			this._y = this._data.y + this._data.offsetY + renderOffsetY;
+			this.__x = this.__data.x + this.__data.offsetX + renderOffsetX;
+			this.__y = this.__data.y + this.__data.offsetY + renderOffsetY;
 			
-			if (this._data._transformChanged)
+			if (this.__data._transformChanged)
 			{
-				this._rotationChanged = this._data._rotationChanged;
-				this._skewXChanged = this._data._skewXChanged;
-				this._skewYChanged = this._data._skewYChanged;
+				this.__rotationChanged = this.__data._rotationChanged;
+				this.__skewXChanged = this.__data._skewXChanged;
+				this.__skewYChanged = this.__data._skewYChanged;
 				
-				if (this._rotationChanged)
+				if (this.__rotationChanged)
 				{
-					this._rotation = this._data._rotation;
-					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
-					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
-					this._data._rotationChanged = false;
+					this.__rotation = this.__data._rotation;
+					this.__cosRotation = this.__data._cosRotation = Math.cos(this.__rotation);
+					this.__sinRotation = this.__data._sinRotation = Math.sin(this.__rotation);
+					this.__data._rotationChanged = false;
 				}
 				else
 				{
-					this._cosRotation = this._data._cosRotation;
-					this._sinRotation = this._data._sinRotation;
+					this.__cosRotation = this.__data._cosRotation;
+					this.__sinRotation = this.__data._sinRotation;
 				}
 				
-				if (this._skewXChanged)
+				if (this.__skewXChanged)
 				{
-					this._skewX = this._data._skewX;
-					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
-					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
-					this._data._skewXChanged = false;
+					this.__skewX = this.__data._skewX;
+					this.__cosSkewX = this.__data._cosSkewX = Math.cos(this.__skewX);
+					this.__sinSkewX = this.__data._sinSkewX = -Math.sin(this.__skewX);
+					this.__data._skewXChanged = false;
 				}
 				else
 				{
-					this._cosSkewX = this._data._cosSkewX;
-					this._sinSkewX = this._data._sinSkewX;
+					this.__cosSkewX = this.__data._cosSkewX;
+					this.__sinSkewX = this.__data._sinSkewX;
 				}
 				
-				if (this._skewYChanged)
+				if (this.__skewYChanged)
 				{
-					this._skewY = this._data._skewY;
-					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
-					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
-					this._data._skewYChanged = false;
+					this.__skewY = this.__data._skewY;
+					this.__cosSkewY = this.__data._cosSkewY = Math.cos(this.__skewY);
+					this.__sinSkewY = this.__data._sinSkewY = Math.sin(this.__skewY);
+					this.__data._skewYChanged = false;
 				}
 				else
 				{
-					this._cosSkewY = this._data._cosSkewY;
-					this._sinSkewY = this._data._sinSkewY;
+					this.__cosSkewY = this.__data._cosSkewY;
+					this.__sinSkewY = this.__data._sinSkewY;
 				}
 				
-				if (this._data._sizeXChanged)
+				if (this.__data._sizeXChanged)
 				{
-					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
-					this._data._sizeXChanged = false;
+					this.__data._leftOffset = this.__data.leftWidth * this.__data._scaleX;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset = this.__data.rightWidth * this.__data._scaleX;
+					this.__data._sizeXChanged = false;
 				}
 				else
 				{
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset;
 				}
 				
-				if (this._data._sizeYChanged)
+				if (this.__data._sizeYChanged)
 				{
-					this._data._topOffset = this._data.topHeight * this._data._scaleY;
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
-					this._data._sizeYChanged = false;
+					this.__data._topOffset = this.__data.topHeight * this.__data._scaleY;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset = this.__data.bottomHeight * this.__data._scaleY;
+					this.__data._sizeYChanged = false;
 				}
 				else
 				{
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset;
 				}
 				
-				this._data._transformChanged = false;
+				this.__data._transformChanged = false;
 				
-				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				if (this.__rotationChanged || this.__skewXChanged || this.__skewYChanged)
 				{
-					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
-					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
-					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
-					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+					this.__a = this.__data._a = this.__cosSkewY * this.__cosRotation - this.__sinSkewY * this.__sinRotation;
+					this.__b = this.__data._b = this.__cosSkewY * this.__sinRotation + this.__sinSkewY * this.__cosRotation;
+					this.__c = this.__data._c = this.__sinSkewX * this.__cosRotation - this.__cosSkewX * this.__sinRotation;
+					this.__d = this.__data._d = this.__sinSkewX * this.__sinRotation + this.__cosSkewX * this.__cosRotation;
 				}
 				else
 				{
-					this._a = this._data._a;
-					this._b = this._data._b;
-					this._c = this._data._c;
-					this._d = this._data._d;
+					this.__a = this.__data._a;
+					this.__b = this.__data._b;
+					this.__c = this.__data._c;
+					this.__d = this.__data._d;
 				}
 				
-				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
-				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
-				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
-				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
-				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
-				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
-				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
-				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+				this.__x1 = this.__data._x1 = this.__leftOffset * this.__a + this.__topOffset * this.__c;
+				this.__y1 = this.__data._y1 = this.__leftOffset * this.__b + this.__topOffset * this.__d;
+				this.__x2 = this.__data._x2 = this.__rightOffset * this.__a + this.__topOffset * this.__c;
+				this.__y2 = this.__data._y2 = this.__rightOffset * this.__b + this.__topOffset * this.__d;
+				this.__x3 = this.__data._x3 = this.__leftOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y3 = this.__data._y3 = this.__leftOffset * this.__b + this.__bottomOffset * this.__d;
+				this.__x4 = this.__data._x4 = this.__rightOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y4 = this.__data._y4 = this.__rightOffset * this.__b + this.__bottomOffset * this.__d;
 			}
 			else
 			{
-				this._x1 = this._data._x1;
-				this._y1 = this._data._y1;
-				this._x2 = this._data._x2;
-				this._y2 = this._data._y2;
-				this._x3 = this._data._x3;
-				this._y3 = this._data._y3;
-				this._x4 = this._data._x4;
-				this._y4 = this._data._y4;
+				this.__x1 = this.__data._x1;
+				this.__y1 = this.__data._y1;
+				this.__x2 = this.__data._x2;
+				this.__y2 = this.__data._y2;
+				this.__x3 = this.__data._x3;
+				this.__y3 = this.__data._y3;
+				this.__x4 = this.__data._x4;
+				this.__y4 = this.__data._y4;
 			}
 			
-			if (this._useColor)
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					this._alpha = this._data.alpha;
-					this._alpha = this._alpha < 0.0 ? 0.0 : this._alpha > 1.0 ? 1.0 : this._alpha;
-					this._red = this._data.red;
-					this._red = this._red < 0.0 ? 0.0 : this._red > 1.0 ? 1.0 : this._red;
-					this._green = this._data.green;
-					this._green = this._green < 0.0 ? 0.0 : this._green > 1.0 ? 1.0 : this._green;
-					this._blue = this._data.blue;
-					this._blue = this._blue < 0.0 ? 0.0 : this._blue > 1.0 ? 1.0 : this._blue;
-					if (this._pma)
+					this.__alpha = this.__data.alpha;
+					this.__alpha = this.__alpha < 0.0 ? 0.0 : this.__alpha > 1.0 ? 1.0 : this.__alpha;
+					this.__red = this.__data.red;
+					this.__red = this.__red < 0.0 ? 0.0 : this.__red > 1.0 ? 1.0 : this.__red;
+					this.__green = this.__data.green;
+					this.__green = this.__green < 0.0 ? 0.0 : this.__green > 1.0 ? 1.0 : this.__green;
+					this.__blue = this.__data.blue;
+					this.__blue = this.__blue < 0.0 ? 0.0 : this.__blue > 1.0 ? 1.0 : this.__blue;
+					if (this.__pma)
 					{
-						this._color = Std.int(this._red * this._alpha * 255) | Std.int(this._green * this._alpha * 255) << 8 | Std.int(this._blue * this._alpha * 255) << 16 | Std.int(this._alpha * 255) << 24;
+						this.__color = Std.int(this.__red * this.__alpha * 255) | Std.int(this.__green * this.__alpha * 255) << 8 | Std.int(this.__blue * this.__alpha * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 					}
 					else
 					{
-						this._color = Std.int(this._red * 255) | Std.int(this._green * 255) << 8 | Std.int(this._blue * 255) << 16 | Std.int(this._alpha * 255) << 24;
+						this.__color = Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 					}
 				}
 				else
 				{
-					this._alpha = this._data.alpha;
-					if (this._pma)
+					this.__alpha = this.__data.alpha;
+					if (this.__pma)
 					{
-						this._red = this._data.red * this._alpha;
-						this._green = this._data.green * this._alpha;
-						this._blue = this._data.blue * this._alpha;
+						this.__red = this.__data.red * this.__alpha;
+						this.__green = this.__data.green * this.__alpha;
+						this.__blue = this.__data.blue * this.__alpha;
 					}
 					else
 					{
-						this._red = this._data.red;
-						this._green = this._data.green;
-						this._blue = this._data.blue;
+						this.__red = this.__data.red;
+						this.__green = this.__data.green;
+						this.__blue = this.__data.blue;
 					}
 				}
 			}
 			
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					this._alphaOffset = this._data.alphaOffset;
-					this._alphaOffset = this._alphaOffset < 0.0 ? 0.0 : this._alphaOffset > 1.0 ? 1.0 : this._alphaOffset;
-					this._redOffset = this._data.redOffset;
-					this._redOffset = this._redOffset < 0.0 ? 0.0 : this._redOffset > 1.0 ? 1.0 : this._redOffset;
-					this._greenOffset = this._data.greenOffset;
-					this._greenOffset = this._greenOffset < 0.0 ? 0.0 : this._greenOffset > 1.0 ? 1.0 : this._greenOffset;
-					this._blueOffset = this._data.blueOffset;
-					this._blueOffset = this._blueOffset < 0.0 ? 0.0 : this._blueOffset > 1.0 ? 1.0 : this._blueOffset;
-					if (this._useColor || renderData.useDisplayColor)
+					this.__alphaOffset = this.__data.alphaOffset;
+					this.__alphaOffset = this.__alphaOffset < 0.0 ? 0.0 : this.__alphaOffset > 1.0 ? 1.0 : this.__alphaOffset;
+					this.__redOffset = this.__data.redOffset;
+					this.__redOffset = this.__redOffset < 0.0 ? 0.0 : this.__redOffset > 1.0 ? 1.0 : this.__redOffset;
+					this.__greenOffset = this.__data.greenOffset;
+					this.__greenOffset = this.__greenOffset < 0.0 ? 0.0 : this.__greenOffset > 1.0 ? 1.0 : this.__greenOffset;
+					this.__blueOffset = this.__data.blueOffset;
+					this.__blueOffset = this.__blueOffset < 0.0 ? 0.0 : this.__blueOffset > 1.0 ? 1.0 : this.__blueOffset;
+					if (this.__useColor || renderData.useDisplayColor)
 					{
-						this._colorOffset = Std.int(this._redOffset * 255) | Std.int(this._greenOffset * 255) << 8 | Std.int(this._blueOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+						this.__colorOffset = Std.int(this.__redOffset * 255) | Std.int(this.__greenOffset * 255) << 8 | Std.int(this.__blueOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
 					}
 					else
 					{
-						this._colorOffset = Std.int(this._redOffset * this._alphaOffset * 255) | Std.int(this._greenOffset * this._alphaOffset * 255) << 8 | Std.int(this._blueOffset * this._alphaOffset * 255) << 16 | Std.int(this._alphaOffset * 255) << 24;
+						this.__colorOffset = Std.int(this.__redOffset * this.__alphaOffset * 255) | Std.int(this.__greenOffset * this.__alphaOffset * 255) << 8 | Std.int(this.__blueOffset * this.__alphaOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
 					}
 				}
 				else
 				{
-					this._alphaOffset = this._data.alphaOffset;
-					if (this._useColor || renderData.useDisplayColor)
+					this.__alphaOffset = this.__data.alphaOffset;
+					if (this.__useColor || renderData.useDisplayColor)
 					{
-						this._redOffset = this._data.redOffset;
-						this._greenOffset = this._data.greenOffset;
-						this._blueOffset = this._data.blueOffset;
+						this.__redOffset = this.__data.redOffset;
+						this.__greenOffset = this.__data.greenOffset;
+						this.__blueOffset = this.__data.blueOffset;
 					}
 					else
 					{
-						this._redOffset = this._data.redOffset * this._alphaOffset;
-						this._greenOffset = this._data.greenOffset * this._alphaOffset;
-						this._blueOffset = this._data.blueOffset * this._alphaOffset;
+						this.__redOffset = this.__data.redOffset * this.__alphaOffset;
+						this.__greenOffset = this.__data.greenOffset * this.__alphaOffset;
+						this.__blueOffset = this.__data.blueOffset * this.__alphaOffset;
 					}
 				}
 			}
 			
-			if (this._storeBounds)
+			if (this.__storeBounds)
 			{
-				boundsData[++this._boundsIndex] = this._x + this._x1;
-				boundsData[++this._boundsIndex] = this._y + this._y1;
-				boundsData[++this._boundsIndex] = this._x + this._x2;
-				boundsData[++this._boundsIndex] = this._y + this._y2;
-				boundsData[++this._boundsIndex] = this._x + this._x3;
-				boundsData[++this._boundsIndex] = this._y + this._y3;
-				boundsData[++this._boundsIndex] = this._x + this._x4;
-				boundsData[++this._boundsIndex] = this._y + this._y4;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x1;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y1;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x2;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y2;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x3;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y3;
+				boundsData[++this.__boundsIndex] = this.__x + this.__x4;
+				boundsData[++this.__boundsIndex] = this.__y + this.__y4;
 			}
 			
 			// TOP LEFT
-			vectorData[this._position]   = this._x + this._x1;
-			vectorData[++this._position] = this._y + this._y1;
-			if (this._useColor)
+			vectorData[this.__position]   = this.__x + this.__x1;
+			vectorData[++this.__position] = this.__y + this.__y1;
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					vectorData[++this._position] = this._color;
+					vectorData[++this.__position] = this.__color;
 				}
 				else
 				{
-					vectorData[++this._position] = this._red;
-					vectorData[++this._position] = this._green;
-					vectorData[++this._position] = this._blue;
-					vectorData[++this._position] = this._alpha;
+					vectorData[++this.__position] = this.__red;
+					vectorData[++this.__position] = this.__green;
+					vectorData[++this.__position] = this.__blue;
+					vectorData[++this.__position] = this.__alpha;
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					vectorData[++this._position] = this._colorOffset;
+					vectorData[++this.__position] = this.__colorOffset;
 				}
 				else
 				{
-					vectorData[++this._position] = this._redOffset;
-					vectorData[++this._position] = this._greenOffset;
-					vectorData[++this._position] = this._blueOffset;
-					vectorData[++this._position] = this._alphaOffset;
+					vectorData[++this.__position] = this.__redOffset;
+					vectorData[++this.__position] = this.__greenOffset;
+					vectorData[++this.__position] = this.__blueOffset;
+					vectorData[++this.__position] = this.__alphaOffset;
 				}
 			}
 			
 			// TOP RIGHT
-			vectorData[++this._position] = this._x + this._x2;
-			vectorData[++this._position] = this._y + this._y2;
-			if (this._useColor)
+			vectorData[++this.__position] = this.__x + this.__x2;
+			vectorData[++this.__position] = this.__y + this.__y2;
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					vectorData[++this._position] = this._color;
+					vectorData[++this.__position] = this.__color;
 				}
 				else
 				{
-					vectorData[++this._position] = this._red;
-					vectorData[++this._position] = this._green;
-					vectorData[++this._position] = this._blue;
-					vectorData[++this._position] = this._alpha;
+					vectorData[++this.__position] = this.__red;
+					vectorData[++this.__position] = this.__green;
+					vectorData[++this.__position] = this.__blue;
+					vectorData[++this.__position] = this.__alpha;
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					vectorData[++this._position] = this._colorOffset;
+					vectorData[++this.__position] = this.__colorOffset;
 				}
 				else
 				{
-					vectorData[++this._position] = this._redOffset;
-					vectorData[++this._position] = this._greenOffset;
-					vectorData[++this._position] = this._blueOffset;
-					vectorData[++this._position] = this._alphaOffset;
+					vectorData[++this.__position] = this.__redOffset;
+					vectorData[++this.__position] = this.__greenOffset;
+					vectorData[++this.__position] = this.__blueOffset;
+					vectorData[++this.__position] = this.__alphaOffset;
 				}
 			}
 			
 			// BOTTOM LEFT
-			vectorData[++this._position] = this._x + this._x3;
-			vectorData[++this._position] = this._y + this._y3;
-			if (this._useColor)
+			vectorData[++this.__position] = this.__x + this.__x3;
+			vectorData[++this.__position] = this.__y + this.__y3;
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					vectorData[++this._position] = this._color;
+					vectorData[++this.__position] = this.__color;
 				}
 				else
 				{
-					vectorData[++this._position] = this._red;
-					vectorData[++this._position] = this._green;
-					vectorData[++this._position] = this._blue;
-					vectorData[++this._position] = this._alpha;
+					vectorData[++this.__position] = this.__red;
+					vectorData[++this.__position] = this.__green;
+					vectorData[++this.__position] = this.__blue;
+					vectorData[++this.__position] = this.__alpha;
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					vectorData[++this._position] = this._colorOffset;
+					vectorData[++this.__position] = this.__colorOffset;
 				}
 				else
 				{
-					vectorData[++this._position] = this._redOffset;
-					vectorData[++this._position] = this._greenOffset;
-					vectorData[++this._position] = this._blueOffset;
-					vectorData[++this._position] = this._alphaOffset;
+					vectorData[++this.__position] = this.__redOffset;
+					vectorData[++this.__position] = this.__greenOffset;
+					vectorData[++this.__position] = this.__blueOffset;
+					vectorData[++this.__position] = this.__alphaOffset;
 				}
 			}
 			
 			// BOTTOM RIGHT
-			vectorData[++this._position] = this._x + this._x4;
-			vectorData[++this._position] = this._y + this._y4;
-			if (this._useColor)
+			vectorData[++this.__position] = this.__x + this.__x4;
+			vectorData[++this.__position] = this.__y + this.__y4;
+			if (this.__useColor)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					vectorData[++this._position] = this._color;
+					vectorData[++this.__position] = this.__color;
 				}
 				else
 				{
-					vectorData[++this._position] = this._red;
-					vectorData[++this._position] = this._green;
-					vectorData[++this._position] = this._blue;
-					vectorData[++this._position] = this._alpha;
+					vectorData[++this.__position] = this.__red;
+					vectorData[++this.__position] = this.__green;
+					vectorData[++this.__position] = this.__blue;
+					vectorData[++this.__position] = this.__alpha;
 				}
 			}
-			if (this._useColorOffset)
+			if (this.__useColorOffset)
 			{
-				if (this._simpleColor)
+				if (this.__simpleColor)
 				{
-					vectorData[++this._position] = this._colorOffset;
+					vectorData[++this.__position] = this.__colorOffset;
 				}
 				else
 				{
-					vectorData[++this._position] = this._redOffset;
-					vectorData[++this._position] = this._greenOffset;
-					vectorData[++this._position] = this._blueOffset;
-					vectorData[++this._position] = this._alphaOffset;
+					vectorData[++this.__position] = this.__redOffset;
+					vectorData[++this.__position] = this.__greenOffset;
+					vectorData[++this.__position] = this.__blueOffset;
+					vectorData[++this.__position] = this.__alphaOffset;
 				}
 			}
 			
-			++this._position;
+			++this.__position;
 		}
 		
-		renderData.numQuads += this._quadsWritten;
-		renderData.position = this._position;
-		renderData.totalQuads += this._quadsWritten;
+		renderData.numQuads += this.__quadsWritten;
+		renderData.position = this.__position;
+		renderData.totalQuads += this.__quadsWritten;
 		
-		if (this.numDatas == this._totalQuads)
+		if (this.numDatas == this.__totalQuads)
 		{
 			renderData.quadOffset = 0;
 			return true;
 		}
 		else
 		{
-			renderData.quadOffset += this._numQuads;
+			renderData.quadOffset += this.__numQuads;
 			return false;
 		}
 	}
@@ -1753,10 +1753,9 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 	/**
 	   @inheritDoc
 	**/
-	//public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderData:RenderData, renderOffsetX:Float, renderOffsetY:Float):Void
 	public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderOffsetX:Float, renderOffsetY:Float):Void
 	{
-		this._position = boundsData.length;
+		this.__position = boundsData.length;
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
@@ -1765,131 +1764,131 @@ class QuadLayer<T:QuadData = QuadData> extends MassiveLayer
 		
 		for (i in 0...this.numDatas)
 		{
-			this._data = this._datas[i];
-			if (!this._data.visible) continue;
+			this.__data = this._datas[i];
+			if (!this.__data.visible) continue;
 			
-			this._x = this._data.x + this._data.offsetX + renderOffsetX;
-			this._y = this._data.y + this._data.offsetY + renderOffsetY;
+			this.__x = this.__data.x + this.__data.offsetX + renderOffsetX;
+			this.__y = this.__data.y + this.__data.offsetY + renderOffsetY;
 			
-			if (this._data._transformChanged)
+			if (this.__data._transformChanged)
 			{
-				this._rotationChanged = this._data._rotationChanged;
-				this._skewXChanged = this._data._skewXChanged;
-				this._skewYChanged = this._data._skewYChanged;
+				this.__rotationChanged = this.__data._rotationChanged;
+				this.__skewXChanged = this.__data._skewXChanged;
+				this.__skewYChanged = this.__data._skewYChanged;
 				
-				if (this._rotationChanged)
+				if (this.__rotationChanged)
 				{
-					this._rotation = this._data._rotation;
-					this._cosRotation = this._data._cosRotation = Math.cos(this._rotation);
-					this._sinRotation = this._data._sinRotation = Math.sin(this._rotation);
-					this._data._rotationChanged = false;
+					this.__rotation = this.__data._rotation;
+					this.__cosRotation = this.__data._cosRotation = Math.cos(this.__rotation);
+					this.__sinRotation = this.__data._sinRotation = Math.sin(this.__rotation);
+					this.__data._rotationChanged = false;
 				}
 				else
 				{
-					this._cosRotation = this._data._cosRotation;
-					this._sinRotation = this._data._sinRotation;
+					this.__cosRotation = this.__data._cosRotation;
+					this.__sinRotation = this.__data._sinRotation;
 				}
 				
-				if (this._skewXChanged)
+				if (this.__skewXChanged)
 				{
-					this._skewX = this._data._skewX;
-					this._cosSkewX = this._data._cosSkewX = Math.cos(this._skewX);
-					this._sinSkewX = this._data._sinSkewX = -Math.sin(this._skewX);
-					this._data._skewXChanged = false;
+					this.__skewX = this.__data._skewX;
+					this.__cosSkewX = this.__data._cosSkewX = Math.cos(this.__skewX);
+					this.__sinSkewX = this.__data._sinSkewX = -Math.sin(this.__skewX);
+					this.__data._skewXChanged = false;
 				}
 				else
 				{
-					this._cosSkewX = this._data._cosSkewX;
-					this._sinSkewX = this._data._sinSkewX;
+					this.__cosSkewX = this.__data._cosSkewX;
+					this.__sinSkewX = this.__data._sinSkewX;
 				}
 				
-				if (this._skewYChanged)
+				if (this.__skewYChanged)
 				{
-					this._skewY = this._data._skewY;
-					this._cosSkewY = this._data._cosSkewY = Math.cos(this._skewY);
-					this._sinSkewY = this._data._sinSkewY = Math.sin(this._skewY);
-					this._data._skewYChanged = false;
+					this.__skewY = this.__data._skewY;
+					this.__cosSkewY = this.__data._cosSkewY = Math.cos(this.__skewY);
+					this.__sinSkewY = this.__data._sinSkewY = Math.sin(this.__skewY);
+					this.__data._skewYChanged = false;
 				}
 				else
 				{
-					this._cosSkewY = this._data._cosSkewY;
-					this._sinSkewY = this._data._sinSkewY;
+					this.__cosSkewY = this.__data._cosSkewY;
+					this.__sinSkewY = this.__data._sinSkewY;
 				}
 				
-				if (this._data._sizeXChanged)
+				if (this.__data._sizeXChanged)
 				{
-					this._data._leftOffset = this._data.leftWidth * this._data._scaleX;
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset = this._data.rightWidth * this._data._scaleX;
-					this._data._sizeXChanged = false;
+					this.__data._leftOffset = this.__data.leftWidth * this.__data._scaleX;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset = this.__data.rightWidth * this.__data._scaleX;
+					this.__data._sizeXChanged = false;
 				}
 				else
 				{
-					this._leftOffset = -this._data._leftOffset;
-					this._rightOffset = this._data._rightOffset;
+					this.__leftOffset = -this.__data._leftOffset;
+					this.__rightOffset = this.__data._rightOffset;
 				}
 				
-				if (this._data._sizeYChanged)
+				if (this.__data._sizeYChanged)
 				{
-					this._data._topOffset = this._data.topHeight * this._data._scaleY;
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset = this._data.bottomHeight * this._data._scaleY;
-					this._data._sizeYChanged = false;
+					this.__data._topOffset = this.__data.topHeight * this.__data._scaleY;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset = this.__data.bottomHeight * this.__data._scaleY;
+					this.__data._sizeYChanged = false;
 				}
 				else
 				{
-					this._topOffset = -this._data._topOffset;
-					this._bottomOffset = this._data._bottomOffset;
+					this.__topOffset = -this.__data._topOffset;
+					this.__bottomOffset = this.__data._bottomOffset;
 				}
 				
-				this._data._transformChanged = false;
+				this.__data._transformChanged = false;
 				
-				if (this._rotationChanged || this._skewXChanged || this._skewYChanged)
+				if (this.__rotationChanged || this.__skewXChanged || this.__skewYChanged)
 				{
-					this._a = this._data._a = this._cosSkewY * this._cosRotation - this._sinSkewY * this._sinRotation;
-					this._b = this._data._b = this._cosSkewY * this._sinRotation + this._sinSkewY * this._cosRotation;
-					this._c = this._data._c = this._sinSkewX * this._cosRotation - this._cosSkewX * this._sinRotation;
-					this._d = this._data._d = this._sinSkewX * this._sinRotation + this._cosSkewX * this._cosRotation;
+					this.__a = this.__data._a = this.__cosSkewY * this.__cosRotation - this.__sinSkewY * this.__sinRotation;
+					this.__b = this.__data._b = this.__cosSkewY * this.__sinRotation + this.__sinSkewY * this.__cosRotation;
+					this.__c = this.__data._c = this.__sinSkewX * this.__cosRotation - this.__cosSkewX * this.__sinRotation;
+					this.__d = this.__data._d = this.__sinSkewX * this.__sinRotation + this.__cosSkewX * this.__cosRotation;
 				}
 				else
 				{
-					this._a = this._data._a;
-					this._b = this._data._b;
-					this._c = this._data._c;
-					this._d = this._data._d;
+					this.__a = this.__data._a;
+					this.__b = this.__data._b;
+					this.__c = this.__data._c;
+					this.__d = this.__data._d;
 				}
 				
-				this._x1 = this._data._x1 = this._leftOffset * this._a + this._topOffset * this._c;
-				this._y1 = this._data._y1 = this._leftOffset * this._b + this._topOffset * this._d;
-				this._x2 = this._data._x2 = this._rightOffset * this._a + this._topOffset * this._c;
-				this._y2 = this._data._y2 = this._rightOffset * this._b + this._topOffset * this._d;
-				this._x3 = this._data._x3 = this._leftOffset * this._a + this._bottomOffset * this._c;
-				this._y3 = this._data._y3 = this._leftOffset * this._b + this._bottomOffset * this._d;
-				this._x4 = this._data._x4 = this._rightOffset * this._a + this._bottomOffset * this._c;
-				this._y4 = this._data._y4 = this._rightOffset * this._b + this._bottomOffset * this._d;
+				this.__x1 = this.__data._x1 = this.__leftOffset * this.__a + this.__topOffset * this.__c;
+				this.__y1 = this.__data._y1 = this.__leftOffset * this.__b + this.__topOffset * this.__d;
+				this.__x2 = this.__data._x2 = this.__rightOffset * this.__a + this.__topOffset * this.__c;
+				this.__y2 = this.__data._y2 = this.__rightOffset * this.__b + this.__topOffset * this.__d;
+				this.__x3 = this.__data._x3 = this.__leftOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y3 = this.__data._y3 = this.__leftOffset * this.__b + this.__bottomOffset * this.__d;
+				this.__x4 = this.__data._x4 = this.__rightOffset * this.__a + this.__bottomOffset * this.__c;
+				this.__y4 = this.__data._y4 = this.__rightOffset * this.__b + this.__bottomOffset * this.__d;
 			}
 			else
 			{
-				this._x1 = this._data._x1;
-				this._y1 = this._data._y1;
-				this._x2 = this._data._x2;
-				this._y2 = this._data._y2;
-				this._x3 = this._data._x3;
-				this._y3 = this._data._y3;
-				this._x4 = this._data._x4;
-				this._y4 = this._data._y4;
+				this.__x1 = this.__data._x1;
+				this.__y1 = this.__data._y1;
+				this.__x2 = this.__data._x2;
+				this.__y2 = this.__data._y2;
+				this.__x3 = this.__data._x3;
+				this.__y3 = this.__data._y3;
+				this.__x4 = this.__data._x4;
+				this.__y4 = this.__data._y4;
 			}
 			
-			boundsData[this._position]   = this._x + this._x1;
-			boundsData[++this._position] = this._y + this._y1;
-			boundsData[++this._position] = this._x + this._x2;
-			boundsData[++this._position] = this._y + this._y2;
-			boundsData[++this._position] = this._x + this._x3;
-			boundsData[++this._position] = this._y + this._y3;
-			boundsData[++this._position] = this._x + this._x4;
-			boundsData[++this._position] = this._y + this._y4;
+			boundsData[this.__position]   = this.__x + this.__x1;
+			boundsData[++this.__position] = this.__y + this.__y1;
+			boundsData[++this.__position] = this.__x + this.__x2;
+			boundsData[++this.__position] = this.__y + this.__y2;
+			boundsData[++this.__position] = this.__x + this.__x3;
+			boundsData[++this.__position] = this.__y + this.__y3;
+			boundsData[++this.__position] = this.__x + this.__x4;
+			boundsData[++this.__position] = this.__y + this.__y4;
 			
-			++this._position;
+			++this.__position;
 		}
 	}
 	
