@@ -33,13 +33,31 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	//##################################################
 	// EMITTER
 	//##################################################
+	private var _isTypeGravity:Bool = true;
+	private var _isTypeRadial:Bool = false;
 	/**
 	   Possible values :
 	   - 0 for gravity
 	   - 1 for radial
 	   @default 0
 	**/
-	public var emitterType:Int = EmitterType.GRAVITY;
+	public var emitterType(get, set):Int;
+	private var _emitterType:Int = EmitterType.GRAVITY;
+	private function get_emitterType():Int { return this._emitterType; }
+	private function set_emitterType(value:Int):Int
+	{
+		if (value == EmitterType.GRAVITY)
+		{
+			this._isTypeGravity = true;
+			this._isTypeRadial = false;
+		}
+		else
+		{
+			this._isTypeGravity = false;
+			this._isTypeRadial = true;
+		}
+		return this._emitterType = value;
+	}
 	
 	/**
 	   Maximum number of particles used by the system
@@ -206,6 +224,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	**/
 	public var emitAngleAlignedRotation:Bool = false;
 	
+	/**
+	   Rotation offset when emitAngleAlignedRotation is set to true
+	   @default	0
+	**/
+	public var emitAngleAlignedRotationOffset:Float = 0.0;
+	
 	private var _emissionTime:Float;
 	private var _emissionTimePredefined:Float = MathUtils.FLOAT_MAX;
 	
@@ -307,11 +331,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._fadeOutTime = value;
 	}
 	
+	private var _useSizeX:Bool = false;
+	private var _useSizeY:Bool = false;
+	
 	/**
 	   sets both sizeXStart and sizeYStart
 	**/
 	public var sizeStart(get, set):Float;
-	private function get_sizeStart():Float { return this.sizeXStart; }
+	private function get_sizeStart():Float { return this._sizeXStart; }
 	private function set_sizeStart(value:Float):Float
 	{
 		return this.sizeXStart = this.sizeYStart = value;
@@ -321,7 +348,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   sets both sizeXStartVariance and sizeYStartVariance
 	**/
 	public var sizeStartVariance(get, set):Float;
-	private function get_sizeStartVariance():Float { return this.sizeXStartVariance; }
+	private function get_sizeStartVariance():Float { return this._sizeXStartVariance; }
 	private function set_sizeStartVariance(value:Float):Float
 	{
 		return this.sizeXStartVariance = this.sizeYStartVariance = value;
@@ -330,22 +357,82 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   @default 20
 	**/
-	public var sizeXStart:Float = 20;
+	public var sizeXStart(get, set):Float;
+	private var _sizeXStart:Float = 20.0;
+	private function get_sizeXStart():Float { return this._sizeXStart; }
+	private function set_sizeXStart(value:Float):Float
+	{
+		this._sizeXStart = value;
+		if (this._sizeXEndRelativeToStart)
+		{
+			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		return this._sizeXStart;
+	}
 	
 	/**
 	   @default 0
 	**/
-	public var sizeXStartVariance:Float = 0;
+	public var sizeXStartVariance(get, set):Float;
+	private var _sizeXStartVariance:Float = 0.0;
+	private function get_sizeXStartVariance():Float { return this._sizeXStartVariance; }
+	private function set_sizeXStartVariance(value:Float):Float
+	{
+		this._sizeXStartVariance = value;
+		if (this._sizeXEndRelativeToStart)
+		{
+			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		return this._sizeXStartVariance;
+	}
 	
 	/**
 	   @default 20
 	**/
-	public var sizeYStart:Float = 20;
+	public var sizeYStart(get, set):Float;
+	private var _sizeYStart:Float = 20.0;
+	private function get_sizeYStart():Float { return this._sizeYStart; }
+	private function set_sizeYStart(value:Float):Float
+	{
+		this._sizeYStart = value;
+		if (this._sizeYEndRelativeToStart)
+		{
+			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		return this._sizeYStart;
+	}
 	
 	/**
 	   @default 0
 	**/
-	public var sizeYStartVariance:Float = 0;
+	public var sizeYStartVariance(get, set):Float;
+	private var _sizeYStartVariance:Float = 0.0;
+	private function get_sizeYStartVariance():Float { return this._sizeYStartVariance; }
+	private function set_sizeYStartVariance(value:Float):Float
+	{
+		this._sizeYStartVariance = value;
+		if (this._sizeYEndRelativeToStart)
+		{
+			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		return this._sizeYStartVariance;
+	}
 	
 	/**
 	   sets both sizeXEnd and sizeYEnd
@@ -370,47 +457,427 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   @default 20
 	**/
-	public var sizeXEnd:Float = 20;
+	public var sizeXEnd(get, set):Float;
+	private var _sizeXEnd:Float = 20.0;
+	private function get_sizeXEnd():Float { return this._sizeXEnd; }
+	private function set_sizeXEnd(value:Float):Float
+	{
+		this._sizeXEnd = value;
+		if (this._sizeXEndRelativeToStart)
+		{
+			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		return this._sizeXEnd;
+	}
 	
 	/**
 	   @default 0
 	**/
-	public var sizeXEndVariance:Float = 0;
+	public var sizeXEndVariance(get, set):Float;
+	private var _sizeXEndVariance:Float = 0.0;
+	private function get_sizeXEndVariance():Float { return this._sizeXEndVariance; }
+	private function set_sizeXEndVariance(value:Float):Float
+	{
+		this._sizeXEndVariance = value;
+		if (this._sizeXEndRelativeToStart)
+		{
+			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		return this._sizeXEndVariance;
+	}
 	
 	/**
 	   @default 20
 	**/
-	public var sizeYEnd:Float = 20;
+	public var sizeYEnd(get, set):Float;
+	private var _sizeYEnd:Float = 20.0;
+	private function get_sizeYEnd():Float { return this._sizeYEnd; }
+	private function set_sizeYEnd(value:Float):Float
+	{
+		this._sizeYEnd = value;
+		if (this._sizeYEndRelativeToStart)
+		{
+			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		return this._sizeYEnd;
+	}
 	
 	/**
 	   @default 0
 	**/
-	public var sizeYEndVariance:Float = 0;
-	
-	/**
-	   @default 0
-	**/
-	public var rotationStart:Float = 0;
-	
-	/**
-	   @default 0
-	**/
-	public var rotationStartVariance:Float = 0;
-	
-	/**
-	   @default 0
-	**/
-	public var rotationEnd:Float = 0;
-	
-	/**
-	   @default 0
-	**/
-	public var rotationEndVariance:Float = 0;
+	public var sizeYEndVariance(get, set):Float;
+	private var _sizeYEndVariance:Float = 0.0;
+	private function get_sizeYEndVariance():Float { return this._sizeYEndVariance; }
+	private function set_sizeYEndVariance(value:Float):Float
+	{
+		this._sizeYEndVariance = value;
+		if (this._sizeYEndRelativeToStart)
+		{
+			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		return this._sizeYEndVariance;
+	}
 	
 	/**
 	   @default	false
 	**/
-	public var rotationEndRelativeToStart:Bool = false;
+	public var sizeXEndRelativeToStart(get, set):Bool;
+	private var _sizeXEndRelativeToStart:Bool = false;
+	private function get_sizeXEndRelativeToStart():Bool { return this._sizeXEndRelativeToStart; }
+	private function set_sizeXEndRelativeToStart(value:Bool):Bool
+	{
+		this._sizeXEndRelativeToStart = value;
+		if (this._sizeXEndRelativeToStart)
+		{
+			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		return this._sizeXEndRelativeToStart;
+	}
+	
+	/**
+	   @default	false
+	**/
+	public var sizeYEndRelativeToStart(get, set):Bool;
+	private var _sizeYEndRelativeToStart:Bool = false;
+	private function get_sizeYEndRelativeToStart():Bool { return this._sizeYEndRelativeToStart; }
+	private function set_sizeYEndRelativeToStart(value:Bool):Bool
+	{
+		this._sizeYEndRelativeToStart = value;
+		if (this._sizeYEndRelativeToStart)
+		{
+			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		return this._sizeYEndRelativeToStart;
+	}
+	
+	private var _useRotation:Bool = false;
+	
+	/**
+	   @default 0
+	**/
+	public var rotationStart(get, set):Float;
+	private var _rotationStart:Float = 0.0;
+	private function get_rotationStart():Float { return this._rotationStart; }
+	private function set_rotationStart(value:Float):Float
+	{
+		this._rotationStart = value;
+		if (this._rotationEndRelativeToStart)
+		{
+			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		else
+		{
+			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		return this._rotationStart;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var rotationStartVariance(get, set):Float;
+	private var _rotationStartVariance:Float = 0.0;
+	private function get_rotationStartVariance():Float { return this._rotationStartVariance; }
+	private function set_rotationStartVariance(value:Float):Float
+	{
+		this._rotationStartVariance = value;
+		if (this._rotationEndRelativeToStart)
+		{
+			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		else
+		{
+			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		return this._rotationStartVariance;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var rotationEnd(get, set):Float;
+	private var _rotationEnd:Float = 0.0;
+	private function get_rotationEnd():Float { return this._rotationEnd; }
+	private function set_rotationEnd(value:Float):Float
+	{
+		this._rotationEnd = value;
+		if (this._rotationEndRelativeToStart)
+		{
+			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		else
+		{
+			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		return this._rotationEnd;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var rotationEndVariance(get, set):Float;
+	private var _rotationEndVariance:Float = 0.0;
+	private function get_rotationEndVariance():Float { return this._rotationEndVariance; }
+	private function set_rotationEndVariance(value:Float):Float
+	{
+		this._rotationEndVariance = value;
+		if (this._rotationEndRelativeToStart)
+		{
+			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		else
+		{
+			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		return this._rotationEndVariance;
+	}
+	
+	/**
+	   @default	false
+	**/
+	public var rotationEndRelativeToStart(get, set):Bool;
+	private var _rotationEndRelativeToStart:Bool = false;
+	private function get_rotationEndRelativeToStart():Bool { return this._rotationEndRelativeToStart; }
+	private function set_rotationEndRelativeToStart(value:Bool):Bool
+	{
+		this._rotationEndRelativeToStart = value;
+		if (this._rotationEndRelativeToStart)
+		{
+			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		else
+		{
+			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		return this._rotationEndRelativeToStart;
+	}
+	
+	private var _useSkewX:Bool = false;
+	private var _useSkewY:Bool = false;
+	
+	/**
+	   @default	0
+	**/
+	public var skewXStart(get, set):Float;
+	private var _skewXStart:Float = 0.0;
+	private function get_skewXStart():Float { return this._skewXStart; }
+	private function set_skewXStart(value:Float):Float
+	{
+		this._skewXStart = value;
+		if (this._skewXEndRelativeToStart)
+		{
+			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		return this._skewXStart;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var skewXStartVariance(get, set):Float;
+	private var _skewXStartVariance:Float = 0.0;
+	private function get_skewXStartVariance():Float { return this._skewXStartVariance; }
+	private function set_skewXStartVariance(value:Float):Float
+	{
+		this._skewXStartVariance = value;
+		if (this._skewXEndRelativeToStart)
+		{
+			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		return this._skewXStartVariance;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var skewYStart(get, set):Float;
+	private var _skewYStart:Float = 0.0;
+	private function get_skewYStart():Float { return this._skewYStart; }
+	private function set_skewYStart(value:Float):Float
+	{
+		this._skewYStart = value;
+		if (this._skewYEndRelativeToStart)
+		{
+			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		return this._skewYStart;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var skewYStartVariance(get, set):Float;
+	private var _skewYStartVariance:Float = 0.0;
+	private function get_skewYStartVariance():Float { return this._skewYStartVariance; }
+	private function set_skewYStartVariance(value:Float):Float
+	{
+		this._skewYStartVariance = value;
+		if (this._skewYEndRelativeToStart)
+		{
+			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		return this._skewYStartVariance;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var skewXEnd(get, set):Float;
+	private var _skewXEnd:Float = 0.0;
+	private function get_skewXEnd():Float { return this._skewXEnd; }
+	private function set_skewXEnd(value:Float):Float
+	{
+		this._skewXEnd = value;
+		if (this._skewXEndRelativeToStart)
+		{
+			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		return this._skewXEnd;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var skewXEndVariance(get, set):Float;
+	private var _skewXEndVariance:Float = 0.0;
+	private function get_skewXEndVariance():Float { return this._skewXEndVariance; }
+	private function set_skewXEndVariance(value:Float):Float
+	{
+		this._skewXEndVariance = value;
+		if (this._skewXEndRelativeToStart)
+		{
+			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		return this._skewXEndVariance;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var skewYEnd(get, set):Float;
+	private var _skewYEnd:Float = 0.0;
+	private function get_skewYEnd():Float { return this._skewYEnd; }
+	private function set_skewYEnd(value:Float):Float
+	{
+		this._skewYEnd = value;
+		if (this._skewYEndRelativeToStart)
+		{
+			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		return this._skewYEnd;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var skewYEndVariance(get, set):Float;
+	private var _skewYEndVariance:Float = 0.0;
+	private function get_skewYEndVariance():Float { return this._skewYEndVariance; }
+	private function set_skewYEndVariance(value:Float):Float
+	{
+		this._skewYEndVariance = value;
+		if (this._skewYEndRelativeToStart)
+		{
+			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		return this._skewYEndVariance;
+	}
+	
+	/**
+	   @default	false
+	**/
+	public var skewXEndRelativeToStart(get, set):Bool;
+	private var _skewXEndRelativeToStart:Bool = false;
+	private function get_skewXEndRelativeToStart():Bool { return this._skewXEndRelativeToStart; }
+	private function set_skewXEndRelativeToStart(value:Bool):Bool
+	{
+		this._skewXEndRelativeToStart = value;
+		if (this._skewXEndRelativeToStart)
+		{
+			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		return this._skewXEndRelativeToStart;
+	}
+	
+	/**
+	   @default	false
+	**/
+	public var skewYEndRelativeToStart(get, set):Bool;
+	private var _skewYEndRelativeToStart:Bool = false;
+	private function get_skewYEndRelativeToStart():Bool { return this._skewYEndRelativeToStart; }
+	private function set_skewYEndRelativeToStart(value:Bool):Bool
+	{
+		this._skewYEndRelativeToStart = value;
+		if (this._skewYEndRelativeToStart)
+		{
+			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		return this._skewYEndRelativeToStart;
+	}
 	//##################################################
 	//\PARTICLE
 	//##################################################
@@ -483,6 +950,30 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	**/
 	public var velocityY:Float = 0.0;
 	
+	/**
+	   @default false
+	**/
+	public var linkRotationToVelocity:Bool = false;
+	
+	/**
+	   @default 0
+	**/
+	public var velocityRotationOffset:Float = 0.0;
+	
+	private var _useVelocityRotation:Bool = false;
+	
+	/**
+	   @default	0
+	**/
+	public var velocityRotationFactor(get, set):Float;
+	private var _velocityRotationFactor:Float = 0.0;
+	private function get_velocityRotationFactor():Float { return this._velocityRotationFactor; }
+	private function set_velocityRotationFactor(value:Float):Float
+	{
+		this._useVelocityRotation = value != 0.0;
+		return this._velocityRotationFactor = value;
+	}
+	
 	private var _useVelocityScale:Bool = false;
 	private var _useVelocityScaleX:Bool = false;
 	private var _useVelocityScaleY:Bool = false;
@@ -513,15 +1004,35 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._velocityScaleFactorY = value;
 	}
 	
-	/**
-	   @default false
-	**/
-	public var linkRotationToVelocity:Bool = false;
+	private var _useVelocitySkew:Bool = false;
+	private var _useVelocitySkewX:Bool = false;
+	private var _useVelocitySkewY:Bool = false;
 	
 	/**
-	   @default 0
+	   @default	0
 	**/
-	public var velocityRotationOffset:Float = 0.0;
+	public var velocitySkewFactorX(get, set):Float;
+	private var _velocitySkewFactorX:Float = 0.0;
+	private function get_velocitySkewFactorX():Float { return this._velocitySkewFactorX; }
+	private function set_velocitySkewFactorX(value:Float):Float
+	{
+		this._useVelocitySkewX = value != 0.0;
+		this._useVelocitySkew = this._useVelocitySkewX || this._useVelocitySkewY;
+		return this._velocitySkewFactorX = value;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var velocitySkewFactorY(get, set):Float;
+	private var _velocitySkewFactorY:Float = 0.0;
+	private function get_velocitySkewFactorY():Float { return this._velocitySkewFactorY; }
+	private function set_velocitySkewFactorY(value:Float):Float
+	{
+		this._useVelocitySkewY = value != 0.0;
+		this._useVelocitySkew = this._useVelocitySkewX || this._useVelocitySkewY;
+		return this._velocitySkewFactorY = value;
+	}
 	//##################################################
 	//\VELOCITY
 	//##################################################
@@ -615,35 +1126,89 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	**/
 	public var adjustLifeSpanToSpeed:Bool = false;
 	
-	/**
-	   @default 0
-	**/
-	public var gravityX:Float = 0.0;
+	private var _useGravity:Bool = false;
 	
 	/**
 	   @default 0
 	**/
-	public var gravityY:Float = 0.0;
+	public var gravityX(get, set):Float;
+	private var _gravityX:Float = 0.0;
+	private function get_gravityX():Float { return this._gravityX; }
+	private function set_gravityX(value:Float):Float
+	{
+		this._gravityX = value;
+		this._useGravity = this._gravityX != 0.0 || this._gravityY != 0.0;
+		return this._gravityX;
+	}
 	
 	/**
 	   @default 0
 	**/
-	public var radialAcceleration:Float = 0.0;
+	public var gravityY(get, set):Float;
+	private var _gravityY:Float = 0.0;
+	private function get_gravityY():Float { return this._gravityY; }
+	private function set_gravityY(value:Float):Float
+	{
+		this._gravityY = value;
+		this._useGravity = this._gravityX != 0.0 || this._gravityY != 0.0;
+		return this._gravityY;
+	}
+	
+	private var _useRadialAcceleration:Bool = false;
 	
 	/**
 	   @default 0
 	**/
-	public var radialAccelerationVariance:Float = 0.0;
+	public var radialAcceleration(get, set):Float;
+	private var _radialAcceleration:Float = 0.0;
+	private function get_radialAcceleration():Float { return this._radialAcceleration; }
+	private function set_radialAcceleration(value:Float):Float
+	{
+		this._radialAcceleration = value;
+		this._useRadialAcceleration = this._radialAcceleration != 0.0 || this._radialAccelerationVariance != 0.0;
+		return this._radialAcceleration;
+	}
 	
 	/**
 	   @default 0
 	**/
-	public var tangentialAcceleration:Float = 0.0;
+	public var radialAccelerationVariance(get, set):Float;
+	private var _radialAccelerationVariance:Float = 0.0;
+	private function get_radialAccelerationVariance():Float { return this._radialAccelerationVariance; }
+	private function set_radialAccelerationVariance(value:Float):Float
+	{
+		this._radialAccelerationVariance = value;
+		this._useRadialAcceleration = this._radialAcceleration != 0.0 || this._radialAccelerationVariance != 0.0;
+		return this._radialAccelerationVariance;
+	}
+	
+	private var _useTangentialAcceleration:Bool = false;
 	
 	/**
 	   @default 0
 	**/
-	public var tangentialAccelerationVariance:Float = 0.0;
+	public var tangentialAcceleration(get, set):Float;
+	private var _tangentialAcceleration:Float = 0.0;
+	private function get_tangentialAcceleration():Float { return this._tangentialAcceleration; }
+	private function set_tangentialAcceleration(value:Float):Float
+	{
+		this._tangentialAcceleration = value;
+		this._useTangentialAcceleration = this._tangentialAcceleration != 0.0 || this._tangentialAccelerationVariance != 0.0;
+		return this._tangentialAcceleration;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var tangentialAccelerationVariance(get, set):Float;
+	private var _tangentialAccelerationVariance:Float = 0.0;
+	private function get_tangentialAccelerationVariance():Float { return this._tangentialAccelerationVariance; }
+	private function set_tangentialAccelerationVariance(value:Float):Float
+	{
+		this._tangentialAccelerationVariance = value;
+		this._useTangentialAcceleration = this._tangentialAcceleration != 0.0 || this._tangentialAccelerationVariance != 0.0;
+		return this._tangentialAccelerationVariance;
+	}
 	
 	private var _useDrag:Bool = false;
 	
@@ -727,30 +1292,41 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	//##################################################
 	// COLOR
 	//##################################################
-	/**
-	   
-	**/
-	public var colorStart:MassiveTint = new MassiveTint(1, 1, 1, 1);
+	private var _useColor:Bool = false;
 	
 	/**
 	   
 	**/
-	public var colorStartVariance:MassiveTint = new MassiveTint(0, 0, 0, 0);
+	public var colorStart(default, null):MassiveTint;
 	
 	/**
 	   
 	**/
-	public var colorEnd:MassiveTint = new MassiveTint(1, 1, 1, 1);
+	public var colorStartVariance(default, null):MassiveTint;
 	
 	/**
 	   
 	**/
-	public var colorEndVariance:MassiveTint = new MassiveTint(0, 0, 0, 0);
+	public var colorEnd(default, null):MassiveTint;
+	
+	/**
+	   
+	**/
+	public var colorEndVariance(default, null):MassiveTint;
 	
 	/**
 	   @default	false
 	**/
-	public var colorEndRelativeToStart:Bool = false;
+	public var colorEndRelativeToStart(get, set):Bool;
+	private var _colorEndRelativeToStart:Bool = false;
+	private function get_colorEndRelativeToStart():Bool { return this._colorEndRelativeToStart; }
+	private function set_colorEndRelativeToStart(value:Bool):Bool
+	{
+		if (this._colorEndRelativeToStart == value) return value;
+		this._colorEndRelativeToStart = value;
+		checkColor();
+		return this._colorEndRelativeToStart;
+	}
 	
 	/**
 	   @default	false
@@ -820,11 +1396,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyMode ::: " + value);
 		}
 		
-		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
-											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		checkOscillationGlobalFrequency();
 		
 		return this._oscillationPositionFrequencyMode = value;
 	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationPositionGroupStartStep:Float = 0.0;
 	
 	/**
 	   @default 0
@@ -906,8 +1486,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationPositionUnifiedFrequencyVariance(value:Bool):Bool
 	{
 		this._oscillationPositionUnifiedFrequencyVariance = value;
-		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
-													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		checkOscillationUnifiedFrequencyVariance();
 		return this._oscillationPositionUnifiedFrequencyVariance;
 	}
 	
@@ -950,8 +1529,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
 		}
 		
-		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
-													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		checkOscillationUnifiedFrequencyStart();
 		
 		return this._oscillationPositionFrequencyStart = value;
 	}
@@ -996,11 +1574,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyMode ::: " + value);
 		}
 		
-		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
-											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		checkOscillationGlobalFrequency();
 		
 		return this._oscillationPosition2FrequencyMode = value;
 	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationPosition2GroupStartStep:Float = 0.0;
 	
 	/**
 	   @default 0
@@ -1082,8 +1664,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationPosition2UnifiedFrequencyVariance(value:Bool):Bool
 	{
 		this._oscillationPosition2UnifiedFrequencyVariance = value;
-		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
-													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		checkOscillationUnifiedFrequencyVariance();
 		return this._oscillationPosition2UnifiedFrequencyVariance;
 	}
 	
@@ -1126,8 +1707,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
 		}
 		
-		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
-													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		checkOscillationUnifiedFrequencyStart();
 		
 		return this._oscillationPosition2FrequencyStart = value;
 	}
@@ -1170,11 +1750,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyMode ::: " + value);
 		}
 		
-		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
-											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		checkOscillationGlobalFrequency();
 		
 		return this._oscillationRotationFrequencyMode = value;
 	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationRotationGroupStartStep:Float = 0.0;
 	
 	/**
 	   @default 0
@@ -1214,8 +1798,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationRotationUnifiedFrequencyVariance(value:Bool):Bool
 	{
 		this._oscillationRotationUnifiedFrequencyVariance = value;
-		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
-													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		checkOscillationUnifiedFrequencyVariance();
 		return this._oscillationRotationUnifiedFrequencyVariance;
 	}
 	
@@ -1258,8 +1841,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
 		}
 		
-		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
-													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		checkOscillationUnifiedFrequencyStart();
 		
 		return this._oscillationRotationFrequencyStart = value;
 	}
@@ -1302,11 +1884,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyMode ::: " + value);
 		}
 		
-		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
-											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		checkOscillationGlobalFrequency();
 		
 		return this._oscillationScaleXFrequencyMode = value;
 	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationScaleXGroupStartStep:Float = 0.0;
 	
 	/**
 	   @default 0
@@ -1348,8 +1934,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationScaleXUnifiedFrequencyVariance(value:Bool):Bool
 	{
 		this._oscillationScaleXUnifiedFrequencyVariance = value;
-		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
-													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		checkOscillationUnifiedFrequencyVariance();
 		return this._oscillationScaleXUnifiedFrequencyVariance;
 	}
 	
@@ -1392,8 +1977,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
 		}
 		
-		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
-													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		checkOscillationUnifiedFrequencyStart();
 		
 		return this._oscillationScaleXFrequencyStart = value;
 	}
@@ -1436,11 +2020,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyMode ::: " + value);
 		}
 		
-		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
-											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		checkOscillationGlobalFrequency();
 		
 		return this._oscillationScaleYFrequencyMode = value;
 	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationScaleYGroupStartStep:Float = 0.0;
 	
 	/**
 	   @default 0
@@ -1482,8 +2070,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationScaleYUnifiedFrequencyVariance(value:Bool):Bool
 	{
 		this._oscillationScaleYUnifiedFrequencyVariance = value;
-		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
-													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		checkOscillationUnifiedFrequencyVariance();
 		return this._oscillationScaleYUnifiedFrequencyVariance;
 	}
 	
@@ -1526,10 +2113,281 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
 		}
 		
-		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
-													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		checkOscillationGlobalFrequency();
 		
 		return this._oscillationScaleYFrequencyStart = value;
+	}
+	
+	// oscillation skewX
+	private var _oscillationSkewXEnabled:Bool = false;
+	private var _oscillationSkewXGroupStep:Float;
+	private var _oscillationSkewXGroupValue:Float;
+	private var _oscillationSkewXGlobalFrequencyEnabled:Bool = false;
+	private var _oscillationSkewXGroupFrequencyEnabled:Bool = false;
+	private var _oscillationSkewXFrequencyStartRandomized:Bool = false;
+	private var _oscillationSkewXFrequencyStartUnified:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationSkewXFrequencyMode(get, set):String;
+	private var _oscillationSkewXFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationSkewXFrequencyMode():String { return this._oscillationSkewXFrequencyMode; }
+	private function set_oscillationSkewXFrequencyMode(value:String):String
+	{
+		if (this._oscillationSkewXFrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationSkewXGlobalFrequencyEnabled = true;
+				this._oscillationSkewXGroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationSkewXGlobalFrequencyEnabled = false;
+				this._oscillationSkewXGroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationSkewXGlobalFrequencyEnabled = false;
+				this._oscillationSkewXGroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		checkOscillationGlobalFrequency();
+		
+		return this._oscillationSkewXFrequencyMode = value;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationSkewXGroupStartStep:Float = 0.0;
+	
+	/**
+	   @default 0
+	**/
+	public var oscillationSkewX(get, set):Float;
+	private var _oscillationSkewX:Float = 0.0;
+	private function get_oscillationSkewX():Float { return this._oscillationSkewX; }
+	private function set_oscillationSkewX(value:Float):Float
+	{
+		this._oscillationSkewX = value;
+		this._oscillationSkewXEnabled = this._oscillationSkewX != 0.0 || this._oscillationSkewXVariance != 0.0;
+		return this._oscillationSkewX;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var oscillationSkewXVariance(get, set):Float;
+	private var _oscillationSkewXVariance:Float = 0.0;
+	private function get_oscillationSkewXVariance():Float { return this._oscillationSkewXVariance; }
+	private function set_oscillationSkewXVariance(value:Float):Float
+	{
+		this._oscillationSkewXVariance = value;
+		this._oscillationSkewXEnabled = this._oscillationSkewX != 0.0 || this._oscillationSkewXVariance != 0.0;
+		return this._oscillationSkewXVariance;
+	}
+	
+	/**
+	   @default 1
+	**/
+	public var oscillationSkewXFrequency:Float = 1.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationSkewXUnifiedFrequencyVariance(get, set):Bool;
+	private var _oscillationSkewXUnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationSkewXUnifiedFrequencyVariance():Bool { return this._oscillationSkewXUnifiedFrequencyVariance; }
+	private function set_oscillationSkewXUnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationSkewXUnifiedFrequencyVariance = value;
+		checkOscillationUnifiedFrequencyVariance();
+		return this._oscillationSkewXUnifiedFrequencyVariance;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var oscillationSkewXFrequencyVariance:Float = 0.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationSkewXFrequencyInverted:Bool = false;
+	
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationSkewXFrequencyStart(get, set):String;
+	private var _oscillationSkewXFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationSkewXFrequencyStart():String { return this._oscillationSkewXFrequencyStart; }
+	private function set_oscillationSkewXFrequencyStart(value:String):String
+	{
+		if (this._oscillationSkewXFrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationSkewXFrequencyStartRandomized = false;
+				this._oscillationSkewXFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationSkewXFrequencyStartRandomized = true;
+				this._oscillationSkewXFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationSkewXFrequencyStartRandomized = false;
+				this._oscillationSkewXFrequencyStartUnified = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		checkOscillationUnifiedFrequencyStart();
+		
+		return this._oscillationSkewXFrequencyStart = value;
+	}
+	
+	// oscillation skewY
+	private var _oscillationSkewYEnabled:Bool = false;
+	private var _oscillationSkewYGroupStep:Float;
+	private var _oscillationSkewYGroupValue:Float;
+	private var _oscillationSkewYGlobalFrequencyEnabled:Bool = false;
+	private var _oscillationSkewYGroupFrequencyEnabled:Bool = false;
+	private var _oscillationSkewYFrequencyStartRandomized:Bool = false;
+	private var _oscillationSkewYFrequencyStartUnified:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationSkewYFrequencyMode(get, set):String;
+	private var _oscillationSkewYFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationSkewYFrequencyMode():String { return this._oscillationSkewYFrequencyMode; }
+	private function set_oscillationSkewYFrequencyMode(value:String):String
+	{
+		if (this._oscillationSkewYFrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationSkewYGlobalFrequencyEnabled = true;
+				this._oscillationSkewYGroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationSkewYGlobalFrequencyEnabled = false;
+				this._oscillationSkewYGroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationSkewYGlobalFrequencyEnabled = false;
+				this._oscillationSkewYGroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		checkOscillationGlobalFrequency();
+		
+		return this._oscillationSkewYFrequencyMode = value;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationSkewYGroupStartStep:Float = 0.0;
+	
+	/**
+	   @default 0
+	**/
+	public var oscillationSkewY(get, set):Float;
+	private var _oscillationSkewY:Float = 0.0;
+	private function get_oscillationSkewY():Float { return this._oscillationSkewY; }
+	private function set_oscillationSkewY(value:Float):Float
+	{
+		this._oscillationSkewY = value;
+		this._oscillationSkewYEnabled = this._oscillationSkewY != 0.0 || this._oscillationSkewYVariance != 0.0;
+		return this._oscillationSkewY;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var oscillationSkewYVariance(get, set):Float;
+	private var _oscillationSkewYVariance:Float = 0.0;
+	private function get_oscillationSkewYVariance():Float { return this._oscillationSkewYVariance; }
+	private function set_oscillationSkewYVariance(value:Float):Float
+	{
+		this._oscillationSkewYVariance = value;
+		this._oscillationSkewYEnabled = this._oscillationSkewY != 0.0 || this._oscillationSkewYVariance != 0.0;
+		return this._oscillationSkewYVariance;
+	}
+	
+	/**
+	   @default 1
+	**/
+	public var oscillationSkewYFrequency:Float = 1.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationSkewYUnifiedFrequencyVariance(get, set):Bool;
+	private var _oscillationSkewYUnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationSkewYUnifiedFrequencyVariance():Bool { return this._oscillationSkewYUnifiedFrequencyVariance; }
+	private function set_oscillationSkewYUnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationSkewYUnifiedFrequencyVariance = value;
+		checkOscillationUnifiedFrequencyVariance();
+		return this._oscillationSkewYUnifiedFrequencyVariance;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var oscillationSkewYFrequencyVariance:Float = 0.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationSkewYFrequencyInverted:Bool = false;
+	
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationSkewYFrequencyStart(get, set):String;
+	private var _oscillationSkewYFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationSkewYFrequencyStart():String { return this._oscillationSkewYFrequencyStart; }
+	private function set_oscillationSkewYFrequencyStart(value:String):String
+	{
+		if (this._oscillationSkewYFrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationSkewYFrequencyStartRandomized = false;
+				this._oscillationSkewYFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationSkewYFrequencyStartRandomized = true;
+				this._oscillationSkewYFrequencyStartUnified = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationSkewYFrequencyStartRandomized = false;
+				this._oscillationSkewYFrequencyStartUnified = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		checkOscillationUnifiedFrequencyStart();
+		
+		return this._oscillationSkewYFrequencyStart = value;
 	}
 	
 	// oscillation color
@@ -1570,11 +2428,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyMode ::: " + value);
 		}
 		
-		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
-											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+		checkOscillationGlobalFrequency();
 		
 		return this._oscillationColorFrequencyMode = value;
 	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationColorGroupStartStep:Float = 0.0;
 	
 	/**
 	   @default 0
@@ -1655,8 +2517,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationColorGreenVariance(value:Float):Float
 	{
 		this._oscillationColorGreenVariance = value;
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
+		checkOscillationColor();
 		return this._oscillationColorGreenVariance;
 	}
 	
@@ -1669,8 +2530,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationColorBlueVariance(value:Float):Float
 	{
 		this._oscillationColorBlueVariance = value;
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
+		checkOscillationColor();
 		return this._oscillationColorBlueVariance;
 	}
 	
@@ -1683,8 +2543,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationColorAlphaVariance(value:Float):Float
 	{
 		this._oscillationColorAlphaVariance = value;
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
+		checkOscillationColor();
 		return this._oscillationColorAlphaVariance;
 	}
 	
@@ -1702,8 +2561,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_oscillationColorUnifiedFrequencyVariance(value:Bool):Bool
 	{
 		this._oscillationColorUnifiedFrequencyVariance = value;
-		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
-													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+		checkOscillationUnifiedFrequencyVariance();
 		return this._oscillationColorUnifiedFrequencyVariance;
 	}
 	
@@ -1746,8 +2604,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
 		}
 		
-		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
-													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		checkOscillationUnifiedFrequencyStart();
 		
 		return this._oscillationColorFrequencyStart = value;
 	}
@@ -1819,6 +2676,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	public function new(options:ParticleSystemOptions = null) 
 	{
 		super();
+		
+		this.colorStart = new MassiveTint(1.0, 1.0, 1.0, 1.0, colorChange);
+		this.colorStartVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorChange);
+		this.colorEnd = new MassiveTint(1.0, 1.0, 1.0, 1.0, colorChange);
+		this.colorEndVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorChange);
 		
 		this.animate = true;
 		this.autoHandleNumDatas = false;
@@ -1935,6 +2797,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var __sizeXEnd:Float;
 	private var __sizeYStart:Float;
 	private var __sizeYEnd:Float;
+	private var __skewXStart:Float;
+	private var __skewXEnd:Float;
+	private var __skewYStart:Float;
+	private var __skewYEnd:Float;
 	private var __speed:Float;
 	private var __velocityXInheritRatio:Float;
 	private var __velocityYInheritRatio:Float;
@@ -1976,13 +2842,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			}
 		}
 		
-		this.__speed = this.speed + this.speedVariance * getRandomRatio();
-		if (this.adjustLifeSpanToSpeed)
+		if (this._isTypeGravity)
 		{
-			this.__ratio = this.speed / this.__speed;
-			this.__lifeSpan *= this.__ratio;
+			this.__speed = this.speed + this.speedVariance * getRandomRatio();
+			if (this.adjustLifeSpanToSpeed)
+			{
+				this.__ratio = this.speed / this.__speed;
+				this.__lifeSpan *= this.__ratio;
+			}
+			particle.speed = this.__speed;
 		}
-		particle.speed = this.__speed;
 		
 		if (this._useFadeIn)
 		{
@@ -2028,8 +2897,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		particle.angle = this.__angle = this.emitAngle + this.emitAngleVariance * getRandomRatio();
 		
-		particle.velocityX = this.__speed * Math.cos(this.__angle);
-		particle.velocityY = this.__speed * Math.sin(this.__angle);
+		if (this._isTypeGravity)
+		{
+			particle.velocityX = this.__speed * Math.cos(this.__angle);
+			particle.velocityY = this.__speed * Math.sin(this.__angle);
+		}
 		
 		if (this._useVelocityInheritanceX)
 		{
@@ -2048,27 +2920,88 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.dragForce = this._drag + this._dragVariance * getRandomRatio();
 		}
 		
-		particle.emitRadius = this.radiusMax + this.radiusMaxVariance * getRandomRatio();
-		particle.emitRadiusDelta = (this.radiusMin + this.radiusMinVariance * getRandomRatio() - particle.emitRadius) / this.__lifeSpan;
-		particle.emitRotation = this.emitAngle + this.emitAngleVariance * getRandomRatio();
-		particle.emitRotationDelta = this.rotatePerSecond + this.rotatePerSecondVariance * getRandomRatio();
-		particle.radialAcceleration = this.radialAcceleration + this.radialAccelerationVariance * getRandomRatio();
-		particle.tangentialAcceleration = this.tangentialAcceleration + this.tangentialAccelerationVariance * getRandomRatio();
+		if (this._isTypeRadial)
+		{
+			particle.emitRadius = this.radiusMax + this.radiusMaxVariance * getRandomRatio();
+			particle.emitRadiusDelta = (this.radiusMin + this.radiusMinVariance * getRandomRatio() - particle.emitRadius) / this.__lifeSpan;
+			particle.emitRotation = this.emitAngle + this.emitAngleVariance * getRandomRatio();
+			particle.emitRotationDelta = this.rotatePerSecond + this.rotatePerSecondVariance * getRandomRatio();
+		}
+		if (this._useRadialAcceleration) particle.radialAcceleration = this._radialAcceleration + this._radialAccelerationVariance * getRandomRatio();
+		if (this._useTangentialAcceleration) particle.tangentialAcceleration = this._tangentialAcceleration + this._tangentialAccelerationVariance * getRandomRatio();
 		
-		particle.sizeXStart = this.__sizeXStart = this.sizeXStart + this.sizeXStartVariance * getRandomRatio();
-		particle.sizeYStart = this.__sizeYStart = this.sizeYStart + this.sizeYStartVariance * getRandomRatio();
-		particle.sizeXEnd = this.__sizeXEnd = this.sizeXEnd + this.sizeXEndVariance * getRandomRatio();
-		particle.sizeYEnd = this.__sizeYEnd = this.sizeYEnd + this.sizeYEndVariance * getRandomRatio();
+		if (this._useSizeX)
+		{
+			particle.sizeXStart = this.__sizeXStart = this._sizeXStart + this._sizeXStartVariance * getRandomRatio();
+			particle.sizeXEnd = this.__sizeXEnd = this._sizeXEnd + this._sizeXEndVariance * getRandomRatio();
+		}
+		else
+		{
+			particle.sizeXStart = this.__sizeXStart = this._sizeXStart;
+		}
+		if (this._useSizeY)
+		{
+			particle.sizeYStart = this.__sizeYStart = this._sizeYStart + this._sizeYStartVariance * getRandomRatio();
+			particle.sizeYEnd = this.__sizeYEnd = this._sizeYEnd + this._sizeYEndVariance * getRandomRatio();
+		}
+		else
+		{
+			particle.sizeYStart = this.__sizeYStart = this._sizeYStart;
+		}
 		
 		this.__firstFrameWidth = particle.frameList[0].width;
-		particle.scaleX = particle.scaleXBase = particle.scaleXStart = this.__sizeXStart / this.__firstFrameWidth;
-		particle.scaleY = particle.scaleYBase = particle.scaleYStart = this.__sizeYStart / this.__firstFrameWidth;
-		particle.scaleXEnd = this.__sizeXEnd / this.__firstFrameWidth;
-		particle.scaleYEnd = this.__sizeYEnd / this.__firstFrameWidth;
-		particle.scaleXDelta = (particle.scaleXEnd - particle.scaleXStart) / this.__lifeSpan;
-		particle.scaleYDelta = (particle.scaleYEnd - particle.scaleYStart) / this.__lifeSpan;
+		particle.scaleXBase = particle.scaleXStart = this.__sizeXStart / this.__firstFrameWidth;
+		particle.scaleYBase = particle.scaleYStart = this.__sizeYStart / this.__firstFrameWidth;
+		if (this._useSizeX)
+		{
+			particle.scaleXEnd = this.__sizeXEnd / this.__firstFrameWidth;
+			particle.scaleXDelta = (particle.scaleXEnd - particle.scaleXStart) / this.__lifeSpan;
+		}
+		if (this._useSizeY)
+		{
+			particle.scaleYEnd = this.__sizeYEnd / this.__firstFrameWidth;
+			particle.scaleYDelta = (particle.scaleYEnd - particle.scaleYStart) / this.__lifeSpan;
+		}
 		
+		particle.rotationVelocity = 0.0;
 		particle.scaleXVelocity = particle.scaleYVelocity = 1.0;
+		particle.skewXVelocity = particle.skewYVelocity = 0.0;
+		
+		if (this._useSkewX)
+		{
+			particle.skewXBase = particle.skewXStart = this.__skewXStart = this._skewXStart + this._skewXStartVariance * getRandomRatio();
+			if (this.skewXEndRelativeToStart)
+			{
+				particle.skewXEnd = this.__skewXEnd = this.__skewXStart + this._skewXEnd + this._skewXEndVariance * getRandomRatio();
+			}
+			else
+			{
+				particle.skewXEnd = this.__skewXEnd = this._skewXEnd + this._skewXEndVariance * getRandomRatio();
+			}
+			particle.skewXDelta = (this.__skewXEnd - this.__skewXStart) / this.__lifeSpan;
+		}
+		else
+		{
+			particle.skewXBase = 0.0;
+		}
+		
+		if (this._useSkewY)
+		{
+			particle.skewYBase = particle.skewYStart = this.__skewYStart = this._skewYStart + this._skewYStartVariance * getRandomRatio();
+			if (this.skewYEndRelativeToStart)
+			{
+				particle.skewYEnd = this.__skewYEnd = this.__skewYStart + this._skewYEnd + this._skewYEndVariance * getRandomRatio();
+			}
+			else
+			{
+				particle.skewYEnd = this.__skewYEnd = this._skewYEnd + this._skewYEndVariance * getRandomRatio();
+			}
+			particle.skewYDelta = (this.__skewYEnd - this.__skewYStart) / this.__lifeSpan;
+		}
+		else
+		{
+			particle.skewYBase = 0.0;
+		}
 		
 		// OSCILLATION
 		if (this._useOscillationUnifiedFrequencyStart)
@@ -2247,6 +3180,72 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.scaleYOscillation = 1.0;
 		}
 		
+		if (this._oscillationSkewXEnabled)
+		{
+			particle.oscillationSkewX = this._oscillationSkewX + this._oscillationSkewXVariance * getRandomRatio();
+			if (!this._oscillationSkewXGlobalFrequencyEnabled && !this._oscillationSkewXGroupFrequencyEnabled)
+			{
+				if (this._oscillationSkewXUnifiedFrequencyVariance)
+				{
+					particle.oscillationSkewXFrequency = this.oscillationSkewXFrequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationSkewXFrequency = this.oscillationSkewXFrequency + this.oscillationSkewXFrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationSkewXFrequencyStartRandomized)
+				{
+					particle.oscillationSkewXStep = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationSkewXFrequencyStartUnified)
+				{
+					particle.oscillationSkewXStep = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationSkewXStep = 0.0;
+				}
+			}
+		}
+		else
+		{
+			particle.skewXOscillation = 0.0;
+		}
+		
+		if (this._oscillationSkewYEnabled)
+		{
+			particle.oscillationSkewY = this._oscillationSkewY + this._oscillationSkewYVariance * getRandomRatio();
+			if (!this._oscillationSkewYGlobalFrequencyEnabled && !this._oscillationSkewYGroupFrequencyEnabled)
+			{
+				if (this._oscillationSkewYUnifiedFrequencyVariance)
+				{
+					particle.oscillationSkewYFrequency = this.oscillationSkewYFrequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationSkewYFrequency = this.oscillationSkewYFrequency + this.oscillationSkewYFrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationSkewYFrequencyStartRandomized)
+				{
+					particle.oscillationSkewYStep = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationSkewYFrequencyStartUnified)
+				{
+					particle.oscillationSkewYStep = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationSkewYStep = 0.0;
+				}
+			}
+		}
+		else
+		{
+			particle.skewYOscillation = 0.0;
+		}
+		
 		if (this._useOscillationColor)
 		{
 			particle.oscillationColorRedFactor = this._oscillationColorRed + this._oscillationColorRedVariance * getRandomRatio();
@@ -2284,85 +3283,100 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 		//\OSCILLATION
 		
-		this.__colorRedStart = this.colorStart.red + this.colorStartVariance.red * getRandomRatio();
-		this.__colorGreenStart = this.colorStart.green + this.colorStartVariance.green * getRandomRatio();
-		this.__colorBlueStart = this.colorStart.blue + this.colorStartVariance.blue * getRandomRatio();
-		this.__colorAlphaStart = this.colorStart.alpha + this.colorStartVariance.alpha * getRandomRatio();
+		this.__colorRedStart = this.colorStart.redValue + this.colorStartVariance.redValue * getRandomRatio();
+		this.__colorGreenStart = this.colorStart.greenValue + this.colorStartVariance.greenValue * getRandomRatio();
+		this.__colorBlueStart = this.colorStart.blueValue + this.colorStartVariance.blueValue * getRandomRatio();
+		this.__colorAlphaStart = this.colorStart.alphaValue + this.colorStartVariance.alphaValue * getRandomRatio();
 		
-		if (this.colorEndRelativeToStart)
+		if (this._useColor)
 		{
-			if (this.colorEndIsMultiplier)
+			if (this.colorEndRelativeToStart)
 			{
-				this.__colorRedEnd = this.__colorRedStart * (this.colorEnd.red + this.colorEndVariance.red * getRandomRatio());
-				this.__colorGreenEnd = this.__colorGreenStart * (this.colorEnd.green + this.colorEndVariance.green * getRandomRatio());
-				this.__colorBlueEnd = this.__colorBlueStart * (this.colorEnd.blue + this.colorEndVariance.blue * getRandomRatio());
-				this.__colorAlphaEnd = this.__colorAlphaStart * (this.colorEnd.alpha + this.colorEndVariance.alpha * getRandomRatio());
+				if (this.colorEndIsMultiplier)
+				{
+					this.__colorRedEnd = this.__colorRedStart * (this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio());
+					this.__colorGreenEnd = this.__colorGreenStart * (this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio());
+					this.__colorBlueEnd = this.__colorBlueStart * (this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio());
+					this.__colorAlphaEnd = this.__colorAlphaStart * (this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio());
+				}
+				else
+				{
+					this.__colorRedEnd = this.__colorRedStart + this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio();
+					this.__colorGreenEnd = this.__colorGreenStart + this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio();
+					this.__colorBlueEnd = this.__colorBlueStart + this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio();
+					this.__colorAlphaEnd = this.__colorAlphaStart + this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio();
+				}
 			}
 			else
 			{
-				this.__colorRedEnd = this.__colorRedStart + this.colorEnd.red + this.colorEndVariance.red * getRandomRatio();
-				this.__colorGreenEnd = this.__colorGreenStart + this.colorEnd.green + this.colorEndVariance.green * getRandomRatio();
-				this.__colorBlueEnd = this.__colorBlueStart + this.colorEnd.blue + this.colorEndVariance.blue * getRandomRatio();
-				this.__colorAlphaEnd = this.__colorAlphaStart + this.colorEnd.alpha + this.colorEndVariance.alpha * getRandomRatio();
+				this.__colorRedEnd = this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio();
+				this.__colorGreenEnd = this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio();
+				this.__colorBlueEnd = this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio();
+				this.__colorAlphaEnd = this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio();
 			}
+			
+			particle.colorRedBase = this.__colorRedStart;
+			particle.colorGreenBase = this.__colorGreenStart;
+			particle.colorBlueBase = this.__colorBlueStart;
+			particle.colorAlphaBase = this._useFadeIn ? 0.0 : this.__colorAlphaStart;
+			
+			particle.colorRedStart = this.__colorRedStart;
+			particle.colorGreenStart = this.__colorGreenStart;
+			particle.colorBlueStart = this.__colorBlueStart;
+			particle.colorAlphaStart = this.__colorAlphaStart;
+			
+			particle.colorRedEnd = this.__colorRedEnd;
+			particle.colorGreenEnd = this.__colorGreenEnd;
+			particle.colorBlueEnd = this.__colorBlueEnd;
+			particle.colorAlphaEnd = this.__colorAlphaEnd;
+			
+			particle.colorRedDelta = (this.__colorRedEnd - this.__colorRedStart) / this.__lifeSpan;
+			particle.colorGreenDelta = (this.__colorGreenEnd - this.__colorGreenStart) / this.__lifeSpan;
+			particle.colorBlueDelta = (this.__colorBlueEnd - this.__colorBlueStart) / this.__lifeSpan;
+			particle.colorAlphaDelta = (this.__colorAlphaEnd - this.__colorAlphaStart) / this.__nonFadeTime; // we only interpolate alpha after fade in and before fade out
 		}
 		else
 		{
-			this.__colorRedEnd = this.colorEnd.red + this.colorEndVariance.red * getRandomRatio();
-			this.__colorGreenEnd = this.colorEnd.green + this.colorEndVariance.green * getRandomRatio();
-			this.__colorBlueEnd = this.colorEnd.blue + this.colorEndVariance.blue * getRandomRatio();
-			this.__colorAlphaEnd = this.colorEnd.alpha + this.colorEndVariance.alpha * getRandomRatio();
+			particle.colorRedBase = this.__colorRedStart;
+			particle.colorGreenBase = this.__colorGreenStart;
+			particle.colorBlueBase = this.__colorBlueStart;
+			particle.colorAlphaBase = this._useFadeIn ? 0.0 : this.__colorAlphaStart;
+			
+			particle.colorAlphaStart = particle.colorAlphaEnd = this.__colorAlphaStart; // needed for fade in/out
 		}
-		
-		particle.colorRedBase = this.__colorRedStart;
-		particle.colorGreenBase = this.__colorGreenStart;
-		particle.colorBlueBase = this.__colorBlueStart;
-		particle.colorAlphaBase = this._useFadeIn ? 0.0 : this.__colorAlphaStart;
-		
-		particle.colorRedStart = this.__colorRedStart;
-		particle.colorGreenStart = this.__colorGreenStart;
-		particle.colorBlueStart = this.__colorBlueStart;
-		particle.colorAlphaStart = this.__colorAlphaStart;
-		
-		particle.colorRedEnd = this.__colorRedEnd;
-		particle.colorGreenEnd = this.__colorGreenEnd;
-		particle.colorBlueEnd = this.__colorBlueEnd;
-		particle.colorAlphaEnd = this.__colorAlphaEnd;
-		
-		particle.colorRedDelta = (this.__colorRedEnd - this.__colorRedStart) / this.__lifeSpan;
-		particle.colorGreenDelta = (this.__colorGreenEnd - this.__colorGreenStart) / this.__lifeSpan;
-		particle.colorBlueDelta = (this.__colorBlueEnd - this.__colorBlueStart) / this.__lifeSpan;
-		particle.colorAlphaDelta = (this.__colorAlphaEnd - this.__colorAlphaStart) / this.__nonFadeTime; // we only interpolate alpha
 		
 		particle.isFadingIn = this._useFadeIn;
 		
 		if (this.emitAngleAlignedRotation)
 		{
-			this.__rotationStart = this.__angle + this.rotationStart + this.rotationStartVariance * getRandomRatio();
-			if (this.rotationEndRelativeToStart)
+			this.__rotationStart = this.__angle + this.emitAngleAlignedRotationOffset + this._rotationStart + this._rotationStartVariance * getRandomRatio();
+			if (this._useRotation)
 			{
-				this.__rotationEnd = this.__rotationStart + this.rotationEnd + this.rotationEndVariance * getRandomRatio();
-			}
-			else
-			{
-				this.__rotationEnd = this.__angle + this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+				if (this.rotationEndRelativeToStart)
+				{
+					this.__rotationEnd = this.__rotationStart + this._rotationEnd + this._rotationEndVariance * getRandomRatio();
+				}
+				else
+				{
+					this.__rotationEnd = this.__angle + this._rotationEnd + this._rotationEndVariance * getRandomRatio();
+				}
 			}
 		}
 		else
 		{
-			this.__rotationStart = this.rotationStart + this.rotationStartVariance * getRandomRatio();
-			if (this.rotationEndRelativeToStart)
+			this.__rotationStart = this._rotationStart + this._rotationStartVariance * getRandomRatio();
+			if (this._rotationEndRelativeToStart)
 			{
-				this.__rotationEnd = this.__rotationStart + this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+				this.__rotationEnd = this.__rotationStart + this._rotationEnd + this._rotationEndVariance * getRandomRatio();
 			}
 			else
 			{
-				this.__rotationEnd = this.rotationEnd + this.rotationEndVariance * getRandomRatio();
+				this.__rotationEnd = this._rotationEnd + this._rotationEndVariance * getRandomRatio();
 			}
 		}
 		
 		particle.rotationBase = this.__rotationStart;
-		particle.rotationDelta = (this.__rotationEnd - this.__rotationStart) / this.__lifeSpan;
+		if (this._useRotation) particle.rotationDelta = (this.__rotationEnd - this.__rotationStart) / this.__lifeSpan;
 		
 		if (this.randomStartFrame)
 		{
@@ -2408,7 +3422,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.__velocityAngleCalculated = false;
 		
-		if (this.emitterType == EmitterType.RADIAL)
+		if (this._isTypeRadial)
 		{
 			// RADIAL
 			particle.emitRotation += particle.emitRotationDelta * passedTime;
@@ -2419,7 +3433,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		else
 		{
 			// GRAVITY
-			if (particle.radialAcceleration != 0 || particle.tangentialAcceleration != 0)
+			if (this._useRadialAcceleration || this._useTangentialAcceleration)
 			{
 				this.__distanceX = particle.x - particle.startX;
 				this.__distanceY = particle.y - particle.startY;
@@ -2438,13 +3452,13 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				this.__tangentialX = - this.__tangentialY * particle.tangentialAcceleration;
 				this.__tangentialY = this.__newY * particle.tangentialAcceleration;
 				
-				particle.velocityX += passedTime * (this.gravityX + this.__radialX + this.__tangentialX);
-				particle.velocityY += passedTime * (this.gravityY + this.__radialY + this.__tangentialY);
+				particle.velocityX += passedTime * (this._gravityX + this.__radialX + this.__tangentialX);
+				particle.velocityY += passedTime * (this._gravityY + this.__radialY + this.__tangentialY);
 			}
-			else
+			else if (this._useGravity)
 			{
-				particle.velocityX += passedTime * this.gravityX;
-				particle.velocityY += passedTime * this.gravityY;
+				particle.velocityX += passedTime * this._gravityX;
+				particle.velocityY += passedTime * this._gravityY;
 			}
 			
 			if (this._useRepellentForce)
@@ -2493,7 +3507,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			}
 			particle.rotationBase = this.__velocityAngle + this.velocityRotationOffset;
 		}
-		else
+		else if (this._useRotation)
 		{
 			particle.rotationBase += particle.rotationDelta * passedTime;
 		}
@@ -2720,6 +3734,68 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				}
 			}
 		}
+		
+		if (this._oscillationSkewXEnabled)
+		{
+			if (this._oscillationSkewXGlobalFrequencyEnabled)
+			{
+				if (this.oscillationSkewXFrequencyInverted)
+				{
+					particle.skewXOscillation = this._oscillationGlobalValueInverted * particle.oscillationSkewX;
+				}
+				else
+				{
+					particle.skewXOscillation = this._oscillationGlobalValue * particle.oscillationSkewX;
+				}
+			}
+			else if (this._oscillationSkewXGroupFrequencyEnabled)
+			{
+				particle.skewXOscillation = this._oscillationSkewXGroupValue * particle.oscillationSkewX;
+			}
+			else
+			{
+				particle.oscillationSkewXStep += particle.oscillationSkewXFrequency * passedTime;
+				if (this.oscillationSkewXFrequencyInverted)
+				{
+					particle.skewXOscillation = Math.sin(particle.oscillationSkewXStep) * particle.oscillationSkewX;
+				}
+				else
+				{
+					particle.skewXOscillation = Math.cos(particle.oscillationSkewXStep) * particle.oscillationSkewX;
+				}
+			}
+		}
+		
+		if (this._oscillationSkewYEnabled)
+		{
+			if (this._oscillationSkewYGlobalFrequencyEnabled)
+			{
+				if (this.oscillationSkewYFrequencyInverted)
+				{
+					particle.skewYOscillation = this._oscillationGlobalValueInverted * particle.oscillationSkewY;
+				}
+				else
+				{
+					particle.skewYOscillation = this._oscillationGlobalValue * particle.oscillationSkewY;
+				}
+			}
+			else if (this._oscillationSkewYGroupFrequencyEnabled)
+			{
+				particle.skewYOscillation = this._oscillationSkewYGroupValue * particle.oscillationSkewY;
+			}
+			else
+			{
+				particle.oscillationSkewYStep += particle.oscillationSkewYFrequency * passedTime;
+				if (this.oscillationSkewYFrequencyInverted)
+				{
+					particle.skewYOscillation = Math.sin(particle.oscillationSkewYStep) * particle.oscillationSkewY;
+				}
+				else
+				{
+					particle.skewYOscillation = Math.cos(particle.oscillationSkewYStep) * particle.oscillationSkewY;
+				}
+			}
+		}
 		//\OSCILLATION
 		
 		if (this.useDisplayRect)
@@ -2732,7 +3808,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			}
 		}
 		
-		if (this._useVelocityScale)
+		if (this._useVelocityScale || this._useVelocitySkew)
 		{
 			this.__velocityScalar = Math.sqrt(particle.velocityX * particle.velocityX + particle.velocityY * particle.velocityY);
 			if (this._useVelocityScaleX)
@@ -2743,16 +3819,40 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			{
 				particle.scaleYVelocity = 1.0 + (this.__velocityScalar * this._velocityScaleFactorY);
 			}
+			if (this._useVelocitySkewX)
+			{
+				particle.skewXVelocity = this.__velocityScalar * this._velocitySkewFactorX;
+			}
+			if (this._useVelocitySkewY)
+			{
+				particle.skewYVelocity = this.__velocityScalar * this._velocitySkewFactorY;
+			}
 		}
 		
-		particle.scaleXBase += particle.scaleXDelta * passedTime;
-		particle.scaleYBase += particle.scaleYDelta * passedTime;
+		if (this._useSkewX)
+		{
+			particle.skewXBase += particle.skewXDelta * passedTime;
+		}
+		
+		if (this._useSkewY)
+		{
+			particle.skewYBase += particle.skewYDelta * passedTime;
+		}
+		
+		particle.skewX = particle.skewXBase + particle.skewXOscillation + particle.skewXVelocity;
+		particle.skewY = particle.skewYBase + particle.skewYOscillation + particle.skewYVelocity;
+		
+		if (this._useSizeX)	particle.scaleXBase += particle.scaleXDelta * passedTime;
+		if (this._useSizeY) particle.scaleYBase += particle.scaleYDelta * passedTime;
 		particle.scaleX = particle.scaleXBase * particle.scaleXVelocity * particle.scaleXOscillation;
 		particle.scaleY = particle.scaleYBase * particle.scaleYVelocity * particle.scaleYOscillation;
 		
-		particle.colorRedBase += particle.colorRedDelta * passedTime;
-		particle.colorGreenBase += particle.colorGreenDelta * passedTime;
-		particle.colorBlueBase += particle.colorBlueDelta * passedTime;
+		if (this._useColor)
+		{
+			particle.colorRedBase += particle.colorRedDelta * passedTime;
+			particle.colorGreenBase += particle.colorGreenDelta * passedTime;
+			particle.colorBlueBase += particle.colorBlueDelta * passedTime;
+		}
 		
 		if (this._useFadeIn && particle.timeCurrent <= particle.fadeInTime)
 		{
@@ -2769,7 +3869,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				particle.colorAlphaBase = particle.colorAlphaStart;
 				particle.isFadingIn = false;
 			}
-			particle.colorAlphaBase += particle.colorAlphaDelta * passedTime;
+			if (this._useColor) particle.colorAlphaBase += particle.colorAlphaDelta * passedTime;
 		}
 		
 		// OSCILLATION COLOR
@@ -2903,6 +4003,32 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			else
 			{
 				this._oscillationScaleYGroupValue = Math.cos(this._oscillationScaleYGroupStep);
+			}
+		}
+		
+		if (this._oscillationSkewXEnabled && this._oscillationSkewXGroupFrequencyEnabled)
+		{
+			this._oscillationSkewXGroupStep += this.oscillationSkewXFrequency * time;
+			if (this.oscillationSkewXFrequencyInverted)
+			{
+				this._oscillationSkewXGroupValue = Math.sin(this._oscillationSkewXGroupStep);
+			}
+			else
+			{
+				this._oscillationSkewXGroupValue = Math.cos(this._oscillationSkewXGroupStep);
+			}
+		}
+		
+		if (this._oscillationSkewYEnabled && this._oscillationSkewYGroupFrequencyEnabled)
+		{
+			this._oscillationSkewYGroupStep += this.oscillationSkewYFrequency * time;
+			if (this.oscillationSkewYFrequencyInverted)
+			{
+				this._oscillationSkewYGroupValue = Math.sin(this._oscillationSkewYGroupStep);
+			}
+			else
+			{
+				this._oscillationSkewYGroupValue = Math.cos(this._oscillationSkewYGroupStep);
 			}
 		}
 		
@@ -3095,12 +4221,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			this._emissionTime = duration;
 			this._frameTime = 0.0;
 			this._oscillationGlobalStep = 0.0;
-			this._oscillationPositionGroupStep = 0.0;
-			this._oscillationPosition2GroupStep = 0.0;
-			this._oscillationRotationGroupStep = 0.0;
-			this._oscillationScaleXGroupStep = 0.0;
-			this._oscillationScaleYGroupStep = 0.0;
-			this._oscillationColorGroupStep = 0.0;
+			this._oscillationPositionGroupStep = this.oscillationPositionGroupStartStep;
+			this._oscillationPosition2GroupStep = this.oscillationPosition2GroupStartStep;
+			this._oscillationRotationGroupStep = this.oscillationRotationGroupStartStep;
+			this._oscillationScaleXGroupStep = this.oscillationScaleXGroupStartStep;
+			this._oscillationScaleYGroupStep = this.oscillationScaleYGroupStartStep;
+			this._oscillationSkewXGroupStep = this.oscillationSkewXGroupStartStep;
+			this._oscillationSkewYGroupStep = this.oscillationSkewYGroupStartStep;
+			this._oscillationColorGroupStep = this.oscillationColorGroupStartStep;
 		}
 	}
 	
@@ -3238,6 +4366,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.emitAngle = options.emitAngle;
 		this.emitAngleVariance = options.emitAngleVariance;
 		this.emitAngleAlignedRotation = options.emitAngleAlignedRotation;
+		this.emitAngleAlignedRotationOffset = options.emitAngleAlignedRotationOffset;
 		
 		this._emissionTimePredefined = options.duration;
 		this._emissionTimePredefined = this._emissionTimePredefined < 0 ? MathUtils.FLOAT_MAX : this._emissionTimePredefined;
@@ -3263,12 +4392,26 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.sizeYEnd = options.sizeYEnd;
 		this.sizeXEndVariance = options.sizeXEndVariance;
 		this.sizeYEndVariance = options.sizeYEndVariance;
+		this.sizeXEndRelativeToStart = options.sizeXEndRelativeToStart;
+		this.sizeYEndRelativeToStart = options.sizeYEndRelativeToStart;
 		
 		this.rotationStart = options.rotationStart;
 		this.rotationStartVariance = options.rotationStartVariance;
 		this.rotationEnd = options.rotationEnd;
 		this.rotationEndVariance = options.rotationEndVariance;
 		this.rotationEndRelativeToStart = options.rotationEndRelativeToStart;
+		
+		this.skewXStart = options.skewXStart;
+		this.skewXStartVariance = options.skewXStartVariance;
+		this.skewYStart = options.skewYStart;
+		this.skewYStartVariance = options.skewYStartVariance;
+		
+		this.skewXEnd = options.skewXEnd;
+		this.skewXEndVariance = options.skewXEndVariance;
+		this.skewYEnd = options.skewYEnd;
+		this.skewYEndVariance = options.skewYEndVariance;
+		this.skewXEndRelativeToStart = options.skewXEndRelativeToStart;
+		this.skewYEndRelativeToStart = options.skewYEndRelativeToStart;
 		//\Particle
 		
 		// Velocity
@@ -3277,11 +4420,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.velocityYInheritRatio = options.velocityYInheritRatio;
 		this.velocityYInheritRatioVariance = options.velocityYInheritRatioVariance;
 		
+		this.linkRotationToVelocity = options.linkRotationToVelocity;
+		this.velocityRotationOffset = options.velocityRotationOffset;
+		
+		this.velocityRotationFactor = options.velocityRotationFactor;
+		
 		this.velocityScaleFactorX = options.velocityScaleFactorX;
 		this.velocityScaleFactorY = options.velocityScaleFactorY;
 		
-		this.linkRotationToVelocity = options.linkRotationToVelocity;
-		this.velocityRotationOffset = options.velocityRotationOffset;
+		this.velocitySkewFactorX = options.velocitySkewFactorX;
+		this.velocitySkewFactorY = options.velocitySkewFactorY;
 		//\Velocity
 		
 		// Animation
@@ -3338,6 +4486,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationUnifiedFrequencyVariance = options.oscillationUnifiedFrequencyVariance;
 		
 		this.oscillationPositionFrequencyMode = options.oscillationPositionFrequencyMode;
+		this.oscillationPositionGroupStartStep = options.oscillationPositionGroupStartStep;
 		this.oscillationPositionAngle = options.oscillationPositionAngle;
 		this.oscillationPositionAngleVariance = options.oscillationPositionAngleVariance;
 		this.oscillationPositionAngleRelativeTo = options.oscillationPositionAngleRelativeTo;
@@ -3350,6 +4499,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationPositionFrequencyStart = options.oscillationPositionFrequencyStart;
 		
 		this.oscillationPosition2FrequencyMode = options.oscillationPosition2FrequencyMode;
+		this.oscillationPosition2GroupStartStep = options.oscillationPosition2GroupStartStep;
 		this.oscillationPosition2Angle = options.oscillationPosition2Angle;
 		this.oscillationPosition2AngleVariance = options.oscillationPosition2AngleVariance;
 		this.oscillationPosition2AngleRelativeTo = options.oscillationPosition2AngleRelativeTo;
@@ -3362,6 +4512,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationPosition2FrequencyStart = options.oscillationPosition2FrequencyStart;
 		
 		this.oscillationRotationFrequencyMode = options.oscillationRotationFrequencyMode;
+		this.oscillationRotationGroupStartStep = options.oscillationRotationGroupStartStep;
 		this.oscillationRotationAngle = options.oscillationRotationAngle;
 		this.oscillationRotationAngleVariance = options.oscillationRotationAngleVariance;
 		this.oscillationRotationFrequency = options.oscillationRotationFrequency;
@@ -3371,6 +4522,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationRotationFrequencyStart = options.oscillationRotationFrequencyStart;
 		
 		this.oscillationScaleXFrequencyMode = options.oscillationScaleXFrequencyMode;
+		this.oscillationScaleXGroupStartStep = options.oscillationScaleXGroupStartStep;
 		this.oscillationScaleX = options.oscillationScaleX;
 		this.oscillationScaleXVariance = options.oscillationScaleXVariance;
 		this.oscillationScaleXFrequency = options.oscillationScaleXFrequency;
@@ -3380,6 +4532,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationScaleXFrequencyStart = options.oscillationScaleXFrequencyStart;
 		
 		this.oscillationScaleYFrequencyMode = options.oscillationScaleYFrequencyMode;
+		this.oscillationScaleYGroupStartStep = options.oscillationScaleYGroupStartStep;
 		this.oscillationScaleY = options.oscillationScaleY;
 		this.oscillationScaleYVariance = options.oscillationScaleYVariance;
 		this.oscillationScaleYFrequency = options.oscillationScaleYFrequency;
@@ -3388,7 +4541,28 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationScaleYFrequencyInverted = options.oscillationScaleYFrequencyInverted;
 		this.oscillationScaleYFrequencyStart = options.oscillationScaleYFrequencyStart;
 		
+		this.oscillationSkewXFrequencyMode = options.oscillationSkewXFrequencyMode;
+		this.oscillationSkewXGroupStartStep = options.oscillationSkewXGroupStartStep;
+		this.oscillationSkewX = options.oscillationSkewX;
+		this.oscillationSkewXVariance = options.oscillationSkewXVariance;
+		this.oscillationSkewXFrequency = options.oscillationSkewXFrequency;
+		this.oscillationSkewXUnifiedFrequencyVariance = options.oscillationSkewXUnifiedFrequencyVariance;
+		this.oscillationSkewXFrequencyVariance = options.oscillationSkewXFrequencyVariance;
+		this.oscillationSkewXFrequencyInverted = options.oscillationSkewXFrequencyInverted;
+		this.oscillationSkewXFrequencyStart = options.oscillationSkewXFrequencyStart;
+		
+		this.oscillationSkewYFrequencyMode = options.oscillationSkewYFrequencyMode;
+		this.oscillationSkewYGroupStartStep = options.oscillationSkewYGroupStartStep;
+		this.oscillationSkewY = options.oscillationSkewY;
+		this.oscillationSkewYVariance = options.oscillationSkewYVariance;
+		this.oscillationSkewYFrequency = options.oscillationSkewYFrequency;
+		this.oscillationSkewYUnifiedFrequencyVariance = options.oscillationSkewYUnifiedFrequencyVariance;
+		this.oscillationSkewYFrequencyVariance = options.oscillationSkewYFrequencyVariance;
+		this.oscillationSkewYFrequencyInverted = options.oscillationSkewYFrequencyInverted;
+		this.oscillationSkewYFrequencyStart = options.oscillationSkewYFrequencyStart;
+		
 		this.oscillationColorFrequencyMode = options.oscillationColorFrequencyMode;
+		this.oscillationColorGroupStartStep = options.oscillationColorGroupStartStep;
 		this.oscillationColorRed = options.oscillationColorRed;
 		this.oscillationColorGreen = options.oscillationColorGreen;
 		this.oscillationColorBlue = options.oscillationColorBlue;
@@ -3403,6 +4577,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationColorFrequencyInverted = options.oscillationColorFrequencyInverted;
 		this.oscillationColorFrequencyStart = options.oscillationColorFrequencyStart;
 		//\Oscillation
+		
+		checkColor();
 		
 		if (this._autoSetEmissionRate)
 		{
@@ -3424,7 +4600,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		if (options == null) options = ParticleSystemOptions.fromPool();
 		
 		// Emitter
-		options.emitterType = this.emitterType;
+		options.emitterType = this._emitterType;
 		
 		options.maxNumParticles = this._maxNumParticles;
 		
@@ -3439,10 +4615,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.emitterXVariance = this.emitterXVariance;
 		options.emitterYVariance = this.emitterYVariance;
 		
-		options.emitterRadiusMax = this.emitterRadiusMax;
-		options.emitterRadiusMaxVariance = this.emitterRadiusMaxVariance;
-		options.emitterRadiusMin = this.emitterRadiusMin;
-		options.emitterRadiusMinVariance = this.emitterRadiusMinVariance;
+		options.emitterRadiusMax = this._emitterRadiusMax;
+		options.emitterRadiusMaxVariance = this._emitterRadiusMaxVariance;
+		options.emitterRadiusMin = this._emitterRadiusMin;
+		options.emitterRadiusMinVariance = this._emitterRadiusMinVariance;
 		
 		options.emitAngle = this.emitAngle;
 		options.emitAngleVariance = this.emitAngleVariance;
@@ -3457,39 +4633,58 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		// Particle
 		options.useAnimationLifeSpan = this._useAnimationLifeSpan;
 		options.lifeSpan = this._lifeSpan;
-		options.lifeSpanVariance = this.lifeSpanVariance;
+		options.lifeSpanVariance = this._lifeSpanVariance;
 		
 		options.fadeInTime = this._fadeInTime;
 		options.fadeOutTime = this._fadeOutTime;
 		
-		options.sizeXStart = this.sizeXStart;
-		options.sizeYStart = this.sizeYStart;
-		options.sizeXStartVariance = this.sizeXStartVariance;
-		options.sizeYStartVariance = this.sizeYStartVariance;
+		options.sizeXStart = this._sizeXStart;
+		options.sizeYStart = this._sizeYStart;
+		options.sizeXStartVariance = this._sizeXStartVariance;
+		options.sizeYStartVariance = this._sizeYStartVariance;
 		
-		options.sizeXEnd = this.sizeXEnd;
-		options.sizeYEnd = this.sizeYEnd;
-		options.sizeXEndVariance = this.sizeXEndVariance;
-		options.sizeYEndVariance = this.sizeYEndVariance;
+		options.sizeXEnd = this._sizeXEnd;
+		options.sizeYEnd = this._sizeYEnd;
+		options.sizeXEndVariance = this._sizeXEndVariance;
+		options.sizeYEndVariance = this._sizeYEndVariance;
+		options.sizeXEndRelativeToStart = this.sizeXEndRelativeToStart;
+		options.sizeYEndRelativeToStart = this.sizeYEndRelativeToStart;
 		
-		options.rotationStart = this.rotationStart;
-		options.rotationStartVariance = this.rotationStartVariance;
-		options.rotationEnd = this.rotationEnd;
-		options.rotationEndVariance = this.rotationEndVariance;
+		options.rotationStart = this._rotationStart;
+		options.rotationStartVariance = this._rotationStartVariance;
+		options.rotationEnd = this._rotationEnd;
+		options.rotationEndVariance = this._rotationEndVariance;
 		options.rotationEndRelativeToStart = this.rotationEndRelativeToStart;
+		
+		options.skewXStart = this._skewXStart;
+		options.skewYStart = this._skewYStart;
+		options.skewXStartVariance = this._skewXStartVariance;
+		options.skewYStartVariance = this._skewYStartVariance;
+		
+		options.skewXEnd = this._skewXEnd;
+		options.skewYEnd = this._skewYEnd;
+		options.skewXEndVariance = this._skewXEndVariance;
+		options.skewYEndVariance = this._skewYEndVariance;
+		options.skewXEndRelativeToStart = this._skewXEndRelativeToStart;
+		options.skewYEndRelativeToStart = this._skewYEndRelativeToStart;
 		//\Particle
 		
 		// Velocity
-		options.velocityXInheritRatio = this.velocityXInheritRatio;
-		options.velocityXInheritRatioVariance = this.velocityXInheritRatioVariance;
-		options.velocityYInheritRatio = this.velocityYInheritRatio;
-		options.velocityYInheritRatioVariance = this.velocityYInheritRatioVariance;
+		options.velocityXInheritRatio = this._velocityXInheritRatio;
+		options.velocityXInheritRatioVariance = this._velocityXInheritRatioVariance;
+		options.velocityYInheritRatio = this._velocityYInheritRatio;
+		options.velocityYInheritRatioVariance = this._velocityYInheritRatioVariance;
+		
+		options.linkRotationToVelocity = this.linkRotationToVelocity;
+		options.velocityRotationOffset = this.velocityRotationOffset;
+		
+		options.velocityRotationFactor = this._velocityRotationFactor;
 		
 		options.velocityScaleFactorX = this._velocityScaleFactorX;
 		options.velocityScaleFactorY = this._velocityScaleFactorY;
 		
-		options.linkRotationToVelocity = this.linkRotationToVelocity;
-		options.velocityRotationOffset = this.velocityRotationOffset;
+		options.velocitySkewFactorX = this._velocitySkewFactorX;
+		options.velocitySkewFactorY = this._velocitySkewFactorY;
 		//\Velocity
 		
 		// Animation
@@ -3507,14 +4702,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.adjustLifeSpanToSpeed = this.adjustLifeSpanToSpeed;
 		
-		options.gravityX = this.gravityX;
-		options.gravityY = this.gravityY;
+		options.gravityX = this._gravityX;
+		options.gravityY = this._gravityY;
 		
-		options.radialAcceleration = this.radialAcceleration;
-		options.radialAccelerationVariance = this.radialAccelerationVariance;
+		options.radialAcceleration = this._radialAcceleration;
+		options.radialAccelerationVariance = this._radialAccelerationVariance;
 		
-		options.tangentialAcceleration = this.tangentialAcceleration;
-		options.tangentialAccelerationVariance = this.tangentialAccelerationVariance;
+		options.tangentialAcceleration = this._tangentialAcceleration;
+		options.tangentialAccelerationVariance = this._tangentialAccelerationVariance;
 		
 		options.drag = this._drag;
 		
@@ -3546,6 +4741,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.oscillationUnifiedFrequencyVariance = this.oscillationUnifiedFrequencyVariance;
 		
 		options.oscillationPositionFrequencyMode = this._oscillationPositionFrequencyMode;
+		options.oscillationPositionGroupStartStep = this.oscillationPositionGroupStartStep;
 		options.oscillationPositionAngle = this.oscillationPositionAngle;
 		options.oscillationPositionAngleVariance = this.oscillationPositionAngleVariance;
 		options.oscillationPositionAngleRelativeTo = this._oscillationPositionAngleRelativeTo;
@@ -3558,6 +4754,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.oscillationPositionFrequencyStart = this._oscillationPositionFrequencyStart;
 		
 		options.oscillationPosition2FrequencyMode = this._oscillationPosition2FrequencyMode;
+		options.oscillationPosition2GroupStartStep = this.oscillationPosition2GroupStartStep;
 		options.oscillationPosition2Angle = this.oscillationPosition2Angle;
 		options.oscillationPosition2AngleVariance = this.oscillationPosition2AngleVariance;
 		options.oscillationPosition2AngleRelativeTo = this.oscillationPosition2AngleRelativeTo;
@@ -3570,6 +4767,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.oscillationPosition2FrequencyStart = this._oscillationPosition2FrequencyStart;
 		
 		options.oscillationRotationFrequencyMode = this._oscillationRotationFrequencyMode;
+		options.oscillationRotationGroupStartStep = this.oscillationRotationGroupStartStep;
 		options.oscillationRotationAngle = this._oscillationRotationAngle;
 		options.oscillationRotationAngleVariance = this._oscillationRotationAngleVariance;
 		options.oscillationRotationFrequency = this.oscillationRotationFrequency;
@@ -3579,8 +4777,9 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.oscillationRotationFrequencyStart = this._oscillationRotationFrequencyStart;
 		
 		options.oscillationScaleXFrequencyMode = this._oscillationScaleXFrequencyMode;
-		options.oscillationScaleX = this.oscillationScaleX;
-		options.oscillationScaleXVariance = this.oscillationScaleXVariance;
+		options.oscillationScaleXGroupStartStep = this.oscillationScaleXGroupStartStep;
+		options.oscillationScaleX = this._oscillationScaleX;
+		options.oscillationScaleXVariance = this._oscillationScaleXVariance;
 		options.oscillationScaleXFrequency = this.oscillationScaleXFrequency;
 		options.oscillationScaleXUnifiedFrequencyVariance = this._oscillationScaleXUnifiedFrequencyVariance;
 		options.oscillationScaleXFrequencyVariance = this.oscillationScaleXFrequencyVariance;
@@ -3588,15 +4787,37 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.oscillationScaleXFrequencyStart = this._oscillationScaleXFrequencyStart;
 		
 		options.oscillationScaleYFrequencyMode = this._oscillationScaleYFrequencyMode;
-		options.oscillationScaleY = this.oscillationScaleY;
-		options.oscillationScaleYVariance = this.oscillationScaleYVariance;
+		options.oscillationScaleYGroupStartStep = this.oscillationScaleYGroupStartStep;
+		options.oscillationScaleY = this._oscillationScaleY;
+		options.oscillationScaleYVariance = this._oscillationScaleYVariance;
 		options.oscillationScaleYFrequency = this.oscillationScaleYFrequency;
 		options.oscillationScaleYUnifiedFrequencyVariance = this._oscillationScaleYUnifiedFrequencyVariance;
 		options.oscillationScaleYFrequencyVariance = this.oscillationScaleYFrequencyVariance;
 		options.oscillationScaleYFrequencyInverted = this.oscillationScaleYFrequencyInverted;
 		options.oscillationScaleYFrequencyStart = this._oscillationScaleYFrequencyStart;
 		
+		options.oscillationSkewXFrequencyMode = this._oscillationSkewXFrequencyMode;
+		options.oscillationSkewXGroupStartStep = this.oscillationSkewXGroupStartStep;
+		options.oscillationSkewX = this._oscillationSkewX;
+		options.oscillationSkewXVariance = this._oscillationSkewXVariance;
+		options.oscillationSkewXFrequency = this.oscillationSkewXFrequency;
+		options.oscillationSkewXUnifiedFrequencyVariance = this._oscillationSkewXUnifiedFrequencyVariance;
+		options.oscillationSkewXFrequencyVariance = this.oscillationSkewXFrequencyVariance;
+		options.oscillationSkewXFrequencyInverted = this.oscillationSkewXFrequencyInverted;
+		options.oscillationSkewXFrequencyStart = this._oscillationSkewXFrequencyStart;
+		
+		options.oscillationSkewYFrequencyMode = this._oscillationSkewYFrequencyMode;
+		options.oscillationSkewYGroupStartStep = this.oscillationSkewYGroupStartStep;
+		options.oscillationSkewY = this._oscillationSkewY;
+		options.oscillationSkewYVariance = this._oscillationSkewYVariance;
+		options.oscillationSkewYFrequency = this.oscillationSkewYFrequency;
+		options.oscillationSkewYUnifiedFrequencyVariance = this._oscillationSkewYUnifiedFrequencyVariance;
+		options.oscillationSkewYFrequencyVariance = this.oscillationSkewYFrequencyVariance;
+		options.oscillationSkewYFrequencyInverted = this.oscillationSkewYFrequencyInverted;
+		options.oscillationSkewYFrequencyStart = this._oscillationSkewYFrequencyStart;
+		
 		options.oscillationColorFrequencyMode = this._oscillationColorFrequencyMode;
+		options.oscillationColorGroupStartStep = this.oscillationColorGroupStartStep;
 		options.oscillationColorRed = this._oscillationColorRed;
 		options.oscillationColorGreen = this._oscillationColorGreen;
 		options.oscillationColorBlue = this._oscillationColorBlue;
@@ -3613,6 +4834,64 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		//\Oscillation
 		
 		return options;
+	}
+	
+	private function checkOscillationGlobalFrequency():Void
+	{
+		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
+											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationSkewXGlobalFrequencyEnabled || 
+											  this._oscillationSkewYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+	}
+	
+	private function checkOscillationUnifiedFrequencyVariance():Void
+	{
+		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
+													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationSkewXUnifiedFrequencyVariance ||
+													   this._oscillationSkewYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+	}
+	
+	private function checkOscillationUnifiedFrequencyStart():Void
+	{
+		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
+													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationSkewXFrequencyStartUnified ||
+													this._oscillationSkewYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+	}
+	
+	private function checkOscillationColor():Void
+	{
+		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
+									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
+	}
+	
+	private function colorChange(tint:MassiveTint):Void
+	{
+		checkColor();
+	}
+	
+	private function checkColor():Void
+	{
+		if (this._colorEndRelativeToStart)
+		{
+			if (this.colorEnd.hasValue() || this.colorEndVariance.hasValue())
+			{
+				this._useColor = true;
+			}
+			else
+			{
+				this._useColor = false;
+			}
+		}
+		else
+		{
+			if (!this.colorStart.isSameAs(this.colorEnd) || this.colorStartVariance.hasValue() || this.colorEndVariance.hasValue())
+			{
+				this._useColor = true;
+			}
+			else
+			{
+				this._useColor = false;
+			}
+		}
 	}
 	
 }
