@@ -122,11 +122,21 @@ class Particle extends ImageData
 	public var scaleXDelta:Float;
 	public var scaleYDelta:Float;
 	
+	public var skewXBase:Float;
+	public var skewYBase:Float;
+	public var skewXStart:Float;
+	public var skewYStart:Float;
+	public var skewXEnd:Float;
+	public var skewYEnd:Float;
+	public var skewXDelta:Float;
+	public var skewYDelta:Float;
+	
 	// NEW
 	public var isFadingIn:Bool;
 	public var xBase:Float;
 	public var yBase:Float;
 	public var rotationBase:Float;
+	public var rotationVelocity:Float;
 	
 	public var colorRedBase:Float;
 	public var colorGreenBase:Float;
@@ -167,6 +177,16 @@ class Particle extends ImageData
 	public var scaleXOscillation:Float;
 	public var scaleYOscillation:Float;
 	
+	// oscillation skew
+	public var oscillationSkewX:Float;
+	public var oscillationSkewY:Float;
+	public var oscillationSkewXStep:Float;
+	public var oscillationSkewYStep:Float;
+	public var oscillationSkewXFrequency:Float;
+	public var oscillationSkewYFrequency:Float;
+	public var skewXOscillation:Float;
+	public var skewYOscillation:Float;
+	
 	// oscillation color
 	public var oscillationColorRedFactor:Float;
 	public var oscillationColorGreenFactor:Float;
@@ -185,6 +205,9 @@ class Particle extends ImageData
 	
 	public var scaleXVelocity:Float;
 	public var scaleYVelocity:Float;
+	
+	public var skewXVelocity:Float;
+	public var skewYVelocity:Float;
 	//\NEW
 	
 	public var sizeXStart:Float;
