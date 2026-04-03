@@ -209,6 +209,21 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	}
 	
 	/**
+	   @default	false
+	**/
+	public var emitterRadiusOverridesParticleAngle:Bool = false;
+	
+	/**
+	   @default	0
+	**/
+	public var emitterRadiusParticleAngleOffset:Float = 0.0;
+	
+	/**
+	   @default	0
+	**/
+	public var emitterRadiusParticleAngleOffsetVariance:Float = 0.0;
+	
+	/**
 	   @default 0
 	**/
 	public var emitAngle:Float = 0;
@@ -2772,6 +2787,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	}
 	
 	private var __angle:Float;
+	private var __angleCos:Float;
+	private var __angleSin:Float;
 	private var __colorAlphaStart:Float;
 	private var __colorAlphaEnd:Float;
 	private var __colorBlueStart:Float;
@@ -2781,7 +2798,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var __colorRedStart:Float;
 	private var __colorRedEnd:Float;
 	private var __firstFrameWidth:Float;
-	private var __intAngle:Int;
 	private var __lifeSpan:Float;
 	private var __nonFadeTime:Float;
 	private var __oscillationUnifiedFrequencyStart:Float;
@@ -2842,17 +2858,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			}
 		}
 		
-		if (this._isTypeGravity)
-		{
-			this.__speed = this.speed + this.speedVariance * getRandomRatio();
-			if (this.adjustLifeSpanToSpeed)
-			{
-				this.__ratio = this.speed / this.__speed;
-				this.__lifeSpan *= this.__ratio;
-			}
-			particle.speed = this.__speed;
-		}
-		
 		if (this._useFadeIn)
 		{
 			particle.fadeInTime = this._fadeInTime;
@@ -2879,56 +2884,85 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		particle.timeCurrent = 0.0;
 		particle.timeTotal = this.__lifeSpan;
 		
-		if (this._useEmitterRadius)
+		if (this._isTypeGravity)
 		{
-			this.__angle = MathUtils.random() * MathUtils.PI2;
-			this.__radiusMin = this._emitterRadiusMin + this._emitterRadiusMinVariance * getRandomRatio();
-			this.__radiusMax = this._emitterRadiusMax + this._emitterRadiusMaxVariance * getRandomRatio();
-			this.__radius = this.__radiusMin + MathUtils.random() * (this.__radiusMax - this.__radiusMin);
+			// GRAVITY type
+			this.__speed = this.speed + this.speedVariance * getRandomRatio();
+			if (this.adjustLifeSpanToSpeed)
+			{
+				this.__ratio = this.speed / this.__speed;
+				this.__lifeSpan *= this.__ratio;
+			}
+			particle.speed = this.__speed;
 			
-			particle.startX = particle.xBase = this.emitterX + this.emitterXVariance * getRandomRatio() + Math.cos(this.__angle) * this.__radius;
-			particle.startY = particle.yBase = this.emitterY + this.emitterYVariance * getRandomRatio() + Math.sin(this.__angle) * this.__radius;
+			if (this._useEmitterRadius)
+			{
+				this.__angle = this.emitAngle + this.emitAngleVariance * getRandomRatio();
+				this.__radiusMin = this._emitterRadiusMin + this._emitterRadiusMinVariance * getRandomRatio();
+				this.__radiusMax = this._emitterRadiusMax + this._emitterRadiusMaxVariance * getRandomRatio();
+				this.__radius = this.__radiusMin + MathUtils.random() * (this.__radiusMax - this.__radiusMin);
+				
+				particle.startX = particle.xBase = this.emitterX + this.emitterXVariance * getRandomRatio() + Math.cos(this.__angle) * this.__radius;
+				particle.startY = particle.yBase = this.emitterY + this.emitterYVariance * getRandomRatio() + Math.sin(this.__angle) * this.__radius;
+				
+				if (this.emitterRadiusOverridesParticleAngle)
+				{
+					particle.angle = this.__angle = this.__angle + this.emitterRadiusParticleAngleOffset + this.emitterRadiusParticleAngleOffsetVariance * getRandomRatio();
+				}
+				else
+				{
+					particle.angle = this.__angle = this.emitAngle + this.emitAngleVariance * getRandomRatio();
+				}
+			}
+			else
+			{
+				particle.startX = particle.xBase = this.emitterX + this.emitterXVariance * getRandomRatio();
+				particle.startY = particle.yBase = this.emitterY + this.emitterYVariance * getRandomRatio();
+				
+				particle.angle = this.__angle = this.emitAngle + this.emitAngleVariance * getRandomRatio();
+			}
+			
+			particle.velocityX = this.__speed * Math.cos(this.__angle);
+			particle.velocityY = this.__speed * Math.sin(this.__angle);
+			
+			if (this._useVelocityInheritanceX)
+			{
+				this.__velocityXInheritRatio = this._velocityXInheritRatio + this._velocityXInheritRatioVariance * getRandomRatio();
+				particle.velocityX += this.velocityX * this.__velocityXInheritRatio;
+			}
+			
+			if (this._useVelocityInheritanceY)
+			{
+				this.__velocityYInheritRatio = this._velocityYInheritRatio + this._velocityYInheritRatioVariance * getRandomRatio();
+				particle.velocityY += this.velocityY * this.__velocityYInheritRatio;
+			}
+			
+			if (this._useDrag)
+			{
+				particle.dragForce = this._drag + this._dragVariance * getRandomRatio();
+			}
+			
+			if (this._useRadialAcceleration) particle.radialAcceleration = this._radialAcceleration + this._radialAccelerationVariance * getRandomRatio();
+			if (this._useTangentialAcceleration) particle.tangentialAcceleration = this._tangentialAcceleration + this._tangentialAccelerationVariance * getRandomRatio();
 		}
 		else
 		{
-			particle.startX = particle.xBase = this.emitterX + this.emitterXVariance * getRandomRatio();
-			particle.startY = particle.yBase = this.emitterY + this.emitterYVariance * getRandomRatio();
-		}
-		
-		particle.angle = this.__angle = this.emitAngle + this.emitAngleVariance * getRandomRatio();
-		
-		if (this._isTypeGravity)
-		{
-			particle.velocityX = this.__speed * Math.cos(this.__angle);
-			particle.velocityY = this.__speed * Math.sin(this.__angle);
-		}
-		
-		if (this._useVelocityInheritanceX)
-		{
-			this.__velocityXInheritRatio = this._velocityXInheritRatio + this._velocityXInheritRatioVariance * getRandomRatio();
-			particle.velocityX += this.velocityX * this.__velocityXInheritRatio;
-		}
-		
-		if (this._useVelocityInheritanceY)
-		{
-			this.__velocityYInheritRatio = this._velocityYInheritRatio + this._velocityYInheritRatioVariance * getRandomRatio();
-			particle.velocityY += this.velocityY * this.__velocityYInheritRatio;
-		}
-		
-		if (this._useDrag)
-		{
-			particle.dragForce = this._drag + this._dragVariance * getRandomRatio();
-		}
-		
-		if (this._isTypeRadial)
-		{
+			// RADIAL type
 			particle.emitRadius = this.radiusMax + this.radiusMaxVariance * getRandomRatio();
 			particle.emitRadiusDelta = (this.radiusMin + this.radiusMinVariance * getRandomRatio() - particle.emitRadius) / this.__lifeSpan;
 			particle.emitRotation = this.emitAngle + this.emitAngleVariance * getRandomRatio();
 			particle.emitRotationDelta = this.rotatePerSecond + this.rotatePerSecondVariance * getRandomRatio();
 		}
-		if (this._useRadialAcceleration) particle.radialAcceleration = this._radialAcceleration + this._radialAccelerationVariance * getRandomRatio();
-		if (this._useTangentialAcceleration) particle.tangentialAcceleration = this._tangentialAcceleration + this._tangentialAccelerationVariance * getRandomRatio();
+		
+		//if (this._isTypeRadial)
+		//{
+			//particle.emitRadius = this.radiusMax + this.radiusMaxVariance * getRandomRatio();
+			//particle.emitRadiusDelta = (this.radiusMin + this.radiusMinVariance * getRandomRatio() - particle.emitRadius) / this.__lifeSpan;
+			//particle.emitRotation = this.emitAngle + this.emitAngleVariance * getRandomRatio();
+			//particle.emitRotationDelta = this.rotatePerSecond + this.rotatePerSecondVariance * getRandomRatio();
+		//}
+		//if (this._useRadialAcceleration) particle.radialAcceleration = this._radialAcceleration + this._radialAccelerationVariance * getRandomRatio();
+		//if (this._useTangentialAcceleration) particle.tangentialAcceleration = this._tangentialAcceleration + this._tangentialAccelerationVariance * getRandomRatio();
 		
 		if (this._useSizeX)
 		{
@@ -4362,6 +4396,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.emitterRadiusMaxVariance = options.emitterRadiusMaxVariance;
 		this.emitterRadiusMin = options.emitterRadiusMin;
 		this.emitterRadiusMinVariance = options.emitterRadiusMinVariance;
+		this.emitterRadiusOverridesParticleAngle = options.emitterRadiusOverridesParticleAngle;
+		this.emitterRadiusParticleAngleOffset = options.emitterRadiusParticleAngleOffsetVariance;
 		
 		this.emitAngle = options.emitAngle;
 		this.emitAngleVariance = options.emitAngleVariance;
@@ -4619,6 +4655,9 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.emitterRadiusMaxVariance = this._emitterRadiusMaxVariance;
 		options.emitterRadiusMin = this._emitterRadiusMin;
 		options.emitterRadiusMinVariance = this._emitterRadiusMinVariance;
+		options.emitterRadiusOverridesParticleAngle = this.emitterRadiusOverridesParticleAngle;
+		options.emitterRadiusParticleAngleOffset = this.emitterRadiusParticleAngleOffset;
+		options.emitterRadiusParticleAngleOffsetVariance = this.emitterRadiusParticleAngleOffsetVariance;
 		
 		options.emitAngle = this.emitAngle;
 		options.emitAngleVariance = this.emitAngleVariance;

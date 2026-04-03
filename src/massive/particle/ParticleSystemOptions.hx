@@ -92,6 +92,18 @@ class ParticleSystemOptions
 	**/
 	public var emitterRadiusMinVariance:Float = 0.0;
 	/**
+	   @default	false
+	**/
+	public var emitterRadiusOverridesParticleAngle:Bool = false;
+	/**
+	   @default	0
+	**/
+	public var emitterRadiusParticleAngleOffset:Float = 0.0;
+	/**
+	   @default	0
+	**/
+	public var emitterRadiusParticleAngleOffsetVariance:Float = 0.0;
+	/**
 	   @default 0
 	**/
 	public var emitAngle:Float = 0.0;
@@ -921,6 +933,9 @@ class ParticleSystemOptions
 		this.emitterRadiusMaxVariance = 0.0;
 		this.emitterRadiusMin = 0.0;
 		this.emitterRadiusMinVariance = 0.0;
+		this.emitterRadiusOverridesParticleAngle = false;
+		this.emitterRadiusParticleAngleOffset = 0.0;
+		this.emitterRadiusParticleAngleOffsetVariance = 0.0;
 		
 		this.emitAngle = 0.0;
 		this.emitAngleVariance = Math.PI;
@@ -1185,6 +1200,9 @@ class ParticleSystemOptions
 		target.emitterRadiusMaxVariance = this.emitterRadiusMaxVariance;
 		target.emitterRadiusMin = this.emitterRadiusMin;
 		target.emitterRadiusMinVariance = this.emitterRadiusMinVariance;
+		target.emitterRadiusOverridesParticleAngle = this.emitterRadiusOverridesParticleAngle;
+		target.emitterRadiusParticleAngleOffset = this.emitterRadiusParticleAngleOffset;
+		target.emitterRadiusParticleAngleOffsetVariance = this.emitterRadiusParticleAngleOffsetVariance;
 		
 		target.emitAngle = this.emitAngle;
 		target.emitAngleVariance = this.emitAngleVariance;
@@ -1433,6 +1451,9 @@ class ParticleSystemOptions
 		this.emitterRadiusMaxVariance = json.emitterRadiusMaxVariance;
 		this.emitterRadiusMin = json.emitterRadiusMin;
 		this.emitterRadiusMinVariance = json.emitterRadiusMinVariance;
+		if (json.emitterRadiusOverridesParticleAngle != null) this.emitterRadiusOverridesParticleAngle = json.emitterRadiusOverridesParticleAngle;
+		if (json.emitterRadiusParticleAngleOffset != null) this.emitterRadiusParticleAngleOffset = json.emitterRadiusParticleAngleOffset;
+		if (json.emitterRadiusParticleAngleOffsetVariance != null) this.emitterRadiusParticleAngleOffsetVariance = json.emitterRadiusParticleAngleOffsetVariance;
 		
 		this.emitAngle = json.emitAngle;
 		this.emitAngleVariance = json.emitAngleVariance;
@@ -1693,6 +1714,9 @@ class ParticleSystemOptions
 		json.emitterRadiusMaxVariance = this.emitterRadiusMaxVariance;
 		json.emitterRadiusMin = this.emitterRadiusMin;
 		json.emitterRadiusMinVariance = this.emitterRadiusMinVariance;
+		json.emitterRadiusOverridesParticleAngle = this.emitterRadiusOverridesParticleAngle;
+		json.emitterRadiusParticleAngleOffset = this.emitterRadiusParticleAngleOffset;
+		json.emitterRadiusParticleAngleOffsetVariance = this.emitterRadiusParticleAngleOffsetVariance;
 		
 		json.emitAngle = this.emitAngle;
 		json.emitAngleVariance = this.emitAngleVariance;
