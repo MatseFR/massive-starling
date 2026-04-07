@@ -473,6 +473,18 @@ class ParticleSystemOptions
 	   @default 0
 	**/
 	public var rotatePerSecondVariance:Float = 0.0;
+	/**
+	   @default	0
+	**/
+	public var alignRadialRotation:Bool = false;
+	/**
+	   @default	0
+	**/
+	public var alignRadialRotationOffset:Float = 0.0;
+	/**
+	   @default	0
+	**/
+	public var alignRadialRotationOffsetVariance:Float = 0.0;
 	//##################################################
 	//\RADIAL
 	//##################################################
@@ -1044,6 +1056,10 @@ class ParticleSystemOptions
 		
 		this.rotatePerSecond = 0.0;
 		this.rotatePerSecondVariance = 0.0;
+		
+		this.alignRadialRotation = false;
+		this.alignRadialRotationOffset = 0.0;
+		this.alignRadialRotationOffsetVariance = 0.0;
 		//\RADIAL
 		
 		// COLOR
@@ -1311,6 +1327,10 @@ class ParticleSystemOptions
 		
 		target.rotatePerSecond = this.rotatePerSecond;
 		target.rotatePerSecondVariance = this.rotatePerSecondVariance;
+		
+		target.alignRadialRotation = this.alignRadialRotation;
+		target.alignRadialRotationOffset = this.alignRadialRotationOffset;
+		target.alignRadialRotationOffsetVariance = this.alignRadialRotationOffsetVariance;
 		//\RADIAL
 		
 		// COLOR
@@ -1569,6 +1589,10 @@ class ParticleSystemOptions
 		
 		this.rotatePerSecond = json.rotatePerSecond;
 		this.rotatePerSecondVariance = json.rotatePerSecondVariance;
+		
+		if (json.alignRadialRotation != null) this.alignRadialRotation = json.alignRadialRotation;
+		if (json.alignRadialRotationOffset != null) this.alignRadialRotationOffset = json.alignRadialRotationOffset;
+		if (json.alignRadialRotationOffsetVariance != null) this.alignRadialRotationOffsetVariance = json.alignRadialRotationOffsetVariance;
 		//\RADIAL
 		
 		// COLOR
@@ -1827,6 +1851,10 @@ class ParticleSystemOptions
 		
 		json.rotatePerSecond = this.rotatePerSecond;
 		json.rotatePerSecondVariance = this.rotatePerSecondVariance;
+		
+		json.alignRadialRotation = this.alignRadialRotation;
+		json.alignRadialRotationOffset = this.alignRadialRotationOffset;
+		json.alignRadialRotationOffsetVariance = this.alignRadialRotationOffsetVariance;
 		//\RADIAL
 		
 		// COLOR

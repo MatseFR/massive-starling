@@ -113,6 +113,7 @@ class Particle extends ImageData
 	public var emitRadiusDelta:Float;
 	public var emitRotation:Float;
 	public var emitRotationDelta:Float;
+	public var radialRotationOffset:Float;
 	public var rotationDelta:Float;
 	
 	public var scaleXStart:Float;

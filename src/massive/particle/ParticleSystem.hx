@@ -245,6 +245,25 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	**/
 	public var emitAngleAlignedRotationOffset:Float = 0.0;
 	
+	//public var progressiveBirth(get, set):Bool;
+	//private var _progressiveBirth:Bool = false;
+	//private function get_progressiveBirth():Bool { return this._progressiveBirth; }
+	//private function set_progressiveBirth(value:Bool):Bool
+	//{
+		//return this._progressiveBirth = value;
+	//}
+	//
+	//private var _progressiveBirthAngleStart:Float;
+	//private var _progressiveBirthAngleEnd:Float;
+	//private var _progressiveBirthAngleCurrent:Float;
+	//private var _progressiveBirthAngleStep:Float;
+	//
+	//private var _progressiveBirthXCurrent:Float;
+	//private var _progressiveBirthXStep:Float;
+	//
+	//private var _progressiveBirthYCurrent:Float;
+	//private var _progressiveBirthYStep:Float;
+	
 	private var _emissionTime:Float;
 	private var _emissionTimePredefined:Float = MathUtils.FLOAT_MAX;
 	
@@ -1300,6 +1319,21 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default 0
 	**/
 	public var rotatePerSecondVariance:Float = 0.0;
+	
+	/**
+	   @default	false
+	**/
+	public var alignRadialRotation:Bool = false;
+	
+	/**
+	   @default	0
+	**/
+	public var alignRadialRotationOffset:Float = 0.0;
+	
+	/**
+	   @default	0
+	**/
+	public var alignRadialRotationOffsetVariance:Float = 0.0;
 	//##################################################
 	//\RADIAL
 	//##################################################
@@ -1356,7 +1390,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	//##################################################
 	private var _useOscillationGlobalFrequency:Bool = false;
 	private var _useOscillationUnifiedFrequencyVariance:Bool = false;
-	private var _useOscillationUnifiedFrequencyStart:Bool = false;
+	//private var _useOscillationUnifiedIncrementalFrequencyStart:Bool = false;
+	private var _useOscillationUnifiedRandomFrequencyStart:Bool = false;
 	private var _oscillationGlobalStep:Float;
 	private var _oscillationGlobalValue:Float;
 	private var _oscillationGlobalValueInverted:Float;
@@ -1377,8 +1412,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _oscillationPositionGroupValue:Float;
 	private var _oscillationPositionGlobalFrequencyEnabled:Bool = false;
 	private var _oscillationPositionGroupFrequencyEnabled:Bool = false;
-	private var _oscillationPositionFrequencyStartRandomized:Bool = false;
-	private var _oscillationPositionFrequencyStartUnified:Bool = false;
+	private var _oscillationPositionFrequencyStartRandom:Bool = false;
+	private var _oscillationPositionFrequencyStartUnifiedRandom:Bool = false;
 	private var _oscillationPositionAngleRelativeToRotation:Bool = true;
 	private var _oscillationPositionAngleRelativeToVelocity:Bool = false;
 	
@@ -1529,16 +1564,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		switch (value)
 		{
 			case OscillationFrequencyStart.ZERO :
-				this._oscillationPositionFrequencyStartRandomized = false;
-				this._oscillationPositionFrequencyStartUnified = false;
+				this._oscillationPositionFrequencyStartRandom = false;
+				this._oscillationPositionFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.RANDOM :
-				this._oscillationPositionFrequencyStartRandomized = true;
-				this._oscillationPositionFrequencyStartUnified = false;
+				this._oscillationPositionFrequencyStartRandom = true;
+				this._oscillationPositionFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.UNIFIED_RANDOM :
-				this._oscillationPositionFrequencyStartRandomized = false;
-				this._oscillationPositionFrequencyStartUnified = true;
+				this._oscillationPositionFrequencyStartRandom = false;
+				this._oscillationPositionFrequencyStartUnifiedRandom = true;
 			
 			default :
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
@@ -1555,8 +1590,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _oscillationPosition2GroupValue:Float;
 	private var _oscillationPosition2GlobalFrequencyEnabled:Bool = false;
 	private var _oscillationPosition2GroupFrequencyEnabled:Bool = false;
-	private var _oscillationPosition2FrequencyStartRandomized:Bool = false;
-	private var _oscillationPosition2FrequencyStartUnified:Bool = false;
+	private var _oscillationPosition2FrequencyStartRandom:Bool = false;
+	private var _oscillationPosition2FrequencyStartUnifiedRandom:Bool = false;
 	private var _oscillationPosition2AngleRelativeToRotation:Bool = true;
 	private var _oscillationPosition2AngleRelativeToVelocity:Bool = false;
 	
@@ -1707,16 +1742,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		switch (value)
 		{
 			case OscillationFrequencyStart.ZERO :
-				this._oscillationPosition2FrequencyStartRandomized = false;
-				this._oscillationPosition2FrequencyStartUnified = false;
+				this._oscillationPosition2FrequencyStartRandom = false;
+				this._oscillationPosition2FrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.RANDOM :
-				this._oscillationPosition2FrequencyStartRandomized = true;
-				this._oscillationPosition2FrequencyStartUnified = false;
+				this._oscillationPosition2FrequencyStartRandom = true;
+				this._oscillationPosition2FrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.UNIFIED_RANDOM :
-				this._oscillationPosition2FrequencyStartRandomized = false;
-				this._oscillationPosition2FrequencyStartUnified = true;
+				this._oscillationPosition2FrequencyStartRandom = false;
+				this._oscillationPosition2FrequencyStartUnifiedRandom = true;
 			
 			default :
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
@@ -1733,8 +1768,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _oscillationRotationGroupValue:Float;
 	private var _oscillationRotationGlobalFrequencyEnabled:Bool = false;
 	private var _oscillationRotationGroupFrequencyEnabled:Bool = false;
-	private var _oscillationRotationFrequencyStartRandomized:Bool = false;
-	private var _oscillationRotationFrequencyStartUnified:Bool = false;
+	private var _oscillationRotationFrequencyStartRandom:Bool = false;
+	private var _oscillationRotationFrequencyStartUnifiedRandom:Bool = false;
 	
 	/**
 	   see OscillationFrequencyMode for possible values
@@ -1841,16 +1876,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		switch (value)
 		{
 			case OscillationFrequencyStart.ZERO :
-				this._oscillationRotationFrequencyStartRandomized = false;
-				this._oscillationRotationFrequencyStartUnified = false;
+				this._oscillationRotationFrequencyStartRandom = false;
+				this._oscillationRotationFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.RANDOM :
-				this._oscillationRotationFrequencyStartRandomized = true;
-				this._oscillationRotationFrequencyStartUnified = false;
+				this._oscillationRotationFrequencyStartRandom = true;
+				this._oscillationRotationFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.UNIFIED_RANDOM :
-				this._oscillationRotationFrequencyStartRandomized = false;
-				this._oscillationRotationFrequencyStartUnified = true;
+				this._oscillationRotationFrequencyStartRandom = false;
+				this._oscillationRotationFrequencyStartUnifiedRandom = true;
 			
 			default :
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
@@ -1867,8 +1902,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _oscillationScaleXGroupValue:Float;
 	private var _oscillationScaleXGlobalFrequencyEnabled:Bool = false;
 	private var _oscillationScaleXGroupFrequencyEnabled:Bool = false;
-	private var _oscillationScaleXFrequencyStartRandomized:Bool = false;
-	private var _oscillationScaleXFrequencyStartUnified:Bool = false;
+	private var _oscillationScaleXFrequencyStartRandom:Bool = false;
+	private var _oscillationScaleXFrequencyStartUnifiedRandom:Bool = false;
 	
 	/**
 	   see OscillationFrequencyMode for possible values
@@ -1977,16 +2012,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		switch (value)
 		{
 			case OscillationFrequencyStart.ZERO :
-				this._oscillationScaleXFrequencyStartRandomized = false;
-				this._oscillationScaleXFrequencyStartUnified = false;
+				this._oscillationScaleXFrequencyStartRandom = false;
+				this._oscillationScaleXFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.RANDOM :
-				this._oscillationScaleXFrequencyStartRandomized = true;
-				this._oscillationScaleXFrequencyStartUnified = false;
+				this._oscillationScaleXFrequencyStartRandom = true;
+				this._oscillationScaleXFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.UNIFIED_RANDOM :
-				this._oscillationScaleXFrequencyStartRandomized = false;
-				this._oscillationScaleXFrequencyStartUnified = true;
+				this._oscillationScaleXFrequencyStartRandom = false;
+				this._oscillationScaleXFrequencyStartUnifiedRandom = true;
 			
 			default :
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
@@ -2003,8 +2038,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _oscillationScaleYGroupValue:Float;
 	private var _oscillationScaleYGlobalFrequencyEnabled:Bool = false;
 	private var _oscillationScaleYGroupFrequencyEnabled:Bool = false;
-	private var _oscillationScaleYFrequencyStartRandomized:Bool = false;
-	private var _oscillationScaleYFrequencyStartUnified:Bool = false;
+	private var _oscillationScaleYFrequencyStartRandom:Bool = false;
+	private var _oscillationScaleYFrequencyStartUnifiedRandom:Bool = false;
 	
 	/**
 	   see OscillationFrequencyMode for possible values
@@ -2113,16 +2148,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		switch (value)
 		{
 			case OscillationFrequencyStart.ZERO :
-				this._oscillationScaleYFrequencyStartRandomized = false;
-				this._oscillationScaleYFrequencyStartUnified = false;
+				this._oscillationScaleYFrequencyStartRandom = false;
+				this._oscillationScaleYFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.RANDOM :
-				this._oscillationScaleYFrequencyStartRandomized = true;
-				this._oscillationScaleYFrequencyStartUnified = false;
+				this._oscillationScaleYFrequencyStartRandom = true;
+				this._oscillationScaleYFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.UNIFIED_RANDOM :
-				this._oscillationScaleYFrequencyStartRandomized = false;
-				this._oscillationScaleYFrequencyStartUnified = true;
+				this._oscillationScaleYFrequencyStartRandom = false;
+				this._oscillationScaleYFrequencyStartUnifiedRandom = true;
 			
 			default :
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
@@ -2139,8 +2174,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _oscillationSkewXGroupValue:Float;
 	private var _oscillationSkewXGlobalFrequencyEnabled:Bool = false;
 	private var _oscillationSkewXGroupFrequencyEnabled:Bool = false;
-	private var _oscillationSkewXFrequencyStartRandomized:Bool = false;
-	private var _oscillationSkewXFrequencyStartUnified:Bool = false;
+	private var _oscillationSkewXFrequencyStartRandom:Bool = false;
+	private var _oscillationSkewXFrequencyStartUnifiedRandom:Bool = false;
 	
 	/**
 	   see OscillationFrequencyMode for possible values
@@ -2249,16 +2284,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		switch (value)
 		{
 			case OscillationFrequencyStart.ZERO :
-				this._oscillationSkewXFrequencyStartRandomized = false;
-				this._oscillationSkewXFrequencyStartUnified = false;
+				this._oscillationSkewXFrequencyStartRandom = false;
+				this._oscillationSkewXFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.RANDOM :
-				this._oscillationSkewXFrequencyStartRandomized = true;
-				this._oscillationSkewXFrequencyStartUnified = false;
+				this._oscillationSkewXFrequencyStartRandom = true;
+				this._oscillationSkewXFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.UNIFIED_RANDOM :
-				this._oscillationSkewXFrequencyStartRandomized = false;
-				this._oscillationSkewXFrequencyStartUnified = true;
+				this._oscillationSkewXFrequencyStartRandom = false;
+				this._oscillationSkewXFrequencyStartUnifiedRandom = true;
 			
 			default :
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
@@ -2275,8 +2310,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _oscillationSkewYGroupValue:Float;
 	private var _oscillationSkewYGlobalFrequencyEnabled:Bool = false;
 	private var _oscillationSkewYGroupFrequencyEnabled:Bool = false;
-	private var _oscillationSkewYFrequencyStartRandomized:Bool = false;
-	private var _oscillationSkewYFrequencyStartUnified:Bool = false;
+	private var _oscillationSkewYFrequencyStartRandom:Bool = false;
+	private var _oscillationSkewYFrequencyStartUnifiedRandom:Bool = false;
 	
 	/**
 	   see OscillationFrequencyMode for possible values
@@ -2385,16 +2420,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		switch (value)
 		{
 			case OscillationFrequencyStart.ZERO :
-				this._oscillationSkewYFrequencyStartRandomized = false;
-				this._oscillationSkewYFrequencyStartUnified = false;
+				this._oscillationSkewYFrequencyStartRandom = false;
+				this._oscillationSkewYFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.RANDOM :
-				this._oscillationSkewYFrequencyStartRandomized = true;
-				this._oscillationSkewYFrequencyStartUnified = false;
+				this._oscillationSkewYFrequencyStartRandom = true;
+				this._oscillationSkewYFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.UNIFIED_RANDOM :
-				this._oscillationSkewYFrequencyStartRandomized = false;
-				this._oscillationSkewYFrequencyStartUnified = true;
+				this._oscillationSkewYFrequencyStartRandom = false;
+				this._oscillationSkewYFrequencyStartUnifiedRandom = true;
 			
 			default :
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
@@ -2411,8 +2446,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _oscillationColorGroupValue:Float;
 	private var _oscillationColorGlobalFrequencyEnabled:Bool = false;
 	private var _oscillationColorGroupFrequencyEnabled:Bool = false;
-	private var _oscillationColorFrequencyStartRandomized:Bool = false;
-	private var _oscillationColorFrequencyStartUnified:Bool = false;
+	private var _oscillationColorFrequencyStartRandom:Bool = false;
+	private var _oscillationColorFrequencyStartUnifiedRandom:Bool = false;
 	
 	/**
 	   see OscillationFrequencyMode for possible values
@@ -2604,16 +2639,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		switch (value)
 		{
 			case OscillationFrequencyStart.ZERO :
-				this._oscillationColorFrequencyStartRandomized = false;
-				this._oscillationColorFrequencyStartUnified = false;
+				this._oscillationColorFrequencyStartRandom = false;
+				this._oscillationColorFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.RANDOM :
-				this._oscillationColorFrequencyStartRandomized = true;
-				this._oscillationColorFrequencyStartUnified = false;
+				this._oscillationColorFrequencyStartRandom = true;
+				this._oscillationColorFrequencyStartUnifiedRandom = false;
 			
 			case OscillationFrequencyStart.UNIFIED_RANDOM :
-				this._oscillationColorFrequencyStartRandomized = false;
-				this._oscillationColorFrequencyStartUnified = true;
+				this._oscillationColorFrequencyStartRandom = false;
+				this._oscillationColorFrequencyStartUnifiedRandom = true;
 			
 			default :
 				throw new Error("unknown OscillationFrequencyStart ::: " + value);
@@ -2942,27 +2977,37 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				particle.dragForce = this._drag + this._dragVariance * getRandomRatio();
 			}
 			
-			if (this._useRadialAcceleration) particle.radialAcceleration = this._radialAcceleration + this._radialAccelerationVariance * getRandomRatio();
-			if (this._useTangentialAcceleration) particle.tangentialAcceleration = this._tangentialAcceleration + this._tangentialAccelerationVariance * getRandomRatio();
+			if (this._useRadialAcceleration)
+			{
+				particle.radialAcceleration = this._radialAcceleration + this._radialAccelerationVariance * getRandomRatio();
+			}
+			else
+			{
+				particle.radialAcceleration = 0.0;
+			}
+			if (this._useTangentialAcceleration)
+			{
+				particle.tangentialAcceleration = this._tangentialAcceleration + this._tangentialAccelerationVariance * getRandomRatio();
+			}
+			else
+			{
+				particle.tangentialAcceleration = 0.0;
+			}
 		}
 		else
 		{
 			// RADIAL type
 			particle.emitRadius = this.radiusMax + this.radiusMaxVariance * getRandomRatio();
 			particle.emitRadiusDelta = (this.radiusMin + this.radiusMinVariance * getRandomRatio() - particle.emitRadius) / this.__lifeSpan;
-			particle.emitRotation = this.emitAngle + this.emitAngleVariance * getRandomRatio();
+			particle.emitRotation = this.__angle = this.emitAngle + this.emitAngleVariance * getRandomRatio();
 			particle.emitRotationDelta = this.rotatePerSecond + this.rotatePerSecondVariance * getRandomRatio();
+			
+			if (this.alignRadialRotation)
+			{
+				particle.radialRotationOffset = this.alignRadialRotationOffset + this.alignRadialRotationOffsetVariance * getRandomRatio();
+				//this.__rotationStart = this.__angle + this.alignRadialRotationOffset + this.alignRadialRotationOffsetVariance * getRandomRatio();
+			}
 		}
-		
-		//if (this._isTypeRadial)
-		//{
-			//particle.emitRadius = this.radiusMax + this.radiusMaxVariance * getRandomRatio();
-			//particle.emitRadiusDelta = (this.radiusMin + this.radiusMinVariance * getRandomRatio() - particle.emitRadius) / this.__lifeSpan;
-			//particle.emitRotation = this.emitAngle + this.emitAngleVariance * getRandomRatio();
-			//particle.emitRotationDelta = this.rotatePerSecond + this.rotatePerSecondVariance * getRandomRatio();
-		//}
-		//if (this._useRadialAcceleration) particle.radialAcceleration = this._radialAcceleration + this._radialAccelerationVariance * getRandomRatio();
-		//if (this._useTangentialAcceleration) particle.tangentialAcceleration = this._tangentialAcceleration + this._tangentialAccelerationVariance * getRandomRatio();
 		
 		if (this._useSizeX)
 		{
@@ -2973,6 +3018,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		{
 			particle.sizeXStart = this.__sizeXStart = this._sizeXStart;
 		}
+		
 		if (this._useSizeY)
 		{
 			particle.sizeYStart = this.__sizeYStart = this._sizeYStart + this._sizeYStartVariance * getRandomRatio();
@@ -3038,7 +3084,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 		
 		// OSCILLATION
-		if (this._useOscillationUnifiedFrequencyStart)
+		if (this._useOscillationUnifiedRandomFrequencyStart)
 		{
 			this.__oscillationUnifiedFrequencyStart = MathUtils.random() * MathUtils.PI2;
 		}
@@ -3062,11 +3108,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationPositionFrequency = this.oscillationPositionFrequency + this.oscillationPositionFrequencyVariance * getRandomRatio();
 				}
 				
-				if (this._oscillationPositionFrequencyStartRandomized)
+				if (this._oscillationPositionFrequencyStartRandom)
 				{
 					particle.oscillationPositionStep = MathUtils.random() * MathUtils.PI2;
 				}
-				else if (this._oscillationPositionFrequencyStartUnified)
+				else if (this._oscillationPositionFrequencyStartUnifiedRandom)
 				{
 					particle.oscillationPositionStep = this.__oscillationUnifiedFrequencyStart;
 				}
@@ -3096,11 +3142,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationPosition2Frequency = this.oscillationPosition2Frequency + this.oscillationPosition2FrequencyVariance * getRandomRatio();
 				}
 				
-				if (this._oscillationPosition2FrequencyStartRandomized)
+				if (this._oscillationPosition2FrequencyStartRandom)
 				{
 					particle.oscillationPosition2Step = MathUtils.random() * MathUtils.PI2;
 				}
-				else if (this._oscillationPosition2FrequencyStartUnified)
+				else if (this._oscillationPosition2FrequencyStartUnifiedRandom)
 				{
 					particle.oscillationPosition2Step = this.__oscillationUnifiedFrequencyStart;
 				}
@@ -3129,11 +3175,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationRotationFrequency = this.oscillationRotationFrequency + this.oscillationRotationFrequencyVariance * getRandomRatio();
 				}
 				
-				if (this._oscillationRotationFrequencyStartRandomized)
+				if (this._oscillationRotationFrequencyStartRandom)
 				{
 					particle.oscillationRotationStep = MathUtils.random() * MathUtils.PI2;
 				}
-				else if (this._oscillationRotationFrequencyStartUnified)
+				else if (this._oscillationRotationFrequencyStartUnifiedRandom)
 				{
 					particle.oscillationRotationStep = this.__oscillationUnifiedFrequencyStart;
 				}
@@ -3162,11 +3208,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationScaleXFrequency = this.oscillationScaleXFrequency + this.oscillationScaleXFrequencyVariance * getRandomRatio();
 				}
 				
-				if (this._oscillationScaleXFrequencyStartRandomized)
+				if (this._oscillationScaleXFrequencyStartRandom)
 				{
 					particle.oscillationScaleXStep = MathUtils.random() * MathUtils.PI2;
 				}
-				else if (this._oscillationScaleXFrequencyStartUnified)
+				else if (this._oscillationScaleXFrequencyStartUnifiedRandom)
 				{
 					particle.oscillationScaleXStep = this.__oscillationUnifiedFrequencyStart;
 				}
@@ -3195,11 +3241,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationScaleYFrequency = this.oscillationScaleYFrequency + this.oscillationScaleYFrequencyVariance * getRandomRatio();
 				}
 				
-				if (this._oscillationScaleYFrequencyStartRandomized)
+				if (this._oscillationScaleYFrequencyStartRandom)
 				{
 					particle.oscillationScaleYStep = MathUtils.random() * MathUtils.PI2;
 				}
-				else if (this._oscillationScaleYFrequencyStartUnified)
+				else if (this._oscillationScaleYFrequencyStartUnifiedRandom)
 				{
 					particle.oscillationScaleYStep = this.__oscillationUnifiedFrequencyStart;
 				}
@@ -3228,11 +3274,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationSkewXFrequency = this.oscillationSkewXFrequency + this.oscillationSkewXFrequencyVariance * getRandomRatio();
 				}
 				
-				if (this._oscillationSkewXFrequencyStartRandomized)
+				if (this._oscillationSkewXFrequencyStartRandom)
 				{
 					particle.oscillationSkewXStep = MathUtils.random() * MathUtils.PI2;
 				}
-				else if (this._oscillationSkewXFrequencyStartUnified)
+				else if (this._oscillationSkewXFrequencyStartUnifiedRandom)
 				{
 					particle.oscillationSkewXStep = this.__oscillationUnifiedFrequencyStart;
 				}
@@ -3261,11 +3307,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationSkewYFrequency = this.oscillationSkewYFrequency + this.oscillationSkewYFrequencyVariance * getRandomRatio();
 				}
 				
-				if (this._oscillationSkewYFrequencyStartRandomized)
+				if (this._oscillationSkewYFrequencyStartRandom)
 				{
 					particle.oscillationSkewYStep = MathUtils.random() * MathUtils.PI2;
 				}
-				else if (this._oscillationSkewYFrequencyStartUnified)
+				else if (this._oscillationSkewYFrequencyStartUnifiedRandom)
 				{
 					particle.oscillationSkewYStep = this.__oscillationUnifiedFrequencyStart;
 				}
@@ -3297,11 +3343,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationColorFrequency = this.oscillationColorFrequency + this.oscillationColorFrequencyVariance * getRandomRatio();
 				}
 				
-				if (this._oscillationColorFrequencyStartRandomized)
+				if (this._oscillationColorFrequencyStartRandom)
 				{
 					particle.oscillationColorStep = MathUtils.random() * MathUtils.PI2;
 				}
-				else if (this._oscillationColorFrequencyStartUnified)
+				else if (this._oscillationColorFrequencyStartUnifiedRandom)
 				{
 					particle.oscillationColorStep = this.__oscillationUnifiedFrequencyStart;
 				}
@@ -3381,36 +3427,44 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		particle.isFadingIn = this._useFadeIn;
 		
-		if (this.emitAngleAlignedRotation)
+		if (!this._isTypeRadial || !this.alignRadialRotation)
 		{
-			this.__rotationStart = this.__angle + this.emitAngleAlignedRotationOffset + this._rotationStart + this._rotationStartVariance * getRandomRatio();
-			if (this._useRotation)
+			if (this.emitAngleAlignedRotation)
 			{
-				if (this.rotationEndRelativeToStart)
+				this.__rotationStart = this.__angle + this.emitAngleAlignedRotationOffset + this._rotationStart + this._rotationStartVariance * getRandomRatio();
+				if (this._useRotation)
+				{
+					if (this.rotationEndRelativeToStart)
+					{
+						this.__rotationEnd = this.__rotationStart + this._rotationEnd + this._rotationEndVariance * getRandomRatio();
+					}
+					else
+					{
+						this.__rotationEnd = this.__angle + this._rotationEnd + this._rotationEndVariance * getRandomRatio();
+					}
+				}
+			}
+			else
+			{
+				this.__rotationStart = this._rotationStart + this._rotationStartVariance * getRandomRatio();
+				if (this._rotationEndRelativeToStart)
 				{
 					this.__rotationEnd = this.__rotationStart + this._rotationEnd + this._rotationEndVariance * getRandomRatio();
 				}
 				else
 				{
-					this.__rotationEnd = this.__angle + this._rotationEnd + this._rotationEndVariance * getRandomRatio();
+					this.__rotationEnd = this._rotationEnd + this._rotationEndVariance * getRandomRatio();
 				}
 			}
+			
+			if (this._useRotation) particle.rotationDelta = (this.__rotationEnd - this.__rotationStart) / this.__lifeSpan;
+			
+			particle.rotationBase = this.__rotationStart;
 		}
 		else
 		{
-			this.__rotationStart = this._rotationStart + this._rotationStartVariance * getRandomRatio();
-			if (this._rotationEndRelativeToStart)
-			{
-				this.__rotationEnd = this.__rotationStart + this._rotationEnd + this._rotationEndVariance * getRandomRatio();
-			}
-			else
-			{
-				this.__rotationEnd = this._rotationEnd + this._rotationEndVariance * getRandomRatio();
-			}
+			if (this._useRotation) particle.rotationDelta = 0.0;
 		}
-		
-		particle.rotationBase = this.__rotationStart;
-		if (this._useRotation) particle.rotationDelta = (this.__rotationEnd - this.__rotationStart) / this.__lifeSpan;
 		
 		if (this.randomStartFrame)
 		{
@@ -3463,6 +3517,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.emitRadius += particle.emitRadiusDelta * passedTime;
 			particle.xBase = this.emitterX - Math.cos(particle.emitRotation) * particle.emitRadius;
 			particle.yBase = this.emitterY - Math.sin(particle.emitRotation) * particle.emitRadius;
+			
+			if (this.alignRadialRotation)
+			{
+				particle.rotationBase = particle.emitRotation + particle.radialRotationOffset;
+			}
 		}
 		else
 		{
@@ -3576,12 +3635,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationRotation = Math.cos(particle.oscillationRotationStep) * particle.oscillationRotationAngle;
 				}
 			}
-			particle.rotation = particle.rotationBase + particle.oscillationRotation;
+			//particle.rotation = particle.rotationBase + particle.oscillationRotation;
 		}
-		else
-		{
-			particle.rotation = particle.rotationBase;
-		}
+		//else
+		//{
+			//particle.rotation = particle.rotationBase;
+		//}
 		
 		if (this._oscillationPositionEnabled)
 		{
@@ -3842,9 +3901,13 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			}
 		}
 		
-		if (this._useVelocityScale || this._useVelocitySkew)
+		if (this._useVelocityScale || this._useVelocitySkew || this._useVelocityRotation)
 		{
 			this.__velocityScalar = Math.sqrt(particle.velocityX * particle.velocityX + particle.velocityY * particle.velocityY);
+			if (this._useVelocityRotation)
+			{
+				particle.rotationVelocity = this.__velocityScalar * this._velocityRotationFactor;
+			}
 			if (this._useVelocityScaleX)
 			{
 				particle.scaleXVelocity = 1.0 + (this.__velocityScalar * this._velocityScaleFactorX);
@@ -3862,6 +3925,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				particle.skewYVelocity = this.__velocityScalar * this._velocitySkewFactorY;
 			}
 		}
+		
+		particle.rotation = particle.rotationBase + particle.rotationVelocity + particle.oscillationRotation;
 		
 		if (this._useSkewX)
 		{
@@ -4222,11 +4287,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				lifeSpan += this._frameTimings[i][this._frameTimings[i].length - 1] / this._frameDelta;
 			}
 			lifeSpan /= timingsCount;
-			this._emissionRate = this._maxNumParticles * this._emissionRatio / lifeSpan;
+			this.emissionRate = this._maxNumParticles * this._emissionRatio / lifeSpan;
 		}
 		else
 		{
-			this._emissionRate = this._maxNumParticles * this._emissionRatio / this._lifeSpan;
+			this.emissionRate = this._maxNumParticles * this._emissionRatio / this._lifeSpan;
 		}
 	}
 	
@@ -4506,6 +4571,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.rotatePerSecond = options.rotatePerSecond;
 		this.rotatePerSecondVariance = options.rotatePerSecondVariance;
+		
+		this.alignRadialRotation = options.alignRadialRotation;
+		this.alignRadialRotationOffset = options.alignRadialRotationOffset;
+		this.alignRadialRotationOffsetVariance = options.alignRadialRotationOffsetVariance;
 		//\Radial
 		
 		// Color
@@ -4764,6 +4833,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.rotatePerSecond = this.rotatePerSecond;
 		options.rotatePerSecondVariance = this.rotatePerSecondVariance;
+		
+		options.alignRadialRotation = this.alignRadialRotation;
+		options.alignRadialRotationOffset = this.alignRadialRotationOffset;
+		options.alignRadialRotationOffsetVariance = this.alignRadialRotationOffsetVariance;
 		//\Radial
 		
 		// Color
@@ -4891,9 +4964,9 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	private function checkOscillationUnifiedFrequencyStart():Void
 	{
-		this._useOscillationUnifiedFrequencyStart = this._oscillationPositionFrequencyStartUnified || this._oscillationPosition2FrequencyStartUnified || this._oscillationRotationFrequencyStartUnified ||
-													this._oscillationScaleXFrequencyStartUnified || this._oscillationScaleYFrequencyStartUnified || this._oscillationSkewXFrequencyStartUnified ||
-													this._oscillationSkewYFrequencyStartUnified || this._oscillationColorFrequencyStartUnified;
+		this._useOscillationUnifiedRandomFrequencyStart = this._oscillationPositionFrequencyStartUnifiedRandom || this._oscillationPosition2FrequencyStartUnifiedRandom || this._oscillationRotationFrequencyStartUnifiedRandom ||
+													this._oscillationScaleXFrequencyStartUnifiedRandom || this._oscillationScaleYFrequencyStartUnifiedRandom || this._oscillationSkewXFrequencyStartUnifiedRandom ||
+													this._oscillationSkewYFrequencyStartUnifiedRandom || this._oscillationColorFrequencyStartUnifiedRandom;
 	}
 	
 	private function checkOscillationColor():Void
