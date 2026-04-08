@@ -86,20 +86,26 @@ class Particle extends ImageData
 	public var timeCurrent:Float;
 	public var timeTotal:Float;
 	
-	public var colorRedStart:Float;
-	public var colorGreenStart:Float;
-	public var colorBlueStart:Float;
 	public var colorAlphaStart:Float;
+	public var colorAlphaEnd:Float;
 	
 	public var colorRedDelta:Float;
 	public var colorGreenDelta:Float;
 	public var colorBlueDelta:Float;
 	public var colorAlphaDelta:Float;
 	
-	public var colorRedEnd:Float;
-	public var colorGreenEnd:Float;
-	public var colorBlueEnd:Float;
-	public var colorAlphaEnd:Float;
+	public var alphaOffsetStart:Float;
+	public var alphaOffsetEnd:Float;
+	
+	public var redOffsetDelta:Float;
+	public var greenOffsetDelta:Float;
+	public var blueOffsetDelta:Float;
+	public var alphaOffsetDelta:Float;
+	
+	public var redOffsetBase:Float;
+	public var greenOffsetBase:Float;
+	public var blueOffsetBase:Float;
+	public var alphaOffsetBase:Float;
 	
 	public var startX:Float;
 	public var startY:Float;

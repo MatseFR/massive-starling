@@ -1380,9 +1380,72 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   @default	false
 	**/
-	public var colorEndIsMultiplier:Bool = false;
+	public var colorEndIsMultiplier(get, set):Bool;
+	private var _colorEndIsMultiplier:Bool = false;
+	private function get_colorEndIsMultiplier():Bool { return this._colorEndIsMultiplier; }
+	private function set_colorEndIsMultiplier(value:Bool):Bool
+	{
+		if (this._colorEndIsMultiplier == value) return value;
+		this._colorEndIsMultiplier = value;
+		checkColor();
+		return this._colorEndIsMultiplier;
+	}
 	//##################################################
 	//\COLOR
+	//##################################################
+	
+	//##################################################
+	// COLOR OFFSET
+	//##################################################
+	private var _hasColorOffset:Bool = false;
+	private var _useColorOffset:Bool = false;
+	
+	/**
+	   
+	**/
+	public var colorOffsetStart(default, null):MassiveTint;
+	
+	/**
+	   
+	**/
+	public var colorOffsetStartVariance(default, null):MassiveTint;
+	
+	/**
+	   
+	**/
+	public var colorOffsetEnd(default, null):MassiveTint;
+	
+	/**
+	   
+	**/
+	public var colorOffsetEndVariance(default, null):MassiveTint;
+	
+	/**
+	   @default	false
+	**/
+	public var colorOffsetEndRelativeToStart(get, set):Bool;
+	private var _colorOffsetEndRelativeToStart:Bool = false;
+	private function get_colorOffsetEndRelativeToStart():Bool { return this._colorOffsetEndRelativeToStart; }
+	private function set_colorOffsetEndRelativeToStart(value:Bool):Bool
+	{
+		if (this._colorOffsetEndRelativeToStart == value) return value;
+		this._colorOffsetEndRelativeToStart = value;
+		checkColorOffset();
+		return this._colorOffsetEndRelativeToStart = value;
+	}
+	
+	public var colorOffsetEndIsMultiplier(get, set):Bool;
+	private var _colorOffsetEndIsMultiplier:Bool = false;
+	private function get_colorOffsetEndIsMultiplier():Bool { return this._colorOffsetEndIsMultiplier; }
+	private function set_colorOffsetEndIsMultiplier(value:Bool):Bool
+	{
+		if (this._colorOffsetEndIsMultiplier == value) return value;
+		this._colorOffsetEndIsMultiplier = value;
+		checkColorOffset();
+		return this._colorOffsetEndIsMultiplier;
+	}
+	//##################################################
+	//\COLOR OFFSET
 	//##################################################
 	
 	//##################################################
@@ -2732,6 +2795,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.colorEnd = new MassiveTint(1.0, 1.0, 1.0, 1.0, colorChange);
 		this.colorEndVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorChange);
 		
+		this.colorOffsetStart = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
+		this.colorOffsetStartVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
+		this.colorOffsetEnd = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
+		this.colorOffsetEndVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
+		
 		this.animate = true;
 		this.autoHandleNumDatas = false;
 		this._particles = this._datas;
@@ -2832,6 +2900,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var __colorGreenEnd:Float;
 	private var __colorRedStart:Float;
 	private var __colorRedEnd:Float;
+	private var __redOffsetStart:Float;
+	private var __redOffsetEnd:Float;
+	private var __greenOffsetStart:Float;
+	private var __greenOffsetEnd:Float;
+	private var __blueOffsetStart:Float;
+	private var __blueOffsetEnd:Float;
+	private var __alphaOffsetStart:Float;
+	private var __alphaOffsetEnd:Float;
 	private var __firstFrameWidth:Float;
 	private var __lifeSpan:Float;
 	private var __nonFadeTime:Float;
@@ -3370,9 +3446,9 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._useColor)
 		{
-			if (this.colorEndRelativeToStart)
+			if (this._colorEndRelativeToStart)
 			{
-				if (this.colorEndIsMultiplier)
+				if (this._colorEndIsMultiplier)
 				{
 					this.__colorRedEnd = this.__colorRedStart * (this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio());
 					this.__colorGreenEnd = this.__colorGreenStart * (this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio());
@@ -3400,14 +3476,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.colorBlueBase = this.__colorBlueStart;
 			particle.colorAlphaBase = this._useFadeIn ? 0.0 : this.__colorAlphaStart;
 			
-			particle.colorRedStart = this.__colorRedStart;
-			particle.colorGreenStart = this.__colorGreenStart;
-			particle.colorBlueStart = this.__colorBlueStart;
 			particle.colorAlphaStart = this.__colorAlphaStart;
-			
-			particle.colorRedEnd = this.__colorRedEnd;
-			particle.colorGreenEnd = this.__colorGreenEnd;
-			particle.colorBlueEnd = this.__colorBlueEnd;
 			particle.colorAlphaEnd = this.__colorAlphaEnd;
 			
 			particle.colorRedDelta = (this.__colorRedEnd - this.__colorRedStart) / this.__lifeSpan;
@@ -3423,6 +3492,68 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.colorAlphaBase = this._useFadeIn ? 0.0 : this.__colorAlphaStart;
 			
 			particle.colorAlphaStart = particle.colorAlphaEnd = this.__colorAlphaStart; // needed for fade in/out
+		}
+		
+		if (this._hasColorOffset || this._useColorOffset)
+		{
+			this.__redOffsetStart = this.colorOffsetStart.redValue + this.colorOffsetStartVariance.redValue * getRandomRatio();
+			this.__greenOffsetStart = this.colorOffsetStart.greenValue + this.colorOffsetStartVariance.greenValue * getRandomRatio();
+			this.__blueOffsetStart = this.colorOffsetStart.blueValue + this.colorOffsetStartVariance.blueValue * getRandomRatio();
+			this.__alphaOffsetStart = this.colorOffsetStart.alphaValue + this.colorOffsetStartVariance.alphaValue * getRandomRatio();
+			
+			if (this._useColorOffset)
+			{
+				if (this._colorOffsetEndRelativeToStart)
+				{
+					if (this._colorOffsetEndIsMultiplier)
+					{
+						this.__redOffsetEnd = this.__redOffsetStart * (this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio());
+						this.__greenOffsetEnd = this.__greenOffsetStart * (this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio());
+						this.__blueOffsetEnd = this.__blueOffsetStart * (this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio());
+						this.__alphaOffsetEnd = this.__alphaOffsetStart * (this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio());
+					}
+					else
+					{
+						this.__redOffsetEnd = this.__redOffsetStart + this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio();
+						this.__greenOffsetEnd = this.__greenOffsetStart + this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio();
+						this.__blueOffsetEnd = this.__blueOffsetStart + this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio();
+						this.__alphaOffsetEnd = this.__alphaOffsetStart + this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio();
+					}
+				}
+				else
+				{
+					this.__redOffsetEnd = this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio();
+					this.__greenOffsetEnd = this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio();
+					this.__blueOffsetEnd = this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio();
+					this.__alphaOffsetEnd = this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio();
+				}
+				
+				particle.redOffsetBase = this.__redOffsetStart;
+				particle.greenOffsetBase = this.__greenOffsetStart;
+				particle.blueOffsetBase = this.__blueOffsetStart;
+				particle.alphaOffsetBase = this._useFadeIn ? 0.0 : this.__alphaOffsetStart;
+				
+				particle.alphaOffsetStart = this.__alphaOffsetStart;
+				particle.alphaOffsetEnd = this.__alphaOffsetEnd;
+				
+				particle.redOffsetDelta = (this.__redOffsetEnd - this.__redOffsetStart) / this.__lifeSpan;
+				particle.greenOffsetDelta = (this.__greenOffsetEnd - this.__greenOffsetStart) / this.__lifeSpan;
+				particle.blueOffsetDelta = (this.__blueOffsetEnd - this.__blueOffsetStart) / this.__lifeSpan;
+				particle.alphaOffsetDelta = (this.__alphaOffsetEnd - this.__alphaOffsetStart) / this.__nonFadeTime; // we only interpolate alpha after fade in and before fade out
+			}
+			else
+			{
+				particle.redOffsetBase = this.__redOffsetStart;
+				particle.greenOffsetBase = this.__greenOffsetStart;
+				particle.blueOffsetBase = this.__blueOffsetStart;
+				particle.alphaOffsetBase = this._useFadeIn ? 0.0 : this.__alphaOffsetStart;
+				
+				particle.alphaOffsetStart = particle.alphaOffsetEnd = this.__alphaOffsetStart; // needed for fade in/out
+			}
+		}
+		else
+		{
+			particle.redOffsetBase = particle.greenOffsetBase = particle.blueOffsetBase = particle.alphaOffsetBase = particle.alphaOffsetStart = particle.alphaOffsetEnd = 0.0;
 		}
 		
 		particle.isFadingIn = this._useFadeIn;
@@ -3953,22 +4084,33 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.colorBlueBase += particle.colorBlueDelta * passedTime;
 		}
 		
+		if (this._useColorOffset)
+		{
+			particle.redOffsetBase += particle.redOffsetDelta * passedTime;
+			particle.greenOffsetBase += particle.greenOffsetDelta * passedTime;
+			particle.blueOffsetBase += particle.blueOffsetDelta * passedTime;
+		}
+		
 		if (this._useFadeIn && particle.timeCurrent <= particle.fadeInTime)
 		{
 			particle.colorAlphaBase = particle.colorAlphaStart * (particle.timeCurrent / particle.fadeInTime);
+			particle.alphaOffsetBase = particle.alphaOffsetStart * (particle.timeCurrent / particle.fadeInTime);
 		}
 		else if (this._useFadeOut && particle.timeCurrent >= particle.fadeOutTime)
 		{
 			particle.colorAlphaBase = particle.colorAlphaEnd * (1.0 - (particle.timeCurrent - particle.fadeOutTime) / particle.fadeOutDuration);
+			particle.alphaOffsetBase = particle.alphaOffsetEnd * (1.0 - (particle.timeCurrent - particle.fadeOutTime) / particle.fadeOutDuration);
 		}
 		else
 		{
 			if (particle.isFadingIn)
 			{
 				particle.colorAlphaBase = particle.colorAlphaStart;
+				particle.alphaOffsetBase = particle.alphaOffsetStart;
 				particle.isFadingIn = false;
 			}
 			if (this._useColor) particle.colorAlphaBase += particle.colorAlphaDelta * passedTime;
+			if (this._useColorOffset) particle.alphaOffsetBase += particle.alphaOffsetDelta * passedTime;
 		}
 		
 		// OSCILLATION COLOR
@@ -4020,6 +4162,13 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.alpha = particle.colorAlphaBase;
 		}
 		//\OSCILLATION COLOR
+		
+		// OSCILLATION COLOR OFFSET
+		particle.redOffset = particle.redOffsetBase;
+		particle.greenOffset = particle.greenOffsetBase;
+		particle.blueOffset = particle.blueOffsetBase;
+		particle.alphaOffset = particle.alphaOffsetBase;
+		//\OSCILLATION COLOR OFFSET
 	}
 	
 	override public function advanceTime(time:Float):Void 
@@ -4580,11 +4729,24 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		// Color
 		this.colorStart.copyFrom(options.colorStart);
 		this.colorStartVariance.copyFrom(options.colorStartVariance);
+		
 		this.colorEnd.copyFrom(options.colorEnd);
 		this.colorEndVariance.copyFrom(options.colorEndVariance);
+		
 		this.colorEndRelativeToStart = options.colorEndRelativeToStart;
 		this.colorEndIsMultiplier = options.colorEndIsMultiplier;
 		//\Color
+		
+		// Color Offset
+		this.colorOffsetStart.copyFrom(options.colorOffsetStart);
+		this.colorOffsetStartVariance.copyFrom(options.colorOffsetStartVariance);
+		
+		this.colorOffsetEnd.copyFrom(options.colorOffsetEnd);
+		this.colorOffsetEndVariance.copyFrom(options.colorOffsetEndVariance);
+		
+		this.colorOffsetEndRelativeToStart = options.colorOffsetEndRelativeToStart;
+		this.colorOffsetEndIsMultiplier = options.colorOffsetEndIsMultiplier;
+		//\Color Offset
 		
 		// Oscillation
 		this.oscillationGlobalFrequency = options.oscillationGlobalFrequency;
@@ -4684,6 +4846,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		//\Oscillation
 		
 		checkColor();
+		checkColorOffset();
 		
 		if (this._autoSetEmissionRate)
 		{
@@ -4842,11 +5005,24 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		// Color
 		options.colorStart.copyFrom(this.colorStart);
 		options.colorStartVariance.copyFrom(this.colorStartVariance);
+		
 		options.colorEnd.copyFrom(this.colorEnd);
 		options.colorEndVariance.copyFrom(this.colorEndVariance);
-		options.colorEndRelativeToStart = this.colorEndRelativeToStart;
+		
+		options.colorEndRelativeToStart = this._colorEndRelativeToStart;
 		options.colorEndIsMultiplier = this.colorEndIsMultiplier;
 		//\Color
+		
+		// Color Offset
+		options.colorOffsetStart.copyFrom(this.colorOffsetStart);
+		options.colorOffsetStartVariance.copyFrom(this.colorOffsetStartVariance);
+		
+		options.colorOffsetEnd.copyFrom(this.colorOffsetEnd);
+		options.colorOffsetEndVariance.copyFrom(this.colorOffsetEndVariance);
+		
+		options.colorOffsetEndRelativeToStart = this._colorOffsetEndRelativeToStart;
+		options.colorOffsetEndIsMultiplier = this.colorOffsetEndIsMultiplier;
+		//\Color Offset
 		
 		// Oscillation
 		options.oscillationGlobalFrequency = this.oscillationGlobalFrequency;
@@ -4984,13 +5160,27 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	{
 		if (this._colorEndRelativeToStart)
 		{
-			if (this.colorEnd.hasValue() || this.colorEndVariance.hasValue())
+			if (this._colorEndIsMultiplier)
 			{
-				this._useColor = true;
+				if (this.colorEnd.hasValueDifferentThan(1.0) || this.colorEndVariance.hasValue())
+				{
+					this._useColor = true;
+				}
+				else
+				{
+					this._useColor = false;
+				}
 			}
 			else
 			{
-				this._useColor = false;
+				if (this.colorEnd.hasValue() || this.colorEndVariance.hasValue())
+				{
+					this._useColor = true;
+				}
+				else
+				{
+					this._useColor = false;
+				}
 			}
 		}
 		else
@@ -5002,6 +5192,52 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			else
 			{
 				this._useColor = false;
+			}
+		}
+	}
+	
+	private function colorOffsetChange(tint:MassiveTint):Void
+	{
+		checkColorOffset();
+	}
+	
+	private function checkColorOffset():Void
+	{
+		this._hasColorOffset = this.colorOffsetStart.hasValue();
+		if (this._colorOffsetEndRelativeToStart)
+		{
+			if (this._colorOffsetEndIsMultiplier)
+			{
+				if (this.colorOffsetEnd.hasValueDifferentThan(1.0) || this.colorOffsetEndVariance.hasValue())
+				{
+					this._useColorOffset = true;
+				}
+				else
+				{
+					this._useColorOffset = false;
+				}
+			}
+			else
+			{
+				if (this.colorOffsetEnd.hasValue() || this.colorOffsetEndVariance.hasValue())
+				{
+					this._useColorOffset = true;
+				}
+				else
+				{
+					this._useColorOffset = false;
+				}
+			}
+		}
+		else
+		{
+			if (!this.colorOffsetStart.isSameAs(this.colorOffsetEnd) || this.colorOffsetStartVariance.hasValue() || this.colorOffsetEndVariance.hasValue())
+			{
+				this._useColorOffset = true;
+			}
+			else
+			{
+				this._useColorOffset = false;
 			}
 		}
 	}

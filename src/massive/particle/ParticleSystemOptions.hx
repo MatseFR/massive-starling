@@ -521,6 +521,37 @@ class ParticleSystemOptions
 	//##################################################
 	
 	//##################################################
+	// COLOR OFFSET
+	//##################################################
+	/**
+	   
+	**/
+	public var colorOffsetStart:MassiveTint = new MassiveTint();
+	/**
+	   
+	**/
+	public var colorOffsetStartVariance:MassiveTint = new MassiveTint();
+	/**
+	   
+	**/
+	public var colorOffsetEnd:MassiveTint = new MassiveTint();
+	/**
+	   
+	**/
+	public var colorOffsetEndVariance:MassiveTint = new MassiveTint();
+	/**
+	   @default	false
+	**/
+	public var colorOffsetEndRelativeToStart:Bool = false;
+	/**
+	   @default	false
+	**/
+	public var colorOffsetEndIsMultiplier:Bool = false;
+	//##################################################
+	//\COLOR OFFSET
+	//##################################################
+	
+	//##################################################
 	// OSCILLATION
 	//##################################################
 	/**
@@ -1063,15 +1094,26 @@ class ParticleSystemOptions
 		//\RADIAL
 		
 		// COLOR
-		this.colorStart.red = this.colorStart.green = this.colorStart.blue = this.colorStart.alpha = 1.0;
-		this.colorStartVariance.red = this.colorStartVariance.green = this.colorStartVariance.blue = this.colorStartVariance.alpha = 0.0;
+		this.colorStart.setTo(1.0, 1.0, 1.0, 1.0);
+		this.colorStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
 		
-		this.colorEnd.red = this.colorEnd.green = this.colorEnd.blue = this.colorEnd.alpha = 1.0;
-		this.colorEndVariance.red = this.colorEndVariance.green = this.colorEndVariance.blue = this.colorEndVariance.alpha = 0.0;
+		this.colorEnd.setTo(1.0, 1.0, 1.0, 1.0);
+		this.colorEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
 		
 		this.colorEndRelativeToStart = false;
 		this.colorEndIsMultiplier = false;
 		//\COLOR
+		
+		// COLOR OFFSET
+		this.colorOffsetStart.setTo(1.0, 1.0, 1.0, 1.0);
+		this.colorOffsetStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		
+		this.colorOffsetEnd.setTo(1.0, 1.0, 1.0, 1.0);
+		this.colorOffsetEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		
+		this.colorOffsetEndRelativeToStart = false;
+		this.colorOffsetEndIsMultiplier = false;
+		//\COLOR OFFSET
 		
 		// OSCILLATION
 		this.oscillationGlobalFrequency = 1.0;
@@ -1339,9 +1381,21 @@ class ParticleSystemOptions
 		
 		target.colorEnd.copyFrom(this.colorEnd);
 		target.colorEndVariance.copyFrom(this.colorEndVariance);
+		
 		target.colorEndRelativeToStart = this.colorEndRelativeToStart;
 		target.colorEndIsMultiplier = this.colorEndIsMultiplier;
 		//\COLOR
+		
+		// COLOR OFFSET
+		target.colorOffsetStart.copyFrom(this.colorOffsetStart);
+		target.colorOffsetStartVariance.copyFrom(this.colorOffsetStartVariance);
+		
+		target.colorOffsetEnd.copyFrom(this.colorOffsetEnd);
+		target.colorOffsetEndVariance.copyFrom(this.colorOffsetEndVariance);
+		
+		target.colorOffsetEndRelativeToStart = this.colorOffsetEndRelativeToStart;
+		target.colorOffsetEndIsMultiplier = this.colorOffsetEndIsMultiplier;
+		//\COLOR OFFSET
 		
 		// OSCILLATION
 		target.oscillationGlobalFrequency = this.oscillationGlobalFrequency;
@@ -1598,11 +1652,24 @@ class ParticleSystemOptions
 		// COLOR
 		colorFromJSON(this.colorStart, json.colorStart);
 		colorFromJSON(this.colorStartVariance, json.colorStartVariance);
+		
 		colorFromJSON(this.colorEnd, json.colorEnd);
 		colorFromJSON(this.colorEndVariance, json.colorEndVariance);
+		
 		this.colorEndRelativeToStart = json.colorEndRelativeToStart;
 		this.colorEndIsMultiplier = json.colorEndIsMultiplier;
 		//\COLOR
+		
+		// COLOR OFFSET
+		if (json.colorOffsetStart != null) colorFromJSON(this.colorOffsetStart, json.colorOffsetStart);
+		if (json.colorOffsetStartVariance != null) colorFromJSON(this.colorOffsetStartVariance, json.colorOffsetStartVariance);
+		
+		if (json.colorOffsetEnd != null) colorFromJSON(this.colorOffsetEnd, json.colorOffsetEnd);
+		if (json.colorOffsetEndVariance != null) colorFromJSON(this.colorOffsetEndVariance, json.colorOffsetEndVariance);
+		
+		if (json.colorOffsetEndRelativeToStart != null) this.colorOffsetEndRelativeToStart = json.colorOffsetEndRelativeToStart;
+		if (json.colorOffsetEndIsMultiplier != null) this.colorOffsetEndIsMultiplier = json.colorOffsetEndIsMultiplier;
+		//\COLOR OFFSET
 		
 		// OSCILLATION
 		this.oscillationGlobalFrequency = json.oscillationGlobalFrequency;
@@ -1863,9 +1930,21 @@ class ParticleSystemOptions
 		
 		json.colorEnd = colorToJSON(this.colorEnd);
 		json.colorEndVariance = colorToJSON(this.colorEndVariance);
+		
 		json.colorEndRelativeToStart = this.colorEndRelativeToStart;
 		json.colorEndIsMultiplier = this.colorEndIsMultiplier;
 		//\COLOR
+		
+		// COLOR OFFSET
+		json.colorOffsetStart = colorToJSON(this.colorOffsetStart);
+		json.colorOffsetStartVariance = colorToJSON(this.colorOffsetStartVariance);
+		
+		json.colorOffsetEnd = colorToJSON(this.colorOffsetEnd);
+		json.colorOffsetEndVariance = colorToJSON(this.colorOffsetEndVariance);
+		
+		json.colorOffsetEndRelativeToStart = this.colorOffsetEndRelativeToStart;
+		json.colorOffsetEndIsMultiplier = this.colorOffsetEndIsMultiplier;
+		//\COLOR OFFSET
 		
 		// OSCILLATION
 		json.oscillationGlobalFrequency = this.oscillationGlobalFrequency;
