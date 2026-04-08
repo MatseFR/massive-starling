@@ -141,9 +141,19 @@ class MassiveTint
 		return this.redValue != 0.0 || this.greenValue != 0.0 || this.blueValue != 0.0;
 	}
 	
+	public function hasColorDifferentThan(value:Float):Bool
+	{
+		return this.redValue != value || this.greenValue != value || this.blueValue != value;
+	}
+	
 	public function hasValue():Bool
 	{
 		return this.redValue != 0.0 || this.greenValue != 0.0 || this.blueValue != 0.0 || this.alphaValue != 0.0;
+	}
+	
+	public function hasValueDifferentThan(value:Float):Bool
+	{
+		return this.redValue != value || this.greenValue != value || this.blueValue != value || this.alphaValue != value;
 	}
 	
 	public function isSameAs(tint:MassiveTint):Bool
