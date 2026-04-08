@@ -2552,113 +2552,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	public var oscillationColorGroupStartStep:Float = 0.0;
 	
 	/**
-	   @default 0
+	   
 	**/
-	public var oscillationColorRed(get, set):Float;
-	private var _oscillationColorRed:Float = 0.0;
-	private function get_oscillationColorRed():Float { return this._oscillationColorRed; }
-	private function set_oscillationColorRed(value:Float):Float
-	{
-		this._oscillationColorRed = value;
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
-		return this._oscillationColorRed;
-	}
+	public var oscillationColor(default, null):MassiveTint;
 	
 	/**
-	   @default 0
+	   
 	**/
-	public var oscillationColorGreen(get, set):Float;
-	private var _oscillationColorGreen:Float = 0.0;
-	private function get_oscillationColorGreen():Float { return this._oscillationColorGreen; }
-	private function set_oscillationColorGreen(value:Float):Float
-	{
-		this._oscillationColorGreen = value;
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
-		return this._oscillationColorGreen;
-	}
-	
-	/**
-	   @default 0
-	**/
-	public var oscillationColorBlue(get, set):Float;
-	private var _oscillationColorBlue:Float = 0.0;
-	private function get_oscillationColorBlue():Float { return this._oscillationColorBlue; }
-	private function set_oscillationColorBlue(value:Float):Float
-	{
-		this._oscillationColorBlue = value;
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
-		return this._oscillationColorBlue;
-	}
-	
-	/**
-	   @default 0
-	**/
-	public var oscillationColorAlpha(get, set):Float;
-	private var _oscillationColorAlpha:Float = 0.0;
-	private function get_oscillationColorAlpha():Float { return this._oscillationColorAlpha; }
-	private function set_oscillationColorAlpha(value:Float):Float
-	{
-		this._oscillationColorAlpha = value;
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
-		return this._oscillationColorAlpha;
-	}
-	
-	/**
-	   @default 0
-	**/
-	public var oscillationColorRedVariance(get, set):Float;
-	private var _oscillationColorRedVariance:Float = 0.0;
-	private function get_oscillationColorRedVariance():Float { return this._oscillationColorRedVariance; }
-	private function set_oscillationColorRedVariance(value:Float):Float
-	{
-		this._oscillationColorRedVariance = value;
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
-		return this._oscillationColorRedVariance;
-	}
-	
-	/**
-	   @default 0
-	**/
-	public var oscillationColorGreenVariance(get, set):Float;
-	private var _oscillationColorGreenVariance:Float = 0.0;
-	private function get_oscillationColorGreenVariance():Float { return this._oscillationColorGreenVariance; }
-	private function set_oscillationColorGreenVariance(value:Float):Float
-	{
-		this._oscillationColorGreenVariance = value;
-		checkOscillationColor();
-		return this._oscillationColorGreenVariance;
-	}
-	
-	/**
-	   @default 0
-	**/
-	public var oscillationColorBlueVariance(get, set):Float;
-	private var _oscillationColorBlueVariance:Float = 0.0;
-	private function get_oscillationColorBlueVariance():Float { return this._oscillationColorBlueVariance; }
-	private function set_oscillationColorBlueVariance(value:Float):Float
-	{
-		this._oscillationColorBlueVariance = value;
-		checkOscillationColor();
-		return this._oscillationColorBlueVariance;
-	}
-	
-	/**
-	   @default 0
-	**/
-	public var oscillationColorAlphaVariance(get, set):Float;
-	private var _oscillationColorAlphaVariance:Float = 0.0;
-	private function get_oscillationColorAlphaVariance():Float { return this._oscillationColorAlphaVariance; }
-	private function set_oscillationColorAlphaVariance(value:Float):Float
-	{
-		this._oscillationColorAlphaVariance = value;
-		checkOscillationColor();
-		return this._oscillationColorAlphaVariance;
-	}
+	public var oscillationColorVariance(default, null):MassiveTint;
 	
 	/**
 	   @default 1.0
@@ -2799,6 +2700,9 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.colorOffsetStartVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
 		this.colorOffsetEnd = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
 		this.colorOffsetEndVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
+		
+		this.oscillationColor = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOscillationChange);
+		this.oscillationColorVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOscillationChange);
 		
 		this.animate = true;
 		this.autoHandleNumDatas = false;
@@ -3081,7 +2985,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			if (this.alignRadialRotation)
 			{
 				particle.radialRotationOffset = this.alignRadialRotationOffset + this.alignRadialRotationOffsetVariance * getRandomRatio();
-				//this.__rotationStart = this.__angle + this.alignRadialRotationOffset + this.alignRadialRotationOffsetVariance * getRandomRatio();
 			}
 		}
 		
@@ -3404,10 +3307,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._useOscillationColor)
 		{
-			particle.oscillationColorRedFactor = this._oscillationColorRed + this._oscillationColorRedVariance * getRandomRatio();
-			particle.oscillationColorGreenFactor = this._oscillationColorGreen + this._oscillationColorGreenVariance * getRandomRatio();
-			particle.oscillationColorBlueFactor = this._oscillationColorBlue + this._oscillationColorBlueVariance * getRandomRatio();
-			particle.oscillationColorAlphaFactor = this._oscillationColorAlpha + this._oscillationColorAlphaVariance * getRandomRatio();
+			particle.oscillationColorRedFactor = this.oscillationColor.redValue + this.oscillationColorVariance.redValue * getRandomRatio();
+			particle.oscillationColorGreenFactor = this.oscillationColor.greenValue + this.oscillationColorVariance.greenValue * getRandomRatio();
+			particle.oscillationColorBlueFactor = this.oscillationColor.blueValue + this.oscillationColorVariance.blueValue * getRandomRatio();
+			particle.oscillationColorAlphaFactor = this.oscillationColor.alphaValue + this.oscillationColorVariance.alphaValue * getRandomRatio();
 			if (!this._oscillationColorGlobalFrequencyEnabled && !this._oscillationColorGroupFrequencyEnabled)
 			{
 				if (this._oscillationColorUnifiedFrequencyVariance)
@@ -3766,12 +3669,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.oscillationRotation = Math.cos(particle.oscillationRotationStep) * particle.oscillationRotationAngle;
 				}
 			}
-			//particle.rotation = particle.rotationBase + particle.oscillationRotation;
 		}
-		//else
-		//{
-			//particle.rotation = particle.rotationBase;
-		//}
 		
 		if (this._oscillationPositionEnabled)
 		{
@@ -4830,14 +4728,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.oscillationColorFrequencyMode = options.oscillationColorFrequencyMode;
 		this.oscillationColorGroupStartStep = options.oscillationColorGroupStartStep;
-		this.oscillationColorRed = options.oscillationColorRed;
-		this.oscillationColorGreen = options.oscillationColorGreen;
-		this.oscillationColorBlue = options.oscillationColorBlue;
-		this.oscillationColorAlpha = options.oscillationColorAlpha;
-		this.oscillationColorRedVariance = options.oscillationColorRedVariance;
-		this.oscillationColorGreenVariance = options.oscillationColorGreenVariance;
-		this.oscillationColorBlueVariance = options.oscillationColorBlueVariance;
-		this.oscillationColorAlphaVariance = options.oscillationColorAlphaVariance;
+		this.oscillationColor.copyFrom(options.oscillationColor);
+		this.oscillationColorVariance.copyFrom(options.oscillationColorVariance);
 		this.oscillationColorFrequency = options.oscillationColorFrequency;
 		this.oscillationColorUnifiedFrequencyVariance = options.oscillationColorUnifiedFrequencyVariance;
 		this.oscillationColorFrequencyVariance = options.oscillationColorFrequencyVariance;
@@ -4847,6 +4739,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		checkColor();
 		checkColorOffset();
+		checkColorOscillation();
 		
 		if (this._autoSetEmissionRate)
 		{
@@ -5106,14 +4999,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.oscillationColorFrequencyMode = this._oscillationColorFrequencyMode;
 		options.oscillationColorGroupStartStep = this.oscillationColorGroupStartStep;
-		options.oscillationColorRed = this._oscillationColorRed;
-		options.oscillationColorGreen = this._oscillationColorGreen;
-		options.oscillationColorBlue = this._oscillationColorBlue;
-		options.oscillationColorAlpha = this._oscillationColorAlpha;
-		options.oscillationColorRedVariance = this._oscillationColorRedVariance;
-		options.oscillationColorGreenVariance = this._oscillationColorGreenVariance;
-		options.oscillationColorBlueVariance = this._oscillationColorBlueVariance;
-		options.oscillationColorAlphaVariance = this._oscillationColorAlphaVariance;
+		options.oscillationColor.copyFrom(this.oscillationColor);
+		options.oscillationColorVariance.copyFrom(this.oscillationColorVariance);
 		options.oscillationColorFrequency = this.oscillationColorFrequency;
 		options.oscillationColorUnifiedFrequencyVariance = this._oscillationColorUnifiedFrequencyVariance;
 		options.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
@@ -5145,11 +5032,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 													this._oscillationSkewYFrequencyStartUnifiedRandom || this._oscillationColorFrequencyStartUnifiedRandom;
 	}
 	
-	private function checkOscillationColor():Void
-	{
-		this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
-	}
+	//private function checkOscillationColor():Void
+	//{
+		//this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
+									//this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
+	//}
 	
 	private function colorChange(tint:MassiveTint):Void
 	{
@@ -5240,6 +5127,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				this._useColorOffset = false;
 			}
 		}
+	}
+	
+	private function colorOscillationChange(tint:MassiveTint):Void
+	{
+		checkColorOscillation();
+	}
+	
+	private function checkColorOscillation():Void
+	{
+		this._useOscillationColor = this.oscillationColor.hasValue() || this.oscillationColorVariance.hasValue();
 	}
 	
 }

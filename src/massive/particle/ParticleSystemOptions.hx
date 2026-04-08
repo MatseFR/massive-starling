@@ -879,37 +879,13 @@ class ParticleSystemOptions
 	**/
 	public var oscillationColorGroupStartStep:Float = 0.0;
 	/**
-	   @default 0
+	   
 	**/
-	public var oscillationColorRed:Float = 0.0;
+	public var oscillationColor:MassiveTint = new MassiveTint();
 	/**
-	   @default 0
+	   
 	**/
-	public var oscillationColorGreen:Float = 0.0;
-	/**
-	   @default 0
-	**/
-	public var oscillationColorBlue:Float = 0.0;
-	/**
-	   @default 0
-	**/
-	public var oscillationColorAlpha:Float = 0.0;
-	/**
-	   @default 0
-	**/
-	public var oscillationColorRedVariance:Float = 0.0;
-	/**
-	   @default 0
-	**/
-	public var oscillationColorGreenVariance:Float = 0.0;
-	/**
-	   @default 0
-	**/
-	public var oscillationColorBlueVariance:Float = 0.0;
-	/**
-	   @default 0
-	**/
-	public var oscillationColorAlphaVariance:Float = 0.0;
+	public var oscillationColorVariance:MassiveTint = new MassiveTint();
 	/**
 	   @default 1
 	**/
@@ -1205,14 +1181,8 @@ class ParticleSystemOptions
 		// color
 		this.oscillationColorFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationColorGroupStartStep = 0.0;
-		this.oscillationColorRed = 0.0;
-		this.oscillationColorGreen = 0.0;
-		this.oscillationColorBlue = 0.0;
-		this.oscillationColorAlpha = 0.0;
-		this.oscillationColorRedVariance = 0.0;
-		this.oscillationColorGreenVariance = 0.0;
-		this.oscillationColorBlueVariance = 0.0;
-		this.oscillationColorAlphaVariance = 0.0;
+		this.oscillationColor.setTo(0.0, 0.0, 0.0, 0.0);
+		this.oscillationColorVariance.setTo(0.0, 0.0, 0.0, 0.0);
 		this.oscillationColorFrequency = 1.0;
 		this.oscillationColorUnifiedFrequencyVariance = false;
 		this.oscillationColorFrequencyVariance = 0.0;
@@ -1479,14 +1449,8 @@ class ParticleSystemOptions
 		
 		target.oscillationColorFrequencyMode = this.oscillationColorFrequencyMode;
 		target.oscillationColorGroupStartStep = this.oscillationColorGroupStartStep;
-		target.oscillationColorRed = this.oscillationColorRed;
-		target.oscillationColorGreen = this.oscillationColorGreen;
-		target.oscillationColorBlue = this.oscillationColorBlue;
-		target.oscillationColorAlpha = this.oscillationColorAlpha;
-		target.oscillationColorRedVariance = this.oscillationColorRedVariance;
-		target.oscillationColorGreenVariance = this.oscillationColorGreenVariance;
-		target.oscillationColorBlueVariance = this.oscillationColorBlueVariance;
-		target.oscillationColorAlphaVariance = this.oscillationColorAlphaVariance;
+		target.oscillationColor.copyFrom(this.oscillationColor);
+		target.oscillationColorVariance.copyFrom(this.oscillationColorVariance);
 		target.oscillationColorFrequency = this.oscillationColorFrequency;
 		target.oscillationColorUnifiedFrequencyVariance = this.oscillationColorUnifiedFrequencyVariance;
 		target.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
@@ -1503,6 +1467,11 @@ class ParticleSystemOptions
 		return target;
 	}
 	
+	/**
+	   
+	   @param	json
+	**/
+	@:access(massive.util.MassiveTint)
 	public function fromJSON(json:Dynamic):Void
 	{
 		// EMITTER
@@ -1761,14 +1730,28 @@ class ParticleSystemOptions
 		// color
 		this.oscillationColorFrequencyMode = json.oscillationColorFrequencyMode;
 		if (json.oscillationColorGroupStartStep != null) this.oscillationColorGroupStartStep = json.oscillationColorGroupStartStep;
-		this.oscillationColorRed = json.oscillationColorRed;
-		this.oscillationColorGreen = json.oscillationColorGreen;
-		this.oscillationColorBlue = json.oscillationColorBlue;
-		this.oscillationColorAlpha = json.oscillationColorAlpha;
-		this.oscillationColorRedVariance = json.oscillationColorRedVariance;
-		this.oscillationColorGreenVariance = json.oscillationColorGreenVariance;
-		this.oscillationColorBlueVariance = json.oscillationColorBlueVariance;
-		this.oscillationColorAlphaVariance = json.oscillationColorAlphaVariance;
+		if (json.oscillationColor != null)
+		{
+			colorFromJSON(this.oscillationColor, json.oscillationColor);
+		}
+		else
+		{
+			this.oscillationColor.redValue = json.oscillationColorRed;
+			this.oscillationColor.greenValue = json.oscillationColorGreen;
+			this.oscillationColor.blueValue = json.oscillationColorBlue;
+			this.oscillationColor.alphaValue = json.oscillationColorAlpha;
+		}
+		if (json.oscillationColorVariance != null)
+		{
+			colorFromJSON(this.oscillationColorVariance, json.oscillationColorVariance);
+		}
+		else
+		{
+			this.oscillationColorVariance.redValue = json.oscillationColorRedVariance;
+			this.oscillationColorVariance.greenValue = json.oscillationColorGreenVariance;
+			this.oscillationColorVariance.blueValue = json.oscillationColorBlueVariance;
+			this.oscillationColorVariance.alphaValue = json.oscillationColorAlphaVariance;
+		}
 		this.oscillationColorFrequency = json.oscillationColorFrequency;
 		this.oscillationColorUnifiedFrequencyVariance = json.oscillationColorUnifiedFrequencyVariance;
 		this.oscillationColorFrequencyVariance = json.oscillationColorFrequencyVariance;
@@ -1781,6 +1764,11 @@ class ParticleSystemOptions
 		this.forceSortFlag = json.forceSortFlag;
 	}
 	
+	/**
+	   
+	   @param	json
+	   @return
+	**/
 	public function toJSON(json:Dynamic = null):Dynamic
 	{
 		if (json == null) json = {};
@@ -2036,14 +2024,8 @@ class ParticleSystemOptions
 		// color
 		json.oscillationColorFrequencyMode = this.oscillationColorFrequencyMode;
 		json.oscillationColorGroupStartStep = this.oscillationColorGroupStartStep;
-		json.oscillationColorRed = this.oscillationColorRed;
-		json.oscillationColorGreen = this.oscillationColorGreen;
-		json.oscillationColorBlue = this.oscillationColorBlue;
-		json.oscillationColorAlpha = this.oscillationColorAlpha;
-		json.oscillationColorRedVariance = this.oscillationColorRedVariance;
-		json.oscillationColorGreenVariance = this.oscillationColorGreenVariance;
-		json.oscillationColorBlueVariance = this.oscillationColorBlueVariance;
-		json.oscillationColorAlphaVariance = this.oscillationColorAlphaVariance;
+		json.oscillationColor = colorToJSON(this.oscillationColor);
+		json.oscillationColorVariance = colorToJSON(this.oscillationColorVariance);
 		json.oscillationColorFrequency = this.oscillationColorFrequency;
 		json.oscillationColorUnifiedFrequencyVariance = this.oscillationColorUnifiedFrequencyVariance;
 		json.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
