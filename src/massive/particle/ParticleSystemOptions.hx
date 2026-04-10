@@ -907,6 +907,46 @@ class ParticleSystemOptions
 	   @default	OscillationFrequencyStart.ZERO
 	**/
 	public var oscillationColorFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	
+	// Color Offset
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationColorOffsetFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	/**
+	   @default	0
+	**/
+	public var oscillationColorOffsetGroupStartStep:Float = 0.0;
+	/**
+	   
+	**/
+	public var oscillationColorOffset:MassiveTint = new MassiveTint();
+	/**
+	   
+	**/
+	public var oscillationColorOffsetVariance:MassiveTint = new MassiveTint();
+	/**
+	   @default 1
+	**/
+	public var oscillationColorOffsetFrequency:Float = 1.0;
+	/**
+	   @default	false
+	**/
+	public var oscillationColorOffsetUnifiedFrequencyVariance:Bool = false;
+	/**
+	   @default 0
+	**/
+	public var oscillationColorOffsetFrequencyVariance:Float = 0.0;
+	/**
+	   @default	false
+	**/
+	public var oscillationColorOffsetFrequencyInverted:Bool = false;
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationColorOffsetFrequencyStart:String = OscillationFrequencyStart.ZERO;
 	//##################################################
 	//\OSCILLATION
 	//##################################################
@@ -1188,6 +1228,17 @@ class ParticleSystemOptions
 		this.oscillationColorFrequencyVariance = 0.0;
 		this.oscillationColorFrequencyInverted = false;
 		this.oscillationColorFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// color offset
+		this.oscillationColorOffsetFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.oscillationColorOffsetGroupStartStep = 0.0;
+		this.oscillationColorOffset.setTo(0.0, 0.0, 0.0, 0.0);
+		this.oscillationColorOffsetVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		this.oscillationColorOffsetFrequency = 1.0;
+		this.oscillationColorOffsetUnifiedFrequencyVariance = false;
+		this.oscillationColorOffsetFrequencyVariance = 0.0;
+		this.oscillationColorOffsetFrequencyInverted = false;
+		this.oscillationColorOffsetFrequencyStart = OscillationFrequencyStart.ZERO;
 		//\OSCILLATION
 		
 		this.customFunction = null;
@@ -1456,6 +1507,16 @@ class ParticleSystemOptions
 		target.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
 		target.oscillationColorFrequencyInverted = this.oscillationColorFrequencyInverted;
 		target.oscillationColorFrequencyStart = this.oscillationColorFrequencyStart;
+		
+		target.oscillationColorOffsetFrequencyMode = this.oscillationColorOffsetFrequencyMode;
+		target.oscillationColorOffsetGroupStartStep = this.oscillationColorOffsetGroupStartStep;
+		target.oscillationColorOffset.copyFrom(this.oscillationColorOffset);
+		target.oscillationColorOffsetVariance.copyFrom(this.oscillationColorOffsetVariance);
+		target.oscillationColorOffsetFrequency = this.oscillationColorOffsetFrequency;
+		target.oscillationColorOffsetUnifiedFrequencyVariance = this.oscillationColorOffsetUnifiedFrequencyVariance;
+		target.oscillationColorOffsetFrequencyVariance = this.oscillationColorOffsetFrequencyVariance;
+		target.oscillationColorOffsetFrequencyInverted = this.oscillationColorOffsetFrequencyInverted;
+		target.oscillationColorOffsetFrequencyStart = this.oscillationColorOffsetFrequencyStart;
 		//\OSCILLATION
 		
 		target.exactBounds = this.exactBounds;
@@ -1757,6 +1818,17 @@ class ParticleSystemOptions
 		this.oscillationColorFrequencyVariance = json.oscillationColorFrequencyVariance;
 		this.oscillationColorFrequencyInverted = json.oscillationColorFrequencyInverted;
 		this.oscillationColorFrequencyStart = json.oscillationColorFrequencyStart;
+		
+		// color offset
+		if (json.oscillationColorOffsetFrequencyMode != null) this.oscillationColorOffsetFrequencyMode = json.oscillationColorOffsetFrequencyMode;
+		if (json.oscillationColorOffsetGroupStartStep != null) this.oscillationColorOffsetGroupStartStep = json.oscillationColorOffsetGroupStartStep;
+		if (json.oscillationColorOffset != null) colorFromJSON(this.oscillationColorOffset, json.oscillationColorOffset);
+		if (json.oscillationColorOffsetVariance != null) colorFromJSON(this.oscillationColorOffsetVariance, json.oscillationColorOffsetVariance);
+		if (json.oscillationColorOffsetFrequency != null) this.oscillationColorOffsetFrequency = json.oscillationColorOffsetFrequency;
+		if (json.oscillationColorOffsetUnifiedFrequencyVariance != null) this.oscillationColorOffsetUnifiedFrequencyVariance = json.oscillationColorOffsetUnifiedFrequencyVariance;
+		if (json.oscillationColorOffsetFrequencyVariance != null) this.oscillationColorOffsetFrequencyVariance = json.oscillationColorOffsetFrequencyVariance;
+		if (json.oscillationColorOffsetFrequencyInverted != null) this.oscillationColorOffsetFrequencyInverted = json.oscillationColorOffsetFrequencyInverted;
+		if (json.oscillationColorOffsetFrequencyStart != null) this.oscillationColorOffsetFrequencyStart = json.oscillationColorOffsetFrequencyStart;
 		//\OSCILLATION
 		
 		this.exactBounds = json.exactBounds;
@@ -2031,6 +2103,17 @@ class ParticleSystemOptions
 		json.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
 		json.oscillationColorFrequencyInverted = this.oscillationColorFrequencyInverted;
 		json.oscillationColorFrequencyStart = this.oscillationColorFrequencyStart;
+		
+		// color offset
+		json.oscillationColorOffsetFrequencyMode = this.oscillationColorOffsetFrequencyMode;
+		json.oscillationColorOffsetGroupStartStep = this.oscillationColorOffsetGroupStartStep;
+		json.oscillationColorOffset = colorToJSON(this.oscillationColorOffset);
+		json.oscillationColorOffsetVariance = colorToJSON(this.oscillationColorOffsetVariance);
+		json.oscillationColorOffsetFrequency = this.oscillationColorOffsetFrequency;
+		json.oscillationColorOffsetUnifiedFrequencyVariance = this.oscillationColorOffsetUnifiedFrequencyVariance;
+		json.oscillationColorOffsetFrequencyVariance = this.oscillationColorOffsetFrequencyVariance;
+		json.oscillationColorOffsetFrequencyInverted = this.oscillationColorOffsetFrequencyInverted;
+		json.oscillationColorOffsetFrequencyStart = this.oscillationColorOffsetFrequencyStart;
 		//\OSCILLATION
 		
 		json.exactBounds = this.exactBounds;

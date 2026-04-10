@@ -207,6 +207,19 @@ class Particle extends ImageData
 	public var oscillationColorBlue:Float;
 	public var oscillationColorAlpha:Float;
 	
+	// oscillation color offset
+	public var oscillationColorOffsetRedFactor:Float;
+	public var oscillationColorOffsetGreenFactor:Float;
+	public var oscillationColorOffsetBlueFactor:Float;
+	public var oscillationColorOffsetAlphaFactor:Float;
+	public var oscillationColorOffsetStep:Float;
+	public var oscillationColorOffsetFrequency:Float;
+	
+	public var oscillationColorOffsetRed:Float;
+	public var oscillationColorOffsetGreen:Float;
+	public var oscillationColorOffsetBlue:Float;
+	public var oscillationColorOffsetAlpha:Float;
+	
 	public var scaleXBase:Float;
 	public var scaleYBase:Float;
 	

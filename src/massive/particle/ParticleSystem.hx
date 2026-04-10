@@ -335,6 +335,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._lifeSpanVariance = MathUtils.min(this._lifeSpan, value);
 	}
 	
+	private var _useFadeInOut:Bool = false;
 	private var _useFadeIn:Bool = false;
 	
 	/**
@@ -347,6 +348,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_fadeInTime(value:Float):Float
 	{
 		this._useFadeIn = value > 0.0;
+		this._useFadeInOut = this._useFadeIn || this._useFadeOut;
 		return this._fadeInTime = value;
 	}
 	
@@ -362,6 +364,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_fadeOutTime(value:Float):Float
 	{
 		this._useFadeOut = value > 0.0;
+		this._useFadeInOut = this._useFadeIn || this._useFadeOut;
 		return this._fadeOutTime = value;
 	}
 	
@@ -1341,6 +1344,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	//##################################################
 	// COLOR
 	//##################################################
+	private var _hasColorStartVariance:Bool = false;
+	private var _hasColorEndVariance:Bool = false;
 	private var _useColor:Bool = false;
 	
 	/**
@@ -1398,6 +1403,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	// COLOR OFFSET
 	//##################################################
 	private var _hasColorOffset:Bool = false;
+	private var _hasColorOffsetStartVariance:Bool = false;
+	private var _hasColorOffsetEndVariance:Bool = false;
 	private var _useColorOffset:Bool = false;
 	
 	/**
@@ -2622,6 +2629,126 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		return this._oscillationColorFrequencyStart = value;
 	}
+	
+	// oscillation color offset
+	private var _useOscillationColorOffset:Bool = false;
+	private var _oscillationColorOffsetGroupStep:Float;
+	private var _oscillationColorOffsetGroupValue:Float;
+	private var _oscillationColorOffsetGlobalFrequencyEnabled:Bool = false;
+	private var _oscillationColorOffsetGroupFrequencyEnabled:Bool = false;
+	private var _oscillationColorOffsetFrequencyStartRandom:Bool = false;
+	private var _oscillationColorOffsetFrequencyStartUnifiedRandom:Bool = false;
+	
+	/**
+	   see OscillationFrequencyMode for possible values
+	   @default	OscillationFrequencyMode.SINGLE
+	**/
+	public var oscillationColorOffsetFrequencyMode(get, set):String;
+	private var _oscillationColorOffsetFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	private function get_oscillationColorOffsetFrequencyMode():String { return this._oscillationColorOffsetFrequencyMode; }
+	private function set_oscillationColorOffsetFrequencyMode(value:String):String
+	{
+		if (this._oscillationColorOffsetFrequencyMode == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyMode.GLOBAL :
+				this._oscillationColorOffsetGlobalFrequencyEnabled = true;
+				this._oscillationColorOffsetGroupFrequencyEnabled = false;
+			
+			case OscillationFrequencyMode.GROUP :
+				this._oscillationColorOffsetGlobalFrequencyEnabled = false;
+				this._oscillationColorOffsetGroupFrequencyEnabled = true;
+			
+			case OscillationFrequencyMode.SINGLE :
+				this._oscillationColorOffsetGlobalFrequencyEnabled = false;
+				this._oscillationColorOffsetGroupFrequencyEnabled = false;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyMode ::: " + value);
+		}
+		
+		checkOscillationGlobalFrequency();
+		
+		return this._oscillationColorFrequencyMode = value;
+	}
+	
+	/**
+	   @default	0
+	**/
+	public var oscillationColorOffsetGroupStartStep:Float = 0.0;
+	
+	/**
+	   
+	**/
+	public var oscillationColorOffset(default, null):MassiveTint;
+	
+	/**
+	   
+	**/
+	public var oscillationColorOffsetVariance(default, null):MassiveTint;
+	
+	/**
+	   @default 1.0
+	**/
+	public var oscillationColorOffsetFrequency:Float = 1.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationColorOffsetUnifiedFrequencyVariance(get, set):Bool;
+	private var _oscillationColorOffsetUnifiedFrequencyVariance:Bool = false;
+	private function get_oscillationColorOffsetUnifiedFrequencyVariance():Bool { return this._oscillationColorOffsetUnifiedFrequencyVariance; }
+	private function set_oscillationColorOffsetUnifiedFrequencyVariance(value:Bool):Bool
+	{
+		this._oscillationColorOffsetUnifiedFrequencyVariance = value;
+		checkOscillationUnifiedFrequencyVariance();
+		return this._oscillationColorOffsetUnifiedFrequencyVariance;
+	}
+	
+	/**
+	   @default 0
+	**/
+	public var oscillationColorOffsetFrequencyVariance:Float = 0.0;
+	
+	/**
+	   @default	false
+	**/
+	public var oscillationColorOffsetFrequencyInverted:Bool = false;
+	
+	/**
+	   see OscillationFrequencyStart for possible values
+	   @default	OscillationFrequencyStart.ZERO
+	**/
+	public var oscillationColorOffsetFrequencyStart(get, set):String;
+	private var _oscillationColorOffsetFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	private function get_oscillationColorOffsetFrequencyStart():String { return this._oscillationColorOffsetFrequencyStart; }
+	private function set_oscillationColorOffsetFrequencyStart(value:String):String
+	{
+		if (this._oscillationColorOffsetFrequencyStart == value) return value;
+		
+		switch (value)
+		{
+			case OscillationFrequencyStart.ZERO :
+				this._oscillationColorOffsetFrequencyStartRandom = false;
+				this._oscillationColorOffsetFrequencyStartUnifiedRandom = false;
+			
+			case OscillationFrequencyStart.RANDOM :
+				this._oscillationColorOffsetFrequencyStartRandom = true;
+				this._oscillationColorOffsetFrequencyStartUnifiedRandom = false;
+			
+			case OscillationFrequencyStart.UNIFIED_RANDOM :
+				this._oscillationColorOffsetFrequencyStartRandom = false;
+				this._oscillationColorOffsetFrequencyStartUnifiedRandom = true;
+			
+			default :
+				throw new Error("unknown OscillationFrequencyStart ::: " + value);
+		}
+		
+		checkOscillationUnifiedFrequencyStart();
+		
+		return this._oscillationColorOffsetFrequencyStart = value;
+	}
 	//##################################################
 	//\OSCILLATION
 	//##################################################
@@ -2701,8 +2828,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.colorOffsetEnd = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
 		this.colorOffsetEndVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOffsetChange);
 		
-		this.oscillationColor = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOscillationChange);
-		this.oscillationColorVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorOscillationChange);
+		this.oscillationColor = new MassiveTint(0.0, 0.0, 0.0, 0.0, oscillationColorChange);
+		this.oscillationColorVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, oscillationColorChange);
+		
+		this.oscillationColorOffset = new MassiveTint(0.0, 0.0, 0.0, 0.0, oscillationColorOffsetChange);
+		this.oscillationColorOffsetVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, oscillationColorOffsetChange);
 		
 		this.animate = true;
 		this.autoHandleNumDatas = false;
@@ -2836,11 +2966,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var __velocityXInheritRatio:Float;
 	private var __velocityYInheritRatio:Float;
 	
-	private function initParticle(particle:T):Void
+	private var __deadParticle:Bool;
+	
+	#if !debug inline #end private function initParticle(particle:T):Void
 	{
 		#if debug
 		particle.updateCount = 0;
 		#end
+		
+		this.__deadParticle = false;
 		
 		particle.frameDelta = this._frameDelta + this.frameDeltaVariance * getRandomRatio();
 		particle.frameTime = 0.0;
@@ -2869,9 +3003,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			this.__lifeSpan = this._lifeSpan + this._lifeSpanVariance * getRandomRatio();
 			if (this.__lifeSpan <= 0.0)
 			{
-				return;
+				//return;
+				this.__deadParticle = true;
 			}
 		}
+		
+		if (this.__deadParticle) return;
 		
 		if (this._useFadeIn)
 		{
@@ -3340,12 +3477,58 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		{
 			particle.oscillationColorRed = particle.oscillationColorGreen = particle.oscillationColorBlue = particle.oscillationColorAlpha = 0.0;
 		}
+		
+		if (this._useOscillationColorOffset)
+		{
+			particle.oscillationColorOffsetRedFactor = this.oscillationColorOffset.redValue + this.oscillationColorOffsetVariance.redValue * getRandomRatio();
+			particle.oscillationColorOffsetGreenFactor = this.oscillationColorOffset.greenValue + this.oscillationColorOffsetVariance.greenValue * getRandomRatio();
+			particle.oscillationColorOffsetBlueFactor = this.oscillationColorOffset.blueValue + this.oscillationColorOffsetVariance.blueValue * getRandomRatio();
+			particle.oscillationColorOffsetAlphaFactor = this.oscillationColorOffset.alphaValue + this.oscillationColorOffsetVariance.alphaValue * getRandomRatio();
+			if (!this._oscillationColorOffsetGlobalFrequencyEnabled && !this._oscillationColorOffsetGroupFrequencyEnabled)
+			{
+				if (this._oscillationColorOffsetUnifiedFrequencyVariance)
+				{
+					particle.oscillationColorOffsetFrequency = this.oscillationColorOffsetFrequency + this.__oscillationUnifiedFrequencyVariance;
+				}
+				else
+				{
+					particle.oscillationColorOffsetFrequency = this.oscillationColorOffsetFrequency + this.oscillationColorOffsetFrequencyVariance * getRandomRatio();
+				}
+				
+				if (this._oscillationColorOffsetFrequencyStartRandom)
+				{
+					particle.oscillationColorOffsetStep = MathUtils.random() * MathUtils.PI2;
+				}
+				else if (this._oscillationColorOffsetFrequencyStartUnifiedRandom)
+				{
+					particle.oscillationColorOffsetStep = this.__oscillationUnifiedFrequencyStart;
+				}
+				else
+				{
+					particle.oscillationColorOffsetStep = 0.0;
+				}
+			}
+		}
+		else
+		{
+			particle.oscillationColorOffsetRed = particle.oscillationColorOffsetGreen = particle.oscillationColorOffsetBlue = particle.oscillationColorOffsetAlpha = 0.0;
+		}
 		//\OSCILLATION
 		
-		this.__colorRedStart = this.colorStart.redValue + this.colorStartVariance.redValue * getRandomRatio();
-		this.__colorGreenStart = this.colorStart.greenValue + this.colorStartVariance.greenValue * getRandomRatio();
-		this.__colorBlueStart = this.colorStart.blueValue + this.colorStartVariance.blueValue * getRandomRatio();
-		this.__colorAlphaStart = this.colorStart.alphaValue + this.colorStartVariance.alphaValue * getRandomRatio();
+		if (this._hasColorStartVariance)
+		{
+			this.__colorRedStart = this.colorStart.redValue + this.colorStartVariance.redValue * getRandomRatio();
+			this.__colorGreenStart = this.colorStart.greenValue + this.colorStartVariance.greenValue * getRandomRatio();
+			this.__colorBlueStart = this.colorStart.blueValue + this.colorStartVariance.blueValue * getRandomRatio();
+			this.__colorAlphaStart = this.colorStart.alphaValue + this.colorStartVariance.alphaValue * getRandomRatio();
+		}
+		else
+		{
+			this.__colorRedStart = this.colorStart.redValue;
+			this.__colorGreenStart = this.colorStart.greenValue;
+			this.__colorBlueStart = this.colorStart.blueValue;
+			this.__colorAlphaStart = this.colorStart.alphaValue;
+		}
 		
 		if (this._useColor)
 		{
@@ -3353,25 +3536,55 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			{
 				if (this._colorEndIsMultiplier)
 				{
-					this.__colorRedEnd = this.__colorRedStart * (this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio());
-					this.__colorGreenEnd = this.__colorGreenStart * (this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio());
-					this.__colorBlueEnd = this.__colorBlueStart * (this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio());
-					this.__colorAlphaEnd = this.__colorAlphaStart * (this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio());
+					if (this._hasColorEndVariance)
+					{
+						this.__colorRedEnd = this.__colorRedStart * (this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio());
+						this.__colorGreenEnd = this.__colorGreenStart * (this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio());
+						this.__colorBlueEnd = this.__colorBlueStart * (this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio());
+						this.__colorAlphaEnd = this.__colorAlphaStart * (this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio());
+					}
+					else
+					{
+						this.__colorRedEnd = this.__colorRedStart * this.colorEnd.redValue;
+						this.__colorGreenEnd = this.__colorGreenStart * this.colorEnd.greenValue;
+						this.__colorBlueEnd = this.__colorBlueStart * this.colorEnd.blueValue;
+						this.__colorAlphaEnd = this.__colorAlphaStart * this.colorEnd.alphaValue;
+					}
 				}
 				else
 				{
-					this.__colorRedEnd = this.__colorRedStart + this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio();
-					this.__colorGreenEnd = this.__colorGreenStart + this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio();
-					this.__colorBlueEnd = this.__colorBlueStart + this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio();
-					this.__colorAlphaEnd = this.__colorAlphaStart + this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio();
+					if (this._hasColorEndVariance)
+					{
+						this.__colorRedEnd = this.__colorRedStart + this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio();
+						this.__colorGreenEnd = this.__colorGreenStart + this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio();
+						this.__colorBlueEnd = this.__colorBlueStart + this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio();
+						this.__colorAlphaEnd = this.__colorAlphaStart + this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio();
+					}
+					else
+					{
+						this.__colorRedEnd = this.__colorRedStart + this.colorEnd.redValue;
+						this.__colorGreenEnd = this.__colorGreenStart + this.colorEnd.greenValue;
+						this.__colorBlueEnd = this.__colorBlueStart + this.colorEnd.blueValue;
+						this.__colorAlphaEnd = this.__colorAlphaStart + this.colorEnd.alphaValue;
+					}
 				}
 			}
 			else
 			{
-				this.__colorRedEnd = this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio();
-				this.__colorGreenEnd = this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio();
-				this.__colorBlueEnd = this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio();
-				this.__colorAlphaEnd = this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio();
+				if (this._hasColorEndVariance)
+				{
+					this.__colorRedEnd = this.colorEnd.redValue + this.colorEndVariance.redValue * getRandomRatio();
+					this.__colorGreenEnd = this.colorEnd.greenValue + this.colorEndVariance.greenValue * getRandomRatio();
+					this.__colorBlueEnd = this.colorEnd.blueValue + this.colorEndVariance.blueValue * getRandomRatio();
+					this.__colorAlphaEnd = this.colorEnd.alphaValue + this.colorEndVariance.alphaValue * getRandomRatio();
+				}
+				else
+				{
+					this.__colorRedEnd = this.colorEnd.redValue;
+					this.__colorGreenEnd = this.colorEnd.greenValue;
+					this.__colorBlueEnd = this.colorEnd.blueValue;
+					this.__colorAlphaEnd = this.colorEnd.alphaValue;
+				}
 			}
 			
 			particle.colorRedBase = this.__colorRedStart;
@@ -3393,16 +3606,25 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.colorGreenBase = this.__colorGreenStart;
 			particle.colorBlueBase = this.__colorBlueStart;
 			particle.colorAlphaBase = this._useFadeIn ? 0.0 : this.__colorAlphaStart;
-			
 			particle.colorAlphaStart = particle.colorAlphaEnd = this.__colorAlphaStart; // needed for fade in/out
 		}
 		
 		if (this._hasColorOffset || this._useColorOffset)
 		{
-			this.__redOffsetStart = this.colorOffsetStart.redValue + this.colorOffsetStartVariance.redValue * getRandomRatio();
-			this.__greenOffsetStart = this.colorOffsetStart.greenValue + this.colorOffsetStartVariance.greenValue * getRandomRatio();
-			this.__blueOffsetStart = this.colorOffsetStart.blueValue + this.colorOffsetStartVariance.blueValue * getRandomRatio();
-			this.__alphaOffsetStart = this.colorOffsetStart.alphaValue + this.colorOffsetStartVariance.alphaValue * getRandomRatio();
+			if (this._hasColorOffsetStartVariance)
+			{
+				this.__redOffsetStart = this.colorOffsetStart.redValue + this.colorOffsetStartVariance.redValue * getRandomRatio();
+				this.__greenOffsetStart = this.colorOffsetStart.greenValue + this.colorOffsetStartVariance.greenValue * getRandomRatio();
+				this.__blueOffsetStart = this.colorOffsetStart.blueValue + this.colorOffsetStartVariance.blueValue * getRandomRatio();
+				this.__alphaOffsetStart = this.colorOffsetStart.alphaValue + this.colorOffsetStartVariance.alphaValue * getRandomRatio();
+			}
+			else
+			{
+				this.__redOffsetStart = this.colorOffsetStart.redValue;
+				this.__greenOffsetStart = this.colorOffsetStart.greenValue;
+				this.__blueOffsetStart = this.colorOffsetStart.blueValue;
+				this.__alphaOffsetStart = this.colorOffsetStart.alphaValue;
+			}
 			
 			if (this._useColorOffset)
 			{
@@ -3410,25 +3632,55 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				{
 					if (this._colorOffsetEndIsMultiplier)
 					{
-						this.__redOffsetEnd = this.__redOffsetStart * (this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio());
-						this.__greenOffsetEnd = this.__greenOffsetStart * (this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio());
-						this.__blueOffsetEnd = this.__blueOffsetStart * (this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio());
-						this.__alphaOffsetEnd = this.__alphaOffsetStart * (this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio());
+						if (this._hasColorOffsetEndVariance)
+						{
+							this.__redOffsetEnd = this.__redOffsetStart * (this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio());
+							this.__greenOffsetEnd = this.__greenOffsetStart * (this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio());
+							this.__blueOffsetEnd = this.__blueOffsetStart * (this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio());
+							this.__alphaOffsetEnd = this.__alphaOffsetStart * (this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio());
+						}
+						else
+						{
+							this.__redOffsetEnd = this.__redOffsetStart * this.colorOffsetEnd.redValue;
+							this.__greenOffsetEnd = this.__greenOffsetStart * this.colorOffsetEnd.greenValue;
+							this.__blueOffsetEnd = this.__blueOffsetStart * this.colorOffsetEnd.blueValue;
+							this.__alphaOffsetEnd = this.__alphaOffsetStart * this.colorOffsetEnd.alphaValue;
+						}
 					}
 					else
 					{
-						this.__redOffsetEnd = this.__redOffsetStart + this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio();
-						this.__greenOffsetEnd = this.__greenOffsetStart + this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio();
-						this.__blueOffsetEnd = this.__blueOffsetStart + this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio();
-						this.__alphaOffsetEnd = this.__alphaOffsetStart + this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio();
+						if (this._hasColorOffsetEndVariance)
+						{
+							this.__redOffsetEnd = this.__redOffsetStart + this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio();
+							this.__greenOffsetEnd = this.__greenOffsetStart + this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio();
+							this.__blueOffsetEnd = this.__blueOffsetStart + this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio();
+							this.__alphaOffsetEnd = this.__alphaOffsetStart + this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio();
+						}
+						else
+						{
+							this.__redOffsetEnd = this.__redOffsetStart + this.colorOffsetEnd.redValue;
+							this.__greenOffsetEnd = this.__greenOffsetStart + this.colorOffsetEnd.greenValue;
+							this.__blueOffsetEnd = this.__blueOffsetStart + this.colorOffsetEnd.blueValue;
+							this.__alphaOffsetEnd = this.__alphaOffsetStart + this.colorOffsetEnd.alphaValue;
+						}
 					}
 				}
 				else
 				{
-					this.__redOffsetEnd = this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio();
-					this.__greenOffsetEnd = this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio();
-					this.__blueOffsetEnd = this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio();
-					this.__alphaOffsetEnd = this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio();
+					if (this._hasColorOffsetEndVariance)
+					{
+						this.__redOffsetEnd = this.colorOffsetEnd.redValue + this.colorOffsetEndVariance.redValue * getRandomRatio();
+						this.__greenOffsetEnd = this.colorOffsetEnd.greenValue + this.colorOffsetEndVariance.greenValue * getRandomRatio();
+						this.__blueOffsetEnd = this.colorOffsetEnd.blueValue + this.colorOffsetEndVariance.blueValue * getRandomRatio();
+						this.__alphaOffsetEnd = this.colorOffsetEnd.alphaValue + this.colorOffsetEndVariance.alphaValue * getRandomRatio();
+					}
+					else
+					{
+						this.__redOffsetEnd = this.colorOffsetEnd.redValue;
+						this.__greenOffsetEnd = this.colorOffsetEnd.greenValue;
+						this.__blueOffsetEnd = this.colorOffsetEnd.blueValue;
+						this.__alphaOffsetEnd = this.colorOffsetEnd.alphaValue;
+					}
 				}
 				
 				particle.redOffsetBase = this.__redOffsetStart;
@@ -3532,7 +3784,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var __velocityAngleCalculated:Bool;
 	private var __velocityScalar:Float;
 	
-	private function advanceParticle(particle:T, passedTime:Float):Void
+	#if !debug inline #end private function advanceParticle(particle:T, passedTime:Float):Void
 	{
 		#if debug
 		particle.updateCount++;
@@ -3795,6 +4047,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.y += particle.oscillationPosition2Y;
 		}
 		
+		if (this.useDisplayRect)
+		{
+			if (!this.displayRect.contains(particle.x, particle.y))
+			{
+				particle.timeCurrent = particle.timeTotal; // "destroy" particle
+				particle.visible = false;
+				//return;
+			}
+		}
+		
 		if (this._oscillationScaleXEnabled)
 		{
 			if (this._oscillationScaleXGlobalFrequencyEnabled)
@@ -3920,16 +4182,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 		//\OSCILLATION
 		
-		if (this.useDisplayRect)
-		{
-			if (!this.displayRect.contains(particle.x, particle.y))
-			{
-				particle.timeCurrent = particle.timeTotal; // "destroy" particle
-				particle.visible = false;
-				return;
-			}
-		}
-		
 		if (this._useVelocityScale || this._useVelocitySkew || this._useVelocityRotation)
 		{
 			this.__velocityScalar = Math.sqrt(particle.velocityX * particle.velocityX + particle.velocityY * particle.velocityY);
@@ -3989,24 +4241,32 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.blueOffsetBase += particle.blueOffsetDelta * passedTime;
 		}
 		
-		if (this._useFadeIn && particle.timeCurrent <= particle.fadeInTime)
+		if (this._useFadeInOut)
 		{
-			particle.colorAlphaBase = particle.colorAlphaStart * (particle.timeCurrent / particle.fadeInTime);
-			particle.alphaOffsetBase = particle.alphaOffsetStart * (particle.timeCurrent / particle.fadeInTime);
-		}
-		else if (this._useFadeOut && particle.timeCurrent >= particle.fadeOutTime)
-		{
-			particle.colorAlphaBase = particle.colorAlphaEnd * (1.0 - (particle.timeCurrent - particle.fadeOutTime) / particle.fadeOutDuration);
-			particle.alphaOffsetBase = particle.alphaOffsetEnd * (1.0 - (particle.timeCurrent - particle.fadeOutTime) / particle.fadeOutDuration);
+			if (this._useFadeIn && particle.timeCurrent <= particle.fadeInTime)
+			{
+				particle.colorAlphaBase = particle.colorAlphaStart * (particle.timeCurrent / particle.fadeInTime);
+				particle.alphaOffsetBase = particle.alphaOffsetStart * (particle.timeCurrent / particle.fadeInTime);
+			}
+			else if (this._useFadeOut && particle.timeCurrent >= particle.fadeOutTime)
+			{
+				particle.colorAlphaBase = particle.colorAlphaEnd * (1.0 - (particle.timeCurrent - particle.fadeOutTime) / particle.fadeOutDuration);
+				particle.alphaOffsetBase = particle.alphaOffsetEnd * (1.0 - (particle.timeCurrent - particle.fadeOutTime) / particle.fadeOutDuration);
+			}
+			else
+			{
+				if (particle.isFadingIn)
+				{
+					particle.colorAlphaBase = particle.colorAlphaStart;
+					particle.alphaOffsetBase = particle.alphaOffsetStart;
+					particle.isFadingIn = false;
+				}
+				if (this._useColor) particle.colorAlphaBase += particle.colorAlphaDelta * passedTime;
+				if (this._useColorOffset) particle.alphaOffsetBase += particle.alphaOffsetDelta * passedTime;
+			}
 		}
 		else
 		{
-			if (particle.isFadingIn)
-			{
-				particle.colorAlphaBase = particle.colorAlphaStart;
-				particle.alphaOffsetBase = particle.alphaOffsetStart;
-				particle.isFadingIn = false;
-			}
 			if (this._useColor) particle.colorAlphaBase += particle.colorAlphaDelta * passedTime;
 			if (this._useColorOffset) particle.alphaOffsetBase += particle.alphaOffsetDelta * passedTime;
 		}
@@ -4047,26 +4307,83 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.oscillationColorBlue = particle.oscillationColorBlueFactor * this.__step;
 			particle.oscillationColorAlpha = particle.oscillationColorAlphaFactor * this.__step;
 			
-			particle.red = particle.colorRedBase + particle.oscillationColorRed;
-			particle.green = particle.colorGreenBase + particle.oscillationColorGreen;
-			particle.blue = particle.colorBlueBase + particle.oscillationColorBlue;
-			particle.alpha = particle.colorAlphaBase + particle.oscillationColorAlpha;
+			//particle.red = particle.colorRedBase + particle.oscillationColorRed;
+			//particle.green = particle.colorGreenBase + particle.oscillationColorGreen;
+			//particle.blue = particle.colorBlueBase + particle.oscillationColorBlue;
+			//particle.alpha = particle.colorAlphaBase + particle.oscillationColorAlpha;
 		}
-		else
-		{
-			particle.red = particle.colorRedBase;
-			particle.green = particle.colorGreenBase;
-			particle.blue = particle.colorBlueBase;
-			particle.alpha = particle.colorAlphaBase;
-		}
+		//else if (this._useColor)
+		//{
+			//particle.red = particle.colorRedBase;
+			//particle.green = particle.colorGreenBase;
+			//particle.blue = particle.colorBlueBase;
+			//particle.alpha = particle.colorAlphaBase;
+		//}
+		//else if (this._useFadeInOut)
+		//{
+			//particle.alpha = particle.colorAlphaBase;
+		//}
 		//\OSCILLATION COLOR
 		
 		// OSCILLATION COLOR OFFSET
-		particle.redOffset = particle.redOffsetBase;
-		particle.greenOffset = particle.greenOffsetBase;
-		particle.blueOffset = particle.blueOffsetBase;
-		particle.alphaOffset = particle.alphaOffsetBase;
+		if (this._useOscillationColorOffset)
+		{
+			if (this._oscillationColorOffsetGlobalFrequencyEnabled)
+			{
+				if (this.oscillationColorOffsetFrequencyInverted)
+				{
+					this.__step = this._oscillationGlobalValueInverted;
+				}
+				else
+				{
+					this.__step = this._oscillationGlobalValue;
+				}
+			}
+			else if (this._oscillationColorOffsetGroupFrequencyEnabled)
+			{
+				this.__step = this._oscillationColorOffsetGroupValue;
+			}
+			else
+			{
+				particle.oscillationColorOffsetStep += particle.oscillationColorOffsetFrequency * passedTime;
+				if (this.oscillationColorOffsetFrequencyInverted)
+				{
+					this.__step = Math.sin(particle.oscillationColorOffsetStep);
+				}
+				else
+				{
+					this.__step = Math.cos(particle.oscillationColorOffsetStep);
+				}
+			}
+			
+			particle.oscillationColorOffsetRed = particle.oscillationColorOffsetRedFactor * this.__step;
+			particle.oscillationColorOffsetGreen = particle.oscillationColorOffsetGreenFactor * this.__step;
+			particle.oscillationColorOffsetBlue = particle.oscillationColorOffsetBlueFactor * this.__step;
+			particle.oscillationColorOffsetAlpha = particle.oscillationColorOffsetAlphaFactor * this.__step;
+			
+			//particle.redOffset = particle.redOffsetBase + particle.oscillationColorOffsetRed;
+			//particle.greenOffset = particle.greenOffsetBase + particle.oscillationColorOffsetGreen;
+			//particle.blueOffset = particle.blueOffsetBase + particle.oscillationColorOffsetBlue;
+			//particle.alphaOffset = particle.alphaOffsetBase + particle.oscillationColorOffsetAlpha;
+		}
+		//else if (this._useColorOffset)
+		//{
+			//particle.redOffset = particle.redOffsetBase;
+			//particle.greenOffset = particle.greenOffsetBase;
+			//particle.blueOffset = particle.blueOffsetBase;
+			//particle.alphaOffset = particle.alphaOffsetBase;
+		//}
 		//\OSCILLATION COLOR OFFSET
+		
+		particle.red = particle.colorRedBase + particle.oscillationColorRed;
+		particle.green = particle.colorGreenBase + particle.oscillationColorGreen;
+		particle.blue = particle.colorBlueBase + particle.oscillationColorBlue;
+		particle.alpha = particle.colorAlphaBase + particle.oscillationColorAlpha;
+		
+		particle.redOffset = particle.redOffsetBase + particle.oscillationColorOffsetRed;
+		particle.greenOffset = particle.greenOffsetBase + particle.oscillationColorOffsetGreen;
+		particle.blueOffset = particle.blueOffsetBase + particle.oscillationColorOffsetBlue;
+		particle.alphaOffset = particle.alphaOffsetBase + particle.oscillationColorOffsetAlpha;
 	}
 	
 	override public function advanceTime(time:Float):Void 
@@ -4188,6 +4505,19 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			else
 			{
 				this._oscillationColorGroupValue = Math.cos(this._oscillationColorGroupStep);
+			}
+		}
+		
+		if (this._useOscillationColorOffset && this._oscillationColorOffsetGroupFrequencyEnabled)
+		{
+			this._oscillationColorOffsetGroupStep += this.oscillationColorOffsetFrequency * time;
+			if (this.oscillationColorOffsetFrequencyInverted)
+			{
+				this._oscillationColorOffsetGroupValue = Math.sin(this._oscillationColorOffsetGroupStep);
+			}
+			else
+			{
+				this._oscillationColorOffsetGroupValue = Math.cos(this._oscillationColorOffsetGroupStep);
 			}
 		}
 		
@@ -4375,6 +4705,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			this._oscillationSkewXGroupStep = this.oscillationSkewXGroupStartStep;
 			this._oscillationSkewYGroupStep = this.oscillationSkewYGroupStartStep;
 			this._oscillationColorGroupStep = this.oscillationColorGroupStartStep;
+			this._oscillationColorOffsetGroupStep = this.oscillationColorOffsetGroupStartStep;
 		}
 	}
 	
@@ -4509,7 +4840,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.emitterRadiusMin = options.emitterRadiusMin;
 		this.emitterRadiusMinVariance = options.emitterRadiusMinVariance;
 		this.emitterRadiusOverridesParticleAngle = options.emitterRadiusOverridesParticleAngle;
-		this.emitterRadiusParticleAngleOffset = options.emitterRadiusParticleAngleOffsetVariance;
+		this.emitterRadiusParticleAngleOffset = options.emitterRadiusParticleAngleOffset;
+		this.emitterRadiusParticleAngleOffsetVariance = options.emitterRadiusParticleAngleOffsetVariance;
 		
 		this.emitAngle = options.emitAngle;
 		this.emitAngleVariance = options.emitAngleVariance;
@@ -4735,11 +5067,21 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.oscillationColorFrequencyVariance = options.oscillationColorFrequencyVariance;
 		this.oscillationColorFrequencyInverted = options.oscillationColorFrequencyInverted;
 		this.oscillationColorFrequencyStart = options.oscillationColorFrequencyStart;
+		
+		this.oscillationColorOffsetFrequencyMode = options.oscillationColorOffsetFrequencyMode;
+		this.oscillationColorOffsetGroupStartStep = options.oscillationColorOffsetGroupStartStep;
+		this.oscillationColorOffset.copyFrom(options.oscillationColorOffset);
+		this.oscillationColorOffsetVariance.copyFrom(options.oscillationColorOffsetVariance);
+		this.oscillationColorOffsetFrequency = options.oscillationColorOffsetFrequency;
+		this.oscillationColorOffsetUnifiedFrequencyVariance = options.oscillationColorOffsetUnifiedFrequencyVariance;
+		this.oscillationColorOffsetFrequencyVariance = options.oscillationColorOffsetFrequencyVariance;
+		this.oscillationColorOffsetFrequencyInverted = options.oscillationColorOffsetFrequencyInverted;
+		this.oscillationColorOffsetFrequencyStart = options.oscillationColorOffsetFrequencyStart;
 		//\Oscillation
 		
 		checkColor();
 		checkColorOffset();
-		checkColorOscillation();
+		checkOscillationColor();
 		
 		if (this._autoSetEmissionRate)
 		{
@@ -5006,6 +5348,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
 		options.oscillationColorFrequencyInverted = this.oscillationColorFrequencyInverted;
 		options.oscillationColorFrequencyStart = this._oscillationColorFrequencyStart;
+		
+		options.oscillationColorOffsetFrequencyMode = this._oscillationColorOffsetFrequencyMode;
+		options.oscillationColorOffsetGroupStartStep = this.oscillationColorOffsetGroupStartStep;
+		options.oscillationColorOffset.copyFrom(this.oscillationColorOffset);
+		options.oscillationColorOffsetVariance.copyFrom(this.oscillationColorOffsetVariance);
+		options.oscillationColorOffsetFrequency = this.oscillationColorOffsetFrequency;
+		options.oscillationColorOffsetUnifiedFrequencyVariance = this._oscillationColorOffsetUnifiedFrequencyVariance;
+		options.oscillationColorOffsetFrequencyVariance = this.oscillationColorOffsetFrequencyVariance;
+		options.oscillationColorOffsetFrequencyInverted = this.oscillationColorOffsetFrequencyInverted;
+		options.oscillationColorOffsetFrequencyStart = this.oscillationColorOffsetFrequencyStart;
 		//\Oscillation
 		
 		return options;
@@ -5015,28 +5367,22 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	{
 		this._useOscillationGlobalFrequency = this._oscillationPositionGlobalFrequencyEnabled || this._oscillationPosition2GlobalFrequencyEnabled || this._oscillationRotationGlobalFrequencyEnabled ||
 											  this._oscillationScaleXGlobalFrequencyEnabled || this._oscillationScaleYGlobalFrequencyEnabled || this._oscillationSkewXGlobalFrequencyEnabled || 
-											  this._oscillationSkewYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled;
+											  this._oscillationSkewYGlobalFrequencyEnabled || this._oscillationColorGlobalFrequencyEnabled || this._oscillationColorOffsetGlobalFrequencyEnabled;
 	}
 	
 	private function checkOscillationUnifiedFrequencyVariance():Void
 	{
 		this._useOscillationUnifiedFrequencyVariance = this._oscillationPositionUnifiedFrequencyVariance || this._oscillationPosition2UnifiedFrequencyVariance || this._oscillationRotationUnifiedFrequencyVariance ||
 													   this._oscillationScaleXUnifiedFrequencyVariance || this._oscillationScaleYUnifiedFrequencyVariance || this._oscillationSkewXUnifiedFrequencyVariance ||
-													   this._oscillationSkewYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance;
+													   this._oscillationSkewYUnifiedFrequencyVariance || this._oscillationColorUnifiedFrequencyVariance || this._oscillationColorOffsetUnifiedFrequencyVariance;
 	}
 	
 	private function checkOscillationUnifiedFrequencyStart():Void
 	{
 		this._useOscillationUnifiedRandomFrequencyStart = this._oscillationPositionFrequencyStartUnifiedRandom || this._oscillationPosition2FrequencyStartUnifiedRandom || this._oscillationRotationFrequencyStartUnifiedRandom ||
 													this._oscillationScaleXFrequencyStartUnifiedRandom || this._oscillationScaleYFrequencyStartUnifiedRandom || this._oscillationSkewXFrequencyStartUnifiedRandom ||
-													this._oscillationSkewYFrequencyStartUnifiedRandom || this._oscillationColorFrequencyStartUnifiedRandom;
+													this._oscillationSkewYFrequencyStartUnifiedRandom || this._oscillationColorFrequencyStartUnifiedRandom || this._oscillationColorOffsetFrequencyStartUnifiedRandom;
 	}
-	
-	//private function checkOscillationColor():Void
-	//{
-		//this._useOscillationColor = this._oscillationColorRed != 0.0 || this._oscillationColorGreen != 0.0 || this._oscillationColorBlue != 0.0 || this._oscillationColorAlpha != 0.0 ||
-									//this._oscillationColorRedVariance != 0.0 || this._oscillationColorGreenVariance != 0.0 || this._oscillationColorBlueVariance != 0.0 || this._oscillationColorAlphaVariance != 0.0;
-	//}
 	
 	private function colorChange(tint:MassiveTint):Void
 	{
@@ -5045,6 +5391,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	private function checkColor():Void
 	{
+		this._hasColorStartVariance = this.colorStartVariance.hasValue();
+		this._hasColorEndVariance = this.colorEndVariance.hasValue();
 		if (this._colorEndRelativeToStart)
 		{
 			if (this._colorEndIsMultiplier)
@@ -5091,6 +5439,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function checkColorOffset():Void
 	{
 		this._hasColorOffset = this.colorOffsetStart.hasValue();
+		this._hasColorOffsetStartVariance = this.colorOffsetStartVariance.hasValue();
+		this._hasColorOffsetEndVariance = this.colorOffsetEndVariance.hasValue();
 		if (this._colorOffsetEndRelativeToStart)
 		{
 			if (this._colorOffsetEndIsMultiplier)
@@ -5129,14 +5479,24 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 	}
 	
-	private function colorOscillationChange(tint:MassiveTint):Void
+	private function oscillationColorChange(tint:MassiveTint):Void
 	{
-		checkColorOscillation();
+		checkOscillationColor();
 	}
 	
-	private function checkColorOscillation():Void
+	private function checkOscillationColor():Void
 	{
 		this._useOscillationColor = this.oscillationColor.hasValue() || this.oscillationColorVariance.hasValue();
+	}
+	
+	private function oscillationColorOffsetChange(tint:MassiveTint):Void
+	{
+		checkOscillationColorOffset();
+	}
+	
+	private function checkOscillationColorOffset():Void
+	{
+		this._useOscillationColorOffset = this.oscillationColorOffset.hasValue() || this.oscillationColorOffsetVariance.hasValue();
 	}
 	
 }
