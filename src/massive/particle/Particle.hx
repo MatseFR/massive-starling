@@ -86,13 +86,23 @@ class Particle extends ImageData
 	public var timeCurrent:Float;
 	public var timeTotal:Float;
 	
-	public var colorAlphaStart:Float;
-	public var colorAlphaEnd:Float;
+	public var redBase:Float;
+	public var greenBase:Float;
+	public var blueBase:Float;
+	public var alphaBase:Float;
 	
-	public var colorRedDelta:Float;
-	public var colorGreenDelta:Float;
-	public var colorBlueDelta:Float;
-	public var colorAlphaDelta:Float;
+	public var alphaStart:Float;
+	public var alphaEnd:Float;
+	
+	public var redDelta:Float;
+	public var greenDelta:Float;
+	public var blueDelta:Float;
+	public var alphaDelta:Float;
+	
+	public var redOffsetBase:Float;
+	public var greenOffsetBase:Float;
+	public var blueOffsetBase:Float;
+	public var alphaOffsetBase:Float;
 	
 	public var alphaOffsetStart:Float;
 	public var alphaOffsetEnd:Float;
@@ -101,11 +111,6 @@ class Particle extends ImageData
 	public var greenOffsetDelta:Float;
 	public var blueOffsetDelta:Float;
 	public var alphaOffsetDelta:Float;
-	
-	public var redOffsetBase:Float;
-	public var greenOffsetBase:Float;
-	public var blueOffsetBase:Float;
-	public var alphaOffsetBase:Float;
 	
 	public var startX:Float;
 	public var startY:Float;
@@ -138,87 +143,82 @@ class Particle extends ImageData
 	public var skewXDelta:Float;
 	public var skewYDelta:Float;
 	
-	// NEW
-	public var isFadingIn:Bool;
 	public var xBase:Float;
 	public var yBase:Float;
 	public var rotationBase:Float;
 	public var rotationVelocity:Float;
 	
-	public var colorRedBase:Float;
-	public var colorGreenBase:Float;
-	public var colorBlueBase:Float;
-	public var colorAlphaBase:Float;
-	
 	public var dragForce:Float;
 	
 	// oscillation position
-	public var oscillationPositionAngle:Float;
-	public var oscillationPositionRadius:Float;
-	public var oscillationPositionStep:Float;
-	public var oscillationPositionFrequency:Float;
-	public var oscillationPositionX:Float;
-	public var oscillationPositionY:Float;
+	public var positionOscillationAngle:Float;
+	public var positionOscillationRadius:Float;
+	public var positionOscillationStep:Float;
+	public var positionOscillationFrequency:Float;
+	public var positionXOscillation:Float;
+	public var positionYOscillation:Float;
 	
 	// oscillation position 2
-	public var oscillationPosition2Angle:Float;
-	public var oscillationPosition2Radius:Float;
-	public var oscillationPosition2Step:Float;
-	public var oscillationPosition2Frequency:Float;
-	public var oscillationPosition2X:Float;
-	public var oscillationPosition2Y:Float;
+	public var position2OscillationAngle:Float;
+	public var position2OscillationRadius:Float;
+	public var position2OscillationStep:Float;
+	public var position2OscillationFrequency:Float;
+	public var position2XOscillation:Float;
+	public var position2YOscillation:Float;
 	
 	// oscillation rotation
-	public var oscillationRotationAngle:Float;
-	public var oscillationRotationStep:Float;
-	public var oscillationRotationFrequency:Float;
-	public var oscillationRotation:Float;
+	public var rotationOscillationAngle:Float;
+	public var rotationOscillationStep:Float;
+	public var rotationOscillationFrequency:Float;
+	public var rotationOscillation:Float;
 	
 	// oscillation scale
-	public var oscillationScaleX:Float;
-	public var oscillationScaleY:Float;
-	public var oscillationScaleXStep:Float;
-	public var oscillationScaleYStep:Float;
-	public var oscillationScaleXFrequency:Float;
-	public var oscillationScaleYFrequency:Float;
+	public var scaleXOscillationFactor:Float;
+	public var scaleXOscillationFrequency:Float;
+	public var scaleXOscillationStep:Float;
 	public var scaleXOscillation:Float;
+	
+	public var scaleYOscillationFactor:Float;
+	public var scaleYOscillationFrequency:Float;
+	public var scaleYOscillationStep:Float;
 	public var scaleYOscillation:Float;
 	
 	// oscillation skew
-	public var oscillationSkewX:Float;
-	public var oscillationSkewY:Float;
-	public var oscillationSkewXStep:Float;
-	public var oscillationSkewYStep:Float;
-	public var oscillationSkewXFrequency:Float;
-	public var oscillationSkewYFrequency:Float;
+	public var skewXOscillationFactor:Float;
+	public var skewXOscillationFrequency:Float;
+	public var skewXOscillationStep:Float;
 	public var skewXOscillation:Float;
+	
+	public var skewYOscillationFactor:Float;
+	public var skewYOscillationFrequency:Float;
+	public var skewYOscillationStep:Float;
 	public var skewYOscillation:Float;
 	
 	// oscillation color
-	public var oscillationColorRedFactor:Float;
-	public var oscillationColorGreenFactor:Float;
-	public var oscillationColorBlueFactor:Float;
-	public var oscillationColorAlphaFactor:Float;
-	public var oscillationColorStep:Float;
-	public var oscillationColorFrequency:Float;
+	public var redOscillationFactor:Float;
+	public var greenOscillationFactor:Float;
+	public var blueOscillationFactor:Float;
+	public var alphaOscillationFactor:Float;
+	public var colorOscillationStep:Float;
+	public var colorOscillationFrequency:Float;
 	
-	public var oscillationColorRed:Float;
-	public var oscillationColorGreen:Float;
-	public var oscillationColorBlue:Float;
-	public var oscillationColorAlpha:Float;
+	public var redOscillation:Float;
+	public var greenOscillation:Float;
+	public var blueOscillation:Float;
+	public var alphaOscillation:Float;
 	
 	// oscillation color offset
-	public var oscillationColorOffsetRedFactor:Float;
-	public var oscillationColorOffsetGreenFactor:Float;
-	public var oscillationColorOffsetBlueFactor:Float;
-	public var oscillationColorOffsetAlphaFactor:Float;
-	public var oscillationColorOffsetStep:Float;
-	public var oscillationColorOffsetFrequency:Float;
+	public var redOffsetOscillationFactor:Float;
+	public var greenOffsetOscillationFactor:Float;
+	public var blueOffsetOscillationFactor:Float;
+	public var alphaOffsetOscillationFactor:Float;
+	public var colorOffsetOscillationStep:Float;
+	public var colorOffsetOscillationFrequency:Float;
 	
-	public var oscillationColorOffsetRed:Float;
-	public var oscillationColorOffsetGreen:Float;
-	public var oscillationColorOffsetBlue:Float;
-	public var oscillationColorOffsetAlpha:Float;
+	public var redOffsetOscillation:Float;
+	public var greenOffsetOscillation:Float;
+	public var blueOffsetOscillation:Float;
+	public var alphaOffsetOscillation:Float;
 	
 	public var scaleXBase:Float;
 	public var scaleYBase:Float;
@@ -228,20 +228,20 @@ class Particle extends ImageData
 	
 	public var skewXVelocity:Float;
 	public var skewYVelocity:Float;
-	//\NEW
 	
 	public var sizeXStart:Float;
 	public var sizeYStart:Float;
 	public var sizeXEnd:Float;
 	public var sizeYEnd:Float;
 	
+	public var isFadingIn:Bool;
 	public var fadeInTime:Float;
 	public var fadeOutTime:Float;
 	public var fadeOutDuration:Float;
 	
-	// DEBUG
+	#if debug
 	public var updateCount:Int;
-	//\DEBUG
+	#end
 	
 	public function new() 
 	{
