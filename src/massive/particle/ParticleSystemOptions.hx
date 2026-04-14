@@ -593,7 +593,7 @@ class ParticleSystemOptions
 	/**
 	   @default 0
 	**/
-	public var oscillationPositionRadiusVariance:Float = 0.0;
+	public var positionOscillationRadiusVariance:Float = 0.0;
 	/**
 	   @default 1
 	**/
@@ -614,7 +614,7 @@ class ParticleSystemOptions
 	   see OscillationFrequencyStart for possible values
 	   @default	OscillationFrequencyStart.ZERO
 	**/
-	public var oscillationPositionFrequencyStart:String = OscillationFrequencyStart.ZERO;
+	public var positionOscillationFrequencyStart:String = OscillationFrequencyStart.ZERO;
 	
 	// Position2
 	/**
@@ -654,7 +654,7 @@ class ParticleSystemOptions
 	/**
 	   @default	false
 	**/
-	public var oscillationPosition2UnifiedFrequencyVariance:Bool = false;
+	public var position2OscillationUnifiedFrequencyVariance:Bool = false;
 	/**
 	   @default 0
 	**/
@@ -674,7 +674,7 @@ class ParticleSystemOptions
 	   see OscillationFrequencyMode for possible values
 	   @default	OscillationFrequencyMode.SINGLE
 	**/
-	public var oscillationRotationFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	public var rotationOscillationFrequencyMode:String = OscillationFrequencyMode.SINGLE;
 	/**
 	   @default	0
 	**/
@@ -694,7 +694,7 @@ class ParticleSystemOptions
 	/**
 	   @default	false
 	**/
-	public var oscillationRotationUnifiedFrequencyVariance:Bool = false;
+	public var rotationOscillationUnifiedFrequencyVariance:Bool = false;
 	/**
 	   @default 0
 	**/
@@ -714,7 +714,7 @@ class ParticleSystemOptions
 	   see OscillationFrequencyMode for possible values
 	   @default	OscillationFrequencyMode.SINGLE
 	**/
-	public var oscillationScaleXFrequencyMode:String = OscillationFrequencyMode.SINGLE;
+	public var scaleXOscillationFrequencyMode:String = OscillationFrequencyMode.SINGLE;
 	/**
 	   @default	0
 	**/
@@ -1136,106 +1136,106 @@ class ParticleSystemOptions
 		this.oscillationUnifiedFrequencyVariance = 0.0;
 		
 		// position
-		this.oscillationPositionFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.positionOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationPositionGroupStartStep = 0.0;
 		this.oscillationPositionAngle = 0.0;
 		this.oscillationPositionAngleVariance = 0.0;
-		this.oscillationPositionAngleRelativeTo = AngleRelativeTo.ROTATION;
-		this.oscillationPositionRadius = 0.0;
-		this.oscillationPositionRadiusVariance = 0.0;
+		this.positionOscillationAngleRelativeTo = AngleRelativeTo.ROTATION;
+		this.positionOscillationRadius = 0.0;
+		this.positionOscillationRadiusVariance = 0.0;
 		this.oscillationPositionFrequency = 1.0;
-		this.oscillationPositionUnifiedFrequencyVariance = false;
+		this.positionOscillationUnifiedFrequencyVariance = false;
 		this.oscillationPositionFrequencyVariance = 0.0;
 		this.oscillationPositionFrequencyInverted = false;
-		this.oscillationPositionFrequencyStart = OscillationFrequencyStart.ZERO;
+		this.positionOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// position2
-		this.oscillationPosition2FrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.position2OscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationPosition2GroupStartStep = 0.0;
 		this.oscillationPosition2Angle = 0.0;
 		this.oscillationPosition2AngleVariance = 0.0;
 		this.oscillationPosition2AngleRelativeTo = AngleRelativeTo.ROTATION;
-		this.oscillationPosition2Radius = 0.0;
-		this.oscillationPosition2RadiusVariance = 0.0;
+		this.position2OscillationRadius = 0.0;
+		this.position2OscillationRadiusVariance = 0.0;
 		this.oscillationPosition2Frequency = 1.0;
-		this.oscillationPosition2UnifiedFrequencyVariance = false;
+		this.position2OscillationUnifiedFrequencyVariance = false;
 		this.oscillationPosition2FrequencyVariance = 0.0;
 		this.oscillationPosition2FrequencyInverted = false;
-		this.oscillationPosition2FrequencyStart = OscillationFrequencyStart.ZERO;
+		this.position2OscillationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// rotation
-		this.oscillationRotationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.rotationOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationRotationGroupStartStep = 0.0;
-		this.oscillationRotationAngle = 0.0;
-		this.oscillationRotationAngleVariance = 0.0;
+		this.rotationOscillationAngle = 0.0;
+		this.rotationOscillationAngleVariance = 0.0;
 		this.oscillationRotationFrequency = 1.0;
-		this.oscillationRotationUnifiedFrequencyVariance = false;
+		this.rotationOscillationUnifiedFrequencyVariance = false;
 		this.oscillationRotationFrequencyVariance = 0.0;
 		this.oscillationRotationFrequencyInverted = false;
-		this.oscillationRotationFrequencyStart = OscillationFrequencyStart.ZERO;
+		this.rotationOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// scaleX
-		this.oscillationScaleXFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.scaleXOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationScaleXGroupStartStep = 0.0;
-		this.oscillationScaleX = 0.0;
-		this.oscillationScaleXVariance = 0.0;
+		this.scaleXOscillation = 0.0;
+		this.scaleXOscillationVariance = 0.0;
 		this.oscillationScaleXFrequency = 1.0;
-		this.oscillationScaleXUnifiedFrequencyVariance = false;
+		this.scaleXOscillationUnifiedFrequencyVariance = false;
 		this.oscillationScaleXFrequencyVariance = 0.0;
 		this.oscillationScaleXFrequencyInverted = false;
-		this.oscillationScaleXFrequencyStart = OscillationFrequencyStart.ZERO;
+		this.scaleXOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// scaleY
-		this.oscillationScaleYFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.scaleYOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationScaleYGroupStartStep = 0.0;
-		this.oscillationScaleY = 0.0;
-		this.oscillationScaleYVariance = 0.0;
+		this.scaleYOscillation = 0.0;
+		this.scaleYOscillationVariance = 0.0;
 		this.oscillationScaleYFrequency = 1.0;
-		this.oscillationScaleYUnifiedFrequencyVariance = false;
+		this.scaleYOscillationUnifiedFrequencyVariance = false;
 		this.oscillationScaleYFrequencyVariance = 0.0;
 		this.oscillationScaleYFrequencyInverted = false;
-		this.oscillationScaleYFrequencyStart = OscillationFrequencyStart.ZERO;
+		this.scaleYOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// skewX
-		this.oscillationSkewXFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.skewXOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationSkewXGroupStartStep = 0.0;
-		this.oscillationSkewX = 0.0;
-		this.oscillationSkewXVariance = 0.0;
+		this.skewXOscillation = 0.0;
+		this.skewXOscillationVariance = 0.0;
 		this.oscillationSkewXFrequency = 1.0;
-		this.oscillationSkewXUnifiedFrequencyVariance = false;
+		this.skewXOscillationUnifiedFrequencyVariance = false;
 		this.oscillationSkewXFrequencyVariance = 0.0;
 		this.oscillationSkewXFrequencyInverted = false;
-		this.oscillationSkewXFrequencyStart = OscillationFrequencyStart.ZERO;
+		this.skewXOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// slewY
-		this.oscillationSkewYFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.skewYOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationSkewYGroupStartStep = 0.0;
-		this.oscillationSkewY = 0.0;
-		this.oscillationSkewYVariance = 0.0;
+		this.skewYOscillation = 0.0;
+		this.skewYOscillationVariance = 0.0;
 		this.oscillationSkewYFrequency = 1.0;
-		this.oscillationSkewYUnifiedFrequencyVariance = false;
+		this.skewYOscillationUnifiedFrequencyVariance = false;
 		this.oscillationSkewYFrequencyVariance = 0.0;
 		this.oscillationSkewYFrequencyInverted = false;
-		this.oscillationSkewYFrequencyStart = OscillationFrequencyStart.ZERO;
+		this.skewYOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// color
-		this.oscillationColorFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.colorOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationColorGroupStartStep = 0.0;
 		this.oscillationColor.setTo(0.0, 0.0, 0.0, 0.0);
 		this.oscillationColorVariance.setTo(0.0, 0.0, 0.0, 0.0);
 		this.oscillationColorFrequency = 1.0;
-		this.oscillationColorUnifiedFrequencyVariance = false;
+		this.colorOscillationUnifiedFrequencyVariance = false;
 		this.oscillationColorFrequencyVariance = 0.0;
 		this.oscillationColorFrequencyInverted = false;
-		this.oscillationColorFrequencyStart = OscillationFrequencyStart.ZERO;
+		this.colorOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
 		
 		// color offset
-		this.oscillationColorOffsetFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.colorOscillationOffsetFrequencyMode = OscillationFrequencyMode.SINGLE;
 		this.oscillationColorOffsetGroupStartStep = 0.0;
 		this.oscillationColorOffset.setTo(0.0, 0.0, 0.0, 0.0);
 		this.oscillationColorOffsetVariance.setTo(0.0, 0.0, 0.0, 0.0);
 		this.oscillationColorOffsetFrequency = 1.0;
-		this.oscillationColorOffsetUnifiedFrequencyVariance = false;
+		this.colorOffsetOscillationUnifiedFrequencyVariance = false;
 		this.oscillationColorOffsetFrequencyVariance = 0.0;
 		this.oscillationColorOffsetFrequencyInverted = false;
 		this.oscillationColorOffsetFrequencyStart = OscillationFrequencyStart.ZERO;
@@ -1422,98 +1422,98 @@ class ParticleSystemOptions
 		target.oscillationGlobalFrequency = this.oscillationGlobalFrequency;
 		target.oscillationUnifiedFrequencyVariance = this.oscillationUnifiedFrequencyVariance;
 		
-		target.oscillationPositionFrequencyMode = this.oscillationPositionFrequencyMode;
+		target.oscillationPositionFrequencyMode = this.positionOscillationFrequencyMode;
 		target.oscillationPositionGroupStartStep = this.oscillationPositionGroupStartStep;
 		target.oscillationPositionAngle = this.oscillationPositionAngle;
 		target.oscillationPositionAngleVariance = this.oscillationPositionAngleVariance;
-		target.oscillationPositionAngleRelativeTo = this.oscillationPositionAngleRelativeTo;
-		target.oscillationPositionRadius = this.oscillationPositionRadius;
-		target.oscillationPositionRadiusVariance = this.oscillationPositionRadiusVariance;
+		target.oscillationPositionAngleRelativeTo = this.positionOscillationAngleRelativeTo;
+		target.oscillationPositionRadius = this.positionOscillationRadius;
+		target.oscillationPositionRadiusVariance = this.positionOscillationRadiusVariance;
 		target.oscillationPositionFrequency = this.oscillationPositionFrequency;
-		target.oscillationPositionUnifiedFrequencyVariance = this.oscillationPositionUnifiedFrequencyVariance;
+		target.oscillationPositionUnifiedFrequencyVariance = this.positionOscillationUnifiedFrequencyVariance;
 		target.oscillationPositionFrequencyVariance = this.oscillationPositionFrequencyVariance;
 		target.oscillationPositionFrequencyInverted = this.oscillationPositionFrequencyInverted;
-		target.oscillationPositionFrequencyStart = this.oscillationPositionFrequencyStart;
+		target.oscillationPositionFrequencyStart = this.positionOscillationFrequencyStart;
 		
-		target.oscillationPosition2FrequencyMode = this.oscillationPosition2FrequencyMode;
+		target.oscillationPosition2FrequencyMode = this.position2OscillationFrequencyMode;
 		target.oscillationPosition2GroupStartStep = this.oscillationPosition2GroupStartStep;
 		target.oscillationPosition2Angle = this.oscillationPosition2Angle;
 		target.oscillationPosition2AngleVariance = this.oscillationPosition2AngleVariance;
 		target.oscillationPosition2AngleRelativeTo = this.oscillationPosition2AngleRelativeTo;
-		target.oscillationPosition2Radius = this.oscillationPosition2Radius;
-		target.oscillationPosition2RadiusVariance = this.oscillationPosition2RadiusVariance;
+		target.oscillationPosition2Radius = this.position2OscillationRadius;
+		target.oscillationPosition2RadiusVariance = this.position2OscillationRadiusVariance;
 		target.oscillationPosition2Frequency = this.oscillationPosition2Frequency;
-		target.oscillationPosition2UnifiedFrequencyVariance = this.oscillationPosition2UnifiedFrequencyVariance;
+		target.oscillationPosition2UnifiedFrequencyVariance = this.position2OscillationUnifiedFrequencyVariance;
 		target.oscillationPosition2FrequencyVariance = this.oscillationPosition2FrequencyVariance;
 		target.oscillationPosition2FrequencyInverted = this.oscillationPosition2FrequencyInverted;
-		target.oscillationPosition2FrequencyStart = this.oscillationPosition2FrequencyStart;
+		target.oscillationPosition2FrequencyStart = this.position2OscillationFrequencyStart;
 		
-		target.oscillationRotationFrequencyMode = this.oscillationRotationFrequencyMode;
+		target.oscillationRotationFrequencyMode = this.rotationOscillationFrequencyMode;
 		target.oscillationRotationGroupStartStep = this.oscillationRotationGroupStartStep;
-		target.oscillationRotationAngle = this.oscillationRotationAngle;
-		target.oscillationRotationAngleVariance = this.oscillationRotationAngleVariance;
+		target.oscillationRotationAngle = this.rotationOscillationAngle;
+		target.oscillationRotationAngleVariance = this.rotationOscillationAngleVariance;
 		target.oscillationRotationFrequency = this.oscillationRotationFrequency;
-		target.oscillationRotationUnifiedFrequencyVariance = this.oscillationRotationUnifiedFrequencyVariance;
+		target.oscillationRotationUnifiedFrequencyVariance = this.rotationOscillationUnifiedFrequencyVariance;
 		target.oscillationRotationFrequencyVariance = this.oscillationRotationFrequencyVariance;
 		target.oscillationRotationFrequencyInverted = this.oscillationRotationFrequencyInverted;
-		target.oscillationRotationFrequencyStart = this.oscillationRotationFrequencyStart;
+		target.oscillationRotationFrequencyStart = this.rotationOscillationFrequencyStart;
 		
-		target.oscillationScaleXFrequencyMode = this.oscillationScaleXFrequencyMode;
+		target.oscillationScaleXFrequencyMode = this.scaleXOscillationFrequencyMode;
 		target.oscillationScaleXGroupStartStep = this.oscillationScaleXGroupStartStep;
-		target.oscillationScaleX = this.oscillationScaleX;
-		target.oscillationScaleXVariance = this.oscillationScaleXVariance;
+		target.oscillationScaleX = this.scaleXOscillation;
+		target.oscillationScaleXVariance = this.scaleXOscillationVariance;
 		target.oscillationScaleXFrequency = this.oscillationScaleXFrequency;
-		target.oscillationScaleXUnifiedFrequencyVariance = this.oscillationScaleXUnifiedFrequencyVariance;
+		target.oscillationScaleXUnifiedFrequencyVariance = this.scaleXOscillationUnifiedFrequencyVariance;
 		target.oscillationScaleXFrequencyVariance = this.oscillationScaleXFrequencyVariance;
 		target.oscillationScaleXFrequencyInverted = this.oscillationScaleXFrequencyInverted;
-		target.oscillationScaleXFrequencyStart = this.oscillationScaleXFrequencyStart;
+		target.oscillationScaleXFrequencyStart = this.scaleXOscillationFrequencyStart;
 		
-		target.oscillationScaleYFrequencyMode = this.oscillationScaleYFrequencyMode;
+		target.oscillationScaleYFrequencyMode = this.scaleYOscillationFrequencyMode;
 		target.oscillationScaleYGroupStartStep = this.oscillationScaleYGroupStartStep;
-		target.oscillationScaleY = this.oscillationScaleY;
-		target.oscillationScaleYVariance = this.oscillationScaleYVariance;
+		target.oscillationScaleY = this.scaleYOscillation;
+		target.oscillationScaleYVariance = this.scaleYOscillationVariance;
 		target.oscillationScaleYFrequency = this.oscillationScaleYFrequency;
-		target.oscillationScaleYUnifiedFrequencyVariance = this.oscillationScaleYUnifiedFrequencyVariance;
+		target.oscillationScaleYUnifiedFrequencyVariance = this.scaleYOscillationUnifiedFrequencyVariance;
 		target.oscillationScaleYFrequencyVariance = this.oscillationScaleYFrequencyVariance;
 		target.oscillationScaleYFrequencyInverted = this.oscillationScaleYFrequencyInverted;
-		target.oscillationScaleYFrequencyStart = this.oscillationScaleYFrequencyStart;
+		target.oscillationScaleYFrequencyStart = this.scaleYOscillationFrequencyStart;
 		
-		target.oscillationSkewXFrequencyMode = this.oscillationSkewXFrequencyMode;
+		target.oscillationSkewXFrequencyMode = this.skewXOscillationFrequencyMode;
 		target.oscillationSkewXGroupStartStep = this.oscillationSkewXGroupStartStep;
-		target.oscillationSkewX = this.oscillationSkewX;
-		target.oscillationSkewXVariance = this.oscillationSkewXVariance;
+		target.oscillationSkewX = this.skewXOscillation;
+		target.oscillationSkewXVariance = this.skewXOscillationVariance;
 		target.oscillationSkewXFrequency = this.oscillationSkewXFrequency;
-		target.oscillationSkewXUnifiedFrequencyVariance = this.oscillationSkewXUnifiedFrequencyVariance;
+		target.oscillationSkewXUnifiedFrequencyVariance = this.skewXOscillationUnifiedFrequencyVariance;
 		target.oscillationSkewXFrequencyVariance = this.oscillationSkewXFrequencyVariance;
 		target.oscillationSkewXFrequencyInverted = this.oscillationSkewXFrequencyInverted;
-		target.oscillationSkewXFrequencyStart = this.oscillationSkewXFrequencyStart;
+		target.oscillationSkewXFrequencyStart = this.skewXOscillationFrequencyStart;
 		
-		target.oscillationSkewYFrequencyMode = this.oscillationSkewYFrequencyMode;
+		target.oscillationSkewYFrequencyMode = this.skewYOscillationFrequencyMode;
 		target.oscillationSkewYGroupStartStep = this.oscillationSkewYGroupStartStep;
-		target.oscillationSkewY = this.oscillationSkewY;
-		target.oscillationSkewYVariance = this.oscillationSkewYVariance;
+		target.oscillationSkewY = this.skewYOscillation;
+		target.oscillationSkewYVariance = this.skewYOscillationVariance;
 		target.oscillationSkewYFrequency = this.oscillationSkewYFrequency;
-		target.oscillationSkewYUnifiedFrequencyVariance = this.oscillationSkewYUnifiedFrequencyVariance;
+		target.oscillationSkewYUnifiedFrequencyVariance = this.skewYOscillationUnifiedFrequencyVariance;
 		target.oscillationSkewYFrequencyVariance = this.oscillationSkewYFrequencyVariance;
 		target.oscillationSkewYFrequencyInverted = this.oscillationSkewYFrequencyInverted;
-		target.oscillationSkewYFrequencyStart = this.oscillationSkewYFrequencyStart;
+		target.oscillationSkewYFrequencyStart = this.skewYOscillationFrequencyStart;
 		
-		target.oscillationColorFrequencyMode = this.oscillationColorFrequencyMode;
+		target.oscillationColorFrequencyMode = this.colorOscillationFrequencyMode;
 		target.oscillationColorGroupStartStep = this.oscillationColorGroupStartStep;
 		target.oscillationColor.copyFrom(this.oscillationColor);
 		target.oscillationColorVariance.copyFrom(this.oscillationColorVariance);
 		target.oscillationColorFrequency = this.oscillationColorFrequency;
-		target.oscillationColorUnifiedFrequencyVariance = this.oscillationColorUnifiedFrequencyVariance;
+		target.oscillationColorUnifiedFrequencyVariance = this.colorOscillationUnifiedFrequencyVariance;
 		target.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
 		target.oscillationColorFrequencyInverted = this.oscillationColorFrequencyInverted;
-		target.oscillationColorFrequencyStart = this.oscillationColorFrequencyStart;
+		target.oscillationColorFrequencyStart = this.colorOscillationFrequencyStart;
 		
-		target.oscillationColorOffsetFrequencyMode = this.oscillationColorOffsetFrequencyMode;
+		target.oscillationColorOffsetFrequencyMode = this.colorOscillationOffsetFrequencyMode;
 		target.oscillationColorOffsetGroupStartStep = this.oscillationColorOffsetGroupStartStep;
 		target.oscillationColorOffset.copyFrom(this.oscillationColorOffset);
 		target.oscillationColorOffsetVariance.copyFrom(this.oscillationColorOffsetVariance);
 		target.oscillationColorOffsetFrequency = this.oscillationColorOffsetFrequency;
-		target.oscillationColorOffsetUnifiedFrequencyVariance = this.oscillationColorOffsetUnifiedFrequencyVariance;
+		target.oscillationColorOffsetUnifiedFrequencyVariance = this.colorOffsetOscillationUnifiedFrequencyVariance;
 		target.oscillationColorOffsetFrequencyVariance = this.oscillationColorOffsetFrequencyVariance;
 		target.oscillationColorOffsetFrequencyInverted = this.oscillationColorOffsetFrequencyInverted;
 		target.oscillationColorOffsetFrequencyStart = this.oscillationColorOffsetFrequencyStart;
@@ -1706,90 +1706,90 @@ class ParticleSystemOptions
 		this.oscillationUnifiedFrequencyVariance = json.oscillationUnifiedFrequencyVariance;
 		
 		// position
-		this.oscillationPositionFrequencyMode = json.oscillationPositionFrequencyMode;
+		this.positionOscillationFrequencyMode = json.oscillationPositionFrequencyMode;
 		if (json.oscillationPositionGroupStartStep != null) this.oscillationPositionGroupStartStep = json.oscillationPositionGroupStartStep;
 		this.oscillationPositionAngle = json.oscillationPositionAngle;
 		this.oscillationPositionAngleVariance = json.oscillationPositionAngleVariance;
-		this.oscillationPositionAngleRelativeTo = json.oscillationPositionAngleRelativeTo;
-		this.oscillationPositionRadius = json.oscillationPositionRadius;
-		this.oscillationPositionRadiusVariance = json.oscillationPositionRadiusVariance;
+		this.positionOscillationAngleRelativeTo = json.oscillationPositionAngleRelativeTo;
+		this.positionOscillationRadius = json.oscillationPositionRadius;
+		this.positionOscillationRadiusVariance = json.oscillationPositionRadiusVariance;
 		this.oscillationPositionFrequency = json.oscillationPositionFrequency;
-		this.oscillationPositionUnifiedFrequencyVariance = json.oscillationPositionUnifiedFrequencyVariance;
+		this.positionOscillationUnifiedFrequencyVariance = json.oscillationPositionUnifiedFrequencyVariance;
 		this.oscillationPositionFrequencyVariance = json.oscillationPositionFrequencyVariance;
 		this.oscillationPositionFrequencyInverted = json.oscillationPositionFrequencyInverted;
-		this.oscillationPositionFrequencyStart = json.oscillationPositionFrequencyStart;
+		this.positionOscillationFrequencyStart = json.oscillationPositionFrequencyStart;
 		
 		// position2
-		this.oscillationPosition2FrequencyMode = json.oscillationPosition2FrequencyMode;
+		this.position2OscillationFrequencyMode = json.oscillationPosition2FrequencyMode;
 		if (json.oscillationPosition2GroupStartStep != null) this.oscillationPosition2GroupStartStep = json.oscillationPosition2GroupStartStep;
 		this.oscillationPosition2Angle = json.oscillationPosition2Angle;
 		this.oscillationPosition2AngleVariance = json.oscillationPosition2AngleVariance;
 		this.oscillationPosition2AngleRelativeTo = json.oscillationPosition2AngleRelativeTo;
-		this.oscillationPosition2Radius = json.oscillationPosition2Radius;
-		this.oscillationPosition2RadiusVariance = json.oscillationPosition2RadiusVariance;
+		this.position2OscillationRadius = json.oscillationPosition2Radius;
+		this.position2OscillationRadiusVariance = json.oscillationPosition2RadiusVariance;
 		this.oscillationPosition2Frequency = json.oscillationPosition2Frequency;
-		this.oscillationPosition2UnifiedFrequencyVariance = json.oscillationPosition2UnifiedFrequencyVariance;
+		this.position2OscillationUnifiedFrequencyVariance = json.oscillationPosition2UnifiedFrequencyVariance;
 		this.oscillationPosition2FrequencyVariance = json.oscillationPosition2FrequencyVariance;
 		this.oscillationPosition2FrequencyInverted = json.oscillationPosition2FrequencyInverted;
-		this.oscillationPosition2FrequencyStart = json.oscillationPosition2FrequencyStart;
+		this.position2OscillationFrequencyStart = json.oscillationPosition2FrequencyStart;
 		
 		// rotation
-		this.oscillationRotationFrequencyMode = json.oscillationRotationFrequencyMode;
+		this.rotationOscillationFrequencyMode = json.oscillationRotationFrequencyMode;
 		if (json.oscillationRotationGroupStartStep != null) this.oscillationRotationGroupStartStep = json.oscillationRotationGroupStartStep;
-		this.oscillationRotationAngle = json.oscillationRotationAngle;
-		this.oscillationRotationAngleVariance = json.oscillationRotationAngleVariance;
+		this.rotationOscillationAngle = json.oscillationRotationAngle;
+		this.rotationOscillationAngleVariance = json.oscillationRotationAngleVariance;
 		this.oscillationRotationFrequency = json.oscillationRotationFrequency;
-		this.oscillationRotationUnifiedFrequencyVariance = json.oscillationRotationUnifiedFrequencyVariance;
+		this.rotationOscillationUnifiedFrequencyVariance = json.oscillationRotationUnifiedFrequencyVariance;
 		this.oscillationRotationFrequencyVariance = json.oscillationRotationFrequencyVariance;
 		this.oscillationRotationFrequencyInverted = json.oscillationRotationFrequencyInverted;
-		this.oscillationRotationFrequencyStart = json.oscillationRotationFrequencyStart;
+		this.rotationOscillationFrequencyStart = json.oscillationRotationFrequencyStart;
 		
 		// scaleX
-		this.oscillationScaleXFrequencyMode = json.oscillationScaleXFrequencyMode;
+		this.scaleXOscillationFrequencyMode = json.oscillationScaleXFrequencyMode;
 		if (json.oscillationScaleXGroupStartStep != null) this.oscillationScaleXGroupStartStep = json.oscillationScaleXGroupStartStep;
-		this.oscillationScaleX = json.oscillationScaleX;
-		this.oscillationScaleXVariance = json.oscillationScaleXVariance;
+		this.scaleXOscillation = json.oscillationScaleX;
+		this.scaleXOscillationVariance = json.oscillationScaleXVariance;
 		this.oscillationScaleXFrequency = json.oscillationScaleXFrequency;
-		this.oscillationScaleXUnifiedFrequencyVariance = json.oscillationScaleXUnifiedFrequencyVariance;
+		this.scaleXOscillationUnifiedFrequencyVariance = json.oscillationScaleXUnifiedFrequencyVariance;
 		this.oscillationScaleXFrequencyVariance = json.oscillationScaleXFrequencyVariance;
 		this.oscillationScaleXFrequencyInverted = json.oscillationScaleXFrequencyInverted;
-		this.oscillationScaleXFrequencyStart = json.oscillationScaleXFrequencyStart;
+		this.scaleXOscillationFrequencyStart = json.oscillationScaleXFrequencyStart;
 		
 		// scaleY
-		this.oscillationScaleYFrequencyMode = json.oscillationScaleYFrequencyMode;
+		this.scaleYOscillationFrequencyMode = json.oscillationScaleYFrequencyMode;
 		if (json.oscillationScaleYGroupStartStep != null) this.oscillationScaleYGroupStartStep = json.oscillationScaleYGroupStartStep;
-		this.oscillationScaleY = json.oscillationScaleY;
-		this.oscillationScaleYVariance = json.oscillationScaleYVariance;
+		this.scaleYOscillation = json.oscillationScaleY;
+		this.scaleYOscillationVariance = json.oscillationScaleYVariance;
 		this.oscillationScaleYFrequency = json.oscillationScaleYFrequency;
-		this.oscillationScaleYUnifiedFrequencyVariance = json.oscillationScaleYUnifiedFrequencyVariance;
+		this.scaleYOscillationUnifiedFrequencyVariance = json.oscillationScaleYUnifiedFrequencyVariance;
 		this.oscillationScaleYFrequencyVariance = json.oscillationScaleYFrequencyVariance;
 		this.oscillationScaleYFrequencyInverted = json.oscillationScaleYFrequencyInverted;
-		this.oscillationScaleYFrequencyStart = json.oscillationScaleYFrequencyStart;
+		this.scaleYOscillationFrequencyStart = json.oscillationScaleYFrequencyStart;
 		
 		// skewX
-		if (json.oscillationSkewXFrequencyMode != null) this.oscillationSkewXFrequencyMode = json.oscillationSkewXFrequencyMode;
+		if (json.oscillationSkewXFrequencyMode != null) this.skewXOscillationFrequencyMode = json.oscillationSkewXFrequencyMode;
 		if (json.oscillationSkewXGroupStartStep != null) this.oscillationSkewXGroupStartStep = json.oscillationSkewXGroupStartStep;
-		if (json.oscillationSkewX != null) this.oscillationSkewX = json.oscillationSkewX;
-		if (json.oscillationSkewXVariance != null) this.oscillationSkewXVariance = json.oscillationSkewXVariance;
+		if (json.oscillationSkewX != null) this.skewXOscillation = json.oscillationSkewX;
+		if (json.oscillationSkewXVariance != null) this.skewXOscillationVariance = json.oscillationSkewXVariance;
 		if (json.oscillationSkewXFrequency != null) this.oscillationSkewXFrequency = json.oscillationSkewXFrequency;
-		if (json.oscillationSkewXUnifiedFrequencyVariance != null) this.oscillationSkewXUnifiedFrequencyVariance = json.oscillationSkewXUnifiedFrequencyVariance;
+		if (json.oscillationSkewXUnifiedFrequencyVariance != null) this.skewXOscillationUnifiedFrequencyVariance = json.oscillationSkewXUnifiedFrequencyVariance;
 		if (json.oscillationSkewXFrequencyVariance != null) this.oscillationSkewXFrequencyVariance = json.oscillationSkewXFrequencyVariance;
 		if (json.oscillationSkewXFrequencyInverted != null) this.oscillationSkewXFrequencyInverted = json.oscillationSkewXFrequencyInverted;
-		if (json.oscillationSkewXFrequencyStart != null) this.oscillationSkewXFrequencyStart = json.oscillationSkewXFrequencyStart;
+		if (json.oscillationSkewXFrequencyStart != null) this.skewXOscillationFrequencyStart = json.oscillationSkewXFrequencyStart;
 		
 		// skewY
-		if (json.oscillationSkewYFrequencyMode != null) this.oscillationSkewYFrequencyMode = json.oscillationSkewYFrequencyMode;
+		if (json.oscillationSkewYFrequencyMode != null) this.skewYOscillationFrequencyMode = json.oscillationSkewYFrequencyMode;
 		if (json.oscillationSkewYGroupStartStep != null) this.oscillationSkewYGroupStartStep = json.oscillationSkewYGroupStartStep;
-		if (json.oscillationSkewY != null) this.oscillationSkewY = json.oscillationSkewY;
-		if (json.oscillationSkewYVariance != null) this.oscillationSkewYVariance = json.oscillationSkewYVariance;
+		if (json.oscillationSkewY != null) this.skewYOscillation = json.oscillationSkewY;
+		if (json.oscillationSkewYVariance != null) this.skewYOscillationVariance = json.oscillationSkewYVariance;
 		if (json.oscillationSkewYFrequency != null) this.oscillationSkewYFrequency = json.oscillationSkewYFrequency;
-		if (json.oscillationSkewYUnifiedFrequencyVariance != null) this.oscillationSkewYUnifiedFrequencyVariance = json.oscillationSkewYUnifiedFrequencyVariance;
+		if (json.oscillationSkewYUnifiedFrequencyVariance != null) this.skewYOscillationUnifiedFrequencyVariance = json.oscillationSkewYUnifiedFrequencyVariance;
 		if (json.oscillationSkewYFrequencyVariance != null) this.oscillationSkewYFrequencyVariance = json.oscillationSkewYFrequencyVariance;
 		if (json.oscillationSkewYFrequencyInverted != null) this.oscillationSkewYFrequencyInverted = json.oscillationSkewYFrequencyInverted;
-		if (json.oscillationSkewYFrequencyStart != null) this.oscillationSkewYFrequencyStart = json.oscillationSkewYFrequencyStart;
+		if (json.oscillationSkewYFrequencyStart != null) this.skewYOscillationFrequencyStart = json.oscillationSkewYFrequencyStart;
 		
 		// color
-		this.oscillationColorFrequencyMode = json.oscillationColorFrequencyMode;
+		this.colorOscillationFrequencyMode = json.oscillationColorFrequencyMode;
 		if (json.oscillationColorGroupStartStep != null) this.oscillationColorGroupStartStep = json.oscillationColorGroupStartStep;
 		if (json.oscillationColor != null)
 		{
@@ -1814,18 +1814,18 @@ class ParticleSystemOptions
 			this.oscillationColorVariance.alphaValue = json.oscillationColorAlphaVariance;
 		}
 		this.oscillationColorFrequency = json.oscillationColorFrequency;
-		this.oscillationColorUnifiedFrequencyVariance = json.oscillationColorUnifiedFrequencyVariance;
+		this.colorOscillationUnifiedFrequencyVariance = json.oscillationColorUnifiedFrequencyVariance;
 		this.oscillationColorFrequencyVariance = json.oscillationColorFrequencyVariance;
 		this.oscillationColorFrequencyInverted = json.oscillationColorFrequencyInverted;
-		this.oscillationColorFrequencyStart = json.oscillationColorFrequencyStart;
+		this.colorOscillationFrequencyStart = json.oscillationColorFrequencyStart;
 		
 		// color offset
-		if (json.oscillationColorOffsetFrequencyMode != null) this.oscillationColorOffsetFrequencyMode = json.oscillationColorOffsetFrequencyMode;
+		if (json.oscillationColorOffsetFrequencyMode != null) this.colorOscillationOffsetFrequencyMode = json.oscillationColorOffsetFrequencyMode;
 		if (json.oscillationColorOffsetGroupStartStep != null) this.oscillationColorOffsetGroupStartStep = json.oscillationColorOffsetGroupStartStep;
 		if (json.oscillationColorOffset != null) colorFromJSON(this.oscillationColorOffset, json.oscillationColorOffset);
 		if (json.oscillationColorOffsetVariance != null) colorFromJSON(this.oscillationColorOffsetVariance, json.oscillationColorOffsetVariance);
 		if (json.oscillationColorOffsetFrequency != null) this.oscillationColorOffsetFrequency = json.oscillationColorOffsetFrequency;
-		if (json.oscillationColorOffsetUnifiedFrequencyVariance != null) this.oscillationColorOffsetUnifiedFrequencyVariance = json.oscillationColorOffsetUnifiedFrequencyVariance;
+		if (json.oscillationColorOffsetUnifiedFrequencyVariance != null) this.colorOffsetOscillationUnifiedFrequencyVariance = json.oscillationColorOffsetUnifiedFrequencyVariance;
 		if (json.oscillationColorOffsetFrequencyVariance != null) this.oscillationColorOffsetFrequencyVariance = json.oscillationColorOffsetFrequencyVariance;
 		if (json.oscillationColorOffsetFrequencyInverted != null) this.oscillationColorOffsetFrequencyInverted = json.oscillationColorOffsetFrequencyInverted;
 		if (json.oscillationColorOffsetFrequencyStart != null) this.oscillationColorOffsetFrequencyStart = json.oscillationColorOffsetFrequencyStart;
@@ -2011,106 +2011,106 @@ class ParticleSystemOptions
 		json.oscillationUnifiedFrequencyVariance = this.oscillationUnifiedFrequencyVariance;
 		
 		// position
-		json.oscillationPositionFrequencyMode = this.oscillationPositionFrequencyMode;
+		json.oscillationPositionFrequencyMode = this.positionOscillationFrequencyMode;
 		json.oscillationPositionGroupStartStep = this.oscillationPositionGroupStartStep;
 		json.oscillationPositionAngle = this.oscillationPositionAngle;
 		json.oscillationPositionAngleVariance = this.oscillationPositionAngleVariance;
-		json.oscillationPositionAngleRelativeTo = this.oscillationPositionAngleRelativeTo;
-		json.oscillationPositionRadius = this.oscillationPositionRadius;
-		json.oscillationPositionRadiusVariance = this.oscillationPositionRadiusVariance;
+		json.oscillationPositionAngleRelativeTo = this.positionOscillationAngleRelativeTo;
+		json.oscillationPositionRadius = this.positionOscillationRadius;
+		json.oscillationPositionRadiusVariance = this.positionOscillationRadiusVariance;
 		json.oscillationPositionFrequency = this.oscillationPositionFrequency;
-		json.oscillationPositionUnifiedFrequencyVariance = this.oscillationPositionUnifiedFrequencyVariance;
+		json.oscillationPositionUnifiedFrequencyVariance = this.positionOscillationUnifiedFrequencyVariance;
 		json.oscillationPositionFrequencyVariance = this.oscillationPositionFrequencyVariance;
 		json.oscillationPositionFrequencyInverted = this.oscillationPositionFrequencyInverted;
-		json.oscillationPositionFrequencyStart = this.oscillationPositionFrequencyStart;
+		json.oscillationPositionFrequencyStart = this.positionOscillationFrequencyStart;
 		
 		// position2
-		json.oscillationPosition2FrequencyMode = this.oscillationPosition2FrequencyMode;
+		json.oscillationPosition2FrequencyMode = this.position2OscillationFrequencyMode;
 		json.oscillationPosition2GroupStartStep = this.oscillationPosition2GroupStartStep;
 		json.oscillationPosition2Angle = this.oscillationPosition2Angle;
 		json.oscillationPosition2AngleVariance = this.oscillationPosition2AngleVariance;
 		json.oscillationPosition2AngleRelativeTo = this.oscillationPosition2AngleRelativeTo;
-		json.oscillationPosition2Radius = this.oscillationPosition2Radius;
-		json.oscillationPosition2RadiusVariance = this.oscillationPosition2RadiusVariance;
+		json.oscillationPosition2Radius = this.position2OscillationRadius;
+		json.oscillationPosition2RadiusVariance = this.position2OscillationRadiusVariance;
 		json.oscillationPosition2Frequency = this.oscillationPosition2Frequency;
-		json.oscillationPosition2UnifiedFrequencyVariance = this.oscillationPosition2UnifiedFrequencyVariance;
+		json.oscillationPosition2UnifiedFrequencyVariance = this.position2OscillationUnifiedFrequencyVariance;
 		json.oscillationPosition2FrequencyVariance = this.oscillationPosition2FrequencyVariance;
 		json.oscillationPosition2FrequencyInverted = this.oscillationPosition2FrequencyInverted;
-		json.oscillationPosition2FrequencyStart = this.oscillationPosition2FrequencyStart;
+		json.oscillationPosition2FrequencyStart = this.position2OscillationFrequencyStart;
 		
 		// rotation
-		json.oscillationRotationFrequencyMode = this.oscillationRotationFrequencyMode;
+		json.oscillationRotationFrequencyMode = this.rotationOscillationFrequencyMode;
 		json.oscillationRotationGroupStartStep = this.oscillationRotationGroupStartStep;
-		json.oscillationRotationAngle = this.oscillationRotationAngle;
-		json.oscillationRotationAngleVariance = this.oscillationRotationAngleVariance;
+		json.oscillationRotationAngle = this.rotationOscillationAngle;
+		json.oscillationRotationAngleVariance = this.rotationOscillationAngleVariance;
 		json.oscillationRotationFrequency = this.oscillationRotationFrequency;
-		json.oscillationRotationUnifiedFrequencyVariance = this.oscillationRotationUnifiedFrequencyVariance;
+		json.oscillationRotationUnifiedFrequencyVariance = this.rotationOscillationUnifiedFrequencyVariance;
 		json.oscillationRotationFrequencyVariance = this.oscillationRotationFrequencyVariance;
 		json.oscillationRotationFrequencyInverted = this.oscillationRotationFrequencyInverted;
-		json.oscillationRotationFrequencyStart = this.oscillationRotationFrequencyStart;
+		json.oscillationRotationFrequencyStart = this.rotationOscillationFrequencyStart;
 		
 		// scaleX
-		json.oscillationScaleXFrequencyMode = this.oscillationScaleXFrequencyMode;
+		json.oscillationScaleXFrequencyMode = this.scaleXOscillationFrequencyMode;
 		json.oscillationScaleXGroupStartStep = this.oscillationScaleXGroupStartStep;
-		json.oscillationScaleX = this.oscillationScaleX;
-		json.oscillationScaleXVariance = this.oscillationScaleXVariance;
+		json.oscillationScaleX = this.scaleXOscillation;
+		json.oscillationScaleXVariance = this.scaleXOscillationVariance;
 		json.oscillationScaleXFrequency = this.oscillationScaleXFrequency;
-		json.oscillationScaleXUnifiedFrequencyVariance = this.oscillationScaleXUnifiedFrequencyVariance;
+		json.oscillationScaleXUnifiedFrequencyVariance = this.scaleXOscillationUnifiedFrequencyVariance;
 		json.oscillationScaleXFrequencyVariance = this.oscillationScaleXFrequencyVariance;
 		json.oscillationScaleXFrequencyInverted = this.oscillationScaleXFrequencyInverted;
-		json.oscillationScaleXFrequencyStart = this.oscillationScaleXFrequencyStart;
+		json.oscillationScaleXFrequencyStart = this.scaleXOscillationFrequencyStart;
 		
 		// scaleY
-		json.oscillationScaleYFrequencyMode = this.oscillationScaleYFrequencyMode;
+		json.oscillationScaleYFrequencyMode = this.scaleYOscillationFrequencyMode;
 		json.oscillationScaleYGroupStartStep = this.oscillationScaleYGroupStartStep;
-		json.oscillationScaleY = this.oscillationScaleY;
-		json.oscillationScaleYVariance = this.oscillationScaleYVariance;
+		json.oscillationScaleY = this.scaleYOscillation;
+		json.oscillationScaleYVariance = this.scaleYOscillationVariance;
 		json.oscillationScaleYFrequency = this.oscillationScaleYFrequency;
-		json.oscillationScaleYUnifiedFrequencyVariance = this.oscillationScaleYUnifiedFrequencyVariance;
+		json.oscillationScaleYUnifiedFrequencyVariance = this.scaleYOscillationUnifiedFrequencyVariance;
 		json.oscillationScaleYFrequencyVariance = this.oscillationScaleYFrequencyVariance;
 		json.oscillationScaleYFrequencyInverted = this.oscillationScaleYFrequencyInverted;
-		json.oscillationScaleYFrequencyStart = this.oscillationScaleYFrequencyStart;
+		json.oscillationScaleYFrequencyStart = this.scaleYOscillationFrequencyStart;
 		
 		// skewX
-		json.oscillationSkewXFrequencyMode = this.oscillationSkewXFrequencyMode;
+		json.oscillationSkewXFrequencyMode = this.skewXOscillationFrequencyMode;
 		json.oscillationSkewXGroupStartStep = this.oscillationSkewXGroupStartStep;
-		json.oscillationSkewX = this.oscillationSkewX;
-		json.oscillationSkewXVariance = this.oscillationSkewXVariance;
+		json.oscillationSkewX = this.skewXOscillation;
+		json.oscillationSkewXVariance = this.skewXOscillationVariance;
 		json.oscillationSkewXFrequency = this.oscillationSkewXFrequency;
-		json.oscillationSkewXUnifiedFrequencyVariance = this.oscillationSkewXUnifiedFrequencyVariance;
+		json.oscillationSkewXUnifiedFrequencyVariance = this.skewXOscillationUnifiedFrequencyVariance;
 		json.oscillationSkewXFrequencyVariance = this.oscillationSkewXFrequencyVariance;
 		json.oscillationSkewXFrequencyInverted = this.oscillationSkewXFrequencyInverted;
-		json.oscillationSkewXFrequencyStart = this.oscillationSkewXFrequencyStart;
+		json.oscillationSkewXFrequencyStart = this.skewXOscillationFrequencyStart;
 		
 		// skewY
-		json.oscillationSkewYFrequencyMode = this.oscillationSkewYFrequencyMode;
+		json.oscillationSkewYFrequencyMode = this.skewYOscillationFrequencyMode;
 		json.oscillationSkewYGroupStartStep = this.oscillationSkewYGroupStartStep;
-		json.oscillationSkewY = this.oscillationSkewY;
-		json.oscillationSkewYVariance = this.oscillationSkewYVariance;
+		json.oscillationSkewY = this.skewYOscillation;
+		json.oscillationSkewYVariance = this.skewYOscillationVariance;
 		json.oscillationSkewYFrequency = this.oscillationSkewYFrequency;
-		json.oscillationSkewYUnifiedFrequencyVariance = this.oscillationSkewYUnifiedFrequencyVariance;
+		json.oscillationSkewYUnifiedFrequencyVariance = this.skewYOscillationUnifiedFrequencyVariance;
 		json.oscillationSkewYFrequencyVariance = this.oscillationSkewYFrequencyVariance;
 		json.oscillationSkewYFrequencyInverted = this.oscillationSkewYFrequencyInverted;
-		json.oscillationSkewYFrequencyStart = this.oscillationSkewYFrequencyStart;
+		json.oscillationSkewYFrequencyStart = this.skewYOscillationFrequencyStart;
 		
 		// color
-		json.oscillationColorFrequencyMode = this.oscillationColorFrequencyMode;
+		json.oscillationColorFrequencyMode = this.colorOscillationFrequencyMode;
 		json.oscillationColorGroupStartStep = this.oscillationColorGroupStartStep;
 		json.oscillationColor = colorToJSON(this.oscillationColor);
 		json.oscillationColorVariance = colorToJSON(this.oscillationColorVariance);
 		json.oscillationColorFrequency = this.oscillationColorFrequency;
-		json.oscillationColorUnifiedFrequencyVariance = this.oscillationColorUnifiedFrequencyVariance;
+		json.oscillationColorUnifiedFrequencyVariance = this.colorOscillationUnifiedFrequencyVariance;
 		json.oscillationColorFrequencyVariance = this.oscillationColorFrequencyVariance;
 		json.oscillationColorFrequencyInverted = this.oscillationColorFrequencyInverted;
-		json.oscillationColorFrequencyStart = this.oscillationColorFrequencyStart;
+		json.oscillationColorFrequencyStart = this.colorOscillationFrequencyStart;
 		
 		// color offset
-		json.oscillationColorOffsetFrequencyMode = this.oscillationColorOffsetFrequencyMode;
+		json.oscillationColorOffsetFrequencyMode = this.colorOscillationOffsetFrequencyMode;
 		json.oscillationColorOffsetGroupStartStep = this.oscillationColorOffsetGroupStartStep;
 		json.oscillationColorOffset = colorToJSON(this.oscillationColorOffset);
 		json.oscillationColorOffsetVariance = colorToJSON(this.oscillationColorOffsetVariance);
 		json.oscillationColorOffsetFrequency = this.oscillationColorOffsetFrequency;
-		json.oscillationColorOffsetUnifiedFrequencyVariance = this.oscillationColorOffsetUnifiedFrequencyVariance;
+		json.oscillationColorOffsetUnifiedFrequencyVariance = this.colorOffsetOscillationUnifiedFrequencyVariance;
 		json.oscillationColorOffsetFrequencyVariance = this.oscillationColorOffsetFrequencyVariance;
 		json.oscillationColorOffsetFrequencyInverted = this.oscillationColorOffsetFrequencyInverted;
 		json.oscillationColorOffsetFrequencyStart = this.oscillationColorOffsetFrequencyStart;
