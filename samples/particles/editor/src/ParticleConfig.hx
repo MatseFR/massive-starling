@@ -1,6 +1,7 @@
 package;
 import massive.animation.Animator;
 import massive.data.Frame;
+import massive.display.ColorOffsetMode;
 import massive.particle.ParticleSystemOptions;
 #if flash
 import openfl.Vector;
@@ -14,6 +15,7 @@ import starling.textures.Texture;
 class ParticleConfig 
 {
 	public var blendMode:String;
+	public var colorOffsetMode:String = ColorOffsetMode.NONE;
 	#if flash
 	public var frames(default, null):Vector<Vector<Frame>> = new Vector<Vector<Frame>>();
 	#else
