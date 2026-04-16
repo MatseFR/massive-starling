@@ -1121,10 +1121,10 @@ class ParticleSystemOptions
 		//\COLOR
 		
 		// COLOR OFFSET
-		this.colorOffsetStart.setTo(1.0, 1.0, 1.0, 1.0);
+		this.colorOffsetStart.setTo(0.0, 0.0, 0.0, 0.0);
 		this.colorOffsetStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
 		
-		this.colorOffsetEnd.setTo(1.0, 1.0, 1.0, 1.0);
+		this.colorOffsetEnd.setTo(0.0, 0.0, 0.0, 0.0);
 		this.colorOffsetEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
 		
 		this.colorOffsetEndRelativeToStart = false;
@@ -1555,9 +1555,9 @@ class ParticleSystemOptions
 		this.emitterRadiusMaxVariance = json.emitterRadiusMaxVariance;
 		this.emitterRadiusMin = json.emitterRadiusMin;
 		this.emitterRadiusMinVariance = json.emitterRadiusMinVariance;
-		if (json.emitterRadiusOverridesParticleAngle != null) this.emitterRadiusOverridesParticleAngle = json.emitterRadiusOverridesParticleAngle;
-		if (json.emitterRadiusParticleAngleOffset != null) this.emitterRadiusParticleAngleOffset = json.emitterRadiusParticleAngleOffset;
-		if (json.emitterRadiusParticleAngleOffsetVariance != null) this.emitterRadiusParticleAngleOffsetVariance = json.emitterRadiusParticleAngleOffsetVariance;
+		this.emitterRadiusOverridesParticleAngle = json.emitterRadiusOverridesParticleAngle;
+		this.emitterRadiusParticleAngleOffset = json.emitterRadiusParticleAngleOffset;
+		this.emitterRadiusParticleAngleOffsetVariance = json.emitterRadiusParticleAngleOffsetVariance;
 		
 		this.emitAngle = json.emitAngle;
 		this.emitAngleVariance = json.emitAngleVariance;
@@ -1594,8 +1594,8 @@ class ParticleSystemOptions
 		this.sizeXEndVariance = json.sizeXEndVariance;
 		this.sizeYEnd = json.sizeYEnd;
 		this.sizeYEndVariance = json.sizeYEndVariance;
-		if (json.sizeXEndRelativeToStart != null) this.sizeXEndRelativeToStart = json.sizeXEndRelativeToStart;
-		if (json.sizeYEndRelativeToStart != null) this.sizeYEndRelativeToStart = json.sizeYEndRelativeToStart;
+		this.sizeXEndRelativeToStart = json.sizeXEndRelativeToStart;
+		this.sizeYEndRelativeToStart = json.sizeYEndRelativeToStart;
 		
 		this.rotationStart = json.rotationStart;
 		this.rotationStartVariance = json.rotationStartVariance;
@@ -1603,17 +1603,17 @@ class ParticleSystemOptions
 		this.rotationEndVariance = json.rotationEndVariance;
 		this.rotationEndRelativeToStart = json.rotationEndRelativeToStart;
 		
-		if (json.skewXStart != null) this.skewXStart = json.skewXStart;
-		if (json.skewXStartVariance != null) this.skewXStartVariance = json.skewXStartVariance;
-		if (json.skewYStart != null) this.skewYStart = json.skewYStart;
-		if (json.skewYStartVariance != null) this.skewYStartVariance = json.skewYStartVariance;
+		this.skewXStart = json.skewXStart;
+		this.skewXStartVariance = json.skewXStartVariance;
+		this.skewYStart = json.skewYStart;
+		this.skewYStartVariance = json.skewYStartVariance;
 		
-		if (json.skewXEnd != null) this.skewXEnd = json.skewXEnd;
-		if (json.skewXEndVariance != null) this.skewXEndVariance = json.skewXEndVariance;
-		if (json.skewYEnd != null) this.skewYEnd = json.skewYEnd;
-		if (json.skewYEndVariance != null) this.skewYEndVariance = json.skewYEndVariance;
-		if (json.skewXEndRelativeToStart) this.skewXEndRelativeToStart = json.skewXEndRelativeToStart;
-		if (json.skewYEndRelativeToStart) this.skewYEndRelativeToStart = json.skewYEndRelativeToStart;
+		this.skewXEnd = json.skewXEnd;
+		this.skewXEndVariance = json.skewXEndVariance;
+		this.skewYEnd = json.skewYEnd;
+		this.skewYEndVariance = json.skewYEndVariance;
+		this.skewXEndRelativeToStart = json.skewXEndRelativeToStart;
+		this.skewYEndRelativeToStart = json.skewYEndRelativeToStart;
 		//\PARTICLE
 		
 		// VELOCITY
@@ -1625,13 +1625,13 @@ class ParticleSystemOptions
 		this.linkRotationToVelocity = json.linkRotationToVelocity;
 		this.velocityRotationOffset = json.velocityRotationOffset;
 		
-		if (json.velocityRotationFactor != null) this.velocityRotationFactor = json.velocityRotationFactor;
+		this.velocityRotationFactor = json.velocityRotationFactor;
 		
 		this.velocityScaleFactorX = json.velocityScaleFactorX;
 		this.velocityScaleFactorY = json.velocityScaleFactorY;
 		
-		if (json.velocitySkewFactorX != null) this.velocitySkewFactorX = json.velocitySkewFactorX;
-		if (json.velocitySkewFactorY != null) this.velocitySkewFactorY = json.velocitySkewFactorY;
+		this.velocitySkewFactorX = json.velocitySkewFactorX;
+		this.velocitySkewFactorY = json.velocitySkewFactorY;
 		//\VELOCITY
 		
 		// ANIMATION
@@ -1674,9 +1674,9 @@ class ParticleSystemOptions
 		this.rotatePerSecond = json.rotatePerSecond;
 		this.rotatePerSecondVariance = json.rotatePerSecondVariance;
 		
-		if (json.alignRadialRotation != null) this.alignRadialRotation = json.alignRadialRotation;
-		if (json.alignRadialRotationOffset != null) this.alignRadialRotationOffset = json.alignRadialRotationOffset;
-		if (json.alignRadialRotationOffsetVariance != null) this.alignRadialRotationOffsetVariance = json.alignRadialRotationOffsetVariance;
+		this.alignRadialRotation = json.alignRadialRotation;
+		this.alignRadialRotationOffset = json.alignRadialRotationOffset;
+		this.alignRadialRotationOffsetVariance = json.alignRadialRotationOffsetVariance;
 		//\RADIAL
 		
 		// COLOR
@@ -1691,14 +1691,14 @@ class ParticleSystemOptions
 		//\COLOR
 		
 		// COLOR OFFSET
-		if (json.colorOffsetStart != null) colorFromJSON(this.colorOffsetStart, json.colorOffsetStart);
-		if (json.colorOffsetStartVariance != null) colorFromJSON(this.colorOffsetStartVariance, json.colorOffsetStartVariance);
+		colorFromJSON(this.colorOffsetStart, json.colorOffsetStart);
+		colorFromJSON(this.colorOffsetStartVariance, json.colorOffsetStartVariance);
 		
-		if (json.colorOffsetEnd != null) colorFromJSON(this.colorOffsetEnd, json.colorOffsetEnd);
-		if (json.colorOffsetEndVariance != null) colorFromJSON(this.colorOffsetEndVariance, json.colorOffsetEndVariance);
+		colorFromJSON(this.colorOffsetEnd, json.colorOffsetEnd);
+		colorFromJSON(this.colorOffsetEndVariance, json.colorOffsetEndVariance);
 		
-		if (json.colorOffsetEndRelativeToStart != null) this.colorOffsetEndRelativeToStart = json.colorOffsetEndRelativeToStart;
-		if (json.colorOffsetEndIsMultiplier != null) this.colorOffsetEndIsMultiplier = json.colorOffsetEndIsMultiplier;
+		this.colorOffsetEndRelativeToStart = json.colorOffsetEndRelativeToStart;
+		this.colorOffsetEndIsMultiplier = json.colorOffsetEndIsMultiplier;
 		//\COLOR OFFSET
 		
 		// OSCILLATION
@@ -1707,7 +1707,7 @@ class ParticleSystemOptions
 		
 		// position
 		this.positionOscillationFrequencyMode = json.positionOscillationFrequencyMode;
-		if (json.positionOscillationGroupStartStep != null) this.positionOscillationGroupStartStep = json.positionOscillationGroupStartStep;
+		this.positionOscillationGroupStartStep = json.positionOscillationGroupStartStep;
 		this.positionOscillationAngle = json.positionOscillationAngle;
 		this.positionOscillationAngleVariance = json.positionOscillationAngleVariance;
 		this.positionOscillationAngleRelativeTo = json.positionOscillationAngleRelativeTo;
@@ -1721,7 +1721,7 @@ class ParticleSystemOptions
 		
 		// position2
 		this.position2OscillationFrequencyMode = json.position2OscillationFrequencyMode;
-		if (json.position2OscillationGroupStartStep != null) this.position2OscillationGroupStartStep = json.position2OscillationGroupStartStep;
+		this.position2OscillationGroupStartStep = json.position2OscillationGroupStartStep;
 		this.position2OscillationAngle = json.position2OscillationAngle;
 		this.position2OscillationAngleVariance = json.position2OscillationAngleVariance;
 		this.position2OscillationAngleRelativeTo = json.position2OscillationAngleRelativeTo;
@@ -1735,7 +1735,7 @@ class ParticleSystemOptions
 		
 		// rotation
 		this.rotationOscillationFrequencyMode = json.rotationOscillationFrequencyMode;
-		if (json.rotationOscillationGroupStartStep != null) this.rotationOscillationGroupStartStep = json.rotationOscillationGroupStartStep;
+		this.rotationOscillationGroupStartStep = json.rotationOscillationGroupStartStep;
 		this.rotationOscillationAngle = json.rotationOscillationAngle;
 		this.rotationOscillationAngleVariance = json.rotationOscillationAngleVariance;
 		this.rotationOscillationFrequency = json.rotationOscillationFrequency;
@@ -1746,7 +1746,7 @@ class ParticleSystemOptions
 		
 		// scaleX
 		this.scaleXOscillationFrequencyMode = json.scaleXOscillationFrequencyMode;
-		if (json.scaleXOscillationGroupStartStep != null) this.scaleXOscillationGroupStartStep = json.scaleXOscillationGroupStartStep;
+		this.scaleXOscillationGroupStartStep = json.scaleXOscillationGroupStartStep;
 		this.scaleXOscillation = json.scaleXOscillation;
 		this.scaleXOscillationVariance = json.scaleXOscillationVariance;
 		this.scaleXOscillationFrequency = json.scaleXOscillationFrequency;
@@ -1757,7 +1757,7 @@ class ParticleSystemOptions
 		
 		// scaleY
 		this.scaleYOscillationFrequencyMode = json.scaleYOscillationFrequencyMode;
-		if (json.scaleYOscillationGroupStartStep != null) this.scaleYOscillationGroupStartStep = json.scaleYOscillationGroupStartStep;
+		this.scaleYOscillationGroupStartStep = json.scaleYOscillationGroupStartStep;
 		this.scaleYOscillation = json.scaleYOscillation;
 		this.scaleYOscillationVariance = json.scaleYOscillationVariance;
 		this.scaleYOscillationFrequency = json.scaleYOscillationFrequency;
@@ -1767,52 +1767,32 @@ class ParticleSystemOptions
 		this.scaleYOscillationFrequencyStart = json.scaleYOscillationFrequencyStart;
 		
 		// skewX
-		if (json.skewXOscillationFrequencyMode != null) this.skewXOscillationFrequencyMode = json.skewXOscillationFrequencyMode;
-		if (json.skewXOscillationGroupStartStep != null) this.skewXOscillationGroupStartStep = json.skewXOscillationGroupStartStep;
-		if (json.skewXOscillation != null) this.skewXOscillation = json.skewXOscillation;
-		if (json.skewXOscillationVariance != null) this.skewXOscillationVariance = json.skewXOscillationVariance;
-		if (json.skewXOscillationFrequency != null) this.skewXOscillationFrequency = json.skewXOscillationFrequency;
-		if (json.skewXOscillationUnifiedFrequencyVariance != null) this.skewXOscillationUnifiedFrequencyVariance = json.skewXOscillationUnifiedFrequencyVariance;
-		if (json.skewXOscillationFrequencyVariance != null) this.skewXOscillationFrequencyVariance = json.skewXOscillationFrequencyVariance;
-		if (json.skewXOscillationFrequencyInverted != null) this.skewXOscillationFrequencyInverted = json.skewXOscillationFrequencyInverted;
-		if (json.skewXOscillationFrequencyStart != null) this.skewXOscillationFrequencyStart = json.skewXOscillationFrequencyStart;
+		this.skewXOscillationFrequencyMode = json.skewXOscillationFrequencyMode;
+		this.skewXOscillationGroupStartStep = json.skewXOscillationGroupStartStep;
+		this.skewXOscillation = json.skewXOscillation;
+		this.skewXOscillationVariance = json.skewXOscillationVariance;
+		this.skewXOscillationFrequency = json.skewXOscillationFrequency;
+		this.skewXOscillationUnifiedFrequencyVariance = json.skewXOscillationUnifiedFrequencyVariance;
+		this.skewXOscillationFrequencyVariance = json.skewXOscillationFrequencyVariance;
+		this.skewXOscillationFrequencyInverted = json.skewXOscillationFrequencyInverted;
+		this.skewXOscillationFrequencyStart = json.skewXOscillationFrequencyStart;
 		
 		// skewY
-		if (json.skewYOscillationFrequencyMode != null) this.skewYOscillationFrequencyMode = json.skewYOscillationFrequencyMode;
-		if (json.skewYOscillationGroupStartStep != null) this.skewYOscillationGroupStartStep = json.skewYOscillationGroupStartStep;
-		if (json.skewYOscillation != null) this.skewYOscillation = json.skewYOscillation;
-		if (json.skewYOscillationVariance != null) this.skewYOscillationVariance = json.skewYOscillationVariance;
-		if (json.skewYOscillationFrequency != null) this.skewYOscillationFrequency = json.skewYOscillationFrequency;
-		if (json.skewYOscillationUnifiedFrequencyVariance != null) this.skewYOscillationUnifiedFrequencyVariance = json.skewYOscillationUnifiedFrequencyVariance;
-		if (json.skewYOscillationFrequencyVariance != null) this.skewYOscillationFrequencyVariance = json.skewYOscillationFrequencyVariance;
-		if (json.skewYOscillationFrequencyInverted != null) this.skewYOscillationFrequencyInverted = json.skewYOscillationFrequencyInverted;
-		if (json.skewYOscillationFrequencyStart != null) this.skewYOscillationFrequencyStart = json.skewYOscillationFrequencyStart;
+		this.skewYOscillationFrequencyMode = json.skewYOscillationFrequencyMode;
+		this.skewYOscillationGroupStartStep = json.skewYOscillationGroupStartStep;
+		this.skewYOscillation = json.skewYOscillation;
+		this.skewYOscillationVariance = json.skewYOscillationVariance;
+		this.skewYOscillationFrequency = json.skewYOscillationFrequency;
+		this.skewYOscillationUnifiedFrequencyVariance = json.skewYOscillationUnifiedFrequencyVariance;
+		this.skewYOscillationFrequencyVariance = json.skewYOscillationFrequencyVariance;
+		this.skewYOscillationFrequencyInverted = json.skewYOscillationFrequencyInverted;
+		this.skewYOscillationFrequencyStart = json.skewYOscillationFrequencyStart;
 		
 		// color
 		this.colorOscillationFrequencyMode = json.colorOscillationFrequencyMode;
-		if (json.colorOscillationGroupStartStep != null) this.colorOscillationGroupStartStep = json.colorOscillationGroupStartStep;
-		if (json.colorOscillation != null)
-		{
-			colorFromJSON(this.colorOscillation, json.colorOscillation);
-		}
-		else
-		{
-			this.colorOscillation.redValue = json.oscillationColorRed;
-			this.colorOscillation.greenValue = json.oscillationColorGreen;
-			this.colorOscillation.blueValue = json.oscillationColorBlue;
-			this.colorOscillation.alphaValue = json.oscillationColorAlpha;
-		}
-		if (json.colorOscillationVariance != null)
-		{
-			colorFromJSON(this.colorOscillationVariance, json.colorOscillationVariance);
-		}
-		else
-		{
-			this.colorOscillationVariance.redValue = json.oscillationColorRedVariance;
-			this.colorOscillationVariance.greenValue = json.oscillationColorGreenVariance;
-			this.colorOscillationVariance.blueValue = json.oscillationColorBlueVariance;
-			this.colorOscillationVariance.alphaValue = json.oscillationColorAlphaVariance;
-		}
+		this.colorOscillationGroupStartStep = json.colorOscillationGroupStartStep;
+		colorFromJSON(this.colorOscillation, json.colorOscillation);
+		colorFromJSON(this.colorOscillationVariance, json.colorOscillationVariance);
 		this.colorOscillationFrequency = json.colorOscillationFrequency;
 		this.colorOscillationUnifiedFrequencyVariance = json.colorOscillationUnifiedFrequencyVariance;
 		this.colorOscillationFrequencyVariance = json.colorOscillationFrequencyVariance;
@@ -1820,15 +1800,15 @@ class ParticleSystemOptions
 		this.colorOscillationFrequencyStart = json.colorOscillationFrequencyStart;
 		
 		// color offset
-		if (json.colorOffsetOscillationFrequencyMode != null) this.colorOffsetOscillationFrequencyMode = json.colorOffsetOscillationFrequencyMode;
-		if (json.colorOffsetOscillationGroupStartStep != null) this.colorOffsetOscillationGroupStartStep = json.colorOffsetOscillationGroupStartStep;
-		if (json.colorOffsetOscillation != null) colorFromJSON(this.colorOffsetOscillation, json.colorOffsetOscillation);
-		if (json.colorOffsetOscillationVariance != null) colorFromJSON(this.colorOffsetOscillationVariance, json.colorOffsetOscillationVariance);
-		if (json.colorOffsetOscillationFrequency != null) this.colorOffsetOscillationFrequency = json.colorOffsetOscillationFrequency;
-		if (json.colorOffsetOscillationUnifiedFrequencyVariance != null) this.colorOffsetOscillationUnifiedFrequencyVariance = json.colorOffsetOscillationUnifiedFrequencyVariance;
-		if (json.colorOffsetOscillationFrequencyVariance != null) this.colorOffsetOscillationFrequencyVariance = json.colorOffsetOscillationFrequencyVariance;
-		if (json.colorOffsetOscillationFrequencyInverted != null) this.colorOffsetOscillationFrequencyInverted = json.colorOffsetOscillationFrequencyInverted;
-		if (json.colorOffsetOscillationFrequencyStart != null) this.colorOffsetOscillationFrequencyStart = json.colorOffsetOscillationFrequencyStart;
+		this.colorOffsetOscillationFrequencyMode = json.colorOffsetOscillationFrequencyMode;
+		this.colorOffsetOscillationGroupStartStep = json.colorOffsetOscillationGroupStartStep;
+		colorFromJSON(this.colorOffsetOscillation, json.colorOffsetOscillation);
+		colorFromJSON(this.colorOffsetOscillationVariance, json.colorOffsetOscillationVariance);
+		this.colorOffsetOscillationFrequency = json.colorOffsetOscillationFrequency;
+		this.colorOffsetOscillationUnifiedFrequencyVariance = json.colorOffsetOscillationUnifiedFrequencyVariance;
+		this.colorOffsetOscillationFrequencyVariance = json.colorOffsetOscillationFrequencyVariance;
+		this.colorOffsetOscillationFrequencyInverted = json.colorOffsetOscillationFrequencyInverted;
+		this.colorOffsetOscillationFrequencyStart = json.colorOffsetOscillationFrequencyStart;
 		//\OSCILLATION
 		
 		this.exactBounds = json.exactBounds;
