@@ -1050,16 +1050,16 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		var format = texture.format;
 		if (format == Context3DTextureFormat.COMPRESSED)
 		{
-			key += 0 << 2;
+			key |= 1 << 2;
 		}
 		else if (format == Context3DTextureFormat.COMPRESSED_ALPHA)
 		{
-			key += 1 << 2;
+			key |= 2 << 2;
 		}
-		else
-		{
-			key += 2 << 2;
-		}
+		//else
+		//{
+			//key |= 0 << 2;
+		//}
 		return key;
 	}
 	
@@ -1384,10 +1384,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		var key:String;
 		var displayKey:Int = this._useColor ? 1 : 0;
-		displayKey += (this._useDisplayColor ? 1 : 0) << 1;
-		displayKey += (this._useColorOffset ? 1 : 0) << 1;
-		displayKey += (this._useDisplayColorOffset ? 1 : 0) << 1;
-		displayKey += (this.pma ? 1 : 0) << 1;
+		displayKey |= (this._useDisplayColor ? 1 : 0) << 1;
+		displayKey |= (this._useColorOffset ? 1 : 0) << 2;
+		displayKey |= (this._useDisplayColorOffset ? 1 : 0) << 3;
+		displayKey |= (this.pma ? 1 : 0) << 4;
+		
 		key = Std.string(displayKey);
 		if (this._numTextures > 0)
 		{
