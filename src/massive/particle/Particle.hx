@@ -94,10 +94,10 @@ class Particle extends ImageData
 	public var alphaStart:Float;
 	public var alphaEnd:Float;
 	
-	public var redDelta:Float;
-	public var greenDelta:Float;
-	public var blueDelta:Float;
-	public var alphaDelta:Float;
+	public var redDelta:Float = 0.0;
+	public var greenDelta:Float = 0.0;
+	public var blueDelta:Float = 0.0;
+	public var alphaDelta:Float = 0.0;
 	
 	public var redOffsetBase:Float;
 	public var greenOffsetBase:Float;
@@ -107,10 +107,10 @@ class Particle extends ImageData
 	public var alphaOffsetStart:Float;
 	public var alphaOffsetEnd:Float;
 	
-	public var redOffsetDelta:Float;
-	public var greenOffsetDelta:Float;
-	public var blueOffsetDelta:Float;
-	public var alphaOffsetDelta:Float;
+	public var redOffsetDelta:Float = 0.0;
+	public var greenOffsetDelta:Float = 0.0;
+	public var blueOffsetDelta:Float = 0.0;
+	public var alphaOffsetDelta:Float = 0.0;
 	
 	public var startX:Float;
 	public var startY:Float;
@@ -118,21 +118,21 @@ class Particle extends ImageData
 	public var speed:Float;
 	public var velocityX:Float;
 	public var velocityY:Float;
-	public var radialAcceleration:Float;
-	public var tangentialAcceleration:Float;
+	public var radialAcceleration:Float = 0.0;
+	public var tangentialAcceleration:Float = 0.0;
 	public var emitRadius:Float;
 	public var emitRadiusDelta:Float;
 	public var emitRotation:Float;
 	public var emitRotationDelta:Float;
-	public var radialRotationOffset:Float;
-	public var rotationDelta:Float;
+	public var radialRotationOffset:Float = 0.0;
+	public var rotationDelta:Float = 0.0;
 	
 	public var scaleXStart:Float;
 	public var scaleYStart:Float;
 	public var scaleXEnd:Float;
 	public var scaleYEnd:Float;
-	public var scaleXDelta:Float;
-	public var scaleYDelta:Float;
+	public var scaleXDelta:Float = 0.0;
+	public var scaleYDelta:Float = 0.0;
 	
 	public var skewXBase:Float;
 	public var skewYBase:Float;
