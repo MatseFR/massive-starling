@@ -165,7 +165,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_emitterRadiusMax(value:Float):Float
 	{
 		this._emitterRadiusMax = value;
-		this._useEmitterRadius = this._emitterRadiusMax != 0.0 || this._emitterRadiusMaxVariance != 0.0 || this._emitterRadiusMin != 0.0 || this._emitterRadiusMinVariance != 0.0;
+		checkEmitterRadius();
 		return this._emitterRadiusMax;
 	}
 	
@@ -178,7 +178,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_emitterRadiusMaxVariance(value:Float):Float
 	{
 		this._emitterRadiusMaxVariance = value;
-		this._useEmitterRadius = this._emitterRadiusMax != 0.0 || this._emitterRadiusMaxVariance != 0.0 || this._emitterRadiusMin != 0.0 || this._emitterRadiusMinVariance != 0.0;
+		checkEmitterRadius();
 		return this._emitterRadiusMaxVariance;
 	}
 	
@@ -191,7 +191,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_emitterRadiusMin(value:Float):Float
 	{
 		this._emitterRadiusMin = value;
-		this._useEmitterRadius = this._emitterRadiusMax != 0.0 || this._emitterRadiusMaxVariance != 0.0 || this._emitterRadiusMin != 0.0 || this._emitterRadiusMinVariance != 0.0;
+		checkEmitterRadius();
 		return this._emitterRadiusMin;
 	}
 	
@@ -204,7 +204,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_emitterRadiusMinVariance(value:Float):Float
 	{
 		this._emitterRadiusMinVariance = value;
-		this._useEmitterRadius = this._emitterRadiusMax != 0.0 || this._emitterRadiusMaxVariance != 0.0 || this._emitterRadiusMin != 0.0 || this._emitterRadiusMinVariance != 0.0;
+		checkEmitterRadius();
 		return this._emitterRadiusMinVariance;
 	}
 	
@@ -400,14 +400,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeXStart(value:Float):Float
 	{
 		this._sizeXStart = value;
-		if (this._sizeXEndRelativeToStart)
-		{
-			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
-		}
+		checkSizeX();
 		return this._sizeXStart;
 	}
 	
@@ -420,14 +413,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeXStartVariance(value:Float):Float
 	{
 		this._sizeXStartVariance = value;
-		if (this._sizeXEndRelativeToStart)
-		{
-			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
-		}
+		checkSizeX();
 		return this._sizeXStartVariance;
 	}
 	
@@ -440,14 +426,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeYStart(value:Float):Float
 	{
 		this._sizeYStart = value;
-		if (this._sizeYEndRelativeToStart)
-		{
-			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
-		}
+		checkSizeY();
 		return this._sizeYStart;
 	}
 	
@@ -460,14 +439,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeYStartVariance(value:Float):Float
 	{
 		this._sizeYStartVariance = value;
-		if (this._sizeYEndRelativeToStart)
-		{
-			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
-		}
+		checkSizeY();
 		return this._sizeYStartVariance;
 	}
 	
@@ -500,14 +472,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeXEnd(value:Float):Float
 	{
 		this._sizeXEnd = value;
-		if (this._sizeXEndRelativeToStart)
-		{
-			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
-		}
+		checkSizeX();
 		return this._sizeXEnd;
 	}
 	
@@ -520,14 +485,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeXEndVariance(value:Float):Float
 	{
 		this._sizeXEndVariance = value;
-		if (this._sizeXEndRelativeToStart)
-		{
-			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
-		}
+		checkSizeX();
 		return this._sizeXEndVariance;
 	}
 	
@@ -540,14 +498,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeYEnd(value:Float):Float
 	{
 		this._sizeYEnd = value;
-		if (this._sizeYEndRelativeToStart)
-		{
-			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
-		}
+		checkSizeY();
 		return this._sizeYEnd;
 	}
 	
@@ -560,14 +511,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeYEndVariance(value:Float):Float
 	{
 		this._sizeYEndVariance = value;
-		if (this._sizeYEndRelativeToStart)
-		{
-			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
-		}
+		checkSizeY();
 		return this._sizeYEndVariance;
 	}
 	
@@ -580,14 +524,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeXEndRelativeToStart(value:Bool):Bool
 	{
 		this._sizeXEndRelativeToStart = value;
-		if (this._sizeXEndRelativeToStart)
-		{
-			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
-		}
+		checkSizeX();
 		return this._sizeXEndRelativeToStart;
 	}
 	
@@ -600,14 +537,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_sizeYEndRelativeToStart(value:Bool):Bool
 	{
 		this._sizeYEndRelativeToStart = value;
-		if (this._sizeYEndRelativeToStart)
-		{
-			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
-		}
+		checkSizeY();
 		return this._sizeYEndRelativeToStart;
 	}
 	
@@ -622,14 +552,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_rotationStart(value:Float):Float
 	{
 		this._rotationStart = value;
-		if (this._rotationEndRelativeToStart)
-		{
-			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
-		}
-		else
-		{
-			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
-		}
+		checkRotation();
 		return this._rotationStart;
 	}
 	
@@ -642,14 +565,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_rotationStartVariance(value:Float):Float
 	{
 		this._rotationStartVariance = value;
-		if (this._rotationEndRelativeToStart)
-		{
-			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
-		}
-		else
-		{
-			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
-		}
+		checkRotation();
 		return this._rotationStartVariance;
 	}
 	
@@ -662,14 +578,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_rotationEnd(value:Float):Float
 	{
 		this._rotationEnd = value;
-		if (this._rotationEndRelativeToStart)
-		{
-			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
-		}
-		else
-		{
-			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
-		}
+		checkRotation();
 		return this._rotationEnd;
 	}
 	
@@ -682,14 +591,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_rotationEndVariance(value:Float):Float
 	{
 		this._rotationEndVariance = value;
-		if (this._rotationEndRelativeToStart)
-		{
-			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
-		}
-		else
-		{
-			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
-		}
+		checkRotation();
 		return this._rotationEndVariance;
 	}
 	
@@ -702,17 +604,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_rotationEndRelativeToStart(value:Bool):Bool
 	{
 		this._rotationEndRelativeToStart = value;
-		if (this._rotationEndRelativeToStart)
-		{
-			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
-		}
-		else
-		{
-			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
-		}
+		checkRotation();
 		return this._rotationEndRelativeToStart;
 	}
 	
+	private var _hasSkewX:Bool = false;
+	private var _hasSkewY:Bool = false;
 	private var _useSkewX:Bool = false;
 	private var _useSkewY:Bool = false;
 	
@@ -725,14 +622,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewXStart(value:Float):Float
 	{
 		this._skewXStart = value;
-		if (this._skewXEndRelativeToStart)
-		{
-			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
-		}
+		checkSkewX();
 		return this._skewXStart;
 	}
 	
@@ -745,14 +635,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewXStartVariance(value:Float):Float
 	{
 		this._skewXStartVariance = value;
-		if (this._skewXEndRelativeToStart)
-		{
-			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
-		}
+		checkSkewX();
 		return this._skewXStartVariance;
 	}
 	
@@ -765,14 +648,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewYStart(value:Float):Float
 	{
 		this._skewYStart = value;
-		if (this._skewYEndRelativeToStart)
-		{
-			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
-		}
+		checkSkewY();
 		return this._skewYStart;
 	}
 	
@@ -785,14 +661,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewYStartVariance(value:Float):Float
 	{
 		this._skewYStartVariance = value;
-		if (this._skewYEndRelativeToStart)
-		{
-			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
-		}
+		checkSkewY();
 		return this._skewYStartVariance;
 	}
 	
@@ -805,14 +674,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewXEnd(value:Float):Float
 	{
 		this._skewXEnd = value;
-		if (this._skewXEndRelativeToStart)
-		{
-			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
-		}
+		checkSkewX();
 		return this._skewXEnd;
 	}
 	
@@ -825,14 +687,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewXEndVariance(value:Float):Float
 	{
 		this._skewXEndVariance = value;
-		if (this._skewXEndRelativeToStart)
-		{
-			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
-		}
+		checkSkewX();
 		return this._skewXEndVariance;
 	}
 	
@@ -845,14 +700,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewYEnd(value:Float):Float
 	{
 		this._skewYEnd = value;
-		if (this._skewYEndRelativeToStart)
-		{
-			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
-		}
+		checkSkewY();
 		return this._skewYEnd;
 	}
 	
@@ -865,14 +713,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewYEndVariance(value:Float):Float
 	{
 		this._skewYEndVariance = value;
-		if (this._skewYEndRelativeToStart)
-		{
-			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
-		}
+		checkSkewY();
 		return this._skewYEndVariance;
 	}
 	
@@ -885,14 +726,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewXEndRelativeToStart(value:Bool):Bool
 	{
 		this._skewXEndRelativeToStart = value;
-		if (this._skewXEndRelativeToStart)
-		{
-			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
-		}
+		checkSkewX();
 		return this._skewXEndRelativeToStart;
 	}
 	
@@ -905,14 +739,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function set_skewYEndRelativeToStart(value:Bool):Bool
 	{
 		this._skewYEndRelativeToStart = value;
-		if (this._skewYEndRelativeToStart)
-		{
-			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
-		}
-		else
-		{
-			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
-		}
+		checkSkewY();
 		return this._skewYEndRelativeToStart;
 	}
 	//##################################################
@@ -3181,6 +3008,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			}
 			particle.skewXDelta = (this.__skewXEnd - this.__skewXStart) / this.__lifeSpan;
 		}
+		else if (this._hasSkewX)
+		{
+			particle.skewXBase = particle.skewXStart = this.__skewXStart = this._skewXStart + this._skewXStartVariance * getRandomRatio();
+		}
 		else
 		{
 			particle.skewXBase = 0.0;
@@ -3198,6 +3029,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				particle.skewYEnd = this.__skewYEnd = this._skewYEnd + this._skewYEndVariance * getRandomRatio();
 			}
 			particle.skewYDelta = (this.__skewYEnd - this.__skewYStart) / this.__lifeSpan;
+		}
+		else if (this._hasSkewY)
+		{
+			particle.skewYBase = particle.skewYStart = this.__skewYStart = this._skewYStart + this._skewYStartVariance * getRandomRatio();
 		}
 		else
 		{
@@ -5405,25 +5240,71 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return options;
 	}
 	
-	private function checkOscillationGlobalFrequency():Void
+	private function checkEmitterRadius():Void
 	{
-		this._useOscillationGlobalFrequency = this._positionOscillationGlobalFrequencyEnabled || this._position2OscillationGlobalFrequencyEnabled || this._rotationOscillationGlobalFrequencyEnabled ||
-											  this._scaleXOscillationGlobalFrequencyEnabled || this._scaleYOscillationGlobalFrequencyEnabled || this._skewXOscillationGlobalFrequencyEnabled || 
-											  this._skewYOscillationGlobalFrequencyEnabled || this._colorOscillationGlobalFrequencyEnabled || this._colorOffsetOscillationGlobalFrequencyEnabled;
+		this._useEmitterRadius = this._emitterRadiusMax != 0.0 || this._emitterRadiusMaxVariance != 0.0 || this._emitterRadiusMin != 0.0 || this._emitterRadiusMinVariance != 0.0;
 	}
 	
-	private function checkOscillationUnifiedFrequencyVariance():Void
+	private function checkSizeX():Void
 	{
-		this._useOscillationUnifiedFrequencyVariance = this._positionOscillationUnifiedFrequencyVariance || this._position2OscillationUnifiedFrequencyVariance || this._rotationOscillationUnifiedFrequencyVariance ||
-													   this._scaleXOscillationUnifiedFrequencyVariance || this._scaleYOscillationUnifiedFrequencyVariance || this._skewXOscillationUnifiedFrequencyVariance ||
-													   this._skewYOscillationUnifiedFrequencyVariance || this._colorOscillationUnifiedFrequencyVariance || this._colorOffsetOscillationUnifiedFrequencyVariance;
+		if (this._sizeXEndRelativeToStart)
+		{
+			this._useSizeX = this._sizeXEnd != 0.0 || this._sizeXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeX = this._sizeXStart != this._sizeXEnd || this._sizeXStartVariance != 0.0 || this._sizeXEndVariance != 0.0;
+		}
 	}
 	
-	private function checkOscillationUnifiedFrequencyStart():Void
+	private function checkSizeY():Void
 	{
-		this._useOscillationUnifiedRandomFrequencyStart = this._positionOscillationFrequencyStartUnifiedRandom || this._position2OscillationFrequencyStartUnifiedRandom || this._rotationOscillationFrequencyStartUnifiedRandom ||
-													this._scaleXOscillationFrequencyStartUnifiedRandom || this._scaleYOscillationFrequencyStartUnifiedRandom || this._skewXOscillationFrequencyStartUnifiedRandom ||
-													this._skewYOscillationFrequencyStartUnifiedRandom || this._colorOscillationFrequencyStartUnifiedRandom || this._colorOffsetOscillationFrequencyStartUnifiedRandom;
+		if (this._sizeYEndRelativeToStart)
+		{
+			this._useSizeY = this._sizeYEnd != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSizeY = this._sizeYStart != this._sizeYEnd || this._sizeYStartVariance != 0.0 || this._sizeYEndVariance != 0.0;
+		}
+	}
+	
+	private function checkRotation():Void
+	{
+		if (this._rotationEndRelativeToStart)
+		{
+			this._useRotation = this._rotationEnd != 0.0 || this._rotationEndVariance != 0.0;
+		}
+		else
+		{
+			this._useRotation = this._rotationEnd != this._rotationStart || this._rotationStartVariance != 0.0 || this._rotationEndVariance != 0.0;
+		}
+	}
+	
+	private function checkSkewX():Void
+	{
+		this._hasSkewX = this._skewXStart != 0.0 || this._skewXStartVariance != 0.0;
+		if (this._skewXEndRelativeToStart)
+		{
+			this._useSkewX = this._skewXEnd != 0.0 || this._skewXEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewX = this._skewXStart != this._skewXEnd || this._skewXStartVariance != 0.0 || this._skewXEndVariance != 0.0;
+		}
+	}
+	
+	private function checkSkewY():Void
+	{
+		this._hasSkewY = this._skewYStart != 0.0 || this._skewYStartVariance != 0.0;
+		if (this._skewYEndRelativeToStart)
+		{
+			this._useSkewY = this._skewYEnd != 0.0 || this._skewYEndVariance != 0.0;
+		}
+		else
+		{
+			this._useSkewY = this._skewYStart != this._skewYEnd || this._skewYStartVariance != 0.0 || this._skewYEndVariance != 0.0;
+		}
 	}
 	
 	private function colorChange(tint:MassiveTint):Void
@@ -5564,6 +5445,27 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function checkAnyVelocityEffect():Void
 	{
 		this._hasAnyVelocityEffect = this._useVelocityScale || this._useVelocitySkew || this._useVelocityRotation;
+	}
+	
+	private function checkOscillationGlobalFrequency():Void
+	{
+		this._useOscillationGlobalFrequency = this._positionOscillationGlobalFrequencyEnabled || this._position2OscillationGlobalFrequencyEnabled || this._rotationOscillationGlobalFrequencyEnabled ||
+											  this._scaleXOscillationGlobalFrequencyEnabled || this._scaleYOscillationGlobalFrequencyEnabled || this._skewXOscillationGlobalFrequencyEnabled || 
+											  this._skewYOscillationGlobalFrequencyEnabled || this._colorOscillationGlobalFrequencyEnabled || this._colorOffsetOscillationGlobalFrequencyEnabled;
+	}
+	
+	private function checkOscillationUnifiedFrequencyVariance():Void
+	{
+		this._useOscillationUnifiedFrequencyVariance = this._positionOscillationUnifiedFrequencyVariance || this._position2OscillationUnifiedFrequencyVariance || this._rotationOscillationUnifiedFrequencyVariance ||
+													   this._scaleXOscillationUnifiedFrequencyVariance || this._scaleYOscillationUnifiedFrequencyVariance || this._skewXOscillationUnifiedFrequencyVariance ||
+													   this._skewYOscillationUnifiedFrequencyVariance || this._colorOscillationUnifiedFrequencyVariance || this._colorOffsetOscillationUnifiedFrequencyVariance;
+	}
+	
+	private function checkOscillationUnifiedFrequencyStart():Void
+	{
+		this._useOscillationUnifiedRandomFrequencyStart = this._positionOscillationFrequencyStartUnifiedRandom || this._position2OscillationFrequencyStartUnifiedRandom || this._rotationOscillationFrequencyStartUnifiedRandom ||
+													this._scaleXOscillationFrequencyStartUnifiedRandom || this._scaleYOscillationFrequencyStartUnifiedRandom || this._skewXOscillationFrequencyStartUnifiedRandom ||
+													this._skewYOscillationFrequencyStartUnifiedRandom || this._colorOscillationFrequencyStartUnifiedRandom || this._colorOffsetOscillationFrequencyStartUnifiedRandom;
 	}
 	
 }
