@@ -59,6 +59,34 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._emitterType = value;
 	}
 	
+	private var _isModeBurst:Bool = false;
+	private var _isModeStream:Bool = true;
+	
+	/**
+	   Possible values :
+	   - 0 for burst
+	   - 1 for stream
+	   @default 1
+	**/
+	public var emitterMode(get, set):Int;
+	private var _emitterMode:Int = EmitterMode.STREAM;
+	private function get_emitterMode():Int { return this._emitterMode; }
+	private function set_emitterMode(value:Int):Int
+	{
+		if (value == EmitterMode.BURST)
+		{
+			this._isModeBurst = true;
+			this._isModeStream = false;
+		}
+		else
+		{
+			this._isModeBurst = false;
+			this._isModeStream = true;
+		}
+		if (this._autoSetEmissionRate) updateEmissionRate();
+		return this._emitterMode = value;
+	}
+	
 	/**
 	   Maximum number of particles used by the system
 	   @default 1000
@@ -83,11 +111,73 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._maxNumParticles;
 	}
 	
+	private var _particleAmountEnabled:Bool = false;
+	
 	/**
 	   The amount of particles this system can create over time, 0 = infinite
 	   @default 0
 	**/
-	public var particleAmount:Int = 0;
+	public var particleAmount(get, set):Int ;
+	private var _particleAmount:Int = 0;
+	private function get_particleAmount():Int { return this._particleAmount; }
+	private function set_particleAmount(value:Int):Int
+	{
+		this._particleAmountEnabled = value != 0;
+		return this._particleAmount = value;
+	}
+	
+	private var _burstsInfinite:Bool;
+	
+	/**
+	   How many bursts before completing, 0 = infinite
+	   @default	1
+	**/
+	public var numBursts(get, set):Int;
+	private var _numBursts:Int = 1;
+	private function get_numBursts():Int { return this._numBursts; }
+	private function set_numBursts(value:Int):Int
+	{
+		this._numBursts = value;
+		this._burstsInfinite = this._numBursts == 0;
+		this._burstRemaining = this._burstsInfinite || this._burstTotal < this._numBursts;
+		if (this._isModeBurst && this._autoSetEmissionRate) updateEmissionRate();
+		return this._numBursts;
+	}
+	
+	private var _burstsInstant:Bool = true;
+	
+	/**
+	   Burst duration, 0 = instant
+	   @default	0
+	**/
+	public var burstDuration(get, set):Float;
+	private var _burstDuration:Float = 0.0;
+	private function get_burstDuration():Float { return this._burstDuration; }
+	private function set_burstDuration(value:Float):Float
+	{
+		this._burstDuration = value;
+		this._burstsInstant = this._burstDuration == 0.0;
+		if (this._isModeBurst && this._autoSetEmissionRate) updateEmissionRate();
+		return this._burstDuration;
+	}
+	
+	/**
+	   How much time between 2 bursts
+	**/
+	public var burstInterval:Float;
+	private var _burstInterval:Float = 1.0;
+	private function get_burstInterval():Float { return this._burstInterval; }
+	private function set_burstInterval(value:Float):Float
+	{
+		this._burstInterval = value;
+		if (this._isModeBurst && this._autoSetEmissionRate) updateEmissionRate();
+		return this._burstInterval;
+	}
+	
+	/**
+	   How much time variance between 2 bursts
+	**/
+	public var burstIntervalVariance:Float = 0.0;
 	
 	/**
 	   Tells whether the particle system should automatically set its emission rate or not
@@ -103,6 +193,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._autoSetEmissionRate = value;
 	}
 	
+	private var _timeBetweenParticles:Float = 0.01;
+	
 	/**
 	   How many particles are created per second
 	   @default 100
@@ -112,6 +204,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function get_emissionRate():Float { return this._emissionRate; }
 	private function set_emissionRate(value:Float):Float
 	{
+		this._timeBetweenParticles = 1.0 / value;
 		return this._emissionRate = value;
 	}
 	
@@ -2624,16 +2717,23 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._sortFunction = value;
 	}
 	
-	private var _completed:Bool = false;
+	private var _completed:Bool = true;
 	private var _frameTime:Float = 0.0;
 	#if flash
 	private var _particles:Vector<T>;
 	#else
 	private var _particles:Array<T>;
 	#end
-	private var _particleTotal:Int = 0;
+	private var _particleTotal:Int;
 	private var _regularSorting:Bool = true;
 	private var _updateEmitter:Bool = false;
+	private var _burstInProgress:Bool;
+	private var _burstRemaining:Bool;
+	private var _burstTime:Float;
+	private var _burstTotal:Int;
+	private var _nextBurstTime:Float;
+	private var _emissionEnabled:Bool;
+	private var _emissionInfinite:Bool;
 	
 	#if flash
 	private var _frames:Vector<Vector<Frame>> = new Vector<Vector<Frame>>();
@@ -2686,8 +2786,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private function init():Void
 	{
 		this._emissionRate = this._maxNumParticles / this._lifeSpan;
-		this._emissionTime = 0.0;
-		this._frameTime = 0.0;
+		//this._emissionTime = 0.0;
+		//this._frameTime = 0.0;
 	}
 	
 	public function addFrames(frames:#if flash Vector<Frame> #else Array<Frame>#end, timings:Array<Float> = null, refreshParticles:Bool = true):Void
@@ -4484,27 +4584,109 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 		
 		// create and advance new particles
-		if ((this.particleAmount == 0 || this._particleTotal < this.particleAmount) && this._emissionTime > 0.0 && this._emissionRate > 0.0)
+		if (this._emissionEnabled)
 		{
 			this._frameTime += time;
-			var timeBetweenParticles:Float = 1.0 / this._emissionRate;
-			var maxParticles:Int = this.particleAmount == 0 ? this._maxNumParticles : this._numParticles + (this.particleAmount - this._particleTotal);
 			
-			while (this._frameTime > 0 && this._numParticles < maxParticles)
+			var maxParticles:Int;
+			if (this._isModeBurst)
 			{
-				particle = this._particles[this._numParticles];
-				initParticle(particle);
-				advanceParticle(particle, this._frameTime);
+				if (this._burstsInstant)
+				{
+					if (this._frameTime >= this._nextBurstTime)
+					{
+						maxParticles = this._particleAmountEnabled ? MathUtils.minInt(this._numParticles + (this.particleAmount - this._particleTotal), this._maxNumParticles) : this._maxNumParticles;
+						maxParticles = MathUtils.minInt(maxParticles, this._numParticles + Math.floor(this._emissionRate));
+						
+						while (this._numParticles < maxParticles)
+						{
+							particle = this._particles[this._numParticles];
+							initParticle(particle);
+							
+							++this._numParticles;
+							++this._particleTotal;
+						}
+						
+						++this._burstTotal;
+						this._burstRemaining = this._burstsInfinite || this._burstTotal < this._numBursts;
+						if (this._burstRemaining)
+						{
+							this._nextBurstTime = this._burstInterval + this.burstIntervalVariance * getRandomRatio();
+							this._frameTime = 0.0;
+						}
+						else
+						{
+							this._emissionEnabled = false;
+						}
+					}
+				}
+				else
+				{
+					if (!this._burstInProgress && this._burstRemaining && this._frameTime >= this._nextBurstTime)// && (this._emissionInfinite || this._particleTotal < this.particleAmount))
+					{
+						this._burstInProgress = true;
+						this._burstTime = this._burstDuration;
+					}
+					
+					if (this._burstInProgress)
+					{
+						this._frameTime = Math.min(time, this._burstTime);
+						this._burstTime -= this._frameTime;
+						maxParticles = this._particleAmountEnabled ? MathUtils.minInt(this._numParticles + (this._particleAmount - this._particleTotal), this._maxNumParticles) : this._maxNumParticles;
+						
+						while (this._frameTime > 0.0 && this._numParticles < maxParticles)
+						{
+							particle = this._particles[this._numParticles];
+							initParticle(particle);
+							
+							++this._numParticles;
+							++this._particleTotal;
+							
+							this._frameTime -= this._timeBetweenParticles;
+						}
+						this._burstTime += this._frameTime;
+						
+						if (this._burstTime <= 0.0)
+						{
+							this._burstInProgress = false;
+							++this._burstTotal;
+							this._burstRemaining = this._burstsInfinite || this._burstTotal < this._numBursts;
+							if (this._burstRemaining)
+							{
+								this._nextBurstTime = this._burstInterval + this.burstIntervalVariance * getRandomRatio();
+							}
+							else
+							{
+								this._emissionEnabled = false;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				maxParticles = this.particleAmount == 0 ? this._maxNumParticles : MathUtils.minInt(this._numParticles + (this.particleAmount - this._particleTotal), this._maxNumParticles);
 				
-				++this._numParticles;
-				++this._particleTotal;
-				
-				this._frameTime -= timeBetweenParticles;
+				while (this._frameTime > 0.0 && this._numParticles < maxParticles)
+				{
+					particle = this._particles[this._numParticles];
+					initParticle(particle);
+					advanceParticle(particle, this._frameTime);
+					
+					++this._numParticles;
+					++this._particleTotal;
+					
+					this._frameTime -= this._timeBetweenParticles;
+				}
 			}
 			
-			if (this._emissionTime != MathUtils.FLOAT_MAX)
+			if (!this._emissionInfinite)
 			{
-				this._emissionTime = MathUtils.max(0.0, this._emissionTime - time);
+				this._emissionTime -= time;
+				if (this._emissionTime <= 0.0)
+				{
+					this._emissionEnabled = false;
+				}
 			}
 		}
 		else if (!this._completed && this._numParticles == 0)
@@ -4513,6 +4695,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			complete();
 			return;
 		}
+		
 		
 		this.numDatas = this._numParticles;
 		
@@ -4529,22 +4712,70 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		super.advanceTime(time);
 	}
 	
-	private function updateEmissionRate():Void
+	public function updateEmissionRate():Void
 	{
-		if (this._useAnimationLifeSpan)
+		var lifeSpan:Float;
+		var timingsCount:Int;
+		if (this._isModeBurst)
 		{
-			var lifeSpan:Float = 0.0;
-			var timingsCount:Int = this._frameTimings.length;
-			for (i in 0...timingsCount)
+			if (this._numBursts == 0)
 			{
-				lifeSpan += this._frameTimings[i][this._frameTimings[i].length - 1] / this._frameDelta;
+				if (this._useAnimationLifeSpan)
+				{
+					lifeSpan = 0.0;
+					timingsCount = this._frameTimings.length;
+					for (i in 0...timingsCount)
+					{
+						lifeSpan += this._frameTimings[i][this._frameTimings[i].length - 1] / this._frameDelta;
+					}
+					lifeSpan /= timingsCount;
+				}
+				else
+				{
+					lifeSpan = this._lifeSpan;
+				}
+				var burstTime:Float = this._burstInterval + this._burstDuration;
+				if (burstTime <= 0) burstTime = 0.02;
+				var numBursts:Float = lifeSpan / burstTime + 1.0;
+				
+				if (this._burstsInstant)
+				{
+					this.emissionRate = this._maxNumParticles * this._emissionRatio / numBursts;
+				}
+				else
+				{
+					this.emissionRate = (this._maxNumParticles * this._emissionRatio / numBursts) / this._burstDuration;
+				}
 			}
-			lifeSpan /= timingsCount;
-			this.emissionRate = this._maxNumParticles * this._emissionRatio / lifeSpan;
+			else
+			{
+				if (this._burstsInstant)
+				{
+					this.emissionRate = this._maxNumParticles * this._emissionRatio / (this._numBursts + 1);
+				}
+				else
+				{
+					this.emissionRate = (this._maxNumParticles * this._emissionRatio / (this._numBursts + 1)) / this._burstDuration;
+				}
+			}
 		}
 		else
 		{
-			this.emissionRate = this._maxNumParticles * this._emissionRatio / this._lifeSpan;
+			if (this._useAnimationLifeSpan)
+			{
+				lifeSpan = 0.0;
+				timingsCount = this._frameTimings.length;
+				for (i in 0...timingsCount)
+				{
+					lifeSpan += this._frameTimings[i][this._frameTimings[i].length - 1] / this._frameDelta;
+				}
+				lifeSpan /= timingsCount;
+				this.emissionRate = this._maxNumParticles * this._emissionRatio / lifeSpan;
+			}
+			else
+			{
+				this.emissionRate = this._maxNumParticles * this._emissionRatio / this._lifeSpan;
+			}
 		}
 	}
 	
@@ -4555,7 +4786,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			reset();
 		}
 		
-		if (this._emissionRate != 0.0 && !this._completed)
+		if ((this._isModeBurst || this._emissionRate != 0.0))
 		{
 			if (this._isParticlePoolUpdatePending)
 			{
@@ -4569,9 +4800,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			{
 				duration = MathUtils.FLOAT_MAX;
 			}
-			this._isPlaying = true;
+			
+			this._emissionEnabled = true;
 			this._emissionTime = duration;
-			this._frameTime = 0.0;
+			this._emissionInfinite = this._emissionTime == MathUtils.FLOAT_MAX;
+			this._isPlaying = true;
+			
 			this._oscillationGlobalStep = 0.0;
 			this._positionOscillationGroupStep = this.positionOscillationGroupStartStep;
 			this._position2OscillationGroupStep = this.position2OscillationGroupStartStep;
@@ -4587,7 +4821,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	public function  stop(clear:Bool = false):Void
 	{
-		this._emissionTime = 0.0;
+		//this._emissionTime = 0.0;
+		this._emissionEnabled = false;
 		
 		if (clear)
 		{
@@ -4608,12 +4843,17 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	public function reset():Void
 	{
-		if (this._autoSetEmissionRate) 
+		if (this._isModeStream && this._autoSetEmissionRate) 
 		{
 			updateEmissionRate();
 		}
 		this._frameTime = 0.0;
 		this._isPlaying = false;
+		this._burstInProgress = false;
+		this._particleTotal = 0;
+		this._burstTotal = 0;
+		this._burstRemaining = true;
+		this._nextBurstTime = 0.0;
 		
 		this._completed = false;
 		if (this._particles.length == 0)
@@ -4695,16 +4935,24 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	public function readSystemOptions(options:ParticleSystemOptions):Void
 	{
+		this._autoSetEmissionRate = false; // avoid multiple useless updateEmissionRate() calls
+		
 		// Emitter
 		this.emitterType = options.emitterType;
+		this.emitterMode = options.emitterMode;
 		
 		this._maxNumParticles = options.maxNumParticles;
 		
 		this.particleAmount = options.particleAmount;
 		
-		this._autoSetEmissionRate = options.autoSetEmissionRate;
-		this._emissionRate = options.emissionRate;
+		this.numBursts = options.numBursts;
+		this.burstDuration = options.burstDuration;
+		this.burstInterval = options.burstInterval;
+		this.burstIntervalVariance = options.burstIntervalVariance;
+		
+		this.emissionRate = options.emissionRate;
 		this._emissionRatio = options.emissionRatio;
+		this._autoSetEmissionRate = options.autoSetEmissionRate;
 		
 		this.emitterX = options.emitterX;
 		this.emitterY = options.emitterY;
@@ -4981,10 +5229,16 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		// Emitter
 		options.emitterType = this._emitterType;
+		options.emitterMode = this._emitterMode;
 		
 		options.maxNumParticles = this._maxNumParticles;
 		
 		options.particleAmount = this.particleAmount;
+		
+		options.numBursts = this._numBursts;
+		options.burstDuration = this._burstDuration;
+		options.burstInterval = this._burstInterval;
+		options.burstIntervalVariance = this.burstIntervalVariance;
 		
 		options.autoSetEmissionRate = this._autoSetEmissionRate;
 		options.emissionRate = this._emissionRate;

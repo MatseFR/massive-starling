@@ -29,7 +29,14 @@ class ParticleSystemOptions
 	   - 1 for radial
 	   @default 0
 	**/
-	public var emitterType:Int = 0;
+	public var emitterType:Int = EmitterType.GRAVITY;
+	/**
+	   Possible values :
+	   - 0 for burst
+	   - 1 for stream
+	   @default 1
+	**/
+	public var emitterMode:Int = EmitterMode.STREAM;
 	/**
 	   Maximum number of particles used by the system
 	   @default 1000
@@ -40,6 +47,22 @@ class ParticleSystemOptions
 	   @default 0
 	**/
 	public var particleAmount:Int = 0;
+	/**
+	   @default	1
+	**/
+	public var numBursts:Int = 1;
+	/**
+	   @default	0
+	**/
+	public var burstDuration:Float = 0.0;
+	/**
+	   @default 1
+	**/
+	public var burstInterval:Float = 1.0;
+	/**
+	   @default	0
+	**/
+	public var burstIntervalVariance:Float = 0.0;
 	/**
 	   Tells whether the particle system should automatically set its emission rate or not
 	   @default true
@@ -973,11 +996,17 @@ class ParticleSystemOptions
 	public function clear():Void
 	{
 		// EMITTER
-		this.emitterType = 0;
+		this.emitterType = EmitterType.GRAVITY;
+		this.emitterMode = EmitterMode.STREAM;
 		
 		this.maxNumParticles = 1000;
 		
 		this.particleAmount = 0;
+		
+		this.numBursts = 1;
+		this.burstDuration = 0.0;
+		this.burstInterval = 1.0;
+		this.burstIntervalVariance = 0.0;
 		
 		this.autoSetEmissionRate = true;
 		this.emissionRate = 100.0;
@@ -1261,10 +1290,16 @@ class ParticleSystemOptions
 		
 		// EMITTER
 		target.emitterType = this.emitterType;
+		target.emitterMode = this.emitterMode;
 		
 		target.maxNumParticles = this.maxNumParticles;
 		
 		target.particleAmount = this.particleAmount;
+		
+		target.numBursts = this.numBursts;
+		target.burstDuration = this.burstDuration;
+		target.burstInterval = this.burstInterval;
+		target.burstIntervalVariance = this.burstIntervalVariance;
 		
 		target.autoSetEmissionRate = this.autoSetEmissionRate;
 		target.emissionRate = this.emissionRate;
@@ -1537,10 +1572,23 @@ class ParticleSystemOptions
 	{
 		// EMITTER
 		this.emitterType = json.emitterType;
+		if (json.emitterMode != null)
+		{
+			this.emitterMode = json.emitterMode;
+		}
+		else
+		{
+			this.emitterMode = EmitterMode.STREAM;
+		}
 		
 		this.maxNumParticles = json.maxNumParticles;
 		
 		this.particleAmount = json.particleAmount;
+		
+		if (json.numBurst != null) this.numBursts = json.numBursts;
+		if (json.burstDuration != null) this.burstDuration = json.burstDuration;
+		if (json.burstInterval != null) this.burstInterval = json.burstInterval;
+		if (json.burstIntervalVariance != null) this.burstIntervalVariance = json.burstIntervalVariance;
 		
 		this.autoSetEmissionRate = json.autoSetEmissionRate;
 		this.emissionRate = json.emissionRate;
@@ -1827,10 +1875,16 @@ class ParticleSystemOptions
 		
 		// EMITTER
 		json.emitterType = this.emitterType;
+		json.emitterMode = this.emitterMode;
 		
 		json.maxNumParticles = this.maxNumParticles;
 		
 		json.particleAmount = this.particleAmount;
+		
+		json.numBursts = this.numBursts;
+		json.burstDuration = this.burstDuration;
+		json.burstInterval = this.burstInterval;
+		json.burstIntervalVariance = this.burstIntervalVariance;
 		
 		json.autoSetEmissionRate = this.autoSetEmissionRate;
 		json.emissionRate = this.emissionRate;
