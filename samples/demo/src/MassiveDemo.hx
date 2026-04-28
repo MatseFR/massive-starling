@@ -1,8 +1,8 @@
 package;
 
-import massive.display.MassiveColorMode;
+import massive.display.ColorMode;
 import massive.display.MassiveDisplay;
-import massive.display.MassiveRenderMode;
+import massive.display.RenderMode;
 import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.system.Capabilities;
@@ -344,40 +344,18 @@ class MassiveDemo extends Sprite
 		this.renderModeSprite.addChild(tf);
 		tX = tf.width + gap;
 		
-		btn = createButton(this.renderMode == MassiveRenderMode.BYTEARRAY ? this.buttonTextureON : this.buttonTextureOFF, "ByteArray", null, this.buttonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btnHeight) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
-		this.renderModeButtons.push(btn);
-		this.renderModeSprite.addChild(btn);
-		
-		#if flash
-		tX += btn.width + gap;
-		btn = createButton(this.renderMode == MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY ? this.buttonTextureON : this.buttonTextureOFF, "DomainMemoryByteArray", null, this.buttonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btnHeight) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
-		this.renderModeButtons.push(btn);
-		this.renderModeSprite.addChild(btn);
-		#end
-		
-		#if !flash
-		tX += btn.width + gap;
-		btn = createButton(this.renderMode == MassiveRenderMode.FLOAT32ARRAY ? this.buttonTextureON : this.buttonTextureOFF, "Float32Array", null, this.buttonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btnHeight) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
-		this.renderModeButtons.push(btn);
-		this.renderModeSprite.addChild(btn);
-		#end
-		
-		tX += btn.width + gap;
-		btn = createButton(this.renderMode == MassiveRenderMode.VECTOR ? this.buttonTextureON : this.buttonTextureOFF, "Vector", null, this.buttonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btnHeight) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
-		this.renderModeButtons.push(btn);
-		this.renderModeSprite.addChild(btn);
+		var renderModes:Array<String> = RenderMode.getValues();
+		for (i in 0...renderModes.length)
+		{
+			btn = createButton(this.renderMode == renderModes[i] ? this.buttonTextureON : this.buttonTextureOFF, renderModes[i], null, this.buttonTextureON);
+			btn.x = tX;
+			btn.y = tf.y + (tf.height - btnHeight) / 2;
+			btn.addEventListener(Event.TRIGGERED, toggleRenderMode);
+			this.renderModeButtons.push(btn);
+			this.renderModeSprite.addChild(btn);
+			
+			tX += btn.width + gap;
+		}
 		
 		this.renderModeSprite.x = (this.buttonTextureOFF.width - this.renderModeSprite.width) / 2;
 		
@@ -390,28 +368,18 @@ class MassiveDemo extends Sprite
 		this.colorModeSprite.addChild(tf);
 		tX = tf.width + gap;
 		
-		btn = createButton(this.colorMode == MassiveColorMode.NONE ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "none", null, this.mediumButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btnHeight) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleColorMode);
-		this.colorModeButtons.push(btn);
-		this.colorModeSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = createButton(this.colorMode == MassiveColorMode.REGULAR ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "regular", null, this.mediumButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btnHeight) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleColorMode);
-		this.colorModeButtons.push(btn);
-		this.colorModeSprite.addChild(btn);
-		
-		tX += btn.width + gap;
-		btn = createButton(this.colorMode == MassiveColorMode.EXTENDED ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, "extended", null, this.mediumButtonTextureON);
-		btn.x = tX;
-		btn.y = tf.y + (tf.height - btnHeight) / 2;
-		btn.addEventListener(Event.TRIGGERED, toggleColorMode);
-		this.colorModeButtons.push(btn);
-		this.colorModeSprite.addChild(btn);
+		var colorModes:Array<String> = ColorMode.getValues();
+		for (i in 0...colorModes.length)
+		{
+			btn = createButton(this.colorMode == colorModes[i] ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, colorModes[i], null, this.mediumButtonTextureON);
+			btn.x = tX;
+			btn.y = tf.y + (tf.height - btnHeight) / 2;
+			btn.addEventListener(Event.TRIGGERED, toggleColorMode);
+			this.colorModeButtons.push(btn);
+			this.colorModeSprite.addChild(btn);
+			
+			tX += btn.width + gap;
+		}
 		
 		this.colorModeSprite.x = (this.buttonTextureOFF.width - this.colorModeSprite.width) / 2;
 		
@@ -695,7 +663,6 @@ class MassiveDemo extends Sprite
 			if (this.atlases.length < this.maxTextures)
 			{
 				setAtlas(btn.text);
-				//btn.upState = this.miniButtonTextureON;
 			}
 		}
 		else if (this.atlasIDs.length > 1)
@@ -788,17 +755,7 @@ class MassiveDemo extends Sprite
 			otherBtn.upState = this.mediumButtonTextureOFF;
 		}
 		
-		switch (btn.text)
-		{
-			case "extended" :
-				this.colorMode = MassiveColorMode.EXTENDED;
-			
-			case "none" :
-				this.colorMode = MassiveColorMode.NONE;
-			
-			case "regular" :
-				this.colorMode = MassiveColorMode.REGULAR;
-		}
+		this.colorMode = btn.text;
 		btn.upState = this.mediumButtonTextureON;
 	}
 	
@@ -918,24 +875,7 @@ class MassiveDemo extends Sprite
 			otherBtn.upState = this.buttonTextureOFF;
 		}
 		
-		switch (btn.text)
-		{
-			case "ByteArray" :
-				this.renderMode = MassiveRenderMode.BYTEARRAY;
-			
-			#if flash
-			case "DomainMemoryByteArray" :
-				this.renderMode = MassiveRenderMode.BYTEARRAY_DOMAIN_MEMORY;
-			#end
-			
-			#if !flash
-			case "Float32Array" :
-				this.renderMode = MassiveRenderMode.FLOAT32ARRAY;
-			#end
-			
-			case "Vector" :
-				this.renderMode = MassiveRenderMode.VECTOR;
-		}
+		this.renderMode = btn.text;
 		btn.upState = this.buttonTextureON;
 	}
 	
