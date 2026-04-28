@@ -126,14 +126,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		return this._particleAmount = value;
 	}
 	
-	private var _burstsInfinite:Bool;
+	private var _burstsInfinite:Bool = true;
 	
 	/**
 	   How many bursts before completing, 0 = infinite
-	   @default	1
+	   @default	0
 	**/
 	public var numBursts(get, set):Int;
-	private var _numBursts:Int = 1;
+	private var _numBursts:Int = 0;
 	private function get_numBursts():Int { return this._numBursts; }
 	private function set_numBursts(value:Int):Int
 	{
@@ -164,7 +164,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   How much time between 2 bursts
 	**/
-	public var burstInterval:Float;
+	public var burstInterval(get, set):Float;
 	private var _burstInterval:Float = 1.0;
 	private function get_burstInterval():Float { return this._burstInterval; }
 	private function set_burstInterval(value:Float):Float
@@ -1454,6 +1454,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   @default 0
 	**/
+	public var positionOscillationOneWay:Bool = false;
+	
+	/**
+	   @default 0
+	**/
 	public var positionOscillationAngle:Float = 0.0;
 	
 	/**
@@ -1543,7 +1548,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   @default	false
 	**/
-	public var oscillationPositionFrequencyInverted:Bool = false;
+	public var positionOscillationFrequencyInverted:Bool = false;
 	
 	/**
 	   see OscillationFrequencyStart for possible values
@@ -1628,6 +1633,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default	0
 	**/
 	public var position2OscillationGroupStartStep:Float = 0.0;
+	
+	/**
+	   @default	false
+	**/
+	public var position2OscillationOneWay:Bool = false;
 	
 	/**
 	   @default 0
@@ -1806,6 +1816,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	public var rotationOscillationGroupStartStep:Float = 0.0;
 	
 	/**
+	   @default	false
+	**/
+	public var rotationOscillationOneWay:Bool = false;
+	
+	/**
 	   @default 0
 	**/
 	public var rotationOscillationAngle(get, set):Float;
@@ -1938,6 +1953,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default	0
 	**/
 	public var scaleXOscillationGroupStartStep:Float = 0.0;
+	
+	/**
+	   @default	false
+	**/
+	public var scaleXOscillationOneWay:Bool = false;
 	
 	/**
 	   @default 0
@@ -2076,6 +2096,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	public var scaleYOscillationGroupStartStep:Float = 0.0;
 	
 	/**
+	   @default	false
+	**/
+	public var scaleYOscillationOneWay:Bool = false;
+	
+	/**
 	   @default 0
 	**/
 	public var scaleYOscillation(get, set):Float;
@@ -2210,6 +2235,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default	0
 	**/
 	public var skewXOscillationGroupStartStep:Float = 0.0;
+	
+	/**
+	   @default	false
+	**/
+	public var skewXOscillationOneWay:Bool = false;
 	
 	/**
 	   @default 0
@@ -2348,6 +2378,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	public var skewYOscillationGroupStartStep:Float = 0.0;
 	
 	/**
+	   @default	false
+	**/
+	public var skewYOscillationOneWay:Bool = false;
+	
+	/**
 	   @default 0
 	**/
 	public var skewYOscillation(get, set):Float;
@@ -2484,6 +2519,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	public var colorOscillationGroupStartStep:Float = 0.0;
 	
 	/**
+	   @default	false
+	**/
+	public var colorOscillationOneWay:Bool = false;
+	
+	/**
 	   
 	**/
 	public var colorOscillation(default, null):MassiveTint;
@@ -2602,6 +2642,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default	0
 	**/
 	public var colorOffsetOscillationGroupStartStep:Float = 0.0;
+	
+	/**
+	   @default	false
+	**/
+	public var colorOffsetOscillationOneWay:Bool = false;
 	
 	/**
 	   
@@ -3152,7 +3197,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		if (this._positionOscillationEnabled)
 		{
 			particle.positionOscillationAngle = this.positionOscillationAngle + this.positionOscillationAngleVariance * getRandomRatio();
-			particle.positionOscillationRadius = this._positionOscillationRadius + this._positionOscillationRadiusVariance * getRandomRatio();
+			if (this.positionOscillationOneWay)
+			{
+				particle.positionOscillationRadius = particle.positionOscillationRadiusOffset = (this._positionOscillationRadius + this._positionOscillationRadiusVariance * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.positionOscillationRadius = this._positionOscillationRadius + this._positionOscillationRadiusVariance * getRandomRatio();
+			}
 			if (!this._positionOscillationGlobalFrequencyEnabled && !this._positionOscillationGroupFrequencyEnabled)
 			{
 				if (this._positionOscillationUnifiedFrequencyVariance)
@@ -3186,7 +3238,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		if (this._position2OscillationEnabled)
 		{
 			particle.position2OscillationAngle = this.position2OscillationAngle + this.position2OscillationAngleVariance * getRandomRatio();
-			particle.position2OscillationRadius = this._position2OscillationRadius + this._position2OscillationRadiusVariance * getRandomRatio();
+			if (this.position2OscillationOneWay)
+			{
+				particle.position2OscillationRadius = particle.position2OscillationRadiusOffset = (this._position2OscillationRadius + this._position2OscillationRadiusVariance * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.position2OscillationRadius = this._position2OscillationRadius + this._position2OscillationRadiusVariance * getRandomRatio();
+			}
 			if (!this._position2OscillationGlobalFrequencyEnabled && !this._position2OscillationGroupFrequencyEnabled)
 			{
 				if (this._position2OscillationUnifiedFrequencyVariance)
@@ -3219,7 +3278,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._rotationOscillationEnabled)
 		{
-			particle.rotationOscillationAngle = this._rotationOscillationAngle + this._rotationOscillationAngleVariance * getRandomRatio();
+			if (this.rotationOscillationOneWay)
+			{
+				particle.rotationOscillationAngle = particle.rotationOscillationAngleOffset = (this._rotationOscillationAngle + this._rotationOscillationAngleVariance * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.rotationOscillationAngle = this._rotationOscillationAngle + this._rotationOscillationAngleVariance * getRandomRatio();
+			}
 			if (!this._rotationOscillationGlobalFrequencyEnabled && !this._rotationOscillationGroupFrequencyEnabled)
 			{
 				if (this._rotationOscillationUnifiedFrequencyVariance)
@@ -3252,7 +3318,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._scaleXOscillationEnabled)
 		{
-			particle.scaleXOscillationFactor = this._scaleXOscillation + this._scaleXOscillationVariance * getRandomRatio();
+			if (this.scaleXOscillationOneWay)
+			{
+				particle.scaleXOscillationFactor = particle.scaleXOscillationOffset = (this._scaleXOscillation + this._scaleXOscillationVariance * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.scaleXOscillationFactor = this._scaleXOscillation + this._scaleXOscillationVariance * getRandomRatio();
+			}
 			if (!this._scaleXOscillationGlobalFrequencyEnabled && !this._scaleXOscillationGroupFrequencyEnabled)
 			{
 				if (this._scaleXOscillationUnifiedFrequencyVariance)
@@ -3285,7 +3358,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._scaleYOscillationEnabled)
 		{
-			particle.scaleYOscillationFactor = this._scaleYOscillation + this._scaleYOscillationVariance * getRandomRatio();
+			if (this.scaleYOscillationOneWay)
+			{
+				particle.scaleYOscillationFactor = particle.scaleYOscillationOffset = (this._scaleYOscillation + this._scaleYOscillationVariance * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.scaleYOscillationFactor = this._scaleYOscillation + this._scaleYOscillationVariance * getRandomRatio();
+			}
 			if (!this._scaleYOscillationGlobalFrequencyEnabled && !this._scaleYOscillationGroupFrequencyEnabled)
 			{
 				if (this._scaleYOscillationUnifiedFrequencyVariance)
@@ -3318,7 +3398,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._skewXOscillationEnabled)
 		{
-			particle.skewXOscillationFactor = this._skewXOscillation + this._skewXOscillationVariance * getRandomRatio();
+			if (this.skewXOscillationOneWay)
+			{
+				particle.skewXOscillationFactor = particle.skewXOscillationOffset = (this._skewXOscillation + this._skewXOscillationVariance * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.skewXOscillationFactor = this._skewXOscillation + this._skewXOscillationVariance * getRandomRatio();
+			}
 			if (!this._skewXOscillationGlobalFrequencyEnabled && !this._skewXOscillationGroupFrequencyEnabled)
 			{
 				if (this._skewXOscillationUnifiedFrequencyVariance)
@@ -3351,7 +3438,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._skewYOscillationEnabled)
 		{
-			particle.skewYOscillationFactor = this._skewYOscillation + this._skewYOscillationVariance * getRandomRatio();
+			if (this.skewYOscillationOneWay)
+			{
+				particle.skewYOscillationFactor = particle.skewYOscillationOffset = (this._skewYOscillation + this._skewYOscillationVariance * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.skewYOscillationFactor = this._skewYOscillation + this._skewYOscillationVariance * getRandomRatio();
+			}
 			if (!this._skewYOscillationGlobalFrequencyEnabled && !this._skewYOscillationGroupFrequencyEnabled)
 			{
 				if (this._skewYOscillationUnifiedFrequencyVariance)
@@ -3384,10 +3478,21 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._useColorOscillation)
 		{
-			particle.redOscillationFactor = this.colorOscillation.redValue + this.colorOscillationVariance.redValue * getRandomRatio();
-			particle.greenOscillationFactor = this.colorOscillation.greenValue + this.colorOscillationVariance.greenValue * getRandomRatio();
-			particle.blueOscillationFactor = this.colorOscillation.blueValue + this.colorOscillationVariance.blueValue * getRandomRatio();
-			particle.alphaOscillationFactor = this.colorOscillation.alphaValue + this.colorOscillationVariance.alphaValue * getRandomRatio();
+			if (this.colorOscillationOneWay)
+			{
+				particle.redOscillationFactor = particle.redOscillationOffset = (this.colorOscillation.redValue + this.colorOscillationVariance.redValue * getRandomRatio()) * 0.5;
+				particle.greenOscillationFactor = particle.greenOscillationOffset = (this.colorOscillation.greenValue + this.colorOscillationVariance.greenValue * getRandomRatio()) * 0.5;
+				particle.blueOscillationFactor = particle.blueOscillationOffset = (this.colorOscillation.blueValue + this.colorOscillationVariance.blueValue * getRandomRatio()) * 0.5;
+				particle.alphaOscillationFactor = particle.alphaOscillationOffset = (this.colorOscillation.alphaValue + this.colorOscillationVariance.alphaValue * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.redOscillationFactor = this.colorOscillation.redValue + this.colorOscillationVariance.redValue * getRandomRatio();
+				particle.greenOscillationFactor = this.colorOscillation.greenValue + this.colorOscillationVariance.greenValue * getRandomRatio();
+				particle.blueOscillationFactor = this.colorOscillation.blueValue + this.colorOscillationVariance.blueValue * getRandomRatio();
+				particle.alphaOscillationFactor = this.colorOscillation.alphaValue + this.colorOscillationVariance.alphaValue * getRandomRatio();
+			}
+			
 			if (!this._colorOscillationGlobalFrequencyEnabled && !this._colorOscillationGroupFrequencyEnabled)
 			{
 				if (this._colorOscillationUnifiedFrequencyVariance)
@@ -3420,10 +3525,21 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this._useColorOffsetOscillation)
 		{
-			particle.redOffsetOscillationFactor = this.colorOffsetOscillation.redValue + this.colorOffsetOscillationVariance.redValue * getRandomRatio();
-			particle.greenOffsetOscillationFactor = this.colorOffsetOscillation.greenValue + this.colorOffsetOscillationVariance.greenValue * getRandomRatio();
-			particle.blueOffsetOscillationFactor = this.colorOffsetOscillation.blueValue + this.colorOffsetOscillationVariance.blueValue * getRandomRatio();
-			particle.alphaOffsetOscillationFactor = this.colorOffsetOscillation.alphaValue + this.colorOffsetOscillationVariance.alphaValue * getRandomRatio();
+			if (this.colorOffsetOscillationOneWay)
+			{
+				particle.redOffsetOscillationFactor = particle.redOffsetOscillationOffset = (this.colorOffsetOscillation.redValue + this.colorOffsetOscillationVariance.redValue * getRandomRatio()) * 0.5;
+				particle.greenOffsetOscillationFactor = particle.greenOffsetOscillationOffset = (this.colorOffsetOscillation.greenValue + this.colorOffsetOscillationVariance.greenValue * getRandomRatio()) * 0.5;
+				particle.blueOffsetOscillationFactor = particle.blueOffsetOscillationOffset = (this.colorOffsetOscillation.blueValue + this.colorOffsetOscillationVariance.blueValue * getRandomRatio()) * 0.5;
+				particle.alphaOffsetOscillationFactor = particle.alphaOffsetOscillationOffset = (this.colorOffsetOscillation.alphaValue + this.colorOffsetOscillationVariance.alphaValue * getRandomRatio()) * 0.5;
+			}
+			else
+			{
+				particle.redOffsetOscillationFactor = this.colorOffsetOscillation.redValue + this.colorOffsetOscillationVariance.redValue * getRandomRatio();
+				particle.greenOffsetOscillationFactor = this.colorOffsetOscillation.greenValue + this.colorOffsetOscillationVariance.greenValue * getRandomRatio();
+				particle.blueOffsetOscillationFactor = this.colorOffsetOscillation.blueValue + this.colorOffsetOscillationVariance.blueValue * getRandomRatio();
+				particle.alphaOffsetOscillationFactor = this.colorOffsetOscillation.alphaValue + this.colorOffsetOscillationVariance.alphaValue * getRandomRatio();
+			}
+			
 			if (!this._colorOffsetOscillationGlobalFrequencyEnabled && !this._colorOffsetOscillationGroupFrequencyEnabled)
 			{
 				if (this._colorOffsetOscillationUnifiedFrequencyVariance)
@@ -3908,29 +4024,64 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			
 			if (this._positionOscillationGlobalFrequencyEnabled)
 			{
-				if (this.oscillationPositionFrequencyInverted)
+				if (this.positionOscillationFrequencyInverted)
 				{
-					this.__radius = this._oscillationGlobalValueInverted * particle.positionOscillationRadius;
+					if (this.positionOscillationOneWay)
+					{
+						this.__radius = particle.positionOscillationRadiusOffset + this._oscillationGlobalValueInverted * particle.positionOscillationRadius;
+					}
+					else
+					{
+						this.__radius = this._oscillationGlobalValueInverted * particle.positionOscillationRadius;
+					}
 				}
 				else
 				{
-					this.__radius = this._oscillationGlobalValue * particle.positionOscillationRadius;
+					if (this.positionOscillationOneWay)
+					{
+						this.__radius = particle.positionOscillationRadiusOffset + this._oscillationGlobalValue * particle.positionOscillationRadius;
+					}
+					else
+					{
+						this.__radius = this._oscillationGlobalValue * particle.positionOscillationRadius;
+					}
 				}
 			}
 			else if (this._positionOscillationGroupFrequencyEnabled)
 			{
-				this.__radius = this._positionOscillationGroupValue * particle.positionOscillationRadius;
+				if (this.positionOscillationOneWay)
+				{
+					this.__radius = particle.positionOscillationRadiusOffset + this._positionOscillationGroupValue * particle.positionOscillationRadius;
+				}
+				else
+				{
+					this.__radius = this._positionOscillationGroupValue * particle.positionOscillationRadius;
+				}
 			}
 			else
 			{
 				particle.positionOscillationStep += particle.positionOscillationFrequency * passedTime;
-				if (this.oscillationPositionFrequencyInverted)
+				if (this.positionOscillationFrequencyInverted)
 				{
-					this.__radius = Math.sin(particle.positionOscillationStep) * particle.positionOscillationRadius;
+					if (this.positionOscillationOneWay)
+					{
+						this.__radius = particle.positionOscillationRadiusOffset + Math.sin(particle.positionOscillationStep) * particle.positionOscillationRadius;
+					}
+					else
+					{
+						this.__radius = Math.sin(particle.positionOscillationStep) * particle.positionOscillationRadius;
+					}
 				}
 				else
 				{
-					this.__radius = Math.cos(particle.positionOscillationStep) * particle.positionOscillationRadius;
+					if (this.positionOscillationOneWay)
+					{
+						this.__radius = particle.positionOscillationRadiusOffset + Math.cos(particle.positionOscillationStep) * particle.positionOscillationRadius;
+					}
+					else
+					{
+						this.__radius = Math.cos(particle.positionOscillationStep) * particle.positionOscillationRadius;
+					}
 				}
 			}
 			this.__angle = this.__refAngle + particle.positionOscillationAngle;
@@ -3972,27 +4123,62 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			{
 				if (this.position2OscillationFrequencyInverted)
 				{
-					this.__radius = this._oscillationGlobalValueInverted * particle.position2OscillationRadius;
+					if (this.position2OscillationOneWay)
+					{
+						this.__radius = particle.position2OscillationRadiusOffset + this._oscillationGlobalValueInverted * particle.position2OscillationRadius;
+					}
+					else
+					{
+						this.__radius = this._oscillationGlobalValueInverted * particle.position2OscillationRadius;
+					}
 				}
 				else
 				{
-					this.__radius = this._oscillationGlobalValue * particle.position2OscillationRadius;
+					if (this.position2OscillationOneWay)
+					{
+						this.__radius = particle.position2OscillationRadiusOffset + this._oscillationGlobalValue * particle.position2OscillationRadius;
+					}
+					else
+					{
+						this.__radius = this._oscillationGlobalValue * particle.position2OscillationRadius;
+					}
 				}
 			}
 			else if (this._position2OscillationGroupFrequencyEnabled)
 			{
-				this.__radius = this._position2OscillationGroupValue * particle.position2OscillationRadius;
+				if (this.position2OscillationOneWay)
+				{
+					this.__radius = particle.position2OscillationRadiusOffset + this._position2OscillationGroupValue * particle.position2OscillationRadius;
+				}
+				else
+				{
+					this.__radius = this._position2OscillationGroupValue * particle.position2OscillationRadius;
+				}
 			}
 			else
 			{
 				particle.position2OscillationStep += particle.position2OscillationFrequency * passedTime;
 				if (this.position2OscillationFrequencyInverted)
 				{
-					this.__radius = Math.sin(particle.position2OscillationStep) * particle.position2OscillationRadius;
+					if (this.position2OscillationOneWay)
+					{
+						this.__radius = particle.position2OscillationRadiusOffset + Math.sin(particle.position2OscillationStep) * particle.position2OscillationRadius;
+					}
+					else
+					{
+						this.__radius = Math.sin(particle.position2OscillationStep) * particle.position2OscillationRadius;
+					}
 				}
 				else
 				{
-					this.__radius = Math.cos(particle.position2OscillationStep) * particle.position2OscillationRadius;
+					if (this.position2OscillationOneWay)
+					{
+						this.__radius = particle.position2OscillationRadiusOffset + Math.cos(particle.position2OscillationStep) * particle.position2OscillationRadius;
+					}
+					else
+					{
+						this.__radius = Math.cos(particle.position2OscillationStep) * particle.position2OscillationRadius;
+					}
 				}
 			}
 			this.__angle = this.__refAngle + particle.position2OscillationAngle;
@@ -4019,27 +4205,62 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			{
 				if (this.scaleXOscillationFrequencyInverted)
 				{
-					particle.scaleXOscillation = 1.0 + this._oscillationGlobalValueInverted * particle.scaleXOscillationFactor;
+					if (this.scaleXOscillationOneWay)
+					{
+						particle.scaleXOscillation = 1.0 + particle.scaleXOscillationOffset + this._oscillationGlobalValueInverted * particle.scaleXOscillationFactor;
+					}
+					else
+					{
+						particle.scaleXOscillation = 1.0 + this._oscillationGlobalValueInverted * particle.scaleXOscillationFactor;
+					}
 				}
 				else
 				{
-					particle.scaleXOscillation = 1.0 + this._oscillationGlobalValue * particle.scaleXOscillationFactor;
+					if (this.scaleXOscillationOneWay)
+					{
+						particle.scaleXOscillation = 1.0 + particle.scaleXOscillationOffset + this._oscillationGlobalValue * particle.scaleXOscillationFactor;
+					}
+					else
+					{
+						particle.scaleXOscillation = 1.0 + this._oscillationGlobalValue * particle.scaleXOscillationFactor;
+					}
 				}
 			}
 			else if (this._scaleXOscillationGroupFrequencyEnabled)
 			{
-				particle.scaleXOscillation = 1.0 + this._scaleXOscillationGroupValue * particle.scaleXOscillationFactor;
+				if (this.scaleXOscillationOneWay)
+				{
+					particle.scaleXOscillation = 1.0 + particle.scaleXOscillationOffset + this._scaleXOscillationGroupValue * particle.scaleXOscillationFactor;
+				}
+				else
+				{
+					particle.scaleXOscillation = 1.0 + this._scaleXOscillationGroupValue * particle.scaleXOscillationFactor;
+				}
 			}
 			else
 			{
 				particle.scaleXOscillationStep += particle.scaleXOscillationFrequency * passedTime;
 				if (this.scaleXOscillationFrequencyInverted)
 				{
-					particle.scaleXOscillation = 1.0 + Math.sin(particle.scaleXOscillationStep) * particle.scaleXOscillationFactor;
+					if (this.scaleXOscillationOneWay)
+					{
+						particle.scaleXOscillation = 1.0 + particle.scaleXOscillationOffset + Math.sin(particle.scaleXOscillationStep) * particle.scaleXOscillationFactor;
+					}
+					else
+					{
+						particle.scaleXOscillation = 1.0 + Math.sin(particle.scaleXOscillationStep) * particle.scaleXOscillationFactor;
+					}
 				}
 				else
 				{
-					particle.scaleXOscillation = 1.0 + Math.cos(particle.scaleXOscillationStep) * particle.scaleXOscillationFactor;
+					if (this.scaleXOscillationOneWay)
+					{
+						particle.scaleXOscillation = 1.0 + particle.scaleXOscillationOffset + Math.cos(particle.scaleXOscillationStep) * particle.scaleXOscillationFactor;
+					}
+					else
+					{
+						particle.scaleXOscillation = 1.0 + Math.cos(particle.scaleXOscillationStep) * particle.scaleXOscillationFactor;
+					}
 				}
 			}
 		}
@@ -4050,27 +4271,62 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			{
 				if (this.scaleYOscillationFrequencyInverted)
 				{
-					particle.scaleYOscillation = 1.0 + this._oscillationGlobalValueInverted * particle.scaleYOscillationFactor;
+					if (this.scaleYOscillationOneWay)
+					{
+						particle.scaleYOscillation = 1.0 + particle.scaleYOscillationOffset + this._oscillationGlobalValueInverted * particle.scaleYOscillationFactor;
+					}
+					else
+					{
+						particle.scaleYOscillation = 1.0 + this._oscillationGlobalValueInverted * particle.scaleYOscillationFactor;
+					}
 				}
 				else
 				{
-					particle.scaleYOscillation = 1.0 + this._oscillationGlobalValue * particle.scaleYOscillationFactor;
+					if (this.scaleYOscillationOneWay)
+					{
+						particle.scaleYOscillation = 1.0 + particle.scaleYOscillationOffset + this._oscillationGlobalValue * particle.scaleYOscillationFactor;
+					}
+					else
+					{
+						particle.scaleYOscillation = 1.0 + this._oscillationGlobalValue * particle.scaleYOscillationFactor;
+					}
 				}
 			}
 			else if (this._scaleYOscillationGroupFrequencyEnabled)
 			{
-				particle.scaleYOscillation = 1.0 + this._scaleYOscillationGroupValue * particle.scaleYOscillationFactor;
+				if (this.scaleYOscillationOneWay)
+				{
+					particle.scaleYOscillation = 1.0 + particle.scaleYOscillationOffset + this._scaleYOscillationGroupValue * particle.scaleYOscillationFactor;
+				}
+				else
+				{
+					particle.scaleYOscillation = 1.0 + this._scaleYOscillationGroupValue * particle.scaleYOscillationFactor;
+				}
 			}
 			else
 			{
 				particle.scaleYOscillationStep += particle.scaleYOscillationFrequency * passedTime;
 				if (this.scaleYOscillationFrequencyInverted)
 				{
-					particle.scaleYOscillation = 1.0 + Math.sin(particle.scaleYOscillationStep) * particle.scaleYOscillationFactor;
+					if (this.scaleYOscillationOneWay)
+					{
+						particle.scaleYOscillation = 1.0 + particle.scaleYOscillationOffset + Math.sin(particle.scaleYOscillationStep) * particle.scaleYOscillationFactor;
+					}
+					else
+					{
+						particle.scaleYOscillation = 1.0 + Math.sin(particle.scaleYOscillationStep) * particle.scaleYOscillationFactor;
+					}
 				}
 				else
 				{
-					particle.scaleYOscillation = 1.0 + Math.cos(particle.scaleYOscillationStep) * particle.scaleYOscillationFactor;
+					if (this.scaleYOscillationOneWay)
+					{
+						particle.scaleYOscillation = 1.0 + particle.scaleYOscillationOffset + Math.cos(particle.scaleYOscillationStep) * particle.scaleYOscillationFactor;
+					}
+					else
+					{
+						particle.scaleYOscillation = 1.0 + Math.cos(particle.scaleYOscillationStep) * particle.scaleYOscillationFactor;
+					}
 				}
 			}
 		}
@@ -4081,27 +4337,62 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			{
 				if (this.skewXOscillationFrequencyInverted)
 				{
-					particle.skewXOscillation = this._oscillationGlobalValueInverted * particle.skewXOscillationFactor;
+					if (this.skewXOscillationOneWay)
+					{
+						particle.skewXOscillation = particle.skewXOscillationOffset + this._oscillationGlobalValueInverted * particle.skewXOscillationFactor;
+					}
+					else
+					{
+						particle.skewXOscillation = this._oscillationGlobalValueInverted * particle.skewXOscillationFactor;
+					}
 				}
 				else
 				{
-					particle.skewXOscillation = this._oscillationGlobalValue * particle.skewXOscillationFactor;
+					if (this.skewXOscillationOneWay)
+					{
+						particle.skewXOscillation = particle.skewXOscillationOffset + this._oscillationGlobalValue * particle.skewXOscillationFactor;
+					}
+					else
+					{
+						particle.skewXOscillation = this._oscillationGlobalValue * particle.skewXOscillationFactor;
+					}
 				}
 			}
 			else if (this._skewXOscillationGroupFrequencyEnabled)
 			{
-				particle.skewXOscillation = this._skewXOscillationGroupValue * particle.skewXOscillationFactor;
+				if (this.skewXOscillationOneWay)
+				{
+					particle.skewXOscillation = particle.skewXOscillationOffset + this._skewXOscillationGroupValue * particle.skewXOscillationFactor;
+				}
+				else
+				{
+					particle.skewXOscillation = this._skewXOscillationGroupValue * particle.skewXOscillationFactor;
+				}
 			}
 			else
 			{
 				particle.skewXOscillationStep += particle.skewXOscillationFrequency * passedTime;
 				if (this.skewXOscillationFrequencyInverted)
 				{
-					particle.skewXOscillation = Math.sin(particle.skewXOscillationStep) * particle.skewXOscillationFactor;
+					if (this.skewXOscillationOneWay)
+					{
+						particle.skewXOscillation = particle.skewXOscillationOffset + Math.sin(particle.skewXOscillationStep) * particle.skewXOscillationFactor;
+					}
+					else
+					{
+						particle.skewXOscillation = Math.sin(particle.skewXOscillationStep) * particle.skewXOscillationFactor;
+					}
 				}
 				else
 				{
-					particle.skewXOscillation = Math.cos(particle.skewXOscillationStep) * particle.skewXOscillationFactor;
+					if (this.skewXOscillationOneWay)
+					{
+						particle.skewXOscillation = particle.skewXOscillationOffset + Math.cos(particle.skewXOscillationStep) * particle.skewXOscillationFactor;
+					}
+					else
+					{
+						particle.skewXOscillation = Math.cos(particle.skewXOscillationStep) * particle.skewXOscillationFactor;
+					}
 				}
 			}
 		}
@@ -4112,27 +4403,62 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			{
 				if (this.skewYOscillationFrequencyInverted)
 				{
-					particle.skewYOscillation = this._oscillationGlobalValueInverted * particle.skewYOscillationFactor;
+					if (this.skewYOscillationOneWay)
+					{
+						particle.skewYOscillation = particle.skewYOscillationOffset + this._oscillationGlobalValueInverted * particle.skewYOscillationFactor;
+					}
+					else
+					{
+						particle.skewYOscillation = this._oscillationGlobalValueInverted * particle.skewYOscillationFactor;
+					}
 				}
 				else
 				{
-					particle.skewYOscillation = this._oscillationGlobalValue * particle.skewYOscillationFactor;
+					if (this.skewYOscillationOneWay)
+					{
+						particle.skewYOscillation = particle.skewYOscillationOffset + this._oscillationGlobalValue * particle.skewYOscillationFactor;
+					}
+					else
+					{
+						particle.skewYOscillation = this._oscillationGlobalValue * particle.skewYOscillationFactor;
+					}
 				}
 			}
 			else if (this._skewYOscillationGroupFrequencyEnabled)
 			{
-				particle.skewYOscillation = this._skewYOscillationGroupValue * particle.skewYOscillationFactor;
+				if (this.skewYOscillationOneWay)
+				{
+					particle.skewYOscillation = particle.skewYOscillationOffset + this._skewYOscillationGroupValue * particle.skewYOscillationFactor;
+				}
+				else
+				{
+					particle.skewYOscillation = this._skewYOscillationGroupValue * particle.skewYOscillationFactor;
+				}
 			}
 			else
 			{
 				particle.skewYOscillationStep += particle.skewYOscillationFrequency * passedTime;
 				if (this.skewYOscillationFrequencyInverted)
 				{
-					particle.skewYOscillation = Math.sin(particle.skewYOscillationStep) * particle.skewYOscillationFactor;
+					if (this.skewYOscillationOneWay)
+					{
+						particle.skewYOscillation = particle.skewYOscillationOffset + Math.sin(particle.skewYOscillationStep) * particle.skewYOscillationFactor;
+					}
+					else
+					{
+						particle.skewYOscillation = Math.sin(particle.skewYOscillationStep) * particle.skewYOscillationFactor;
+					}
 				}
 				else
 				{
-					particle.skewYOscillation = Math.cos(particle.skewYOscillationStep) * particle.skewYOscillationFactor;
+					if (this.skewYOscillationOneWay)
+					{
+						particle.skewYOscillation = particle.skewYOscillationOffset + Math.cos(particle.skewYOscillationStep) * particle.skewYOscillationFactor;
+					}
+					else
+					{
+						particle.skewYOscillation = Math.cos(particle.skewYOscillationStep) * particle.skewYOscillationFactor;
+					}
 				}
 			}
 		}
@@ -4300,10 +4626,20 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				}
 			}
 			
-			particle.redOscillation = particle.redOscillationFactor * this.__step;
-			particle.greenOscillation = particle.greenOscillationFactor * this.__step;
-			particle.blueOscillation = particle.blueOscillationFactor * this.__step;
-			particle.alphaOscillation = particle.alphaOscillationFactor * this.__step;
+			if (this.colorOscillationOneWay)
+			{
+				particle.redOscillation = particle.redOscillationOffset + particle.redOscillationFactor * this.__step;
+				particle.greenOscillation = particle.greenOscillationOffset + particle.greenOscillationFactor * this.__step;
+				particle.blueOscillation = particle.blueOscillationOffset + particle.blueOscillationFactor * this.__step;
+				particle.alphaOscillation = particle.alphaOscillationOffset + particle.alphaOscillationFactor * this.__step;
+			}
+			else
+			{
+				particle.redOscillation = particle.redOscillationFactor * this.__step;
+				particle.greenOscillation = particle.greenOscillationFactor * this.__step;
+				particle.blueOscillation = particle.blueOscillationFactor * this.__step;
+				particle.alphaOscillation = particle.alphaOscillationFactor * this.__step;
+			}
 		}
 		//\OSCILLATION COLOR
 		
@@ -4338,10 +4674,20 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				}
 			}
 			
-			particle.redOffsetOscillation = particle.redOffsetOscillationFactor * this.__step;
-			particle.greenOffsetOscillation = particle.greenOffsetOscillationFactor * this.__step;
-			particle.blueOffsetOscillation = particle.blueOffsetOscillationFactor * this.__step;
-			particle.alphaOffsetOscillation = particle.alphaOffsetOscillationFactor * this.__step;
+			if (this.colorOffsetOscillationOneWay)
+			{
+				particle.redOffsetOscillation = particle.redOffsetOscillationOffset + particle.redOffsetOscillationFactor * this.__step;
+				particle.greenOffsetOscillation = particle.greenOffsetOscillationOffset + particle.greenOffsetOscillationFactor * this.__step;
+				particle.blueOffsetOscillation = particle.blueOffsetOscillationOffset + particle.blueOffsetOscillationFactor * this.__step;
+				particle.alphaOffsetOscillation = particle.alphaOffsetOscillationOffset + particle.alphaOffsetOscillationFactor * this.__step;
+			}
+			else
+			{
+				particle.redOffsetOscillation = particle.redOffsetOscillationFactor * this.__step;
+				particle.greenOffsetOscillation = particle.greenOffsetOscillationFactor * this.__step;
+				particle.blueOffsetOscillation = particle.blueOffsetOscillationFactor * this.__step;
+				particle.alphaOffsetOscillation = particle.alphaOffsetOscillationFactor * this.__step;
+			}
 		}
 		//\OSCILLATION COLOR OFFSET
 		
@@ -4383,7 +4729,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		if (this._positionOscillationEnabled && this._positionOscillationGroupFrequencyEnabled)
 		{
 			this._positionOscillationGroupStep += this.positionOscillationFrequency * time;
-			if (this.oscillationPositionFrequencyInverted)
+			if (this.positionOscillationFrequencyInverted)
 			{
 				this._positionOscillationGroupValue = Math.sin(this._positionOscillationGroupStep);
 			}
@@ -4786,7 +5132,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			reset();
 		}
 		
-		if ((this._isModeBurst || this._emissionRate != 0.0))
+		//if (this._isModeBurst || this._emissionRate != 0.0)
+		if (this._emissionRate != 0.0)
 		{
 			if (this._isParticlePoolUpdatePending)
 			{
@@ -4806,6 +5153,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			this._emissionInfinite = this._emissionTime == MathUtils.FLOAT_MAX;
 			this._isPlaying = true;
 			
+			this._particleTotal = 0;
+			this._burstInProgress = false;
+			this._burstTotal = 0;
+			this._burstRemaining = true;
+			this._nextBurstTime = 0.0;
+			
 			this._oscillationGlobalStep = 0.0;
 			this._positionOscillationGroupStep = this.positionOscillationGroupStartStep;
 			this._position2OscillationGroupStep = this.position2OscillationGroupStartStep;
@@ -4821,7 +5174,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	public function  stop(clear:Bool = false):Void
 	{
-		//this._emissionTime = 0.0;
 		this._emissionEnabled = false;
 		
 		if (clear)
@@ -4849,8 +5201,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 		this._frameTime = 0.0;
 		this._isPlaying = false;
-		this._burstInProgress = false;
 		this._particleTotal = 0;
+		this._burstInProgress = false;
 		this._burstTotal = 0;
 		this._burstRemaining = true;
 		this._nextBurstTime = 0.0;
@@ -5108,6 +5460,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.positionOscillationFrequencyMode = options.positionOscillationFrequencyMode;
 		this.positionOscillationGroupStartStep = options.positionOscillationGroupStartStep;
+		this.positionOscillationOneWay = options.positionOscillationOneWay;
 		this.positionOscillationAngle = options.positionOscillationAngle;
 		this.positionOscillationAngleVariance = options.positionOscillationAngleVariance;
 		this.positionOscillationAngleRelativeTo = options.positionOscillationAngleRelativeTo;
@@ -5116,11 +5469,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.positionOscillationFrequency = options.positionOscillationFrequency;
 		this.positionOscillationUnifiedFrequencyVariance = options.positionOscillationUnifiedFrequencyVariance;
 		this.positionOscillationFrequencyVariance = options.positionOscillationFrequencyVariance;
-		this.oscillationPositionFrequencyInverted = options.positionOscillationFrequencyInverted;
+		this.positionOscillationFrequencyInverted = options.positionOscillationFrequencyInverted;
 		this.positionOscillationFrequencyStart = options.positionOscillationFrequencyStart;
 		
 		this.position2OscillationFrequencyMode = options.position2OscillationFrequencyMode;
 		this.position2OscillationGroupStartStep = options.position2OscillationGroupStartStep;
+		this.position2OscillationOneWay = options.position2OscillationOneWay;
 		this.position2OscillationAngle = options.position2OscillationAngle;
 		this.position2OscillationAngleVariance = options.position2OscillationAngleVariance;
 		this.position2OscillationAngleRelativeTo = options.position2OscillationAngleRelativeTo;
@@ -5134,6 +5488,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.rotationOscillationFrequencyMode = options.rotationOscillationFrequencyMode;
 		this.rotationOscillationGroupStartStep = options.rotationOscillationGroupStartStep;
+		this.rotationOscillationOneWay = options.rotationOscillationOneWay;
 		this.rotationOscillationAngle = options.rotationOscillationAngle;
 		this.rotationOscillationAngleVariance = options.rotationOscillationAngleVariance;
 		this.rotationOscillationFrequency = options.rotationOscillationFrequency;
@@ -5144,6 +5499,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.scaleXOscillationFrequencyMode = options.scaleXOscillationFrequencyMode;
 		this.scaleXOscillationGroupStartStep = options.scaleXOscillationGroupStartStep;
+		this.scaleXOscillationOneWay = options.scaleXOscillationOneWay;
 		this.scaleXOscillation = options.scaleXOscillation;
 		this.scaleXOscillationVariance = options.scaleXOscillationVariance;
 		this.scaleXOscillationFrequency = options.scaleXOscillationFrequency;
@@ -5154,6 +5510,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.scaleYOscillationFrequencyMode = options.scaleYOscillationFrequencyMode;
 		this.scaleYOscillationGroupStartStep = options.scaleYOscillationGroupStartStep;
+		this.scaleYOscillationOneWay = options.scaleYOscillationOneWay;
 		this.scaleYOscillation = options.scaleYOscillation;
 		this.scaleYOscillationVariance = options.scaleYOscillationVariance;
 		this.scaleYOscillationFrequency = options.scaleYOscillationFrequency;
@@ -5164,6 +5521,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.skewXOscillationFrequencyMode = options.skewXOscillationFrequencyMode;
 		this.skewXOscillationGroupStartStep = options.skewXOscillationGroupStartStep;
+		this.skewXOscillationOneWay = options.skewXOscillationOneWay;
 		this.skewXOscillation = options.skewXOscillation;
 		this.skewXOscillationVariance = options.skewXOscillationVariance;
 		this.skewXOscillationFrequency = options.skewXOscillationFrequency;
@@ -5174,6 +5532,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.skewYOscillationFrequencyMode = options.skewYOscillationFrequencyMode;
 		this.skewYOscillationGroupStartStep = options.skewYOscillationGroupStartStep;
+		this.skewYOscillationOneWay = options.skewYOscillationOneWay;
 		this.skewYOscillation = options.skewYOscillation;
 		this.skewYOscillationVariance = options.skewYOscillationVariance;
 		this.skewYOscillationFrequency = options.skewYOscillationFrequency;
@@ -5184,6 +5543,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.colorOscillationFrequencyMode = options.colorOscillationFrequencyMode;
 		this.colorOscillationGroupStartStep = options.colorOscillationGroupStartStep;
+		this.colorOscillationOneWay = options.colorOscillationOneWay;
 		this.colorOscillation.copyFrom(options.colorOscillation);
 		this.colorOscillationVariance.copyFrom(options.colorOscillationVariance);
 		this.colorOscillationFrequency = options.colorOscillationFrequency;
@@ -5194,6 +5554,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		this.colorOffsetOscillationFrequencyMode = options.colorOffsetOscillationFrequencyMode;
 		this.colorOffsetOscillationGroupStartStep = options.colorOffsetOscillationGroupStartStep;
+		this.colorOffsetOscillationOneWay = options.colorOffsetOscillationOneWay;
 		this.colorOffsetOscillation.copyFrom(options.colorOffsetOscillation);
 		this.colorOffsetOscillationVariance.copyFrom(options.colorOffsetOscillationVariance);
 		this.colorOffsetOscillationFrequency = options.colorOffsetOscillationFrequency;
@@ -5396,6 +5757,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.positionOscillationFrequencyMode = this._positionOscillationFrequencyMode;
 		options.positionOscillationGroupStartStep = this.positionOscillationGroupStartStep;
+		options.positionOscillationOneWay = this.positionOscillationOneWay;
 		options.positionOscillationAngle = this.positionOscillationAngle;
 		options.positionOscillationAngleVariance = this.positionOscillationAngleVariance;
 		options.positionOscillationAngleRelativeTo = this._positionOscillationAngleRelativeTo;
@@ -5404,11 +5766,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.positionOscillationFrequency = this.positionOscillationFrequency;
 		options.positionOscillationUnifiedFrequencyVariance = this._positionOscillationUnifiedFrequencyVariance;
 		options.positionOscillationFrequencyVariance = this.positionOscillationFrequencyVariance;
-		options.positionOscillationFrequencyInverted = this.oscillationPositionFrequencyInverted;
+		options.positionOscillationFrequencyInverted = this.positionOscillationFrequencyInverted;
 		options.positionOscillationFrequencyStart = this._positionOscillationFrequencyStart;
 		
 		options.position2OscillationFrequencyMode = this._position2OscillationFrequencyMode;
 		options.position2OscillationGroupStartStep = this.position2OscillationGroupStartStep;
+		options.position2OscillationOneWay = this.position2OscillationOneWay;
 		options.position2OscillationAngle = this.position2OscillationAngle;
 		options.position2OscillationAngleVariance = this.position2OscillationAngleVariance;
 		options.position2OscillationAngleRelativeTo = this.position2OscillationAngleRelativeTo;
@@ -5422,6 +5785,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.rotationOscillationFrequencyMode = this._rotationOscillationFrequencyMode;
 		options.rotationOscillationGroupStartStep = this.rotationOscillationGroupStartStep;
+		options.rotationOscillationOneWay = this.rotationOscillationOneWay;
 		options.rotationOscillationAngle = this._rotationOscillationAngle;
 		options.rotationOscillationAngleVariance = this._rotationOscillationAngleVariance;
 		options.rotationOscillationFrequency = this.rotationOscillationFrequency;
@@ -5432,6 +5796,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.scaleXOscillationFrequencyMode = this._scaleXOscillationFrequencyMode;
 		options.scaleXOscillationGroupStartStep = this.scaleXOscillationGroupStartStep;
+		options.scaleXOscillationOneWay = this.scaleXOscillationOneWay;
 		options.scaleXOscillation = this._scaleXOscillation;
 		options.scaleXOscillationVariance = this._scaleXOscillationVariance;
 		options.scaleXOscillationFrequency = this.scaleXOscillationFrequency;
@@ -5442,6 +5807,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.scaleYOscillationFrequencyMode = this._scaleYOscillationFrequencyMode;
 		options.scaleYOscillationGroupStartStep = this.scaleYOscillationGroupStartStep;
+		options.scaleYOscillationOneWay = this.scaleYOscillationOneWay;
 		options.scaleYOscillation = this._scaleYOscillation;
 		options.scaleYOscillationVariance = this._scaleYOscillationVariance;
 		options.scaleYOscillationFrequency = this.scaleYOscillationFrequency;
@@ -5452,6 +5818,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.skewXOscillationFrequencyMode = this._skewXOscillationFrequencyMode;
 		options.skewXOscillationGroupStartStep = this.skewXOscillationGroupStartStep;
+		options.skewXOscillationOneWay = this.skewXOscillationOneWay;
 		options.skewXOscillation = this._skewXOscillation;
 		options.skewXOscillationVariance = this._skewXOscillationVariance;
 		options.skewXOscillationFrequency = this.skewXOscillationFrequency;
@@ -5462,6 +5829,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.skewYOscillationFrequencyMode = this._skewYOscillationFrequencyMode;
 		options.skewYOscillationGroupStartStep = this.skewYOscillationGroupStartStep;
+		options.skewYOscillationOneWay = this.skewYOscillationOneWay;
 		options.skewYOscillation = this._skewYOscillation;
 		options.skewYOscillationVariance = this._skewYOscillationVariance;
 		options.skewYOscillationFrequency = this.skewYOscillationFrequency;
@@ -5472,6 +5840,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.colorOscillationFrequencyMode = this._colorOscillationFrequencyMode;
 		options.colorOscillationGroupStartStep = this.colorOscillationGroupStartStep;
+		options.colorOscillationOneWay = this.colorOscillationOneWay;
 		options.colorOscillation.copyFrom(this.colorOscillation);
 		options.colorOscillationVariance.copyFrom(this.colorOscillationVariance);
 		options.colorOscillationFrequency = this.colorOscillationFrequency;
@@ -5482,6 +5851,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		options.colorOffsetOscillationFrequencyMode = this._colorOffsetOscillationFrequencyMode;
 		options.colorOffsetOscillationGroupStartStep = this.colorOffsetOscillationGroupStartStep;
+		options.colorOffsetOscillationOneWay = this.colorOffsetOscillationOneWay;
 		options.colorOffsetOscillation.copyFrom(this.colorOffsetOscillation);
 		options.colorOffsetOscillationVariance.copyFrom(this.colorOffsetOscillationVariance);
 		options.colorOffsetOscillationFrequency = this.colorOffsetOscillationFrequency;
