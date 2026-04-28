@@ -26,8 +26,8 @@ class ClassicQuads extends Scene implements IAnimatable
 	public var useSprite3D:Bool;
 	
 	private var _quads:#if flash Vector<MovingQuad> #else Array<MovingQuad> #end;
-	private var _quadWidth:Float = 100;
-	private var _quadHeight:Float = 100;
+	private var _quadWidth:Float = 80;
+	private var _quadHeight:Float = 80;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
 	
