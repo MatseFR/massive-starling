@@ -32,24 +32,26 @@ class Main extends Sprite
 		
 		LookUp.init();
 		
-		cos();
-		sin();
-		cos_and_sin();
-		fastCos();
-		fastSin();
-		abs();
-		absInt();
-		atan2();
-		ceil();
-		floor();
-		#if !flash // flash Math.isNaN is *extremely* slow
-		isNaN();
-		#end
-		max();
-		min();
-		random();
-		deg2rad();
-		rad2deg();
+		getterSetterBool();
+		getterSetterInt();
+		//cos();
+		//sin();
+		//cos_and_sin();
+		//fastCos();
+		//fastSin();
+		//abs();
+		//absInt();
+		//atan2();
+		//ceil();
+		//floor();
+		//#if !flash // flash Math.isNaN is *extremely* slow
+		//isNaN();
+		//#end
+		//max();
+		//min();
+		//random();
+		//deg2rad();
+		//rad2deg();
 	}
 	
 	private function log(str:String):Void
@@ -105,6 +107,153 @@ class Main extends Sprite
 		#else
 		return Timer.stamp();
 		#end
+	}
+	
+	private function getterSetterBool():Void
+	{
+		var t1:Float;
+		var t2:Float;
+		var time1:Float;
+		var time2:Float;
+		var iterations:Int = 100000000;
+		
+		var result:Bool;
+		var value:Bool = true;
+		
+		var obj:TestClass = new TestClass();
+		
+		// GET
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			result = obj.publicBool;
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			result = obj.getSetBool;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Bool getter", time2, "Bool public var", time1);
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			result = obj.inlineGetSetBool;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Bool inline getter", time2, "Bool public var", time1);
+		
+		// SET
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			obj.publicBool = value;
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			obj.getSetBool = value;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Bool setter", time2, "Bool public var", time1);
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			obj.inlineGetSetBool = value;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Bool inline setter", time2, "Bool public var", time1);
+	}
+	
+	private function getterSetterInt():Void
+	{
+		var t1:Float;
+		var t2:Float;
+		var time1:Float;
+		var time2:Float;
+		var iterations:Int = 100000000;
+		
+		var result:Int;
+		
+		var obj:TestClass = new TestClass();
+		
+		// GET
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			result = obj.publicInt;
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			result = obj.getSetInt;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Int getter", time2, "Int public var", time1);
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			result = obj.inlineGetSetInt;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Int inline getter", time2, "Int public var", time1);
+		
+		// SET
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			obj.publicInt = i;
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			obj.getSetInt = i;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Int setter", time2, "Int public var", time1);
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			obj.inlineGetSetInt = i;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Int inline setter", time2, "Int public var", time1);
 	}
 	
 	private function cos():Void
