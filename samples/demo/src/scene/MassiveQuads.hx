@@ -1,5 +1,7 @@
 package scene;
 
+import massive.display.ColorMode;
+import massive.display.ColorOffsetMode;
 import massive.util.LookUp;
 import massive.data.MassiveConstants;
 import massive.data.QuadData;
@@ -51,8 +53,8 @@ class MassiveQuads extends Scene implements IAnimatable
 	private var _display:MassiveDisplay;
 	
 	private var _quads:#if flash Vector<MassiveQuad> #else Array<MassiveQuad> #end;
-	private var _quadWidth:Float = 100;
-	private var _quadHeight:Float = 100;
+	private var _quadWidth:Float = 80;
+	private var _quadHeight:Float = 80;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
 	
@@ -95,6 +97,7 @@ class MassiveQuads extends Scene implements IAnimatable
 		
 		this._display = new MassiveDisplay(null, this.renderMode, this.colorMode, this.numObjects);
 		this._display.autoUpdateBounds = this.autoUpdateBounds;
+		this._display.animate = this._animation;
 		
 		layer = new QuadLayer();
 		this._display.addLayer(layer);
