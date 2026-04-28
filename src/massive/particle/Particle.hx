@@ -153,6 +153,7 @@ class Particle extends ImageData
 	// oscillation position
 	public var positionOscillationAngle:Float;
 	public var positionOscillationRadius:Float;
+	public var positionOscillationRadiusOffset:Float = 0.0;
 	public var positionOscillationStep:Float;
 	public var positionOscillationFrequency:Float;
 	public var positionXOscillation:Float;
@@ -161,6 +162,7 @@ class Particle extends ImageData
 	// oscillation position 2
 	public var position2OscillationAngle:Float;
 	public var position2OscillationRadius:Float;
+	public var position2OscillationRadiusOffset:Float = 0.0;
 	public var position2OscillationStep:Float;
 	public var position2OscillationFrequency:Float;
 	public var position2XOscillation:Float;
@@ -168,28 +170,33 @@ class Particle extends ImageData
 	
 	// oscillation rotation
 	public var rotationOscillationAngle:Float;
+	public var rotationOscillationAngleOffset:Float = 0.0;
 	public var rotationOscillationStep:Float;
 	public var rotationOscillationFrequency:Float;
 	public var rotationOscillation:Float;
 	
 	// oscillation scale
 	public var scaleXOscillationFactor:Float;
+	public var scaleXOscillationOffset:Float = 0.0;
 	public var scaleXOscillationFrequency:Float;
 	public var scaleXOscillationStep:Float;
 	public var scaleXOscillation:Float;
 	
 	public var scaleYOscillationFactor:Float;
+	public var scaleYOscillationOffset:Float = 0.0;
 	public var scaleYOscillationFrequency:Float;
 	public var scaleYOscillationStep:Float;
 	public var scaleYOscillation:Float;
 	
 	// oscillation skew
 	public var skewXOscillationFactor:Float;
+	public var skewXOscillationOffset:Float = 0.0;
 	public var skewXOscillationFrequency:Float;
 	public var skewXOscillationStep:Float;
 	public var skewXOscillation:Float;
 	
 	public var skewYOscillationFactor:Float;
+	public var skewYOscillationOffset:Float = 0.0;
 	public var skewYOscillationFrequency:Float;
 	public var skewYOscillationStep:Float;
 	public var skewYOscillation:Float;
@@ -199,6 +206,12 @@ class Particle extends ImageData
 	public var greenOscillationFactor:Float;
 	public var blueOscillationFactor:Float;
 	public var alphaOscillationFactor:Float;
+	
+	public var redOscillationOffset:Float = 0.0;
+	public var greenOscillationOffset:Float = 0.0;
+	public var blueOscillationOffset:Float = 0.0;
+	public var alphaOscillationOffset:Float = 0.0;
+	
 	public var colorOscillationStep:Float;
 	public var colorOscillationFrequency:Float;
 	
@@ -212,6 +225,12 @@ class Particle extends ImageData
 	public var greenOffsetOscillationFactor:Float;
 	public var blueOffsetOscillationFactor:Float;
 	public var alphaOffsetOscillationFactor:Float;
+	
+	public var redOffsetOscillationOffset:Float = 0.0;
+	public var greenOffsetOscillationOffset:Float = 0.0;
+	public var blueOffsetOscillationOffset:Float = 0.0;
+	public var alphaOffsetOscillationOffset:Float = 0.0;
+	
 	public var colorOffsetOscillationStep:Float;
 	public var colorOffsetOscillationFrequency:Float;
 	
