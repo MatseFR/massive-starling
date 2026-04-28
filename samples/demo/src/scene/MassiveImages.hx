@@ -3,6 +3,7 @@ package scene;
 import massive.animation.Animator;
 import massive.data.Frame;
 import massive.data.ImageData;
+import massive.display.ColorOffsetMode;
 import massive.display.ImageLayer;
 import massive.display.MassiveDisplay;
 import massive.util.LookUp;
@@ -143,7 +144,6 @@ class MassiveImages extends Scene implements IAnimatable
 			
 			img = new MassiveImage();
 			img.textureIndex = variant;
-			//img.textureIndex = 0;
 			img.setFrames(this._frames[variant], this._timings[variant], true, 0, Std.random(this._frames[variant].length));
 			img.x = MathUtils.random() * stageWidth;
 			img.y = MathUtils.random() * stageHeight;
@@ -164,6 +164,8 @@ class MassiveImages extends Scene implements IAnimatable
 			velocity = this._velocityBase + speedVariance * this._velocityRange;
 			img.velocityX = Math.cos(img.rotation) * velocity;
 			img.velocityY = Math.sin(img.rotation) * velocity;
+			
+			if (img.velocityX < 0.0) img.invertY = true;
 			
 			this._imgList[this._imgList.length] = img;
 			layer.addImage(img);
