@@ -1,10 +1,9 @@
 package;
 
-import flash.display3D.Context3DProfile;
 import openfl.display.Sprite;
 import openfl.display.StageScaleMode;
 import openfl.display3D.Context3DRenderMode;
-import openfl.system.Capabilities;
+import openfl.events.Event;
 import starling.core.Starling;
 import starling.display.Mesh;
 import starling.styles.MultiTextureStyle;
@@ -22,12 +21,12 @@ class Main extends Sprite
 		super();
 		
 		if (this.stage != null) start();
-		else addEventListener(openfl.events.Event.ADDED_TO_STAGE, onAddedToStage);
+		else addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 	}
 	
-	private function onAddedToStage(event:openfl.events.Event):Void
+	private function onAddedToStage(event:Event):Void
 	{
-		removeEventListener(openfl.events.Event.ADDED_TO_STAGE, onAddedToStage);
+		removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		
 		start();
 	}
