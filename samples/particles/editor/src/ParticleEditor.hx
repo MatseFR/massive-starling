@@ -8,9 +8,10 @@ import inputAction.controllers.KeyAction;
 import inputAction.events.InputActionEvent;
 import massive.animation.Animator;
 import massive.data.Frame;
-import massive.display.MassiveColorMode;
+import massive.display.ColorMode;
+import massive.display.ColorOffsetMode;
 import massive.display.MassiveDisplay;
-import massive.display.MassiveRenderMode;
+import massive.display.RenderMode;
 import massive.particle.Particle;
 import massive.particle.ParticleSystem;
 import massive.particle.ParticleSystemDefaults;
@@ -292,6 +293,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
+		config.colorOffsetMode = ColorOffsetMode.OBJECT;
 		config.texture = this._textureMap.get("animated_fx");
 		config.options = options;
 		config.addFrames(this._frameMap.get("animated_fx"), this._timingMap.get("animated_fx"));
@@ -332,6 +334,31 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.options = options;
 		config.addFrames(this._frameMap.get("circle"));
 		registerPreset("fireball", config);
+		
+		// "fire explosion" preset
+		str = Assets.getText("presets/fire_explosion.json");
+		json = Json.parse(str);
+		options = new ParticleSystemOptions();
+		options.fromJSON(json);
+		config = new ParticleConfig();
+		config.blendMode = BlendMode.ADD;
+		config.texture = this._textureMap.get("circle");
+		config.options = options;
+		config.addFrames(this._frameMap.get("circle"));
+		registerPreset("fire explosion", config);
+		
+		// "ghost donut" preset
+		str = Assets.getText("presets/ghost_donut.json");
+		json = Json.parse(str);
+		options = new ParticleSystemOptions();
+		options.fromJSON(json);
+		config = new ParticleConfig();
+		config.blendMode = BlendMode.NORMAL;
+		config.colorOffsetMode = ColorOffsetMode.OBJECT;
+		config.texture = this._textureMap.get("circle");
+		config.options = options;
+		config.addFrames(this._frameMap.get("circle"));
+		registerPreset("ghost donut", config);
 		
 		// "hyperspace" preset
 		str = Assets.getText("presets/hyperspace.json");
@@ -376,6 +403,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
+		config.colorOffsetMode = ColorOffsetMode.OBJECT;
 		config.texture = this._textureMap.get("star");
 		config.options = options;
 		config.addFrames(this._frameMap.get("star"));
@@ -393,8 +421,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.addFrames(this._frameMap.get("blob"));
 		registerPreset("toxic vortex", config);
 		
-		this._massive = new MassiveDisplay();
-		this._massive.texture = texture;
+		this._massive = new MassiveDisplay(texture, null, null, 100000);
 		addChild(this._massive);
 		
 		// MassiveDisplay collection
@@ -416,27 +443,44 @@ class ParticleEditor extends ValEditorSimpleStarling
 		select.add(BlendMode.SCREEN);
 		this._massiveCollection.addValue(select);
 		
-		float = new ExposedFloatDrag("red", null, 0.0, 10.0, 0.01);
-		this._massiveCollection.addValue(float);
-		
-		float = new ExposedFloatDrag("green", null, 0.0, 10.0, 0.01);
-		this._massiveCollection.addValue(float);
-		
-		float = new ExposedFloatDrag("blue", null, 0.0, 10.0, 0.01);
-		this._massiveCollection.addValue(float);
-		
-		float = new ExposedFloatDrag("alpha", null, 0, 1.0, 0.01);
-		this._massiveCollection.addValue(float);
-		
 		select = new ExposedSelect("renderMode");
-		select.choiceListFunction = MassiveRenderMode.getValues;
-		select.valueListFunction = MassiveRenderMode.getValues;
+		select.choiceListFunction = RenderMode.getValues;
+		select.valueListFunction = RenderMode.getValues;
 		this._massiveCollection.addValue(select);
 		
 		select = new ExposedSelect("colorMode");
-		select.choiceListFunction = MassiveColorMode.getValues;
-		select.valueListFunction = MassiveColorMode.getValues;
+		select.choiceListFunction = ColorMode.getValues;
+		select.valueListFunction = ColorMode.getValues;
 		this._massiveCollection.addValue(select);
+		
+		float = new ExposedFloatDrag("red", null, null, null, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("green", null, null, null, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("blue", null, null, null, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("alpha", null, null, null, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		select = new ExposedSelect("colorOffsetMode");
+		select.choiceListFunction = ColorOffsetMode.getValues;
+		select.valueListFunction = ColorOffsetMode.getValues;
+		this._massiveCollection.addValue(select);
+		
+		float = new ExposedFloatDrag("redOffset", null, -10.0, 10.0, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("greenOffset", null, -10.0, 10.0, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("blueOffset", null, -10.0, 10.0, 0.01);
+		this._massiveCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("alphaOffset", null, -10.0, 10.0, 0.01);
+		this._massiveCollection.addValue(float);
 		
 		ValEditor.edit(this._massive, this._massiveCollection, this.editView.getEditContainer("MassiveDisplay"));
 		//\MassiveDisplay collection
@@ -465,6 +509,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		
 		var config:ParticleConfig = this._presetConfigs.get(id);
 		this._massive.blendMode = config.blendMode;
+		this._massive.colorOffsetMode = config.colorOffsetMode;
 		this._massive.texture = config.texture;
 		this._ps.clearFrames();
 		this._ps.addFramesMultiple(config.frames, config.frameTimings);
