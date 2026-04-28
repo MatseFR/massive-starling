@@ -3,8 +3,8 @@ package;
 import openfl.display.Sprite;
 import openfl.display.StageScaleMode;
 import openfl.display3D.Context3DRenderMode;
+import openfl.events.Event;
 import starling.core.Starling;
-import starling.events.Event;
 
 /**
  * ...
@@ -19,12 +19,12 @@ class Main extends Sprite
 		super();
 		
 		if (stage != null) start();
-		else addEventListener(openfl.events.Event.ADDED_TO_STAGE, onAddedToStage);
+		else addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 	}
 	
-	private function onAddedToStage(event:Dynamic):Void
+	private function onAddedToStage(event:Event):Void
 	{
-		removeEventListener(openfl.events.Event.ADDED_TO_STAGE, onAddedToStage);
+		removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		
 		stage.scaleMode = StageScaleMode.NO_SCALE;
 		
@@ -34,8 +34,8 @@ class Main extends Sprite
 	private function start():Void
 	{
 		_starling = new Starling(ParticleEditor, stage, null, null, Context3DRenderMode.AUTO, "auto");
-		//_starling.enableErrorChecking = Capabilities.isDebugger;
-		_starling.showStats = true;//Capabilities.isDebugger;
+		//_starling.enableErrorChecking = true;
+		_starling.showStats = true;
 		_starling.skipUnchangedFrames = true;
 		_starling.supportBrowserZoom = true;
 		_starling.supportHighResolutions = false;
