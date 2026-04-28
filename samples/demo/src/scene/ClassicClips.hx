@@ -1,16 +1,12 @@
 package scene;
-import massive.util.LookUp;
 import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
 import starling.core.Starling;
-import starling.display.Mesh;
 import starling.display.MovieClip;
 import starling.display.Sprite3D;
 import starling.events.Event;
 import starling.filters.BlurFilter;
-import starling.styles.MeshStyle;
-import starling.styles.MultiTextureStyle;
 import starling.textures.Texture;
 import starling.utils.Color;
 
@@ -93,6 +89,8 @@ class ClassicClips extends Scene implements IAnimatable
 			velocity = this._velocityBase + speedVariance * this._velocityRange;
 			clip.velocityX = Math.cos(clip.rotation) * velocity;
 			clip.velocityY = Math.sin(clip.rotation) * velocity;
+			
+			if (clip.velocityX < 0.0) clip.scaleY *= -1.0;
 			
 			this._clips[i] = clip;
 			if (this.useSprite3D)
