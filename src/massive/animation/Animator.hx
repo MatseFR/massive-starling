@@ -51,9 +51,9 @@ class Animator
 	   @param	timings
 	   @return
 	**/
-	static public function generateTimings(frames:#if flash Vector<Frame> #else Array<Frame> #end, frameRate:Float = 60, timings:Array<Float> = null):Array<Float>
+	static public function generateTimings(frames:#if flash Vector<Frame> #else Array<Frame> #end, frameRate:Float = 60, timings:#if SWC Vector<Float> #else Array<Float>#end = null):#if SWC Vector<Float> #else Array<Float>#end
 	{
-		if (timings == null) timings = new Array<Float>();
+		if (timings == null) timings = new #if SWC Vector<Float> #else Array<Float>#end();
 		
 		var frameTime:Float = 1.0 / frameRate;
 		var total:Float = 0;
