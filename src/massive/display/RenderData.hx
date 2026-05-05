@@ -6,6 +6,7 @@ package massive.display;
  */
 class RenderData 
 {
+	public var display(default, null):MassiveDisplay;
 	public var multiTexturing:Bool;
 	public var numQuads:Int;
 	public var pma:Bool = true;
@@ -18,8 +19,9 @@ class RenderData
 	public var useDisplayColor:Bool;
 	public var useSimpleColor:Bool;
 	
-	public function new() 
+	public function new(display:MassiveDisplay) 
 	{
+		this.display = display;
 		clear();
 	}
 	
@@ -28,8 +30,14 @@ class RenderData
 		this.numQuads = this.position = this.quadOffset = this.totalQuads = 0;
 	}
 	
+	public function dispose():Void
+	{
+		this.display = null;
+	}
+	
 	public function render():Void
 	{
+		this.totalQuads += this.numQuads;
 		this.numQuads = this.position = 0;
 	}
 	

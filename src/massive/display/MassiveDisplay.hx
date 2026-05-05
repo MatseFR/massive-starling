@@ -1,5 +1,6 @@
 package massive.display;
 
+import massive.data.DisplayContainer;
 import massive.data.ImageData;
 import massive.data.MassiveConstants;
 import massive.util.MathUtils;
@@ -737,9 +738,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	#end
 	
 	#if flash
-	private var _layers:Vector<MassiveLayer> = new Vector<MassiveLayer>();
+	private var _layers:Vector<DisplayContainer> = new Vector<DisplayContainer>();
 	#else
-	private var _layers:Array<MassiveLayer> = new Array<MassiveLayer>();
+	private var _layers:Array<DisplayContainer> = new Array<DisplayContainer>();
 	#end
 	private var _numLayers:Int;
 	
@@ -786,7 +787,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	#end
 	
 	private var _contextBufferIndex:Int;
-	private var _renderData:RenderData = new RenderData();
+	private var _renderData:RenderData;
 	
 	private var _textures:Array<Texture> = new Array<Texture>();
 	private var _textureKeys:Array<String> = new Array<String>();
@@ -801,6 +802,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _viewMatrixVertexConstantsIndex:Int;
 	
 	private var _multiTexturingFragmentConstantsIndex:Int = 0;
+	
+	private var _context:Context3D;
+	private var _forceBuffer:Bool;
+	private var _painter:Painter;
 	
 	/**
 	   
@@ -824,6 +829,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			this._multiTexturingConstants = new Vector<Float>();
 		}
+		
+		this._renderData = new RenderData(this);
 		
 		if (textureOrTextures != null)
 		{
@@ -1012,7 +1019,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (update) updateTextures();
 	}
 	
-	public function addTextures(textures:Array<Texture>, update:Bool = true):Void
+	public function addTextures(textures:#if SWC Vector<Texture> #else Array<Texture>#end, update:Bool = true):Void
 	{
 		for (i in 0...textures.length)
 		{
@@ -1022,7 +1029,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (update) updateTextures();
 	}
 	
-	public function addTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true):Void
+	public function addTexturesAt(textures:#if SWC Vector<Texture> #else Array<Texture>#end, index:Int, update:Bool = true):Void
 	{
 		for (i in 0...textures.length)
 		{
@@ -1103,14 +1110,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (update) updateTextures();
 	}
 	
-	public function setTextures(textures:Array<Texture>, update:Bool = true):Void
+	public function setTextures(textures:#if SWC Vector<Texture> #else Array<Texture>#end, update:Bool = true):Void
 	{
 		this._textures.resize(0);
 		this._textureKeys.resize(0);
 		addTextures(textures, update);
 	}
 	
-	public function setTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true):Void
+	public function setTexturesAt(textures:#if SWC Vector<Texture> #else Array<Texture>#end, index:Int, update:Bool = true):Void
 	{
 		for (i in 0...textures.length)
 		{
@@ -1944,9 +1951,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   Adds specified layer on top of other existing layers
 	   @param	layer
 	**/
-	public function addLayer(layer:MassiveLayer):Void
+	public function addLayer(layer:DisplayContainer):Void
 	{
-		layer.display = this;
+		//layer.display = this;
 		this._layers[this._layers.length] = layer;
 	}
 	
@@ -1955,9 +1962,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	layer
 	   @param	index
 	**/
-	public function addLayerAt(layer:MassiveLayer, index:Int):Void
+	public function addLayerAt(layer:DisplayContainer, index:Int):Void
 	{
-		layer.display = this;
+		//layer.display = this;
 		#if flash
 		this._layers.insertAt(index, layer);
 		#else
@@ -1970,7 +1977,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	name
 	   @return
 	**/
-	public function getLayer(name:String):MassiveLayer
+	public function getLayer(name:String):DisplayContainer
 	{
 		this._numLayers = this._layers.length;
 		for (i in 0...this._numLayers)
@@ -1985,7 +1992,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	index
 	   @return
 	**/
-	public function getLayerAt(index:Int):MassiveLayer
+	public function getLayerAt(index:Int):DisplayContainer
 	{
 		return this._layers[index];
 	}
@@ -1998,18 +2005,18 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function removeAllLayers(dispose:Bool = true, poolDatas:Bool = true):Void
 	{
 		this._numLayers = this._layers.length;
-		for (i in 0...this._numLayers)
-		{
-			this._layers[i].display = null;
-			if (dispose)
-			{
-				this._layers[i].dispose(poolDatas);
-			}
-			else if (poolDatas)
-			{
-				this._layers[i].removeAllData(poolDatas);
-			}
-		}
+		//for (i in 0...this._numLayers)
+		//{
+			////this._layers[i].display = null;
+			//if (dispose)
+			//{
+				//this._layers[i].dispose(poolDatas);
+			//}
+			//else if (poolDatas)
+			//{
+				//this._layers[i].removeAllData(poolDatas);
+			//}
+		//}
 		#if flash
 		this._layers.length = 0;
 		#else
@@ -2023,7 +2030,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	dispose
 	   @return
 	**/
-	public function removeLayer(layer:MassiveLayer, dispose:Bool = false):MassiveLayer
+	public function removeLayer(layer:DisplayContainer, dispose:Bool = false):DisplayContainer
 	{
 		var index:Int = this._layers.indexOf(layer);
 		if (index != -1)
@@ -2033,8 +2040,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			#else
 			this._layers.splice(index, 1);
 			#end
-			layer.display = null;
-			if (dispose) layer.dispose();
+			//layer.display = null;
+			//if (dispose) layer.dispose();
 			return layer;
 		}
 		return null;
@@ -2046,16 +2053,16 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	dispose
 	   @return
 	**/
-	public function removeLayerAt(index:Int, dispose:Bool = false):MassiveLayer
+	public function removeLayerAt(index:Int, dispose:Bool = false):DisplayContainer
 	{
-		var layer:MassiveLayer = this._layers[index];
+		var layer:DisplayContainer = this._layers[index];
 		#if flash
 		this._layers.removeAt(index);
 		#else
 		this._layers.splice(index, 1);
 		#end
-		layer.display = null;
-		if (dispose) layer.dispose();
+		//layer.display = null;
+		//if (dispose) layer.dispose();
 		return layer;
 	}
 	
@@ -2065,7 +2072,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	dispose
 	   @return
 	**/
-	public function removeLayerWithName(name:String, dispose:Bool = false):MassiveLayer
+	public function removeLayerWithName(name:String, dispose:Bool = false):DisplayContainer
 	{
 		this._numLayers = this._layers.length;
 		for (i in 0...this._numLayers)
@@ -2107,8 +2114,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		painter.excludeFromCache(this);
 		
-		var context:Context3D = Starling.currentContext;
-		if (context == null)
+		this._context = Starling.currentContext;
+		if (this._context == null)
 		{
 			throw new MissingContextError();
 		}
@@ -2118,6 +2125,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		painter.setupContextDefaults();
 		painter.state.blendMode = this.__blendMode;
 		painter.prepareToDraw();
+		
+		this._painter = painter;
 		
 		var alpha:Float = painter.state.alpha * this.__alpha;
 		
@@ -2137,7 +2146,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				this._byteColor.position = 12;
 				this._byteColor.writeFloat(alpha);
 			}
-			context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorVertexConstantsIndex, 1, this._byteColor, 0);
+			this._context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorVertexConstantsIndex, 1, this._byteColor, 0);
 			#else
 			if (this.pma)
 			{
@@ -2146,7 +2155,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				this._vectorColor[2] = this._blue * alpha;
 			}
 			this._vectorColor[3] = alpha;
-			context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorVertexConstantsIndex, this._vectorColor, 1);
+			this._context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorVertexConstantsIndex, this._vectorColor, 1);
 			#end
 		}
 		
@@ -2158,7 +2167,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._byteColorOffset.writeFloat(this._greenOffset);
 			this._byteColorOffset.writeFloat(this._blueOffset);
 			this._byteColorOffset.writeFloat(this._alphaOffset);
-			context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorOffsetVertexConstantsIndex, 1, this._byteColorOffset, 0);
+			this._context.setProgramConstantsFromByteArray(Context3DProgramType.VERTEX, this._colorOffsetVertexConstantsIndex, 1, this._byteColorOffset, 0);
 			#else
 			if (this.pma)
 			{
@@ -2167,25 +2176,25 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				this._vectorColorOffset[2] = this._blueOffset * alpha;
 			}
 			this._vectorColorOffset[3] = alpha;
-			context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorOffsetVertexConstantsIndex, this._vectorColorOffset, 1);
+			this._context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, this._colorOffsetVertexConstantsIndex, this._vectorColorOffset, 1);
 			#end
 		}
 		
-		this._program.activate(context);
+		this._program.activate(this._context);
 		for (i in 0...this._numTextures)
 		{
-			context.setTextureAt(i, this._textures[i].base);
+			this._context.setTextureAt(i, this._textures[i].base);
 			RenderUtil.setSamplerStateAt(i, this._textures[i].mipMapping, this._textureSmoothing, this._textureRepeat);
 		}
 		
-		context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, this._viewMatrixVertexConstantsIndex, painter.state.mvpMatrix3D, true);
+		this._context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, this._viewMatrixVertexConstantsIndex, painter.state.mvpMatrix3D, true);
 		
 		if (this._multiTexturing)
 		{
-			context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, this._multiTexturingFragmentConstantsIndex, this._multiTexturingConstants, -1);
+			this._context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, this._multiTexturingFragmentConstantsIndex, this._multiTexturingConstants, -1);
 		}
 		
-		var forceBuffer:Bool = true;
+		this._forceBuffer = true;
 		var boundsData:#if flash Vector<Float> #else Array<Float> #end = this._autoUpdateBounds ? this._boundsData : null;
 		#if flash
 		if (boundsData != null) boundsData.length = 0;
@@ -2204,29 +2213,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			{
 				var prevByteArray:ByteArray = ApplicationDomain.currentDomain.domainMemory;
 				Memory.select(this._byteData);
-				while (layerIndex < this._numLayers)
+				for (i in 0...this._numLayers)
 				{
-					if (!this._layers[layerIndex].visible) continue;
-					layerDone = this._layers[layerIndex].writeDataBytesMemory(this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this._renderData, boundsData);
-					if (this._renderData.numQuads == this._bufferSize)
-					{
-						nextBuffer(context, forceBuffer);
-						forceBuffer = false;
-						this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
-						context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
-						this._renderData.render();
-						++painter.drawCount;
-					}
-					if (layerDone) ++layerIndex;
+					if (!this._layers[i].visible) continue;
+					this._layers[i].writeDataBytesMemory(this._bufferSize, 0, 0, this._renderData, boundsData);
 				}
 				if (this._renderData.numQuads != 0)
 				{
-					nextBuffer(context, forceBuffer);
-					forceBuffer = false;
-					this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
-					context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
-					this._renderData.render();
-					++painter.drawCount;
+					drawBytesMemory();
 				}
 				Memory.select(prevByteArray);
 			}
@@ -2234,29 +2228,14 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			{
 			#end
 				this._byteData.position = 0;
-				while (layerIndex < this._numLayers)
+				for (i in 0...this._numLayers)
 				{
-					if (!this._layers[layerIndex].visible) continue;
-					layerDone = this._layers[layerIndex].writeDataBytes(this._byteData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this._renderData, boundsData);
-					if (this._renderData.numQuads == this._bufferSize)
-					{
-						nextBuffer(context, forceBuffer);
-						forceBuffer = false;
-						this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
-						context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
-						this._renderData.render();
-						++painter.drawCount;
-					}
-					if (layerDone) ++layerIndex;
+					if (!this._layers[i].visible) continue;
+					this._layers[i].writeDataBytes(this._byteData, this._bufferSize, 0, 0, this._renderData, boundsData);
 				}
 				if (this._renderData.numQuads != 0)
 				{
-					nextBuffer(context, forceBuffer);
-					forceBuffer = false;
-					this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
-					context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
-					this._renderData.render();
-					++painter.drawCount;
+					drawBytes();
 				}
 			#if flash
 			}
@@ -2265,58 +2244,27 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		#if !flash
 		else if (this._useFloat32Array)
 		{
-			while (layerIndex < this._numLayers)
+			for (i in 0...this._numLayers)
 			{
-				if (!this._layers[layerIndex].visible) continue;
-				layerDone = this._layers[layerIndex].writeDataFloat32Array(this._float32Data, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this._renderData, boundsData);
-				if (this._renderData.numQuads == this._bufferSize)
-				{
-					nextBuffer(context, forceBuffer);
-					forceBuffer = false;
-					this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD * 4); // uploadFromTypedArray's byteLength param is currently not used
-					context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
-					this._renderData.render();
-					++painter.drawCount;
-				}
-				if (layerDone) ++layerIndex;
+				if (!this._layers[i].visible) continue;
+				this._layers[i].writeDataFloat32Array(this._float32Data, this._bufferSize, 0, 0, this._renderData, boundsData);
 			}
 			if (this._renderData.numQuads != 0)
 			{
-				nextBuffer(context, forceBuffer);
-				forceBuffer = false;
-				this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD * 4); // uploadFromTypedArray's byteLength param is currently not used
-				context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
-				this._renderData.render();
-				++painter.drawCount;
-				
+				drawFloat32();
 			}
 		}
 		#end
 		else
 		{
-			while (layerIndex < this._numLayers)
+			for (i in 0...this._numLayers)
 			{
-				if (!this._layers[layerIndex].visible) continue;
-				layerDone = this._layers[layerIndex].writeDataVector(this._vectorData, this._bufferSize - this._renderData.numQuads, this.renderOffsetX, this.renderOffsetY, this._renderData, boundsData);
-				if (this._renderData.numQuads == this._bufferSize)
-				{
-					nextBuffer(context, forceBuffer);
-					forceBuffer = false;
-					this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
-					context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
-					this._renderData.render();
-					++painter.drawCount;
-				}
-				if (layerDone) ++layerIndex;
+				if (!this._layers[i].visible) continue;
+				this._layers[i].writeDataVector(this._vectorData, this._bufferSize, 0, 0, this._renderData, boundsData);
 			}
 			if (this._renderData.numQuads != 0)
 			{
-				nextBuffer(context, forceBuffer);
-				forceBuffer = false;
-				this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
-				context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
-				this._renderData.render();
-				++painter.drawCount;
+				drawVector();
 			}
 		}
 		
@@ -2325,13 +2273,58 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		
 		for (i in new ReverseIterator(this._contextBufferIndex, 0))
 		{
-			context.setVertexBufferAt(i, null);
+			this._context.setVertexBufferAt(i, null);
 		}
 		
 		for (i in 0...this._numTextures)
 		{
-			context.setTextureAt(i, null);
+			this._context.setTextureAt(i, null);
 		}
+	}
+	
+	public function drawBytes():Void
+	{
+		nextBuffer(this._context, this._forceBuffer);
+		this._forceBuffer = false;
+		this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
+		this._context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+		this._renderData.render();
+		++this._painter.drawCount;
+		this._byteData.position = 0;
+	}
+	
+	#if flash
+	public function drawBytesMemory():Void
+	{
+		nextBuffer(this._context, this._forceBuffer);
+		this._forceBuffer = false;
+		this._vertexBuffer.uploadFromByteArray(this._byteData, 0, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
+		this._context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+		this._renderData.render();
+		++this._painter.drawCount;
+	}
+	#end
+	
+	#if !flash
+	public function drawFloat32():Void
+	{
+		nextBuffer(this._context, this._forceBuffer);
+		this._forceBuffer = false;
+		this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD * 4); // uploadFromTypedArray's byteLength param is currently not used
+		this._context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+		this._renderData.render();
+		++this._painter.drawCount;
+	}
+	#end
+	
+	public function drawVector():Void
+	{
+		nextBuffer(this._context, this._forceBuffer);
+		this._forceBuffer = false;
+		this._vertexBuffer.uploadFromVector(this._vectorData, 0, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD);
+		this._context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
+		this._renderData.render();
+		++this._painter.drawCount;
 	}
 	
 	private function nextBuffer(context:Context3D, forced:Bool = false):Void
