@@ -5,18 +5,18 @@ package massive.data;
  * @author Matse
  */
 @:allow(massive.display.MassiveLayer)
-abstract class DisplayData
+abstract class DisplayData extends DisplayBase
 {
 	/**
 	   position on x-axis
 	   @default 0
 	**/
-	public var x:Float = 0.0;
+	//public var x:Float = 0.0;
 	/**
 	   position on y-axis
 	   @default 0
 	**/
-	public var y:Float = 0.0;
+	//public var y:Float = 0.0;
 	/**
 	   position offset on x-axis
 	   @default 0
@@ -102,7 +102,7 @@ abstract class DisplayData
 	   Tells whether this object is visible or not
 	   @default true
 	**/
-	public var visible:Bool = true;
+	//public var visible:Bool = true;
 	
 	private function get_color():Int
 	{
@@ -214,6 +214,7 @@ abstract class DisplayData
 	
 	public function new() 
 	{
+		super();
 		this._sizeXChanged = this._sizeYChanged = this._transformChanged = true; // force initial calculations
 	}
 	
