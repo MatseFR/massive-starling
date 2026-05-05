@@ -160,7 +160,7 @@ class ImageData extends DisplayData
 	   Duration of each frame
 	   @default	null
 	**/
-	public var frameTimings:Array<Float>;
+	public var frameTimings:#if SWC Vector<Float> #else Array<Float> #end;
 	/**
 	   Current frame's height, if any, multiplied by scaleY (0 otherwise)
 	**/
@@ -204,8 +204,6 @@ class ImageData extends DisplayData
 	   Current frame's width, if any, multiplied by scaleX (0 otherwise)
 	**/
 	public var width(get, set):Float;
-	
-	//private function get_frameCurrent():Frame { return (this.frameList == null || this.frameList.length == 0) ? null : this.frameList[this.frameIndex]; }
 	
 	private var _frameIndex:Int = -1;
 	inline private function get_frameIndex():Int { return this._frameIndex; }
@@ -311,7 +309,7 @@ class ImageData extends DisplayData
 	   @param	frameIndex
 	   @param	animate
 	**/
-	public function setFrames(frames:#if flash Vector<Frame> #else Array<Frame> #end, timings:Array<Float> = null, loop:Bool = true, numLoops:Int = 0, frameIndex:Int = 0, animate:Bool = true):Void
+	public function setFrames(frames:#if flash Vector<Frame> #else Array<Frame> #end, timings:#if SWC Vector<Float> #else Array<Float> = null #end, loop:Bool = true, numLoops:Int = 0, frameIndex:Int = 0, animate:Bool = true):Void
 	{
 		this.frameList = frames;
 		this.frameTimings = timings;
@@ -345,7 +343,7 @@ class ImageData extends DisplayData
 	   Set the timings associated to the current Frame objects
 	   @param	timings
 	**/
-	public function setFrameTimings(timings:Array<Float>):Void
+	public function setFrameTimings(timings:#if SWC Vector<Float> #else Array<Float> #end):Void
 	{
 		this.frameTimings = timings;
 		this.frameCount = this.frameTimings == null ? this.frameList != null ? this.frameList.length - 1 : 0 : this.frameTimings.length - 1;

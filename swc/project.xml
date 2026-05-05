@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<!-- NMML reference: https://gist.github.com/1763850 -->
+	
+	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
+	<meta title="MassiveSWC" package="MassiveSWC" version="1.0.0" company="Matse" />
+	
+	<!-- output -->
+	<app main="openfl.display.Sprite" file="Massive" path="bin" />
+	
+	<!--<window background="#000000" fps="60" />-->
+	<!--<window width="800" height="480" unless="mobile" />-->
+	<!--<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />-->
+	
+	<!-- classpath, haxe libs -->
+	<source path="src" />
+	<haxelib name="openfl" />
+	<haxelib name="starling" />
+	<haxelib name="massive-starling" />
+	
+	<!-- definitions -->
+	<haxedef name="SWC"/>
+	<!--<haxeflag name="--macro" value="include('starling')"/>-->
+	<!--<haxeflag name="--macro" value="include('massive')"/>-->
+	
+	<template path="templates" if="flash"/>
+
+	<section if="flash">
+		<source path="build_macros/flash"/>
+		<haxeflag name="--macro" value="AddFlashPropertyMeta.find('starling')"/>
+		<haxeflag name="--macro" value="AddEventMeta.find('starling')"/>
+		<haxeflag name="--macro" value="AddDefaultPropertyMeta.find('starling')"/>
+		
+		<haxeflag name="--macro" value="AddFlashPropertyMeta.find('massive')"/>
+		<haxeflag name="--macro" value="AddEventMeta.find('massive')"/>
+		<haxeflag name="--macro" value="AddDefaultPropertyMeta.find('massive')"/>
+		
+		<haxeflag name="--macro" value="include('starling')"/>
+		<haxeflag name="--macro" value="include('massive')"/>
+		
+		<!--
+			don't remove dead code because other libraries that depend on
+			Feathers UI and need to build .swc files too might need it
+		-->
+		<haxeflag name="-dce" value="no"/>
+	</section>
+	
+	<!-- assets -->
+	<!--<icon path="assets/openfl.svg" />-->
+	<!--<assets path="assets/img" rename="img" />-->
+	
+	<!-- optimize output
+	<haxeflag name="-dce full" /> -->
+	
+</project>

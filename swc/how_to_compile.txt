@@ -1,0 +1,2 @@
+in command line or powershell
+openfl build flash -debug -D air

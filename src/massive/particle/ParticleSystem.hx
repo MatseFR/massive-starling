@@ -2785,7 +2785,12 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	#else
 	private var _frames:Array<Array<Frame>> = new Array<Array<Frame>>();
 	#end
+	
+	#if SWC
+	private var _frameTimings:Vector<Vector<Float>> = new Vector<Vector<Float>>();
+	#else
 	private var _frameTimings:Array<Array<Float>> = new Array<Array<Float>>();
+	#end
 	private var _numFrameSets:Int = 0;
 	private var _useMultipleFrameSets:Bool = false;
 	
@@ -2835,7 +2840,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		//this._frameTime = 0.0;
 	}
 	
-	public function addFrames(frames:#if flash Vector<Frame> #else Array<Frame>#end, timings:Array<Float> = null, refreshParticles:Bool = true):Void
+	public function addFrames(frames:#if flash Vector<Frame> #else Array<Frame>#end, timings:#if SWC Vector<Float> #else Array<Float>#end = null, refreshParticles:Bool = true):Void
 	{
 		if (timings == null) timings = Animator.generateTimings(frames);
 		
@@ -2858,7 +2863,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 	}
 	
-	public function addFramesMultiple(frames:#if flash Vector<Vector<Frame>> #else Array<Array<Frame>>#end, timings:Array<Array<Float>> = null, refreshParticles:Bool = true):Void
+	public function addFramesMultiple(frames:#if flash Vector<Vector<Frame>> #else Array<Array<Frame>>#end, timings:#if SWC Vector<Vector<Float>> #else Array<Array<Float>>#end = null, refreshParticles:Bool = true):Void
 	{
 		var count:Int = frames.length;
 		for (i in 0...count)
@@ -2889,7 +2894,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		#else
 		this._frames.resize(0);
 		#end
+		#if SWC
+		this._frameTimings.length = 0;
+		#else
 		this._frameTimings.resize(0);
+		#end
 		
 		this._numFrameSets = 0;
 		this._useMultipleFrameSets = false;
