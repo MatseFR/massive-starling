@@ -158,7 +158,9 @@ class DisplayContainer extends DisplayBase
 		this.__multiTexturing = renderData.multiTexturing;
 		this.__pma = renderData.pma;
 		this.__useColor = renderData.useColor;
+		this.__useDisplayColor = renderData.useDisplayColor;
 		this.__useColorOffset = renderData.useColorOffset;
+		this.__pmaForColorOffset = false;//this.__pma && !this.__useColor && !this.__useDisplayColor;
 		this.__simpleColor = renderData.useSimpleColor;
 		this.__totalQuads = renderData.quadOffset + this.__numQuads;
 		this.__storeBounds = boundsData != null;
@@ -227,83 +229,7 @@ class DisplayContainer extends DisplayBase
 					this.__v2 = this.__frame.v2;
 				}
 				
-				if (this.__useColor)
-				{
-					if (this.__simpleColor)
-					{
-						this.__alpha = this.__image.alpha;
-						this.__alpha = this.__alpha < 0.0 ? 0.0 : this.__alpha > 1.0 ? 1.0 : this.__alpha;
-						this.__red = this.__image.red;
-						this.__red = this.__red < 0.0 ? 0.0 : this.__red > 1.0 ? 1.0 : this.__red;
-						this.__green = this.__image.green;
-						this.__green = this.__green < 0.0 ? 0.0 : this.__green > 1.0 ? 1.0 : this.__green;
-						this.__blue = this.__image.blue;
-						this.__blue = this.__blue < 0.0 ? 0.0 : this.__blue > 1.0 ? 1.0 : this.__blue;
-						if (this.__pma)
-						{
-							this.__color = Std.int(this.__red * this.__alpha * 255) | Std.int(this.__green * this.__alpha * 255) << 8 | Std.int(this.__blue * this.__alpha * 255) << 16 | Std.int(this.__alpha * 255) << 24;
-						}
-						else
-						{
-							this.__color = Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
-						}
-					}
-					else
-					{
-						this.__alpha = this.__image.alpha;
-						if (this.__pma)
-						{
-							this.__red = this.__image.red * this.__alpha;
-							this.__green = this.__image.green * this.__alpha;
-							this.__blue = this.__image.blue * this.__alpha;
-						}
-						else
-						{
-							this.__red = this.__image.red;
-							this.__green = this.__image.green;
-							this.__blue = this.__image.blue;
-						}
-					}
-				}
-				
-				if (this.__useColorOffset)
-				{
-					if (this.__simpleColor)
-					{
-						this.__alphaOffset = this.__image.alphaOffset;
-						this.__alphaOffset = this.__alphaOffset < 0.0 ? 0.0 : this.__alphaOffset > 1.0 ? 1.0 : this.__alphaOffset;
-						this.__redOffset = this.__image.redOffset;
-						this.__redOffset = this.__redOffset < 0.0 ? 0.0 : this.__redOffset > 1.0 ? 1.0 : this.__redOffset;
-						this.__greenOffset = this.__image.greenOffset;
-						this.__greenOffset = this.__greenOffset < 0.0 ? 0.0 : this.__greenOffset > 1.0 ? 1.0 : this.__greenOffset;
-						this.__blueOffset = this.__image.blueOffset;
-						this.__blueOffset = this.__blueOffset < 0.0 ? 0.0 : this.__blueOffset > 1.0 ? 1.0 : this.__blueOffset;
-						if (this.__useColor || renderData.useDisplayColor)
-						{
-							this.__colorOffset = Std.int(this.__redOffset * 255) | Std.int(this.__greenOffset * 255) << 8 | Std.int(this.__blueOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
-						}
-						else
-						{
-							this.__colorOffset = Std.int(this.__redOffset * this.__alphaOffset * 255) | Std.int(this.__greenOffset * this.__alphaOffset * 255) << 8 | Std.int(this.__blueOffset * this.__alphaOffset * 255) << 16 | Std.int(this.__alphaOffset * 255) << 24;
-						}
-					}
-					else
-					{
-						this.__alphaOffset = this.__image.alphaOffset;
-						if (this.__useColor || renderData.useDisplayColor)
-						{
-							this.__redOffset = this.__image.redOffset;
-							this.__greenOffset = this.__image.greenOffset;
-							this.__blueOffset = this.__image.blueOffset;
-						}
-						else
-						{
-							this.__redOffset = this.__image.redOffset * this.__alphaOffset;
-							this.__greenOffset = this.__image.greenOffset * this.__alphaOffset;
-							this.__blueOffset = this.__image.blueOffset * this.__alphaOffset;
-						}
-					}
-				}
+				updateColor(this.__image);
 				
 				if (this.__storeBounds)
 				{
@@ -327,28 +253,28 @@ class DisplayContainer extends DisplayBase
 				{
 					if (this.__simpleColor)
 					{
-						byteData.writeInt(this.__color);
+						byteData.writeInt(this.__image._color1Final);
 					}
 					else
 					{
-						byteData.writeFloat(this.__red);
-						byteData.writeFloat(this.__green);
-						byteData.writeFloat(this.__blue);
-						byteData.writeFloat(this.__alpha);
+						byteData.writeFloat(this.__image._red1Final);
+						byteData.writeFloat(this.__image._green1Final);
+						byteData.writeFloat(this.__image._blue1Final);
+						byteData.writeFloat(this.__image._alpha1Final);
 					}
 				}
 				if (this.__useColorOffset)
 				{
 					if (this.__simpleColor)
 					{
-						byteData.writeInt(this.__colorOffset);
+						byteData.writeInt(this.__image._colorOffset1Final);
 					}
 					else
 					{
-						byteData.writeFloat(this.__redOffset);
-						byteData.writeFloat(this.__greenOffset);
-						byteData.writeFloat(this.__blueOffset);
-						byteData.writeFloat(this.__alphaOffset);
+						byteData.writeFloat(this.__image._redOffset1Final);
+						byteData.writeFloat(this.__image._greenOffset1Final);
+						byteData.writeFloat(this.__image._blueOffset1Final);
+						byteData.writeFloat(this.__image._alphaOffset1Final);
 					}
 				}
 				if (this.__multiTexturing)
@@ -366,28 +292,28 @@ class DisplayContainer extends DisplayBase
 				{
 					if (this.__simpleColor)
 					{
-						byteData.writeInt(this.__color);
+						byteData.writeInt(this.__image._color2Final);
 					}
 					else
 					{
-						byteData.writeFloat(this.__red);
-						byteData.writeFloat(this.__green);
-						byteData.writeFloat(this.__blue);
-						byteData.writeFloat(this.__alpha);
+						byteData.writeFloat(this.__image._red2Final);
+						byteData.writeFloat(this.__image._green2Final);
+						byteData.writeFloat(this.__image._blue2Final);
+						byteData.writeFloat(this.__image._alpha2Final);
 					}
 				}
 				if (this.__useColorOffset)
 				{
 					if (this.__simpleColor)
 					{
-						byteData.writeInt(this.__colorOffset);
+						byteData.writeInt(this.__image._colorOffset2Final);
 					}
 					else
 					{
-						byteData.writeFloat(this.__redOffset);
-						byteData.writeFloat(this.__greenOffset);
-						byteData.writeFloat(this.__blueOffset);
-						byteData.writeFloat(this.__alphaOffset);
+						byteData.writeFloat(this.__image._redOffset2Final);
+						byteData.writeFloat(this.__image._greenOffset2Final);
+						byteData.writeFloat(this.__image._blueOffset2Final);
+						byteData.writeFloat(this.__image._alphaOffset2Final);
 					}
 				}
 				if (this.__multiTexturing)
@@ -405,28 +331,28 @@ class DisplayContainer extends DisplayBase
 				{
 					if (this.__simpleColor)
 					{
-						byteData.writeInt(this.__color);
+						byteData.writeInt(this.__image._color3Final);
 					}
 					else
 					{
-						byteData.writeFloat(this.__red);
-						byteData.writeFloat(this.__green);
-						byteData.writeFloat(this.__blue);
-						byteData.writeFloat(this.__alpha);
+						byteData.writeFloat(this.__image._red3Final);
+						byteData.writeFloat(this.__image._green3Final);
+						byteData.writeFloat(this.__image._blue3Final);
+						byteData.writeFloat(this.__image._alpha3Final);
 					}
 				}
 				if (this.__useColorOffset)
 				{
 					if (this.__simpleColor)
 					{
-						byteData.writeInt(this.__colorOffset);
+						byteData.writeInt(this.__image._colorOffset3Final);
 					}
 					else
 					{
-						byteData.writeFloat(this.__redOffset);
-						byteData.writeFloat(this.__greenOffset);
-						byteData.writeFloat(this.__blueOffset);
-						byteData.writeFloat(this.__alphaOffset);
+						byteData.writeFloat(this.__image._redOffset3Final);
+						byteData.writeFloat(this.__image._greenOffset3Final);
+						byteData.writeFloat(this.__image._blueOffset3Final);
+						byteData.writeFloat(this.__image._alphaOffset3Final);
 					}
 				}
 				if (this.__multiTexturing)
@@ -444,28 +370,28 @@ class DisplayContainer extends DisplayBase
 				{
 					if (this.__simpleColor)
 					{
-						byteData.writeInt(this.__color);
+						byteData.writeInt(this.__image._color4Final);
 					}
 					else
 					{
-						byteData.writeFloat(this.__red);
-						byteData.writeFloat(this.__green);
-						byteData.writeFloat(this.__blue);
-						byteData.writeFloat(this.__alpha);
+						byteData.writeFloat(this.__image._red4Final);
+						byteData.writeFloat(this.__image._green4Final);
+						byteData.writeFloat(this.__image._blue4Final);
+						byteData.writeFloat(this.__image._alpha4Final);
 					}
 				}
 				if (this.__useColorOffset)
 				{
 					if (this.__simpleColor)
 					{
-						byteData.writeInt(this.__colorOffset);
+						byteData.writeInt(this.__image._colorOffset4Final);
 					}
 					else
 					{
-						byteData.writeFloat(this.__redOffset);
-						byteData.writeFloat(this.__greenOffset);
-						byteData.writeFloat(this.__blueOffset);
-						byteData.writeFloat(this.__alphaOffset);
+						byteData.writeFloat(this.__image._redOffset4Final);
+						byteData.writeFloat(this.__image._greenOffset4Final);
+						byteData.writeFloat(this.__image._blueOffset4Final);
+						byteData.writeFloat(this.__image._alphaOffset4Final);
 					}
 				}
 				if (this.__multiTexturing)
@@ -491,7 +417,270 @@ class DisplayContainer extends DisplayBase
 	**/
 	public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:Vector<Float>):Void
 	{
+		if (this._datas == null) return;
 		
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
+		this.__multiTexturing = renderData.multiTexturing;
+		this.__pma = renderData.pma;
+		this.__useColor = renderData.useColor;
+		this.__useDisplayColor = renderData.useDisplayColor;
+		this.__useColorOffset = renderData.useColorOffset;
+		this.__pmaForColorOffset = false;// this.__pma && !this.__useColor && !this.__useDisplayColor;
+		this.__simpleColor = renderData.useSimpleColor;
+		this.__totalQuads = renderData.quadOffset + this.__numQuads;
+		this.__storeBounds = boundsData != null;
+		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
+		
+		this.__quadsWritten = renderData.numQuads;
+		this.__position = renderData.position;
+		
+		renderOffsetX += this.x;
+		renderOffsetY += this.y;
+		
+		for (i in 0...this.numDatas)
+		{
+			this.__data = this._datas[i];
+			if (!this.__data.visible) continue;
+			if (this.__data.isContainer)
+			{
+				this.__container = cast this.__data;
+				renderData.numQuads = this.__quadsWritten;
+				this.__container.writeDataBytesMemory(maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
+				this.__quadsWritten = renderData.numQuads;
+			}
+			else
+			{
+				this.__image = cast this.__data;
+				
+				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
+				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
+				
+				this.__frame = this.__image.frameCurrent;
+				
+				if (this.__image._transformChanged)
+				{
+					updateTransform(this.__image);
+				}
+				else
+				{
+					this.__x1 = this.__image._x1;
+					this.__y1 = this.__image._y1;
+					this.__x2 = this.__image._x2;
+					this.__y2 = this.__image._y2;
+					this.__x3 = this.__image._x3;
+					this.__y3 = this.__image._y3;
+					this.__x4 = this.__image._x4;
+					this.__y4 = this.__image._y4;
+				}
+				
+				if (this.__image._invertX)
+				{
+					this.__u1 = this.__frame.u2;
+					this.__u2 = this.__frame.u1;
+				}
+				else
+				{
+					this.__u1 = this.__frame.u1;
+					this.__u2 = this.__frame.u2;
+				}
+				
+				if (this.__image._invertY)
+				{
+					this.__v1 = this.__frame.v2;
+					this.__v2 = this.__frame.v1;
+				}
+				else
+				{
+					this.__v1 = this.__frame.v1;
+					this.__v2 = this.__frame.v2;
+				}
+				
+				updateColor(this.__image);
+				
+				if (this.__storeBounds)
+				{
+					boundsData[++this.__boundsIndex] = this.__x + this.__x1;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y1;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x2;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y2;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x3;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y3;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x4;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y4;
+				}
+				
+				// TOP LEFT
+				// u1 v1
+				Memory.setFloat(this.__position, this.__x + this.__x1);
+				Memory.setFloat(this.__position += 4, this.__y + this.__y1);
+				Memory.setFloat(this.__position += 4, this.__u1);
+				Memory.setFloat(this.__position += 4, this.__v1);
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						Memory.setI32(this.__position += 4, this.__image._color1Final);
+					}
+					else
+					{
+						Memory.setFloat(this.__position += 4, this.__image._red1Final);
+						Memory.setFloat(this.__position += 4, this.__image._green1Final);
+						Memory.setFloat(this.__position += 4, this.__image._blue1Final);
+						Memory.setFloat(this.__position += 4, this.__image._alpha1Final);
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						Memory.setI32(this.__position += 4, this.__image._colorOffset1Final);
+					}
+					else
+					{
+						Memory.setFloat(this.__position += 4, this.__image._redOffset1Final);
+						Memory.setFloat(this.__position += 4, this.__image._greenOffset1Final);
+						Memory.setFloat(this.__position += 4, this.__image._blueOffset1Final);
+						Memory.setFloat(this.__position += 4, this.__image._alphaOffset1Final);
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					Memory.setFloat(this.__position += 4, this.__image.textureIndexReal);
+				}
+				
+				// TOP RIGHT
+				// u2 v1
+				Memory.setFloat(this.__position += 4, this.__x + this.__x2);
+				Memory.setFloat(this.__position += 4, this.__y + this.__y2);
+				Memory.setFloat(this.__position += 4, this.__u2);
+				Memory.setFloat(this.__position += 4, this.__v1);
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						Memory.setI32(this.__position += 4, this.__image._color2Final);
+					}
+					else
+					{
+						Memory.setFloat(this.__position += 4, this.__image._red2Final);
+						Memory.setFloat(this.__position += 4, this.__image._green2Final);
+						Memory.setFloat(this.__position += 4, this.__image._blue2Final);
+						Memory.setFloat(this.__position += 4, this.__image._alpha2Final);
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						Memory.setI32(this.__position += 4, this.__image._colorOffset2Final);
+					}
+					else
+					{
+						Memory.setFloat(this.__position += 4, this.__image._redOffset2Final);
+						Memory.setFloat(this.__position += 4, this.__image._greenOffset2Final);
+						Memory.setFloat(this.__position += 4, this.__image._blueOffset2Final);
+						Memory.setFloat(this.__position += 4, this.__image._alphaOffset2Final);
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					Memory.setFloat(this.__position += 4, this.__image.textureIndexReal);
+				}
+				
+				// BOTTOM LEFT
+				// u1 v2
+				Memory.setFloat(this.__position += 4, this.__x + this.__x3);
+				Memory.setFloat(this.__position += 4, this.__y + this.__y3);
+				Memory.setFloat(this.__position += 4, this.__u1);
+				Memory.setFloat(this.__position += 4, this.__v2);
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						Memory.setI32(this.__position += 4, this.__image._color3Final);
+					}
+					else
+					{
+						Memory.setFloat(this.__position += 4, this.__image._red3Final);
+						Memory.setFloat(this.__position += 4, this.__image._green3Final);
+						Memory.setFloat(this.__position += 4, this.__image._blue3Final);
+						Memory.setFloat(this.__position += 4, this.__image._alpha3Final);
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						Memory.setI32(this.__position += 4, this.__image._colorOffset3Final);
+					}
+					else
+					{
+						Memory.setFloat(this.__position += 4, this.__image._redOffset3Final);
+						Memory.setFloat(this.__position += 4, this.__image._greenOffset3Final);
+						Memory.setFloat(this.__position += 4, this.__image._blueOffset3Final);
+						Memory.setFloat(this.__position += 4, this.__image._alphaOffset3Final);
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					Memory.setFloat(this.__position += 4, this.__image.textureIndexReal);
+				}
+				
+				// BOTTOM RIGHT
+				// u2 v2
+				Memory.setFloat(this.__position += 4, this.__x + this.__x4);
+				Memory.setFloat(this.__position += 4, this.__y + this.__y4);
+				Memory.setFloat(this.__position += 4, this.__u2);
+				Memory.setFloat(this.__position += 4, this.__v2);
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						Memory.setI32(this.__position += 4, this.__image._color4Final);
+					}
+					else
+					{
+						Memory.setFloat(this.__position += 4, this.__image._red4Final);
+						Memory.setFloat(this.__position += 4, this.__image._green4Final);
+						Memory.setFloat(this.__position += 4, this.__image._blue4Final);
+						Memory.setFloat(this.__position += 4, this.__image._alpha4Final);
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						Memory.setI32(this.__position += 4, this.__image._colorOffset4Final);
+					}
+					else
+					{
+						Memory.setFloat(this.__position += 4, this.__image._redOffset4Final);
+						Memory.setFloat(this.__position += 4, this.__image._greenOffset4Final);
+						Memory.setFloat(this.__position += 4, this.__image._blueOffset4Final);
+						Memory.setFloat(this.__position += 4, this.__image._alphaOffset4Final);
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					Memory.setFloat(this.__position += 4, this.__image.textureIndexReal);
+				}
+				
+				if (++this.__quadsWritten == maxQuads)
+				{
+					renderData.numQuads = this.__quadsWritten;
+					renderData.display.drawBytesMemory();
+					this.__quadsWritten = 0;
+					this.__position = 0;
+				}
+				else
+				{
+					this.__position += 4;
+				}
+			}
+		}
+		
+		renderData.numQuads = this.__quadsWritten;
 	}
 	#end
 	
@@ -501,7 +690,270 @@ class DisplayContainer extends DisplayBase
 	**/
 	public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
+		if (this._datas == null) return;
 		
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
+		this.__multiTexturing = renderData.multiTexturing;
+		this.__pma = renderData.pma;
+		this.__useColor = renderData.useColor;
+		this.__useDisplayColor = renderData.useDisplayColor;
+		this.__useColorOffset = renderData.useColorOffset;
+		this.__pmaForColorOffset = false;// this.__pma && !this.__useColor && !this.__useDisplayColor;
+		this.__simpleColor = renderData.useSimpleColor;
+		this.__totalQuads = renderData.quadOffset + this.__numQuads;
+		this.__storeBounds = boundsData != null;
+		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
+		
+		this.__quadsWritten = renderData.numQuads;
+		this.__position = renderData.position;
+		
+		renderOffsetX += this.x;
+		renderOffsetY += this.y;
+		
+		for (i in 0...this.numDatas)
+		{
+			this.__data = this._datas[i];
+			if (!this.__data.visible) continue;
+			if (this.__data.isContainer)
+			{
+				this.__container = cast this.__data;
+				renderData.numQuads = this.__quadsWritten;
+				this.__container.writeDataFloat32Array(floatData, maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
+				this.__quadsWritten = renderData.numQuads;
+			}
+			else
+			{
+				this.__image = cast this.__data;
+				
+				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
+				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
+				
+				this.__frame = this.__image.frameCurrent;
+				
+				if (this.__image._transformChanged)
+				{
+					updateTransform(this.__image);
+				}
+				else
+				{
+					this.__x1 = this.__image._x1;
+					this.__y1 = this.__image._y1;
+					this.__x2 = this.__image._x2;
+					this.__y2 = this.__image._y2;
+					this.__x3 = this.__image._x3;
+					this.__y3 = this.__image._y3;
+					this.__x4 = this.__image._x4;
+					this.__y4 = this.__image._y4;
+				}
+				
+				if (this.__image._invertX)
+				{
+					this.__u1 = this.__frame.u2;
+					this.__u2 = this.__frame.u1;
+				}
+				else
+				{
+					this.__u1 = this.__frame.u1;
+					this.__u2 = this.__frame.u2;
+				}
+				
+				if (this.__image._invertY)
+				{
+					this.__v1 = this.__frame.v2;
+					this.__v2 = this.__frame.v1;
+				}
+				else
+				{
+					this.__v1 = this.__frame.v1;
+					this.__v2 = this.__frame.v2;
+				}
+				
+				updateColor(this.__image);
+				
+				if (this.__storeBounds)
+				{
+					boundsData[++this.__boundsIndex] = this.__x + this.__x1;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y1;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x2;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y2;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x3;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y3;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x4;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y4;
+				}
+				
+				// TOP LEFT
+				// u1 v1
+				floatData[this.__position] = this.__x + this.__x1;
+				floatData[++this.__position] = this.__y + this.__y1;
+				floatData[++this.__position] = this.__u1;
+				floatData[++this.__position] = this.__v1;
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						floatData[++this.__position] = this.__image._color1Final;
+					}
+					else
+					{
+						floatData[++this.__position] = this.__image._red1Final;
+						floatData[++this.__position] = this.__image._green1Final;
+						floatData[++this.__position] = this.__image._blue1Final;
+						floatData[++this.__position] = this.__image._alpha1Final;
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						floatData[++this.__position] = this.__image._colorOffset1Final;
+					}
+					else
+					{
+						floatData[++this.__position] = this.__image._redOffset1Final;
+						floatData[++this.__position] = this.__image._greenOffset1Final;
+						floatData[++this.__position] = this.__image._blueOffset1Final;
+						floatData[++this.__position] = this.__image._alphaOffset1Final;
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					floatData[++this.__position] = this.__image.textureIndexReal;
+				}
+				
+				// TOP RIGHT
+				// u2 v1
+				floatData[++this.__position] = this.__x + this.__x2;
+				floatData[++this.__position] = this.__y + this.__y2;
+				floatData[++this.__position] = this.__u2;
+				floatData[++this.__position] = this.__v1;
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						floatData[++this.__position] = this.__image._color2Final;
+					}
+					else
+					{
+						floatData[++this.__position] = this.__image._red2Final;
+						floatData[++this.__position] = this.__image._green2Final;
+						floatData[++this.__position] = this.__image._blue2Final;
+						floatData[++this.__position] = this.__image._alpha2Final;
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						floatData[++this.__position] = this.__image._colorOffset2Final;
+					}
+					else
+					{
+						floatData[++this.__position] = this.__image._redOffset2Final;
+						floatData[++this.__position] = this.__image._greenOffset2Final;
+						floatData[++this.__position] = this.__image._blueOffset2Final;
+						floatData[++this.__position] = this.__image._alphaOffset2Final;
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					floatData[++this.__position] = this.__image.textureIndexReal;
+				}
+				
+				// BOTTOM LEFT
+				// u1 v2
+				floatData[++this.__position] = this.__x + this.__x3;
+				floatData[++this.__position] = this.__y + this.__y3;
+				floatData[++this.__position] = this.__u1;
+				floatData[++this.__position] = this.__v2;
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						floatData[++this.__position] = this.__image._color3Final;
+					}
+					else
+					{
+						floatData[++this.__position] = this.__image._red3Final;
+						floatData[++this.__position] = this.__image._green3Final;
+						floatData[++this.__position] = this.__image._blue3Final;
+						floatData[++this.__position] = this.__image._alpha3Final;
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						floatData[++this.__position] = this.__image._colorOffset3Final;
+					}
+					else
+					{
+						floatData[++this.__position] = this.__image._redOffset3Final;
+						floatData[++this.__position] = this.__image._greenOffset3Final;
+						floatData[++this.__position] = this.__image._blueOffset3Final;
+						floatData[++this.__position] = this.__image._alphaOffset3Final;
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					floatData[++this.__position] = this.__image.textureIndexReal;
+				}
+				
+				// BOTTOM RIGHT
+				// u2 v2
+				floatData[++this.__position] = this.__x + this.__x4;
+				floatData[++this.__position] = this.__y + this.__y4;
+				floatData[++this.__position] = this.__u2;
+				floatData[++this.__position] = this.__v2;
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						floatData[++this.__position] = this.__image._color4Final;
+					}
+					else
+					{
+						floatData[++this.__position] = this.__image._red4Final;
+						floatData[++this.__position] = this.__image._green4Final;
+						floatData[++this.__position] = this.__image._blue4Final;
+						floatData[++this.__position] = this.__image._alpha4Final;
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						floatData[++this.__position] = this.__image._colorOffset4Final;
+					}
+					else
+					{
+						floatData[++this.__position] = this.__image._red4Final;
+						floatData[++this.__position] = this.__image._green4Final;
+						floatData[++this.__position] = this.__image._blue4Final;
+						floatData[++this.__position] = this.__image._alpha4Final;
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					floatData[++this.__position] = this.__image.textureIndexReal;
+				}
+				
+				if (++this.__quadsWritten == maxQuads)
+				{
+					renderData.numQuads = this.__quadsWritten;
+					renderData.display.drawFloat32();
+					this.__quadsWritten = 0;
+					this.__position = 0;
+				}
+				else
+				{
+					++this.__position;
+				}
+			}
+		}
+		
+		renderData.numQuads = this.__quadsWritten;
 	}
 	#end
 	
@@ -510,7 +962,270 @@ class DisplayContainer extends DisplayBase
 	**/
 	public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
+		if (this._datas == null) return;
 		
+		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		
+		this.__multiTexturing = renderData.multiTexturing;
+		this.__pma = renderData.pma;
+		this.__useColor = renderData.useColor;
+		this.__useDisplayColor = renderData.useDisplayColor;
+		this.__useColorOffset = renderData.useColorOffset;
+		this.__pmaForColorOffset = false;// this.__pma && !this.__useColor && !this.__useDisplayColor;
+		this.__simpleColor = renderData.useSimpleColor;
+		this.__totalQuads = renderData.quadOffset + this.__numQuads;
+		this.__storeBounds = boundsData != null;
+		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
+		
+		this.__quadsWritten = renderData.numQuads;
+		this.__position = renderData.position;
+		
+		renderOffsetX += this.x;
+		renderOffsetY += this.y;
+		
+		for (i in 0...this.numDatas)
+		{
+			this.__data = this._datas[i];
+			if (!this.__data.visible) continue;
+			if (this.__data.isContainer)
+			{
+				this.__container = cast this.__data;
+				renderData.numQuads = this.__quadsWritten;
+				this.__container.writeDataVector(vectorData, maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
+				this.__quadsWritten = renderData.numQuads;
+			}
+			else
+			{
+				this.__image = cast this.__data;
+				
+				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
+				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
+				
+				this.__frame = this.__image.frameCurrent;
+				
+				if (this.__image._transformChanged)
+				{
+					updateTransform(this.__image);
+				}
+				else
+				{
+					this.__x1 = this.__image._x1;
+					this.__y1 = this.__image._y1;
+					this.__x2 = this.__image._x2;
+					this.__y2 = this.__image._y2;
+					this.__x3 = this.__image._x3;
+					this.__y3 = this.__image._y3;
+					this.__x4 = this.__image._x4;
+					this.__y4 = this.__image._y4;
+				}
+				
+				if (this.__image._invertX)
+				{
+					this.__u1 = this.__frame.u2;
+					this.__u2 = this.__frame.u1;
+				}
+				else
+				{
+					this.__u1 = this.__frame.u1;
+					this.__u2 = this.__frame.u2;
+				}
+				
+				if (this.__image._invertY)
+				{
+					this.__v1 = this.__frame.v2;
+					this.__v2 = this.__frame.v1;
+				}
+				else
+				{
+					this.__v1 = this.__frame.v1;
+					this.__v2 = this.__frame.v2;
+				}
+				
+				updateColor(this.__image);
+				
+				if (this.__storeBounds)
+				{
+					boundsData[++this.__boundsIndex] = this.__x + this.__x1;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y1;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x2;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y2;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x3;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y3;
+					boundsData[++this.__boundsIndex] = this.__x + this.__x4;
+					boundsData[++this.__boundsIndex] = this.__y + this.__y4;
+				}
+				
+				// TOP LEFT
+				// u1 v1
+				vectorData[this.__position] = this.__x + this.__x1;
+				vectorData[++this.__position] = this.__y + this.__y1;
+				vectorData[++this.__position] = this.__u1;
+				vectorData[++this.__position] = this.__v1;
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						vectorData[++this.__position] = this.__image._color1Final;
+					}
+					else
+					{
+						vectorData[++this.__position] = this.__image._red1Final;
+						vectorData[++this.__position] = this.__image._green1Final;
+						vectorData[++this.__position] = this.__image._blue1Final;
+						vectorData[++this.__position] = this.__image._alpha1Final;
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						vectorData[++this.__position] = this.__image._colorOffset1Final;
+					}
+					else
+					{
+						vectorData[++this.__position] = this.__image._redOffset1Final;
+						vectorData[++this.__position] = this.__image._greenOffset1Final;
+						vectorData[++this.__position] = this.__image._blueOffset1Final;
+						vectorData[++this.__position] = this.__image._alphaOffset1Final;
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					vectorData[++this.__position] = this.__image.textureIndexReal;
+				}
+				
+				// TOP RIGHT
+				// u2 v1
+				vectorData[++this.__position] = this.__x + this.__x2;
+				vectorData[++this.__position] = this.__y + this.__y2;
+				vectorData[++this.__position] = this.__u2;
+				vectorData[++this.__position] = this.__v1;
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						vectorData[++this.__position] = this.__image._color2Final;
+					}
+					else
+					{
+						vectorData[++this.__position] = this.__image._red2Final;
+						vectorData[++this.__position] = this.__image._green2Final;
+						vectorData[++this.__position] = this.__image._blue2Final;
+						vectorData[++this.__position] = this.__image._alpha2Final;
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						vectorData[++this.__position] = this.__image._colorOffset2Final;
+					}
+					else
+					{
+						vectorData[++this.__position] = this.__image._redOffset2Final;
+						vectorData[++this.__position] = this.__image._greenOffset2Final;
+						vectorData[++this.__position] = this.__image._blueOffset2Final;
+						vectorData[++this.__position] = this.__image._alphaOffset2Final;
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					vectorData[++this.__position] = this.__image.textureIndexReal;
+				}
+				
+				// BOTTOM LEFT
+				// u1 v2
+				vectorData[++this.__position] = this.__x + this.__x3;
+				vectorData[++this.__position] = this.__y + this.__y3;
+				vectorData[++this.__position] = this.__u1;
+				vectorData[++this.__position] = this.__v2;
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						vectorData[++this.__position] = this.__image._color3Final;
+					}
+					else
+					{
+						vectorData[++this.__position] = this.__image._red3Final;
+						vectorData[++this.__position] = this.__image._green3Final;
+						vectorData[++this.__position] = this.__image._blue3Final;
+						vectorData[++this.__position] = this.__image._alpha3Final;
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						vectorData[++this.__position] = this.__image._colorOffset3Final;
+					}
+					else
+					{
+						vectorData[++this.__position] = this.__image._redOffset3Final;
+						vectorData[++this.__position] = this.__image._greenOffset3Final;
+						vectorData[++this.__position] = this.__image._blueOffset3Final;
+						vectorData[++this.__position] = this.__image._alphaOffset3Final;
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					vectorData[++this.__position] = this.__image.textureIndexReal;
+				}
+				
+				// BOTTOM RIGHT
+				// u2 v2
+				vectorData[++this.__position] = this.__x + this.__x4;
+				vectorData[++this.__position] = this.__y + this.__y4;
+				vectorData[++this.__position] = this.__u2;
+				vectorData[++this.__position] = this.__v2;
+				if (this.__useColor)
+				{
+					if (this.__simpleColor)
+					{
+						vectorData[++this.__position] = this.__image._color4Final;
+					}
+					else
+					{
+						vectorData[++this.__position] = this.__image._red4Final;
+						vectorData[++this.__position] = this.__image._green4Final;
+						vectorData[++this.__position] = this.__image._blue4Final;
+						vectorData[++this.__position] = this.__image._alpha4Final;
+					}
+				}
+				if (this.__useColorOffset)
+				{
+					if (this.__simpleColor)
+					{
+						vectorData[++this.__position] = this.__image._colorOffset4Final;
+					}
+					else
+					{
+						vectorData[++this.__position] = this.__image._redOffset4Final;
+						vectorData[++this.__position] = this.__image._greenOffset4Final;
+						vectorData[++this.__position] = this.__image._blueOffset4Final;
+						vectorData[++this.__position] = this.__image._alphaOffset4Final;
+					}
+				}
+				if (this.__multiTexturing)
+				{
+					vectorData[++this.__position] = this.__image.textureIndexReal;
+				}
+				
+				if (++this.__quadsWritten == maxQuads)
+				{
+					renderData.numQuads = this.__quadsWritten;
+					renderData.display.drawVector();
+					this.__quadsWritten = 0;
+					this.__position = 0;
+				}
+				else
+				{
+					++this.__position;
+				}
+			}
+		}
+		
+		renderData.numQuads = this.__quadsWritten;
 	}
 	
 	public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderOffsetX:Float, renderOffsetY:Float):Void
@@ -566,9 +1281,767 @@ class DisplayContainer extends DisplayBase
 		}
 	}
 	
-	inline private function updateColor(data:ImageData):Void
+	inline private function normalizeColor():Void
 	{
+		this.__alpha = this.__alpha < 0.0 ? 0.0 : this.__alpha > 1.0 ? 1.0 : this.__alpha;
+		this.__red = this.__red < 0.0 ? 0.0 : this.__red > 1.0 ? 1.0 : this.__red;
+		this.__green = this.__green < 0.0 ? 0.0 : this.__green > 1.0 ? 1.0 : this.__green;
+		this.__blue = this.__blue < 0.0 ? 0.0 : this.__blue > 1.0 ? 1.0 : this.__blue;
+	}
+	
+	inline private function getColor():Int
+	{
+		if (this.__pma)
+		{
+			return Std.int(this.__red * this.__alpha * 255) | Std.int(this.__green * this.__alpha * 255) << 8 | Std.int(this.__blue * this.__alpha * 255) << 16 | Std.int(this.__alpha * 255) << 24;
+		}
+		else
+		{
+			return Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
+		}
+	}
+	
+	inline private function getColorOffset():Int
+	{
+		return Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
+	}
+	
+	private function updateColor(data:ImageData):Void
+	{
+		if (this.__useColor && data._colorChanged)
+		{
+			data._colorChanged = false;
+			
+			if (this.__simpleColor)
+			{
+				if (data._uniformColor)
+				{
+					this.__alpha = data._alpha1;
+					this.__red = data._red1;
+					this.__green = data._green1;
+					this.__blue = data._blue1;
+					normalizeColor();
+					data._color1Final = data._color2Final = data._color3Final = data._color4Final = getColor();
+				}
+				else
+				{
+					if (data._invertX)
+					{
+						if (data._invertY)
+						{
+							// top left
+							this.__alpha = data._alpha4;
+							this.__red = data._red4;
+							this.__green = data._green4;
+							this.__blue = data._blue4;
+							normalizeColor();
+							data._color1Final = getColor();
+							
+							// top right
+							this.__alpha = data._alpha3;
+							this.__red = data._red3;
+							this.__green = data._green3;
+							this.__blue = data._blue3;
+							normalizeColor();
+							data._color2Final = getColor();
+							
+							// bottom left
+							this.__alpha = data._alpha2;
+							this.__red = data._red2;
+							this.__green = data._green2;
+							this.__blue = data._blue2;
+							normalizeColor();
+							data._color3Final = getColor();
+							
+							// bottom right
+							this.__alpha = data._alpha1;
+							this.__red = data._red1;
+							this.__green = data._green1;
+							this.__blue = data._blue1;
+							normalizeColor();
+							data._color4Final = getColor();
+						}
+						else
+						{
+							// top left
+							this.__alpha = data._alpha2;
+							this.__red = data._red2;
+							this.__green = data._green2;
+							this.__blue = data._blue2;
+							normalizeColor();
+							data._color1Final = getColor();
+							
+							// top right
+							this.__alpha = data._alpha1;
+							this.__red = data._red1;
+							this.__green = data._green1;
+							this.__blue = data._blue1;
+							normalizeColor();
+							data._color2Final = getColor();
+							
+							// bottom left
+							this.__alpha = data._alpha4;
+							this.__red = data._red4;
+							this.__green = data._green4;
+							this.__blue = data._blue4;
+							normalizeColor();
+							data._color3Final = getColor();
+							
+							// bottom right
+							this.__alpha = data._alpha3;
+							this.__red = data._red3;
+							this.__green = data._green3;
+							this.__blue = data._blue3;
+							normalizeColor();
+							data._color4Final = getColor();
+						}
+					}
+					else if (data._invertY)
+					{
+						// top left
+						this.__alpha = data._alpha3;
+						this.__red = data._red3;
+						this.__green = data._green3;
+						this.__blue = data._blue3;
+						normalizeColor();
+						data._color1Final = getColor();
+						
+						// top right
+						this.__alpha = data._alpha4;
+						this.__red = data._red4;
+						this.__green = data._green4;
+						this.__blue = data._blue4;
+						normalizeColor();
+						data._color2Final = getColor();
+						
+						// bottom left
+						this.__alpha = data._alpha1;
+						this.__red = data._red1;
+						this.__green = data._green1;
+						this.__blue = data._blue1;
+						normalizeColor();
+						data._color3Final = getColor();
+						
+						// bottom right
+						this.__alpha = data._alpha2;
+						this.__red = data._red2;
+						this.__green = data._green2;
+						this.__blue = data._blue2;
+						normalizeColor();
+						data._color4Final = getColor();
+					}
+					else
+					{
+						// top left
+						this.__alpha = data._alpha1;
+						this.__red = data._red1;
+						this.__green = data._green1;
+						this.__blue = data._blue1;
+						normalizeColor();
+						data._color1Final = getColor();
+						
+						// top right
+						this.__alpha = data._alpha2;
+						this.__red = data._red2;
+						this.__green = data._green2;
+						this.__blue = data._blue2;
+						normalizeColor();
+						data._color2Final = getColor();
+						
+						// bottom left
+						this.__alpha = data._alpha3;
+						this.__red = data._red3;
+						this.__green = data._green3;
+						this.__blue = data._blue3;
+						normalizeColor();
+						data._color3Final = getColor();
+						
+						// bottom right
+						this.__alpha = data._alpha4;
+						this.__red = data._red4;
+						this.__green = data._green4;
+						this.__blue = data._blue4;
+						normalizeColor();
+						data._color4Final = getColor();
+					}
+				}
+			}
+			else
+			{
+				if (this.__pma)
+				{
+					if (data._uniformColor)
+					{
+						// all vertices
+						this.__alpha = data._alpha1;
+						data._red1Final = data._red2Final = data._red3Final = data._red4Final = data._red1 * this.__alpha;
+						data._green1Final = data._green2Final = data._green3Final = data._green4Final = data._green1 * this.__alpha;
+						data._blue1Final = data._blue2Final = data._blue3Final = data._blue4Final = data._blue1 * this.__alpha;
+						data._alpha1Final = data._alpha2Final = data._alpha3Final = data._alpha4Final = this.__alpha;
+					}
+					else
+					{
+						if (data._invertX)
+						{
+							if (data._invertY)
+							{
+								// top left
+								this.__alpha = data._alpha4;
+								data._red1Final = data._red4 * this.__alpha;
+								data._green1Final = data._green4 * this.__alpha;
+								data._blue1Final = data._blue4 * this.__alpha;
+								data._alpha1Final = this.__alpha;
+								
+								// top right
+								this.__alpha = data._alpha3;
+								data._red2Final = data._red3 * this.__alpha;
+								data._green2Final = data._green3 * this.__alpha;
+								data._blue2Final = data._blue3 * this.__alpha;
+								data._alpha2Final = this.__alpha;
+								
+								// bottom left
+								this.__alpha = data._alpha2;
+								data._red3Final = data._red2 * this.__alpha;
+								data._green3Final = data._green2 * this.__alpha;
+								data._blue3Final = data._blue2 * this.__alpha;
+								data._alpha3Final = this.__alpha;
+								
+								// bottom right
+								this.__alpha = data._alpha1;
+								data._red4Final = data._red1 * this.__alpha;
+								data._green4Final = data._green1 * this.__alpha;
+								data._blue4Final = data._blue1 * this.__alpha;
+								data._alpha4Final = this.__alpha;
+							}
+							else
+							{
+								// top left
+								this.__alpha = data._alpha2;
+								data._red1Final = data._red2 * this.__alpha;
+								data._green1Final = data._green2 * this.__alpha;
+								data._blue1Final = data._blue2 * this.__alpha;
+								data._alpha1Final = this.__alpha;
+								
+								// top right
+								this.__alpha = data._alpha1;
+								data._red2Final = data._red1 * this.__alpha;
+								data._green2Final = data._green1 * this.__alpha;
+								data._blue2Final = data._blue1 * this.__alpha;
+								data._alpha2Final = this.__alpha;
+								
+								// bottom left
+								this.__alpha = data._alpha4;
+								data._red3Final = data._red4 * this.__alpha;
+								data._green3Final = data._green4 * this.__alpha;
+								data._blue3Final = data._blue4 * this.__alpha;
+								data._alpha3Final = this.__alpha;
+								
+								// bottom right
+								this.__alpha = data._alpha3;
+								data._red4Final = data._red3 * this.__alpha;
+								data._green4Final = data._green3 * this.__alpha;
+								data._blue4Final = data._blue3 * this.__alpha;
+								data._alpha4Final = this.__alpha;
+							}
+						}
+						else if (data._invertY)
+						{
+							// top left
+							this.__alpha = data._alpha3;
+							data._red1Final = data._red3 * this.__alpha;
+							data._green1Final = data._green3* this.__alpha;
+							data._blue1Final = data._blue3 * this.__alpha;
+							data._alpha1Final = this.__alpha;
+							
+							// top right
+							this.__alpha = data._alpha4;
+							data._red2Final = data._red4 * this.__alpha;
+							data._green2Final = data._green4 * this.__alpha;
+							data._blue2Final = data._blue4 * this.__alpha;
+							data._alpha2Final = this.__alpha;
+							
+							// bottom left
+							this.__alpha = data._alpha1;
+							data._red3Final = data._red1 * this.__alpha;
+							data._green3Final = data._green1 * this.__alpha;
+							data._blue3Final = data._blue1 * this.__alpha;
+							data._alpha3Final = this.__alpha;
+							
+							// bottom right
+							this.__alpha = data._alpha2;
+							data._red4Final = data._red2 * this.__alpha;
+							data._green4Final = data._green2 * this.__alpha;
+							data._blue4Final = data._blue2 * this.__alpha;
+							data._alpha4Final = this.__alpha;
+						}
+						else
+						{
+							// top left
+							this.__alpha = data._alpha1;
+							data._red1Final = data._red1 * this.__alpha;
+							data._green1Final = data._green1 * this.__alpha;
+							data._blue1Final = data._blue1 * this.__alpha;
+							data._alpha1Final = this.__alpha;
+							
+							// top right
+							this.__alpha = data._alpha2;
+							data._red2Final = data._red2 * this.__alpha;
+							data._green2Final = data._green2 * this.__alpha;
+							data._blue2Final = data._blue2 * this.__alpha;
+							data._alpha2Final = this.__alpha;
+							
+							// bottom left
+							this.__alpha = data._alpha3;
+							data._red3Final = data._red3 * this.__alpha;
+							data._green3Final = data._green3 * this.__alpha;
+							data._blue3Final = data._blue3 * this.__alpha;
+							data._alpha3Final = this.__alpha;
+							
+							// bottom right
+							this.__alpha = data._alpha4;
+							data._red4Final = data._red4 * this.__alpha;
+							data._green4Final = data._green4 * this.__alpha;
+							data._blue4Final = data._blue4 * this.__alpha;
+							data._alpha4Final = this.__alpha;
+						}
+					}
+				}
+				else
+				{
+					if (data._uniformColor)
+					{
+						// all vertices
+						data._red1Final = data._red2Final = data._red3Final = data._red4Final = data._red1;
+						data._green1Final = data._green2Final = data._green3Final = data._green4Final = data._green1;
+						data._blue1Final = data._blue2Final = data._blue3Final = data._blue4Final = data._blue1;
+						data._alpha1Final = data._alpha2Final = data._alpha3Final = data._alpha4Final = data._alpha1;
+					}
+					else
+					{
+						if (data._invertX)
+						{
+							if (data._invertY)
+							{
+								// top left
+								data._red1Final = data._red4;
+								data._green1Final = data._green4;
+								data._blue1Final = data._blue4;
+								data._alpha1Final = data._alpha4;
+								
+								// top right
+								data._red2Final = data._red3;
+								data._green2Final = data._green3;
+								data._blue2Final = data._blue3;
+								data._alpha2Final = data._alpha3;
+								
+								// bottom left
+								data._red3Final = data._red2;
+								data._green3Final = data._green2;
+								data._blue3Final = data._blue2;
+								data._alpha3Final = data._alpha2;
+								
+								// bottom right
+								data._red4Final = data._red1;
+								data._green4Final = data._green1;
+								data._blue4Final = data._blue1;
+								data._alpha4Final = data._alpha1;
+							}
+							else
+							{
+								// top left
+								data._red1Final = data._red2;
+								data._green1Final = data._green2;
+								data._blue1Final = data._blue2;
+								data._alpha1Final = data._alpha2;
+								
+								// top right
+								data._red2Final = data._red1;
+								data._green2Final = data._green1;
+								data._blue2Final = data._blue1;
+								data._alpha2Final = data._alpha1;
+								
+								// bottom left
+								data._red3Final = data._red4;
+								data._green3Final = data._green4;
+								data._blue3Final = data._blue4;
+								data._alpha3Final = data._alpha4;
+								
+								// bottom right
+								data._red4Final = data._red3;
+								data._green4Final = data._green3;
+								data._blue4Final = data._blue3;
+								data._alpha4Final = data._alpha3;
+							}
+						}
+						else if (data._invertY)
+						{
+							// top left
+							data._red1Final = data._red3;
+							data._green1Final = data._green3;
+							data._blue1Final = data._blue3;
+							data._alpha1Final = data._alpha3;
+							
+							// top right
+							data._red2Final = data._red4;
+							data._green2Final = data._green4;
+							data._blue2Final = data._blue4;
+							data._alpha2Final = data._alpha4;
+							
+							// bottom left
+							data._red3Final = data._red1;
+							data._green3Final = data._green1;
+							data._blue3Final = data._blue1;
+							data._alpha3Final = data._alpha1;
+							
+							// bottom right
+							data._red4Final = data._red2;
+							data._green4Final = data._green2;
+							data._blue4Final = data._blue2;
+							data._alpha4Final = data._alpha2;
+						}
+						else
+						{
+							// top left
+							data._red1Final = data._red1;
+							data._green1Final = data._green1;
+							data._blue1Final = data._blue1;
+							data._alpha1Final = data._alpha1;
+							
+							// top right
+							data._red2Final = data._red2;
+							data._green2Final = data._green2;
+							data._blue2Final = data._blue2;
+							data._alpha2Final = data._alpha2;
+							
+							// bottom left
+							data._red3Final = data._red3;
+							data._green3Final = data._green3;
+							data._blue3Final = data._blue3;
+							data._alpha3Final = data._alpha3;
+							
+							// bottom right
+							data._red4Final = data._red4;
+							data._green4Final = data._green4;
+							data._blue4Final = data._blue4;
+							data._alpha4Final = data._alpha4;
+						}
+					}
+				}
+			}
+		}
 		
+		if (this.__useColorOffset && data._colorOffsetChanged)
+		{
+			data._colorOffsetChanged = false;
+			
+			if (this.__simpleColor)
+			{
+				if (data._uniformColorOffset)
+				{
+					// top left / all (if uniform color)
+					this.__alpha = data._alphaOffset1;
+					this.__red = data._redOffset1;
+					this.__green = data._greenOffset1;
+					this.__blue = data._blueOffset1;
+					normalizeColor();
+					data._colorOffset1Final = data._colorOffset2Final = data._colorOffset3Final = data._colorOffset4Final = getColorOffset();
+				}
+				else
+				{
+					// top left / all (if uniform color)
+					this.__alpha = data._alphaOffset1;
+					this.__red = data._redOffset1;
+					this.__green = data._greenOffset1;
+					this.__blue = data._blueOffset1;
+					normalizeColor();
+					data._colorOffset1Final = getColorOffset();
+					
+					// top right
+					this.__alpha = data._alphaOffset2;
+					this.__red = data._redOffset2;
+					this.__green = data._greenOffset2;
+					this.__blue = data._blueOffset2;
+					normalizeColor();
+					data._colorOffset2Final = getColorOffset();
+					
+					// bottom left
+					this.__alpha = data._alphaOffset3;
+					this.__red = data._redOffset3;
+					this.__green = data._greenOffset3;
+					this.__blue = data._blueOffset3;
+					normalizeColor();
+					data._colorOffset3Final = getColorOffset();
+					
+					// bottom right
+					this.__alpha = data._alphaOffset4;
+					this.__red = data._redOffset4;
+					this.__green = data._greenOffset4;
+					this.__blue = data._blueOffset4;
+					normalizeColor();
+					data._colorOffset4Final = getColorOffset();
+				}
+			}
+			else
+			{
+				if (this.__pmaForColorOffset)
+				{
+					if (data._uniformColorOffset)
+					{
+						this.__alpha = data._alphaOffset1;
+						data._redOffset1Final = data._redOffset2Final = data._redOffset3Final = data._redOffset4Final = data._redOffset1 * this.__alpha;
+						data._greenOffset1Final = data._greenOffset2Final = data._greenOffset3Final = data._greenOffset4Final = data._greenOffset1 * this.__alpha;
+						data._blueOffset1Final = data._blueOffset2Final = data._blueOffset3Final = data._blueOffset4Final = data._blueOffset1 * this.__alpha;
+						data._alphaOffset1Final = data._alphaOffset2Final = data._alphaOffset3Final = data._alphaOffset4Final = this.__alpha;
+					}
+					else
+					{
+						if (data._invertX)
+						{
+							if (data._invertY)
+							{
+								// top left
+								this.__alpha = data._alphaOffset4;
+								data._redOffset1Final = data._redOffset4 * this.__alpha;
+								data._greenOffset1Final = data._greenOffset4 * this.__alpha;
+								data._blueOffset1Final = data._blueOffset4 * this.__alpha;
+								data._alphaOffset1Final = this.__alpha;
+								
+								// top right
+								this.__alpha = data._alphaOffset3;
+								data._redOffset2Final = data._redOffset3 * this.__alpha;
+								data._greenOffset2Final = data._greenOffset3 * this.__alpha;
+								data._blueOffset2Final = data._blueOffset3 * this.__alpha;
+								data._alphaOffset2Final = this.__alpha;
+								
+								// bottom left
+								this.__alpha = data._alphaOffset2;
+								data._redOffset3Final = data._redOffset2 * this.__alpha;
+								data._greenOffset3Final = data._greenOffset2 * this.__alpha;
+								data._blueOffset3Final = data._blueOffset2 * this.__alpha;
+								data._alphaOffset3Final = this.__alpha;
+								
+								// bottom right
+								this.__alpha = data._alphaOffset1;
+								data._redOffset4Final = data._redOffset1 * this.__alpha;
+								data._greenOffset4Final = data._greenOffset1 * this.__alpha;
+								data._blueOffset4Final = data._blueOffset1 * this.__alpha;
+								data._alphaOffset4Final = this.__alpha;
+							}
+							else
+							{
+								// top left
+								this.__alpha = data._alphaOffset2;
+								data._redOffset1Final = data._redOffset2 * this.__alpha;
+								data._greenOffset1Final = data._greenOffset2 * this.__alpha;
+								data._blueOffset1Final = data._blueOffset2 * this.__alpha;
+								data._alphaOffset1Final = this.__alpha;
+								
+								// top right
+								this.__alpha = data._alphaOffset1;
+								data._redOffset2Final = data._redOffset1 * this.__alpha;
+								data._greenOffset2Final = data._greenOffset1 * this.__alpha;
+								data._blueOffset2Final = data._blueOffset1 * this.__alpha;
+								data._alphaOffset2Final = this.__alpha;
+								
+								// bottom left
+								this.__alpha = data._alphaOffset4;
+								data._redOffset3Final = data._redOffset4 * this.__alpha;
+								data._greenOffset3Final = data._greenOffset4 * this.__alpha;
+								data._blueOffset3Final = data._blueOffset4 * this.__alpha;
+								data._alphaOffset3Final = this.__alpha;
+								
+								// bottom right
+								this.__alpha = data._alphaOffset3;
+								data._redOffset4Final = data._redOffset3 * this.__alpha;
+								data._greenOffset4Final = data._greenOffset3 * this.__alpha;
+								data._blueOffset4Final = data._blueOffset3 * this.__alpha;
+								data._alphaOffset4Final = this.__alpha;
+							}
+						}
+						else if (data._invertY)
+						{
+							// top left
+							this.__alpha = data._alphaOffset3;
+							data._redOffset1Final = data._redOffset3 * this.__alpha;
+							data._greenOffset1Final = data._greenOffset3 * this.__alpha;
+							data._blueOffset1Final = data._blueOffset3 * this.__alpha;
+							data._alphaOffset1Final = this.__alpha;
+							
+							// top right
+							this.__alpha = data._alphaOffset4;
+							data._redOffset2Final = data._redOffset4 * this.__alpha;
+							data._greenOffset2Final = data._greenOffset4 * this.__alpha;
+							data._blueOffset2Final = data._blueOffset4 * this.__alpha;
+							data._alphaOffset2Final = this.__alpha;
+							
+							// bottom left
+							this.__alpha = data._alphaOffset1;
+							data._redOffset3Final = data._redOffset1 * this.__alpha;
+							data._greenOffset3Final = data._greenOffset1 * this.__alpha;
+							data._blueOffset3Final = data._blueOffset1 * this.__alpha;
+							data._alphaOffset3Final = this.__alpha;
+							
+							// bottom right
+							this.__alpha = data._alphaOffset2;
+							data._redOffset4Final = data._redOffset2 * this.__alpha;
+							data._greenOffset4Final = data._greenOffset2 * this.__alpha;
+							data._blueOffset4Final = data._blueOffset2 * this.__alpha;
+							data._alphaOffset4Final = this.__alpha;
+						}
+						else
+						{
+							// top left
+							this.__alpha = data._alphaOffset1;
+							data._redOffset1Final = data._redOffset1 * this.__alpha;
+							data._greenOffset1Final = data._greenOffset1 * this.__alpha;
+							data._blueOffset1Final = data._blueOffset1 * this.__alpha;
+							data._alphaOffset1Final = this.__alpha;
+							
+							// top right
+							this.__alpha = data._alphaOffset2;
+							data._redOffset2Final = data._redOffset2 * this.__alpha;
+							data._greenOffset2Final = data._greenOffset2 * this.__alpha;
+							data._blueOffset2Final = data._blueOffset2 * this.__alpha;
+							data._alphaOffset2Final = this.__alpha;
+							
+							// bottom left
+							this.__alpha = data._alphaOffset3;
+							data._redOffset3Final = data._redOffset3 * this.__alpha;
+							data._greenOffset3Final = data._greenOffset3 * this.__alpha;
+							data._blueOffset3Final = data._blueOffset3 * this.__alpha;
+							data._alphaOffset3Final = this.__alpha;
+							
+							// bottom right
+							this.__alpha = data._alphaOffset4;
+							data._redOffset4Final = data._redOffset4 * this.__alpha;
+							data._greenOffset4Final = data._greenOffset4 * this.__alpha;
+							data._blueOffset4Final = data._blueOffset4 * this.__alpha;
+							data._alphaOffset4Final = this.__alpha;
+						}
+					}
+				}
+				else
+				{
+					if (data._uniformColorOffset)
+					{
+						data._redOffset1Final = data._redOffset2Final = data._redOffset3Final = data._redOffset4Final = data._redOffset1;
+						data._greenOffset1Final = data._greenOffset2Final = data._greenOffset3Final = data._greenOffset4Final = data._greenOffset1;
+						data._blueOffset1Final = data._blueOffset2Final = data._blueOffset3Final = data._blueOffset4Final = data._blueOffset1;
+						data._alphaOffset1Final = data._alphaOffset2Final = data._alphaOffset3Final = data._alphaOffset4Final = data._alphaOffset1;
+					}
+					else
+					{
+						if (data._invertX)
+						{
+							if (data._invertY)
+							{
+								// top left
+								data._redOffset1Final = data._redOffset4;
+								data._greenOffset1Final = data._greenOffset4;
+								data._blueOffset1Final = data._blueOffset4;
+								data._alphaOffset1Final = data._alphaOffset4;
+								
+								// top right
+								data._redOffset2Final = data._redOffset3;
+								data._greenOffset2Final = data._greenOffset3;
+								data._blueOffset2Final = data._blueOffset3;
+								data._alphaOffset2Final = data._alphaOffset3;
+								
+								// bottom left
+								data._redOffset3Final = data._redOffset2;
+								data._greenOffset3Final = data._greenOffset2;
+								data._blueOffset3Final = data._blueOffset2;
+								data._alphaOffset3Final = data._alphaOffset2;
+								
+								// bottom right
+								data._redOffset4Final = data._redOffset1;
+								data._greenOffset4Final = data._greenOffset1;
+								data._blueOffset4Final = data._blueOffset1;
+								data._alphaOffset4Final = data._alphaOffset1;
+							}
+							else
+							{
+								// top left
+								data._redOffset1Final = data._redOffset2;
+								data._greenOffset1Final = data._greenOffset2;
+								data._blueOffset1Final = data._blueOffset2;
+								data._alphaOffset1Final = data._alphaOffset2;
+								
+								// top right
+								data._redOffset2Final = data._redOffset1;
+								data._greenOffset2Final = data._greenOffset1;
+								data._blueOffset2Final = data._blueOffset1;
+								data._alphaOffset2Final = data._alphaOffset1;
+								
+								// bottom left
+								data._redOffset3Final = data._redOffset4;
+								data._greenOffset3Final = data._greenOffset4;
+								data._blueOffset3Final = data._blueOffset4;
+								data._alphaOffset3Final = data._alphaOffset4;
+								
+								// bottom right
+								data._redOffset4Final = data._redOffset3;
+								data._greenOffset4Final = data._greenOffset3;
+								data._blueOffset4Final = data._blueOffset3;
+								data._alphaOffset4Final = data._alphaOffset3;
+							}
+						}
+						else if (data._invertY)
+						{
+							// top left
+							data._redOffset1Final = data._redOffset3;
+							data._greenOffset1Final = data._greenOffset3;
+							data._blueOffset1Final = data._blueOffset3;
+							data._alphaOffset1Final = data._alphaOffset3;
+							
+							// top right
+							data._redOffset2Final = data._redOffset4;
+							data._greenOffset2Final = data._greenOffset4;
+							data._blueOffset2Final = data._blueOffset4;
+							data._alphaOffset2Final = data._alphaOffset4;
+							
+							// bottom left
+							data._redOffset3Final = data._redOffset1;
+							data._greenOffset3Final = data._greenOffset1;
+							data._blueOffset3Final = data._blueOffset1;
+							data._alphaOffset3Final = data._alphaOffset1;
+							
+							// bottom right
+							data._redOffset4Final = data._redOffset2;
+							data._greenOffset4Final = data._greenOffset2;
+							data._blueOffset4Final = data._blueOffset2;
+							data._alphaOffset4Final = data._alphaOffset2;
+						}
+						else
+						{
+							// top left
+							data._redOffset1Final = data._redOffset1;
+							data._greenOffset1Final = data._greenOffset1;
+							data._blueOffset1Final = data._blueOffset1;
+							data._alphaOffset1Final = data._alphaOffset1;
+							
+							// top right
+							data._redOffset2Final = data._redOffset2;
+							data._greenOffset2Final = data._greenOffset2;
+							data._blueOffset2Final = data._blueOffset2;
+							data._alphaOffset2Final = data._alphaOffset2;
+							
+							// bottom left
+							data._redOffset3Final = data._redOffset3;
+							data._greenOffset3Final = data._greenOffset3;
+							data._blueOffset3Final = data._blueOffset3;
+							data._alphaOffset3Final = data._alphaOffset3;
+							
+							// bottom right
+							data._redOffset4Final = data._redOffset4;
+							data._greenOffset4Final = data._greenOffset4;
+							data._blueOffset4Final = data._blueOffset4;
+							data._alphaOffset4Final = data._alphaOffset4;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	inline private function updateTransform(data:ImageData):Void
@@ -640,7 +2113,7 @@ class DisplayContainer extends DisplayBase
 		
 		if (data._sizeYChanged)
 		{
-			if (data.invertY)
+			if (data._invertY)
 			{
 				data._topOffset = this.__frame.bottomHeight * data._scaleY;
 				this.__topOffset = -data._topOffset;
@@ -689,7 +2162,6 @@ class DisplayContainer extends DisplayBase
 	
 	private var __data:DisplayBase;
 	private var __container:DisplayContainer;
-	private var __containerDone:Bool;
 	private var __image:ImageData;
 	
 	private var __x:Float;
@@ -702,15 +2174,9 @@ class DisplayContainer extends DisplayBase
 	private var __skewX:Float;
 	private var __skewY:Float;
 	private var __red:Float;
-	private var __redOffset:Float;
 	private var __green:Float;
-	private var __greenOffset:Float;
 	private var __blue:Float;
-	private var __blueOffset:Float;
 	private var __alpha:Float;
-	private var __alphaOffset:Float;
-	private var __color:Int;
-	private var __colorOffset:Int;
 	private var __frame:Frame;
 	private var __cosRotation:Float;
 	private var __sinRotation:Float;
@@ -742,7 +2208,9 @@ class DisplayContainer extends DisplayBase
 	private var __position:Int;
 	private var __quadsWritten:Int;
 	private var __pma:Bool;
+	private var __pmaForColorOffset:Bool;
 	private var __useColor:Bool;
+	private var __useDisplayColor:Bool;
 	private var __useColorOffset:Bool;
 	private var __simpleColor:Bool;
 	private var __numQuads:Int;
