@@ -2202,8 +2202,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (boundsData != null)boundsData.resize(0);
 		#end
 		
-		var layerDone:Bool;
-		var layerIndex:Int = 0;
 		this._renderData.clear();
 		
 		if (this._useByteArray)
