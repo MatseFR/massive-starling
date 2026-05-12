@@ -229,7 +229,7 @@ class ImageData extends DisplayData
 	inline private function set_invertX(value:Bool):Bool
 	{
 		if (this._invertX == value) return value;
-		this._transformChanged = this._sizeXChanged = true;
+		this._transformChanged = this._sizeXChanged = this._colorChanged = this._colorOffsetChanged = true;
 		return this._invertX = value;
 	}
 	
@@ -238,7 +238,7 @@ class ImageData extends DisplayData
 	inline private function set_invertY(value:Bool):Bool
 	{
 		if (this._invertY == value) return value;
-		this._transformChanged = this._sizeYChanged = true;
+		this._transformChanged = this._sizeYChanged = this._colorChanged = this._colorOffsetChanged = true;
 		return this._invertY = value;
 	}
 	
