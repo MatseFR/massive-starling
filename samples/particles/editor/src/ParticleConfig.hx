@@ -22,14 +22,15 @@ class ParticleConfig
 	#if flash
 	public var animations(default, null):Vector<ParticleAnimation> = new Vector<ParticleAnimation>();
 	public var frames(default, null):Vector<ParticleFrame> = new Vector<ParticleFrame>();
+	public var textures(default, null):Vector<Texture> = new Vector<Texture>();
 	#else
 	public var animations(default, null):Array<ParticleAnimation> = new Array<ParticleAnimation>();
 	public var frames(default, null):Array<ParticleFrame> = new Array<ParticleFrame>();
+	public var textures(default, null):Array<Texture> = new Array<Texture>();
 	#end
 	public var hasAnimation(get, never):Bool;
 	public var hasFrame(get, never):Bool;
 	public var options:ParticleSystemOptions;
-	public var texture:Texture;
 	
 	private function get_hasAnimation():Bool { return this.animations.length != 0; }
 	private function get_hasFrame():Bool { return this.frames.length != 0; }
@@ -52,9 +53,11 @@ class ParticleConfig
 		#if flash
 		this.animations.length = 0;
 		this.frames.length = 0;
+		this.textures.length = 0;
 		#else
 		this.animations.resize(0);
 		this.frames.resize(0);
+		this.textures.resize(0);
 		#end
 		
 		this.blendMode = BlendMode.NORMAL;
@@ -64,7 +67,6 @@ class ParticleConfig
 			this.options.pool();
 			this.options = null;
 		}
-		this.texture = null;
 	}
 	
 	public function addAnimation(animation:Animation, weight:Float = 1.0, textureIndex:Int = 0):Void
@@ -75,6 +77,11 @@ class ParticleConfig
 	public function addFrame(frame:Frame, weight:Float = 1.0, textureIndex:Int = 0):Void
 	{
 		this.frames[this.frames.length] = ParticleFrame.fromPool(frame, weight, textureIndex);
+	}
+	
+	public function addTexture(texture:Texture):Void
+	{
+		this.textures[this.textures.length] = texture;
 	}
 	
 }

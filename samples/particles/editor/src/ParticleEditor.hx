@@ -247,7 +247,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		// "none" preset
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
-		config.texture = this._textureMap.get("square");
+		config.addTexture(this._textureMap.get("square"));
 		config.options = new ParticleSystemOptions();
 		config.addFrame(this._frameMap.get("square"));
 		registerPreset("none", config);
@@ -260,9 +260,12 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
 		config.colorOffsetMode = ColorOffsetMode.OBJECT;
-		config.texture = this._textureMap.get("animated_fx");
+		config.addTexture(this._textureMap.get("animated_fx"));
 		config.options = options;
 		config.addAnimation(this._animationMap.get("animated_fx"));
+		// animation + frame test
+		//config.addTexture(this._textureMap.get("square"));
+		//config.addFrame(this._frameMap.get("square"), 0.05, 1);
 		registerPreset("animated fx", config);
 		
 		// "cybermancy" preset
@@ -272,7 +275,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.ADD;
-		config.texture = this._textureMap.get("square");
+		config.addTexture(this._textureMap.get("square"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("square"));
 		registerPreset("cybermancy", config);
@@ -284,7 +287,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
-		config.texture = this._textureMap.get("star");
+		config.addTexture(this._textureMap.get("star"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("star"));
 		registerPreset("dancing stars", config);
@@ -296,7 +299,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.ADD;
-		config.texture = this._textureMap.get("circle");
+		config.addTexture(this._textureMap.get("circle"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("circle"));
 		registerPreset("fireball", config);
@@ -308,7 +311,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.ADD;
-		config.texture = this._textureMap.get("circle");
+		config.addTexture(this._textureMap.get("circle"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("circle"));
 		registerPreset("fire explosion", config);
@@ -321,7 +324,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
 		config.colorOffsetMode = ColorOffsetMode.OBJECT;
-		config.texture = this._textureMap.get("circle");
+		config.addTexture(this._textureMap.get("circle"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("circle"));
 		registerPreset("ghost donut", config);
@@ -333,7 +336,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.ADD;
-		config.texture = this._textureMap.get("square");
+		config.addTexture(this._textureMap.get("square"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("square"));
 		registerPreset("hyperspace", config);
@@ -345,7 +348,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
-		config.texture = this._textureMap.get("heart");
+		config.addTexture(this._textureMap.get("heart"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("heart"));
 		registerPreset("love cloud", config);
@@ -357,7 +360,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
-		config.texture = this._textureMap.get("square");
+		config.addTexture(this._textureMap.get("square"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("square"));
 		registerPreset("space worms", config);
@@ -370,7 +373,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.NORMAL;
 		config.colorOffsetMode = ColorOffsetMode.OBJECT;
-		config.texture = this._textureMap.get("star");
+		config.addTexture(this._textureMap.get("star"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("star"));
 		registerPreset("star geyser", config);
@@ -382,7 +385,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		options.fromJSON(json);
 		config = new ParticleConfig();
 		config.blendMode = BlendMode.SCREEN;
-		config.texture = this._textureMap.get("blob");
+		config.addTexture(this._textureMap.get("blob"));
 		config.options = options;
 		config.addFrame(this._frameMap.get("blob"));
 		registerPreset("toxic vortex", config);
@@ -476,7 +479,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		var config:ParticleConfig = this._presetConfigs.get(id);
 		this._massive.blendMode = config.blendMode;
 		this._massive.colorOffsetMode = config.colorOffsetMode;
-		this._massive.texture = config.texture;
+		this._massive.setTextures(config.textures);
 		this._ps.clearFrames();
 		if (config.hasAnimation) this._ps.addParticleAnimations(config.animations);
 		if (config.hasFrame) this._ps.addParticleFrames(config.frames);
