@@ -102,7 +102,7 @@ class ParticleSystem extends DisplayContainer
 		if (this._maxNumParticles == value) return value;
 		returnParticlesToPool();
 		this._maxNumParticles = value;
-		if (this.particlesFromPoolFunction != null && this._frames.length != 0)
+		if (this.particlesFromPoolFunction != null && (this._frames.length != 0 || this._animations.length != 0))
 		{
 			getParticlesFromPool();
 		}
