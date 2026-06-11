@@ -5092,30 +5092,40 @@ class ParticleSystem extends DisplayContainer
 	
 	public function updateEmissionRate():Void
 	{
-		var lifeSpan:Float;
-		var animCount:Int;
+		var lifeSpan:Float = 0.0;
+		var count:Int;
 		var anim:ParticleAnimation;
+		var frame:ParticleFrame;
 		var totalWeight:Float = 0.0;
+		
+		if (this._useAnimationLifeSpan)
+		{
+			lifeSpan = 0.0;
+			count = this._animations.length;
+			for (i in 0...count)
+			{
+				anim = this._animations[i];
+				lifeSpan += anim.animation.duration * anim.weight;
+				totalWeight += anim.weight;
+			}
+			count = this._frames.length;
+			for (i in 0...count)
+			{
+				frame = this._frames[i];
+				lifeSpan += this._lifeSpan * frame.weight;
+				totalWeight += frame.weight;
+			}
+			lifeSpan /= totalWeight;
+		}
+		else
+		{
+			lifeSpan = this._lifeSpan;
+		}
+		
 		if (this._isModeBurst)
 		{
 			if (this._numBursts == 0)
 			{
-				if (this._useAnimationLifeSpan)
-				{
-					lifeSpan = 0.0;
-					animCount = this._animations.length;
-					for (i in 0...animCount)
-					{
-						anim = this._animations[i];
-						lifeSpan += anim.animation.duration * anim.weight;
-						totalWeight += anim.weight;
-					}
-					lifeSpan /= totalWeight;
-				}
-				else
-				{
-					lifeSpan = this._lifeSpan;
-				}
 				var burstTime:Float = this._burstInterval + this._burstDuration;
 				if (burstTime <= 0) burstTime = 0.02;
 				var numBursts:Float = lifeSpan / burstTime + 1.0;
@@ -5143,24 +5153,7 @@ class ParticleSystem extends DisplayContainer
 		}
 		else
 		{
-			if (this._useAnimationLifeSpan)
-			{
-				lifeSpan = 0.0;
-				animCount = this._animations.length;
-				for (i in 0...animCount)
-				{
-					anim = this._animations[i];
-					lifeSpan += anim.animation.duration * anim.weight;
-					totalWeight += anim.weight;
-				}
-				lifeSpan /= totalWeight;
-				
-				this.emissionRate = this._maxNumParticles * this._emissionRatio / lifeSpan;
-			}
-			else
-			{
-				this.emissionRate = this._maxNumParticles * this._emissionRatio / this._lifeSpan;
-			}
+			this.emissionRate = this._maxNumParticles * this._emissionRatio / lifeSpan;
 		}
 	}
 	
