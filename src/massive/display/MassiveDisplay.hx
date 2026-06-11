@@ -1023,7 +1023,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (update) updateTextures();
 	}
 	
-	public function addTextures(textures:#if SWC Vector<Texture> #else Array<Texture>#end, update:Bool = true):Void
+	#if (flash||SWC)
+	public function addTextures(textures:Vector<Texture>, update:Bool = true):Void
+	#else
+	public function addTextures(textures:Array<Texture>, update:Bool = true):Void
+	#end
 	{
 		for (i in 0...textures.length)
 		{
@@ -1033,7 +1037,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (update) updateTextures();
 	}
 	
-	public function addTexturesAt(textures:#if SWC Vector<Texture> #else Array<Texture>#end, index:Int, update:Bool = true):Void
+	#if (flash||SWC)
+	public function addTexturesAt(textures:Vector<Texture>, index:Int, update:Bool = true):Void
+	#else
+	public function addTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true):Void
+	#end
 	{
 		for (i in 0...textures.length)
 		{
@@ -1114,14 +1122,22 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (update) updateTextures();
 	}
 	
-	public function setTextures(textures:#if SWC Vector<Texture> #else Array<Texture>#end, update:Bool = true):Void
+	#if (flash||SWC)
+	public function setTextures(textures:Vector<Texture>, update:Bool = true):Void
+	#else
+	public function setTextures(textures:Array<Texture>, update:Bool = true):Void
+	#end
 	{
 		this._textures.resize(0);
 		this._textureKeys.resize(0);
 		addTextures(textures, update);
 	}
 	
-	public function setTexturesAt(textures:#if SWC Vector<Texture> #else Array<Texture>#end, index:Int, update:Bool = true):Void
+	#if (flash||SWC)
+	public function setTexturesAt(textures:Vector<Texture>, index:Int, update:Bool = true):Void
+	#else
+	public function setTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true):Void
+	#end
 	{
 		for (i in 0...textures.length)
 		{
