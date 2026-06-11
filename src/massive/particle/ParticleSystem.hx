@@ -1026,44 +1026,6 @@ class ParticleSystem extends DisplayContainer
 	public var frameDeltaVariance:Float = 0.0;
 	
 	/**
-	   Tells whether texture animation should loop or not
-	   @default false
-	**/
-	//public var loopAnimation(get, set):Bool;
-	//private var _loopAnimation:Bool = false;
-	//private function get_loopAnimation():Bool { return this._loopAnimation; }
-	//private function set_loopAnimation(value:Bool):Bool
-	//{
-		//if (this._loopAnimation == value) return value;
-		//
-		//var count:Int = this._particlePool.length;
-		//for (i in 0...count)
-		//{
-			//this._particlePool[i].loop = value;
-		//}
-		//return this._loopAnimation = value;
-	//}
-	
-	/**
-	   Number of loops if loopAnimation is true, 0 = infinite
-	   @default 0
-	**/
-	//public var animationLoops(get, set):Int;
-	//private var _animationLoops:Int = 0;
-	//private function get_animationLoops():Int { return this._animationLoops; }
-	//private function set_animationLoops(value:Int):Int
-	//{
-		//if (this._animationLoops == value) return value;
-		//
-		//var count:Int = this._particlePool.length;
-		//for (i in 0...count)
-		//{
-			//this._particlePool[i].numLoops = this._animationLoops;
-		//}
-		//return this._animationLoops = value;
-	//}
-	
-	/**
 	   Tells  whether the initial frame should be chosen randomly
 	   @default false
 	**/
@@ -2797,14 +2759,6 @@ class ParticleSystem extends DisplayContainer
 	private var _framesToPool:Array<ParticleFrame> = new Array<ParticleFrame>();
 	#end
 	
-	//#if SWC
-	//private var _frameTimings:Vector<Vector<Float>> = new Vector<Vector<Float>>();
-	//#else
-	//private var _frameTimings:Array<Array<Float>> = new Array<Array<Float>>();
-	//#end
-	//private var _numFrameSets:Int = 0;
-	//private var _useMultipleFrameSets:Bool = false;
-	
 	private var _isParticlePoolUpdatePending:Bool = false;
 
 	public function new(options:ParticleSystemOptions = null) 
@@ -2847,8 +2801,6 @@ class ParticleSystem extends DisplayContainer
 	private function init():Void
 	{
 		this._emissionRate = this._maxNumParticles / this._lifeSpan;
-		//this._emissionTime = 0.0;
-		//this._frameTime = 0.0;
 	}
 	
 	public function addAnimation(animation:Animation, weight:Float = 1.0, textureIndex:Int = 0, refreshParticles:Bool = false):Void
@@ -2978,14 +2930,6 @@ class ParticleSystem extends DisplayContainer
 		this._frames.resize(0);
 		this._framesToPool.resize(0);
 		#end
-		//#if SWC
-		//this._frameTimings.length = 0;
-		//#else
-		//this._frameTimings.resize(0);
-		//#end
-		
-		//this._numFrameSets = 0;
-		//this._useMultipleFrameSets = false;
 	}
 	
 	inline private function getRandomRatio():Float
@@ -3052,18 +2996,6 @@ class ParticleSystem extends DisplayContainer
 		
 		if (this._useAnimationLifeSpan && particle.animation != null)
 		{
-			//if (this._loopAnimation)
-			//{
-				//if (this._animationLoops == 0)
-				//{
-					//this.__lifeSpan = MathUtils.FLOAT_MAX;
-				//}
-				//else
-				//{
-					////this.__lifeSpan = (particle.frameTimings[particle.frameTimings.length-1] / particle.frameDelta) * this._animationLoops;
-					//this.__lifeSpan = (particle.animation.duration / particle.frameDelta) * this._animationLoops;
-				//}
-			//}
 			if (particle.animation.loop)
 			{
 				if (particle.animation.numLoops == 0)
@@ -3078,7 +3010,6 @@ class ParticleSystem extends DisplayContainer
 			}
 			else
 			{
-				//this.__lifeSpan = particle.frameTimings[particle.frameTimings.length-1] / particle.frameDelta;
 				this.__lifeSpan = particle.animation.duration / particle.frameDelta;
 			}
 		}
@@ -3087,7 +3018,6 @@ class ParticleSystem extends DisplayContainer
 			this.__lifeSpan = this._lifeSpan + this._lifeSpanVariance * getRandomRatio();
 			if (this.__lifeSpan <= 0.0)
 			{
-				//return;
 				this.__deadParticle = true;
 			}
 		}
@@ -3229,7 +3159,6 @@ class ParticleSystem extends DisplayContainer
 			particle.sizeYStart = this.__sizeYStart = this._sizeYStart;
 		}
 		
-		//this.__firstFrameWidth = particle.frameList[0].width;
 		this.__firstFrameWidth = particle.animation != null ? particle.animation.frames[0].frame.width : particle.frame.width;
 		particle.scaleXBase = particle.scaleXStart = this.__sizeXStart / this.__firstFrameWidth;
 		particle.scaleYBase = particle.scaleYStart = this.__sizeYStart / this.__firstFrameWidth;
@@ -4299,7 +4228,6 @@ class ParticleSystem extends DisplayContainer
 			{
 				particle.timeCurrent = particle.timeTotal; // "destroy" particle
 				particle.visible = false;
-				//return;
 			}
 		}
 		
@@ -4818,9 +4746,9 @@ class ParticleSystem extends DisplayContainer
 		
 		if (this._updateEmitter)
 		{
-			#if !cpp // TODO : fix bug when building for cpp
+			//#if !cpp // TODO : fix bug when building for cpp
 			this._emitterObject.advanceSystem(this, time);
-			#end
+			//#end
 		}
 		
 		if (this._useOscillationGlobalFrequency)
@@ -5072,7 +5000,7 @@ class ParticleSystem extends DisplayContainer
 				}
 				else
 				{
-					if (!this._burstInProgress && this._burstRemaining && this._frameTime >= this._nextBurstTime)// && (this._emissionInfinite || this._particleTotal < this.particleAmount))
+					if (!this._burstInProgress && this._burstRemaining && this._frameTime >= this._nextBurstTime)
 					{
 						this._burstInProgress = true;
 						this._burstTime = this._burstDuration;
@@ -5378,7 +5306,6 @@ class ParticleSystem extends DisplayContainer
 			var totalWeight:Float = animationsWeight + framesWeight;
 			for (i in 0...this._maxNumParticles)
 			{
-				particle = this._particlePool[i];
 				r = MathUtils.random() * totalWeight;
 				if (r < framesWeight)
 				{
@@ -5388,6 +5315,7 @@ class ParticleSystem extends DisplayContainer
 						r -= this._frames[j].weight;
 						if (r < 0.0)
 						{
+							particle = this._particlePool[i];
 							if (particle.animation != null) particle.clearAnimation();
 							particle.frame = this._frames[j].frame;
 							particle.textureIndex = this._frames[j].textureIndex;
@@ -5404,6 +5332,7 @@ class ParticleSystem extends DisplayContainer
 						r -= this._animations[j].weight;
 						if (r < 0.0)
 						{
+							particle = this._particlePool[i];
 							particle.animation = this._animations[j].animation;
 							particle.textureIndex = this._animations[j].textureIndex;
 							break;
@@ -5422,7 +5351,9 @@ class ParticleSystem extends DisplayContainer
 					r -= this._animations[j].weight;
 					if (r < 0.0)
 					{
-						this._particlePool[i].animation = this._animations[j].animation;
+						particle = this._particlePool[i];
+						particle.animation = this._animations[j].animation;
+						particle.textureIndex = this._animations[j].textureIndex;
 						break;
 					}
 				}
@@ -5438,8 +5369,11 @@ class ParticleSystem extends DisplayContainer
 					r -= this._frames[j].weight;
 					if (r < 0.0)
 					{
-						if (this._particlePool[i].animation != null) this._particlePool[i].clearAnimation();
-						this._particlePool[i].frame = this._frames[j].frame;
+						particle = this._particlePool[i];
+						if (particle.animation != null) particle.clearAnimation();
+						particle.frame = this._frames[j].frame;
+						particle.textureIndex = this._frames[j].textureIndex;
+						break;
 					}
 				}
 			}
@@ -5449,23 +5383,6 @@ class ParticleSystem extends DisplayContainer
 			// no frames or animations
 			throw new Error("ParticleSystem.getParticlesFromPool ::: no frame or animation");
 		}
-		
-		//if (this._useMultipleFrameSets)
-		//{
-			//var r:Int;
-			//for (i in 0...this._maxNumParticles)
-			//{
-				//r = MathUtils.floor(MathUtils.random() * this._numFrameSets);
-				//this._particlePool[i].setFrames(this._frames[r], this._frameTimings[r], this._loopAnimation, this._animationLoops);
-			//}
-		//}
-		//else
-		//{
-			//for (i in 0...this._maxNumParticles)
-			//{
-				//this._particlePool[i].setFrames(this._frames[0], this._frameTimings[0], this._loopAnimation, this._animationLoops);
-			//}
-		//}
 		
 		this._isParticlePoolUpdatePending = false;
 	}
@@ -5605,8 +5522,6 @@ class ParticleSystem extends DisplayContainer
 		this.textureAnimation = options.textureAnimation;
 		this.frameDelta = options.frameDelta;
 		this.frameDeltaVariance = options.frameDeltaVariance;
-		//this.loopAnimation = options.loopAnimation;
-		//this.animationLoops = options.animationLoops;
 		this.randomStartFrame = options.randomStartFrame;
 		//\Animation
 		
@@ -5902,8 +5817,6 @@ class ParticleSystem extends DisplayContainer
 		options.textureAnimation = this.textureAnimation;
 		options.frameDelta = this._frameDelta;
 		options.frameDeltaVariance = this.frameDeltaVariance;
-		//options.loopAnimation = this._loopAnimation;
-		//options.animationLoops = this._animationLoops;
 		options.randomStartFrame = this.randomStartFrame;
 		//\Animation
 		
