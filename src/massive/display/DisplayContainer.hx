@@ -1,5 +1,9 @@
-package massive.data;
-import massive.display.RenderData;
+package massive.display;
+import massive.animation.Animator;
+import massive.data.Frame;
+import massive.display.Img;
+import massive.display.base.DisplayBase;
+import massive.display.render.RenderData;
 import openfl.Vector;
 import openfl.utils.ByteArray;
 #if !flash
@@ -13,13 +17,9 @@ import openfl.Memory;
  * ...
  * @author Matse
  */
-@:access(massive.data.ImageData)
+@:access(massive.display.Img)
 class DisplayContainer extends DisplayBase 
 {
-	/**
-	   Tells whether the MassiveDisplay instance this layer is added to should call the advanceTime function or not
-	**/
-	public var animate:Bool = true;
 	/**
 	   Tells whether the container should count how many datas it has when requested to write it or not.
 	   For example ParticleSystem turns this off and sets numDatas directly, according to how many particles are alive.
@@ -30,6 +30,12 @@ class DisplayContainer extends DisplayBase
 	   How many quads this container should write data for when requested.
 	**/
 	public var numDatas:Int = 0;
+	/**
+	   Tells whether this container should animate textures or not.
+	   If you are displaying non-animated images, consider setting this to false for better performance
+	   @default true
+	**/
+	public var textureAnimation:Bool = true;
 	
 	#if flash
 	private var _datas:Vector<DisplayBase>;
@@ -41,6 +47,7 @@ class DisplayContainer extends DisplayBase
 	{
 		super();
 		this.isContainer = true;
+		this.animate = true;
 		this._datas = datas;
 		#if flash
 		if (this._datas == null) this._datas = new Vector<DisplayBase>();
@@ -146,7 +153,7 @@ class DisplayContainer extends DisplayBase
 	**/
 	public function advanceTime(time:Float):Void 
 	{
-		
+		if (this.textureAnimation) Animator.animateDataList(this._datas, time);
 	}
 	
 	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
@@ -189,7 +196,7 @@ class DisplayContainer extends DisplayBase
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
 				
-				this.__frame = this.__image.frameCurrent;
+				this.__frame = this.__image.frame;
 				
 				if (this.__image._transformChanged)
 				{
@@ -456,7 +463,7 @@ class DisplayContainer extends DisplayBase
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
 				
-				this.__frame = this.__image.frameCurrent;
+				this.__frame = this.__image.frame;
 				
 				if (this.__image._transformChanged)
 				{
@@ -729,7 +736,7 @@ class DisplayContainer extends DisplayBase
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
 				
-				this.__frame = this.__image.frameCurrent;
+				this.__frame = this.__image.frame;
 				
 				if (this.__image._transformChanged)
 				{
@@ -1001,7 +1008,7 @@ class DisplayContainer extends DisplayBase
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
 				
-				this.__frame = this.__image.frameCurrent;
+				this.__frame = this.__image.frame;
 				
 				if (this.__image._transformChanged)
 				{
@@ -1306,7 +1313,7 @@ class DisplayContainer extends DisplayBase
 		return Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 	}
 	
-	private function updateColor(data:ImageData):Void
+	private function updateColor(data:Img):Void
 	{
 		if (this.__useColor && data._colorChanged)
 		{
@@ -2044,7 +2051,7 @@ class DisplayContainer extends DisplayBase
 		}
 	}
 	
-	inline private function updateTransform(data:ImageData):Void
+	inline private function updateTransform(data:Img):Void
 	{
 		this.__rotationChanged = data._rotationChanged;
 		this.__skewXChanged = data._skewXChanged;
@@ -2162,7 +2169,7 @@ class DisplayContainer extends DisplayBase
 	
 	private var __data:DisplayBase;
 	private var __container:DisplayContainer;
-	private var __image:ImageData;
+	private var __image:Img;
 	
 	private var __x:Float;
 	private var __y:Float;

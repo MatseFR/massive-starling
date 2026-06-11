@@ -1,11 +1,10 @@
-package massive.data;
+package massive.display.base;
 
 /**
  * Abstract base class for Massive display objects
  * @author Matse
  */
-@:allow(massive.display.MassiveLayer)
-abstract class DisplayData extends DisplayBase
+abstract class QuadBase extends DisplayBase
 {
 	/**
 	   position offset on x-axis

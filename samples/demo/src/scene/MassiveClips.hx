@@ -1,12 +1,11 @@
 package scene;
 
+import massive.animation.Animation;
 import massive.animation.Animator;
 import massive.data.Frame;
-import massive.data.ImageData;
-import massive.display.ColorOffsetMode;
-import massive.display.ImageLayer;
+import massive.display.Clip;
+import massive.display.DisplayContainer;
 import massive.display.MassiveDisplay;
-import massive.util.LookUp;
 import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
@@ -22,7 +21,7 @@ import starling.utils.Align;
  * ...
  * @author Matse
  */
-class MassiveImages extends Scene implements IAnimatable
+class MassiveClips extends Scene implements IAnimatable
 {
 	public var colorMode:String;
 	public var frameDeltaBase:Float = 0.1;
@@ -57,10 +56,13 @@ class MassiveImages extends Scene implements IAnimatable
 	}
 	
 	private var _display:MassiveDisplay;
-	private var _frames:#if flash Array<Vector<Frame>> #else Array<Array<Frame>> #end = new #if flash Array<Vector<Frame>>() #else Array<Array<Frame>>() #end;
-	private var _timings:Array<Array<Float>> = new Array<Array<Float>>();
+	private var _animations:Array<Animation> = new Array<Animation>();
 	
-	private var _imgList:#if flash Vector<MassiveImage> #else Array<MassiveImage> #end;
+	#if flash
+	private var _clipList:Vector<MassiveClip>;
+	#else
+	private var _clipList:Array<MassiveClip>;
+	#end
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
 	
@@ -86,24 +88,35 @@ class MassiveImages extends Scene implements IAnimatable
 		
 		var numTextures:Int = this.atlasTextures.length;
 		
+		var animation:Animation;
 		#if flash
-		var frames:Vector<Frame>;
+		var frames:Vector<Frame> = new Vector<Frame>();
 		#else
-		var frames:Array<Frame>;
+		var frames:Array<Frame> = new Array<Frame>();
 		#end
-		var timings:Array<Float>;
 		
 		for (i in 0...numTextures)
 		{
-			frames = Frame.fromTextureVectorWithAlign(this.textures[i], Align.CENTER, Align.CENTER);
-			this._frames.push(frames);
-			timings = Animator.generateTimings(frames);
-			this._timings.push(timings);
+			Frame.fromTextureVectorWithAlign(this.textures[i], Align.CENTER, Align.CENTER, frames);
+			animation = Animator.createAnimation(frames);
+			animation.loop = true;
+			this._animations[this._animations.length] = animation;
+			
+			#if flash
+			frames.length = 0;
+			#else
+			frames.resize(0);
+			#end
 		}
 		
-		//this._frames = Frame.fromTextureVectorWithAlign(this.textures, Align.CENTER, Align.CENTER);
-		//var frameCount:Int = this._frames.length;
-		//this._timings = Animator.generateTimings(this._frames);
+		// test with black quads
+		//var tex:Texture = Texture.fromColor(64, 64, 0x000000);
+		//frames = new Vector<Frame>();
+		//frames.push(Frame.fromTextureWithAlign(tex, Align.CENTER, Align.CENTER));
+		//this._frames.push(frames);
+		//timings = [0.0];
+		//this._timings.push(timings);
+		//numTextures = 1;
 		
 		var stageWidth:Float = this.stage.stageWidth;
 		var stageHeight:Float = this.stage.stageHeight;
@@ -120,13 +133,13 @@ class MassiveImages extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		var layer:ImageLayer;
+		var layer:DisplayContainer;
 		#if flash
-		this._imgList = new Vector<MassiveImage>();
+		this._clipList = new Vector<MassiveClip>();
 		#else
-		this._imgList = new Array<MassiveImage>();
+		this._clipList = new Array<MassiveClip>();
 		#end
-		var img:MassiveImage;
+		var clip:MassiveClip;
 		var speedVariance:Float;
 		var variant:Int;
 		var velocity:Float;
@@ -134,41 +147,57 @@ class MassiveImages extends Scene implements IAnimatable
 		this._display = new MassiveDisplay(this.atlasTextures, this.renderMode, this.colorMode, this.numObjects);
 		this._display.animate = this._animation;
 		this._display.autoUpdateBounds = this._autoUpdateBounds;
+		//this._display.colorOffsetMode = ColorOffsetMode.OBJECT;
 		
-		layer = new ImageLayer();
+		layer = new DisplayContainer();
 		this._display.addLayer(layer);
 		
+		//this.numObjects = 100;
 		for (i in 0...this.numObjects)
 		{
 			variant = Std.random(numTextures);
 			
-			img = new MassiveImage();
-			img.textureIndex = variant;
-			img.setFrames(this._frames[variant], this._timings[variant], true, 0, Std.random(this._frames[variant].length));
-			img.x = MathUtils.random() * stageWidth;
-			img.y = MathUtils.random() * stageHeight;
-			img.scaleX = img.scaleY = this.imgScale;
-			if (this.useRandomRotation) img.rotation = MathUtils.random() * MathUtils.PI2;
+			clip = new MassiveClip();
 			
-			if (this.useRandomAlpha) img.alpha = MathUtils.random();
+			// vertex color test
+			//clip.uniformColor = false;
+			//clip.color3 = img.color4 = 0x000000;
+			//clip.uniformColorOffset = false;
+			//clip.redOffset1 = 1.0;
+			//clip.blueOffset4 = 1.0;
+			//clip.colorOffset = 0xff0000;
+			//clip.colorOffset3 = 0xff0000;
+			//clip.colorOffset2 = 0x00ff00;
+			//clip.colorOffset4 = 0x00ff00;
+			//clip.alphaOffset = -1;
+			//\vertex color test
+			
+			clip.textureIndex = variant;
+			clip.play(this._animations[variant]);
+			clip.x = MathUtils.random() * stageWidth;
+			clip.y = MathUtils.random() * stageHeight;
+			clip.scaleX = clip.scaleY = this.imgScale;
+			if (this.useRandomRotation) clip.rotation = MathUtils.random() * MathUtils.PI2;
+			
+			if (this.useRandomAlpha) clip.alpha = MathUtils.random();
 			if (this.useRandomColor)
 			{
-				img.red = MathUtils.random();
-				img.green = MathUtils.random();
-				img.blue = MathUtils.random();
+				clip.red = MathUtils.random();
+				clip.green = MathUtils.random();
+				clip.blue = MathUtils.random();
 			}
 			
 			speedVariance = MathUtils.random();
-			img.frameDelta = this.frameDeltaBase + speedVariance * this.frameDeltaVariance;
+			clip.frameDelta = this.frameDeltaBase + speedVariance * this.frameDeltaVariance;
 			
 			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			img.velocityX = Math.cos(img.rotation) * velocity;
-			img.velocityY = Math.sin(img.rotation) * velocity;
+			clip.velocityX = Math.cos(clip.rotation) * velocity;
+			clip.velocityY = Math.sin(clip.rotation) * velocity;
 			
-			if (img.velocityX < 0.0) img.invertY = true;
+			if (clip.velocityX < 0.0) clip.invertY = true;
 			
-			this._imgList[this._imgList.length] = img;
-			layer.addImage(img);
+			this._clipList[this._clipList.length] = clip;
+			layer.addChild(clip);
 		}
 		
 		if (this.useSprite3D)
@@ -200,19 +229,25 @@ class MassiveImages extends Scene implements IAnimatable
 			this._sprite3D.y = this._sprite3D.pivotY;
 		}
 		
-		if (!this.useRandomRotation && this._imgList != null)
+		if (!this.useRandomRotation && this._clipList != null)
 		{
 			var stageHeight:Float = this.stage.stageHeight;
 			
 			for (i in 0...this.numObjects)
 			{
-				this._imgList[i].y = MathUtils.random() * stageHeight;
+				this._clipList[i].y = MathUtils.random() * stageHeight;
 			}
 		}
 	}
 	
 	override public function dispose():Void 
 	{
+		var count:Int = this._animations.length;
+		for (i in 0...count)
+		{
+			this._animations[i].pool();
+		}
+		
 		Starling.currentJuggler.remove(this);
 		
 		super.dispose();
@@ -225,31 +260,31 @@ class MassiveImages extends Scene implements IAnimatable
 			this._sprite3D.rotationY += 0.01;
 		}
 		
-		var img:MassiveImage;
+		var clip:MassiveClip;
 		for (i in 0...this.numObjects)
 		{
-			img = this._imgList[i];
+			clip = this._clipList[i];
 			if (this._movement)
 			{
-				img.x += img.velocityX * time;
-				img.y += img.velocityY * time;
+				clip.x += clip.velocityX * time;
+				clip.y += clip.velocityY * time;
 				
-				if (img.x < this._left)
+				if (clip.x < this._left)
 				{
-					img.x = this._right;
+					clip.x = this._right;
 				}
-				else if (img.x > this._right)
+				else if (clip.x > this._right)
 				{
-					img.x = this._left;
+					clip.x = this._left;
 				}
 				
-				if (img.y < this._top)
+				if (clip.y < this._top)
 				{
-					img.y = this._bottom;
+					clip.y = this._bottom;
 				}
-				else if (img.y > this._bottom)
+				else if (clip.y > this._bottom)
 				{
-					img.y = this._top;
+					clip.y = this._top;
 				}
 			}
 		}
@@ -257,7 +292,7 @@ class MassiveImages extends Scene implements IAnimatable
 	
 }
 
-class MassiveImage extends ImageData
+class MassiveClip extends Clip
 {
 	public var velocityX:Float;
 	public var velocityY:Float;

@@ -1,6 +1,6 @@
 package massive.particle;
 
-import massive.data.ImageData;
+import massive.display.Clip;
 #if flash
 import openfl.Vector;
 #end
@@ -9,7 +9,7 @@ import openfl.Vector;
  * ...
  * @author Matse
  */
-class Particle extends ImageData 
+class Particle extends Clip 
 {
 	static private var _POOL:Array<Particle> = new Array<Particle>();
 	

@@ -1,8 +1,12 @@
 package massive.display;
 
-import massive.data.DisplayContainer;
-import massive.data.ImageData;
+import massive.display.DisplayContainer;
+import massive.display.Img;
 import massive.data.MassiveConstants;
+import massive.display.color.ColorMode;
+import massive.display.color.ColorOffsetMode;
+import massive.display.render.RenderData;
+import massive.display.render.RenderMode;
 import massive.util.MathUtils;
 import massive.util.ReverseIterator;
 import openfl.Vector;
@@ -79,7 +83,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (_isBaseline)
 		{
 			maxNumTextures = 5;
-			ImageData.TEXTURE_INDEX_MULTIPLIER = 0.25;
+			Img.TEXTURE_INDEX_MULTIPLIER = 0.25;
 		}
 		else
 		{
@@ -88,7 +92,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			#else
 			maxNumTextures = GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS);
 			#end
-			ImageData.TEXTURE_INDEX_MULTIPLIER = 1.0;
+			Img.TEXTURE_INDEX_MULTIPLIER = 1.0;
 		}
 		
 		_initDone = true;

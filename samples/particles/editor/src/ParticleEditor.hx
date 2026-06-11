@@ -6,13 +6,13 @@ import haxe.Json;
 import inputAction.InputAction;
 import inputAction.controllers.KeyAction;
 import inputAction.events.InputActionEvent;
+import massive.animation.Animation;
 import massive.animation.Animator;
 import massive.data.Frame;
-import massive.display.ColorMode;
-import massive.display.ColorOffsetMode;
 import massive.display.MassiveDisplay;
-import massive.display.RenderMode;
-import massive.particle.Particle;
+import massive.display.color.ColorMode;
+import massive.display.color.ColorOffsetMode;
+import massive.display.render.RenderMode;
 import massive.particle.ParticleSystem;
 import massive.particle.ParticleSystemDefaults;
 import massive.particle.ParticleSystemOptions;
@@ -58,7 +58,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 	
 	private var _massive:MassiveDisplay;
 	private var _massiveCollection:ExposedCollection;
-	private var _ps:ParticleSystem<Particle>;
+	private var _ps:ParticleSystem;
 	private var _psCollection:ExposedCollection;
 	
 	// file menu
@@ -97,12 +97,14 @@ class ParticleEditor extends ValEditorSimpleStarling
 	private var _presetConfigs:Map<String, ParticleConfig> = new Map<String, ParticleConfig>();
 	
 	private var _textureMap:Map<String, Texture> = new Map<String, Texture>();
-	#if flash
-	private var _frameMap:Map<String, Vector<Frame>> = new Map<String, Vector<Frame>>();
-	#else
-	private var _frameMap:Map<String, Array<Frame>> = new Map<String, Array<Frame>>();
-	#end
-	private var _timingMap:Map<String, Array<Float>> = new Map<String, Array<Float>>();
+	private var _animationMap:Map<String, Animation> = new Map<String, Animation>();
+	private var _frameMap:Map<String, Frame> = new Map<String, Frame>();
+	//#if flash
+	//private var _frameMap:Map<String, Vector<Frame>> = new Map<String, Vector<Frame>>();
+	//#else
+	//private var _frameMap:Map<String, Array<Frame>> = new Map<String, Array<Frame>>();
+	//#end
+	//private var _timingMap:Map<String, Array<Float>> = new Map<String, Array<Float>>();
 
 	public function new() 
 	{
@@ -210,68 +212,32 @@ class ParticleEditor extends ValEditorSimpleStarling
 		var texture:Texture;
 		var textures:Vector<Texture>;
 		var frame:Frame;
-		#if flash
-		var frames:Vector<Frame>;
-		#else
-		var frames:Array<Frame>;
-		#end
-		var timings:Array<Float>;
+		var animation:Animation;
 		
 		atlas = this._assetManager.getTextureAtlas("animated_fx");
 		textures = atlas.getTextures("0_");
-		frames = Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER);
-		timings = Animator.generateTimings(frames, 12);
-		registerTexture("animated_fx", atlas.texture, frames, timings);
+		animation = Animator.createAnimation(Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER), 12);
+		registerTextureAnimation("animated_fx", atlas.texture, animation);
 		
 		texture = this._assetManager.getTexture("blob");
 		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
-		#if flash
-		frames = new Vector<Frame>();
-		#else
-		frames = new Array<Frame>();
-		#end
-		frames[0] = frame;
-		registerTexture("blob", texture, frames);
+		registerTextureFrame("blob", texture, frame);
 		
 		texture = this._assetManager.getTexture("circle");
 		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
-		#if flash
-		frames = new Vector<Frame>();
-		#else
-		frames = new Array<Frame>();
-		#end
-		frames[0] = frame;
-		registerTexture("circle", texture, frames);
+		registerTextureFrame("circle", texture, frame);
 		
 		texture = this._assetManager.getTexture("heart");
 		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
-		#if flash
-		frames = new Vector<Frame>();
-		#else
-		frames = new Array<Frame>();
-		#end
-		frames[0] = frame;
-		registerTexture("heart", texture, frames);
+		registerTextureFrame("heart", texture, frame);
 		
 		texture = Texture.fromColor(2, 2);
 		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
-		#if flash
-		frames = new Vector<Frame>();
-		#else
-		frames = new Array<Frame>();
-		#end
-		frames[0] = frame;
-		registerTexture("square", texture, frames);
+		registerTextureFrame("square", texture, frame);
 		
 		texture = this._assetManager.getTexture("star");
 		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
-		#if flash
-		frames = new Vector<Frame>();
-		#else
-		frames = new Array<Frame>();
-		#end
-		frames[0] = frame;
-		registerTexture("star", texture, frames);
+		registerTextureFrame("star", texture, frame);
 		
 		var config:ParticleConfig;
 		var options:ParticleSystemOptions;
@@ -283,7 +249,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.NORMAL;
 		config.texture = this._textureMap.get("square");
 		config.options = new ParticleSystemOptions();
-		config.addFrames(this._frameMap.get("square"));
+		config.addFrame(this._frameMap.get("square"));
 		registerPreset("none", config);
 		
 		// "animated fx" preset
@@ -296,7 +262,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.colorOffsetMode = ColorOffsetMode.OBJECT;
 		config.texture = this._textureMap.get("animated_fx");
 		config.options = options;
-		config.addFrames(this._frameMap.get("animated_fx"), this._timingMap.get("animated_fx"));
+		config.addAnimation(this._animationMap.get("animated_fx"));
 		registerPreset("animated fx", config);
 		
 		// "cybermancy" preset
@@ -308,7 +274,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.ADD;
 		config.texture = this._textureMap.get("square");
 		config.options = options;
-		config.addFrames(this._frameMap.get("square"));
+		config.addFrame(this._frameMap.get("square"));
 		registerPreset("cybermancy", config);
 		
 		// "dancing stars" preset
@@ -320,7 +286,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.NORMAL;
 		config.texture = this._textureMap.get("star");
 		config.options = options;
-		config.addFrames(this._frameMap.get("star"));
+		config.addFrame(this._frameMap.get("star"));
 		registerPreset("dancing stars", config);
 		
 		// "fireball" preset
@@ -332,7 +298,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.ADD;
 		config.texture = this._textureMap.get("circle");
 		config.options = options;
-		config.addFrames(this._frameMap.get("circle"));
+		config.addFrame(this._frameMap.get("circle"));
 		registerPreset("fireball", config);
 		
 		// "fire explosion" preset
@@ -344,7 +310,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.ADD;
 		config.texture = this._textureMap.get("circle");
 		config.options = options;
-		config.addFrames(this._frameMap.get("circle"));
+		config.addFrame(this._frameMap.get("circle"));
 		registerPreset("fire explosion", config);
 		
 		// "ghost donut" preset
@@ -357,7 +323,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.colorOffsetMode = ColorOffsetMode.OBJECT;
 		config.texture = this._textureMap.get("circle");
 		config.options = options;
-		config.addFrames(this._frameMap.get("circle"));
+		config.addFrame(this._frameMap.get("circle"));
 		registerPreset("ghost donut", config);
 		
 		// "hyperspace" preset
@@ -369,7 +335,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.ADD;
 		config.texture = this._textureMap.get("square");
 		config.options = options;
-		config.addFrames(this._frameMap.get("square"));
+		config.addFrame(this._frameMap.get("square"));
 		registerPreset("hyperspace", config);
 		
 		// "love cloud" preset
@@ -381,7 +347,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.NORMAL;
 		config.texture = this._textureMap.get("heart");
 		config.options = options;
-		config.addFrames(this._frameMap.get("heart"));
+		config.addFrame(this._frameMap.get("heart"));
 		registerPreset("love cloud", config);
 		
 		// "space worms" preset
@@ -393,7 +359,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.NORMAL;
 		config.texture = this._textureMap.get("square");
 		config.options = options;
-		config.addFrames(this._frameMap.get("square"));
+		config.addFrame(this._frameMap.get("square"));
 		registerPreset("space worms", config);
 		
 		// "star geyser" preset
@@ -406,7 +372,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.colorOffsetMode = ColorOffsetMode.OBJECT;
 		config.texture = this._textureMap.get("star");
 		config.options = options;
-		config.addFrames(this._frameMap.get("star"));
+		config.addFrame(this._frameMap.get("star"));
 		registerPreset("star geyser", config);
 		
 		// "toxic vortex" preset
@@ -418,7 +384,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		config.blendMode = BlendMode.SCREEN;
 		config.texture = this._textureMap.get("blob");
 		config.options = options;
-		config.addFrames(this._frameMap.get("blob"));
+		config.addFrame(this._frameMap.get("blob"));
 		registerPreset("toxic vortex", config);
 		
 		this._massive = new MassiveDisplay(texture, null, null, 100000);
@@ -512,7 +478,8 @@ class ParticleEditor extends ValEditorSimpleStarling
 		this._massive.colorOffsetMode = config.colorOffsetMode;
 		this._massive.texture = config.texture;
 		this._ps.clearFrames();
-		this._ps.addFramesMultiple(config.frames, config.frameTimings);
+		if (config.hasAnimation) this._ps.addParticleAnimations(config.animations);
+		if (config.hasFrame) this._ps.addParticleFrames(config.frames);
 		this._ps.readSystemOptions(config.options);
 		
 		if (this._autoCenter) centerParticles();
@@ -523,23 +490,30 @@ class ParticleEditor extends ValEditorSimpleStarling
 		ValEditor.actionStack.clearActions();
 	}
 	
-	private function registerTexture(id:String, texture:Texture, frames:#if flash Vector<Frame> #else Array<Frame> #end, timings:Array<Float> = null):Void
+	private function registerTextureAnimation(id:String, texture:Texture, animation:Animation):Void
 	{
-		if (timings == null) timings = Animator.generateTimings(frames);
-		
 		this._textureMap.set(id, texture);
-		this._frameMap.set(id, frames);
-		this._timingMap.set(id, timings);
-		
-		var menuItem:MenuItem = new MenuItem(id, id);
-		this.editView.addMenuItem("texture", menuItem);
+		this._animationMap.set(id, animation);
+	}
+	
+	private function registerTextureFrame(id:String, texture:Texture, frame:Frame):Void
+	{
+		this._textureMap.set(id, texture);
+		this._frameMap.set(id, frame);
 	}
 	
 	private function applyTexture(id:String):Void
 	{
 		this._massive.texture = this._textureMap.get(id);
 		this._ps.clearFrames();
-		this._ps.addFrames(this._frameMap.get(id), this._timingMap.get(id));
+		if (this._animationMap.exists(id))
+		{
+			this._ps.addAnimation(this._animationMap.get(id));
+		}
+		else
+		{
+			this._ps.addFrame(this._frameMap.get(id));
+		}
 	}
 	
 	@:access(starling.core.Starling)

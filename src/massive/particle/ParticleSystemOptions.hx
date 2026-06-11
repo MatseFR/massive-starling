@@ -395,16 +395,6 @@ class ParticleSystemOptions
 	**/
 	public var frameDeltaVariance:Float = 0.0;
 	/**
-	   Tells whether texture animation should loop or not
-	   @default false
-	**/
-	public var loopAnimation:Bool = false;
-	/**
-	   Number of loops if textureAnimation is on, 0 = infinite
-	   @default 0
-	**/
-	public var animationLoops:Int = 0;
-	/**
 	   Tells  whether the initial frame should be chosen randomly
 	   @default false
 	**/
@@ -1135,8 +1125,6 @@ class ParticleSystemOptions
 		this.textureAnimation = true;
 		this.frameDelta = 1.0;
 		this.frameDeltaVariance = 0.0;
-		this.loopAnimation = false;
-		this.animationLoops = 0;
 		this.randomStartFrame = false;
 		//\ANIMATION
 		
@@ -1436,8 +1424,6 @@ class ParticleSystemOptions
 		target.textureAnimation = this.textureAnimation;
 		target.frameDelta = this.frameDelta;
 		target.frameDeltaVariance = this.frameDeltaVariance;
-		target.loopAnimation = this.loopAnimation;
-		target.animationLoops = this.animationLoops;
 		target.randomStartFrame = this.randomStartFrame;
 		//\ANIMATION
 		
@@ -1741,8 +1727,6 @@ class ParticleSystemOptions
 		this.textureAnimation = json.textureAnimation;
 		this.frameDelta = json.frameDelta;
 		this.frameDeltaVariance = json.frameDeltaVariance;
-		this.loopAnimation = json.loopAnimation;
-		this.animationLoops = json.animationLoops;
 		this.randomStartFrame = json.randomStartFrame;
 		//\ANIMATION
 		
@@ -2042,8 +2026,6 @@ class ParticleSystemOptions
 		json.textureAnimation = this.textureAnimation;
 		json.frameDelta = this.frameDelta;
 		json.frameDeltaVariance = this.frameDeltaVariance;
-		json.loopAnimation = this.loopAnimation;
-		json.animationLoops = this.animationLoops;
 		json.randomStartFrame = this.randomStartFrame;
 		//\ANIMATION
 		
@@ -2335,10 +2317,10 @@ class ParticleSystemOptions
 			{
 				this.textureAnimation = getBoolValue(anim.node.isAnimated.att.value);
 			}
-			if (anim.hasNode.loops)
-			{
-				this.animationLoops = Std.parseInt(anim.node.loops.att.value);
-			}
+			//if (anim.hasNode.loops)
+			//{
+				//this.animationLoops = Std.parseInt(anim.node.loops.att.value);
+			//}
 			if (anim.hasNode.randomStartFrames)
 			{
 				this.randomStartFrame = getBoolValue(anim.node.randomStartFrames.att.value);

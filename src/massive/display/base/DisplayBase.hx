@@ -1,11 +1,17 @@
-package massive.data;
+package massive.display.base;
+import starling.events.EventDispatcher;
 
 /**
  * ...
  * @author Matse
  */
-abstract class DisplayBase 
+abstract class DisplayBase extends EventDispatcher
 {
+	/**
+	   Tells whether this object is animated or not
+	   @default	false
+	**/
+	public var animate:Bool = false;
 	/**
 	   Tells wether this object is a container or not
 	**/
@@ -32,7 +38,7 @@ abstract class DisplayBase
 
 	public function new() 
 	{
-		
+		super();
 	}
 	
 }

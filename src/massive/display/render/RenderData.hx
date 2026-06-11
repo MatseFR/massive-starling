@@ -1,4 +1,4 @@
-package massive.display;
+package massive.display.render;
 
 /**
  * ...

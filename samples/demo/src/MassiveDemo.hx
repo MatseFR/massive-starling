@@ -1,8 +1,8 @@
 package;
 
-import massive.display.ColorMode;
 import massive.display.MassiveDisplay;
-import massive.display.RenderMode;
+import massive.display.color.ColorMode;
+import massive.display.render.RenderMode;
 import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.system.Capabilities;
@@ -10,7 +10,7 @@ import openfl.system.System;
 import openfl.utils.Assets;
 import scene.ClassicClips;
 import scene.ClassicQuads;
-import scene.MassiveImages;
+import scene.MassiveClips;
 import scene.MassiveQuads;
 import scene.Scene;
 import starling.assets.AssetManager;
@@ -958,7 +958,7 @@ class MassiveDemo extends Sprite
 		this.animationButton.enabled = true;
 		this.autoUpdateBoundsButton.enabled = true;
 		
-		var massive:MassiveImages = new MassiveImages();
+		var massive:MassiveClips = new MassiveClips();
 		massive.animation = this.animation;
 		massive.movement = this.movement;
 		massive.autoUpdateBounds = this.autoUpdateBounds;

@@ -1,6 +1,8 @@
 package massive.animation;
+import massive.display.Clip;
+import massive.display.base.DisplayBase;
+import massive.display.DisplayContainer;
 import massive.data.Frame;
-import massive.data.ImageData;
 #if flash
 import openfl.Vector;
 #end
@@ -11,37 +13,59 @@ import openfl.Vector;
  */
 class Animator 
 {
+	static private var _clip:Clip;
+	
 	/**
 	   Animates textures of the specified ImageData list
 	   @param	datas
 	   @param	time
 	**/
-	@:generic
-	static public inline function animateImageDataList<T:ImageData>(datas:#if flash Vector<T> #else Array<T>#end, time:Float):Void
+	@:access(massive.display.DisplayContainer)
+	#if flash
+	static public function animateDataList(datas:Vector<DisplayBase>, time:Float):Void
+	#else
+	static public function animateDataList(datas:Array<DisplayBase>, time:Float):Void
+	#end
 	{
 		var count:Int = datas.length;
-		var data:T;
+		var data:DisplayBase;
+		var container:DisplayContainer;
 		for (i in 0...count)
 		{
 			data = datas[i];
 			if (!data.animate) continue;
-			
-			data.frameTime += time * data.frameDelta;
-			if (data.frameTime >= data.frameTimingCurrent)
+			if (data.isContainer)
 			{
-				if (data._frameIndex < data.frameCount)
-				{
-					data.frameIndex++;
-				}
-				else if (data.loop && (data.numLoops == 0 || data.loopCount < data.numLoops))
-				{
-					data.frameTime -= data.frameTimingCurrent;
-					data.frameIndex = 0;
-					data.loopCount++;
-				}
+				container = cast data;
+				animateDataList(container._datas, time);
+			}
+			else
+			{
+				_clip = cast data;
+				_clip.advanceTime(time);
 			}
 		}
 		
+	}
+	
+	#if flash
+	static public function createAnimation(frames:Vector<Frame>, frameRate:Float = 60):Animation
+	#else
+	static public function createAnimation(frames:Array<Frame>, frameRate:Float = 60):Animation
+	#end
+	{
+		var anim:Animation = Animation.fromPool();
+		var timeStep:Float = 1.0 / frameRate;
+		var frameTime:Float = 0.0;
+		var count:Int = frames.length;
+		
+		for (i in 0...count)
+		{
+			frameTime += timeStep;
+			anim.addFrame(AnimationFrame.fromPool(frames[i], frameTime));
+		}
+		anim.ready();
+		return anim;
 	}
 	
 	/**

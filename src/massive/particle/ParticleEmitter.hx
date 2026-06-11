@@ -35,8 +35,7 @@ class ParticleEmitter
 		_POOL[_POOL.length] = this;
 	}
 	
-	@:generic
-	public function advanceSystem<T:Particle>(system:ParticleSystem<T>, passedTime:Float):Void
+	public function advanceSystem(system:ParticleSystem, passedTime:Float):Void
 	{
 		system.emitterX = this.x;
 		system.emitterY = this.y;

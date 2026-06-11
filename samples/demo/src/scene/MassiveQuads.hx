@@ -1,12 +1,8 @@
 package scene;
 
-import massive.display.ColorMode;
-import massive.display.ColorOffsetMode;
-import massive.util.LookUp;
-import massive.data.MassiveConstants;
-import massive.data.QuadData;
+import massive.display.DisplayContainer;
+import massive.display.Img;
 import massive.display.MassiveDisplay;
-import massive.display.QuadLayer;
 import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
@@ -14,7 +10,7 @@ import starling.core.Starling;
 import starling.display.Sprite3D;
 import starling.events.Event;
 import starling.filters.BlurFilter;
-import starling.utils.Align;
+import starling.textures.Texture;
 
 /**
  * ...
@@ -26,6 +22,7 @@ class MassiveQuads extends Scene implements IAnimatable
 	public var displayScale:Float;
 	public var numObjects:Int = 2000;
 	public var renderMode:String;
+	public var texture:Texture;
 	public var useBlurFilter:Bool;
 	public var useRandomAlpha:Bool = false;
 	public var useRandomColor:Bool;
@@ -85,7 +82,7 @@ class MassiveQuads extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		var layer:QuadLayer;
+		var layer:DisplayContainer;
 		#if flash
 		this._quads = new Vector<MassiveQuad>();
 		#else
@@ -99,7 +96,8 @@ class MassiveQuads extends Scene implements IAnimatable
 		this._display.autoUpdateBounds = this.autoUpdateBounds;
 		this._display.animate = this._animation;
 		
-		layer = new QuadLayer();
+		layer = new DisplayContainer();
+		layer.textureAnimation = false;
 		this._display.addLayer(layer);
 		
 		for (j in 0...this.numObjects)
@@ -125,10 +123,10 @@ class MassiveQuads extends Scene implements IAnimatable
 			quad.velocityX = Math.cos(quad.rotation) * velocity;
 			quad.velocityY = Math.sin(quad.rotation) * velocity;
 			
-			quad.alignPivot(Align.CENTER, Align.CENTER);
+			//quad.alignPivot(Align.CENTER, Align.CENTER);
 			
 			this._quads[this._quads.length] = quad;
-			layer.addQuad(quad);
+			//layer.addQuad(quad);
 		}
 		
 		if (this.useSprite3D)
@@ -217,7 +215,7 @@ class MassiveQuads extends Scene implements IAnimatable
 	
 }
 
-class MassiveQuad extends QuadData
+class MassiveQuad extends Img
 {
 	public var velocityX:Float;
 	public var velocityY:Float;

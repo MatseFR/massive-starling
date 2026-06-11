@@ -9,9 +9,9 @@ class ParticleSystemDefaults
 	static public var AUTO_CLEAR_ON_COMPLETE:Bool = true;
 	static public var RANDOM_SEED:Int = 1;
 	
-	static public function create(?options:ParticleSystemOptions):ParticleSystem<Particle>
+	static public function create(?options:ParticleSystemOptions):ParticleSystem
 	{
-		var ps:ParticleSystem<Particle> = new ParticleSystem(options);
+		var ps:ParticleSystem = new ParticleSystem(options);
 		#if flash
 		ps.particlesFromPoolFunction = Particle.fromPoolVector;
 		ps.particlesToPoolFunction = Particle.toPoolVector;

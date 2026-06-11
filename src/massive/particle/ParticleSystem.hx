@@ -1,8 +1,11 @@
 package massive.particle;
 
+import massive.animation.Animation;
 import massive.animation.Animator;
+import massive.display.base.DisplayBase;
+import massive.display.DisplayContainer;
 import massive.data.Frame;
-import massive.display.ImageLayer;
+//import massive.display.ImageLayer;
 import massive.util.MassiveTint;
 import massive.util.MathUtils;
 #if flash
@@ -16,18 +19,18 @@ import starling.events.Event;
  * ...
  * @author Matse
  */
-@:generic
-class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
+//@:generic
+class ParticleSystem extends DisplayContainer
 {
 	public var autoClearOnComplete:Bool = ParticleSystemDefaults.AUTO_CLEAR_ON_COMPLETE;
 	public var randomSeed:Int = ParticleSystemDefaults.RANDOM_SEED;
 	
 	#if flash
-	public var particlesFromPoolFunction:Int->Vector<T>->Vector<T>;
-	public var particlesToPoolFunction:Vector<T>->Void;
+	public var particlesFromPoolFunction:Int->Vector<Particle>->Vector<Particle>;
+	public var particlesToPoolFunction:Vector<Particle>->Void;
 	#else
-	public var particlesFromPoolFunction:Int->Array<T>->Array<T>;
-	public var particlesToPoolFunction:Array<T>->Void;
+	public var particlesFromPoolFunction:Int->Array<Particle>->Array<Particle>;
+	public var particlesToPoolFunction:Array<Particle>->Void;
 	#end
 	
 	//##################################################
@@ -1026,39 +1029,39 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   Tells whether texture animation should loop or not
 	   @default false
 	**/
-	public var loopAnimation(get, set):Bool;
-	private var _loopAnimation:Bool = false;
-	private function get_loopAnimation():Bool { return this._loopAnimation; }
-	private function set_loopAnimation(value:Bool):Bool
-	{
-		if (this._loopAnimation == value) return value;
-		
-		var count:Int = this._particles.length;
-		for (i in 0...count)
-		{
-			this._particles[i].loop = value;
-		}
-		return this._loopAnimation = value;
-	}
+	//public var loopAnimation(get, set):Bool;
+	//private var _loopAnimation:Bool = false;
+	//private function get_loopAnimation():Bool { return this._loopAnimation; }
+	//private function set_loopAnimation(value:Bool):Bool
+	//{
+		//if (this._loopAnimation == value) return value;
+		//
+		//var count:Int = this._particlePool.length;
+		//for (i in 0...count)
+		//{
+			//this._particlePool[i].loop = value;
+		//}
+		//return this._loopAnimation = value;
+	//}
 	
 	/**
 	   Number of loops if loopAnimation is true, 0 = infinite
 	   @default 0
 	**/
-	public var animationLoops(get, set):Int;
-	private var _animationLoops:Int = 0;
-	private function get_animationLoops():Int { return this._animationLoops; }
-	private function set_animationLoops(value:Int):Int
-	{
-		if (this._animationLoops == value) return value;
-		
-		var count:Int = this._particles.length;
-		for (i in 0...count)
-		{
-			this._particles[i].numLoops = this._animationLoops;
-		}
-		return this._animationLoops = value;
-	}
+	//public var animationLoops(get, set):Int;
+	//private var _animationLoops:Int = 0;
+	//private function get_animationLoops():Int { return this._animationLoops; }
+	//private function set_animationLoops(value:Int):Int
+	//{
+		//if (this._animationLoops == value) return value;
+		//
+		//var count:Int = this._particlePool.length;
+		//for (i in 0...count)
+		//{
+			//this._particlePool[i].numLoops = this._animationLoops;
+		//}
+		//return this._animationLoops = value;
+	//}
 	
 	/**
 	   Tells  whether the initial frame should be chosen randomly
@@ -2731,9 +2734,9 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	   @default null
 	**/
 	#if flash
-	public var customFunction:Vector<T>->Int->Void;
+	public var customFunction:Vector<DisplayBase>->Int->Void;
 	#else
-	public var customFunction:Array<T>->Int->Void;
+	public var customFunction:Array<DisplayBase>->Int->Void;
 	#end
 	
 	/**
@@ -2753,10 +2756,10 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	/**
 	   @default null
 	**/
-	public var sortFunction(get, set):T->T->Int;
-	private var _sortFunction:T->T->Int;
-	private function get_sortFunction():T->T->Int { return this._sortFunction; }
-	private function set_sortFunction(value:T->T->Int):T->T->Int
+	public var sortFunction(get, set):DisplayBase->DisplayBase->Int;
+	private var _sortFunction:DisplayBase->DisplayBase->Int;
+	private function get_sortFunction():DisplayBase->DisplayBase->Int { return this._sortFunction; }
+	private function set_sortFunction(value:DisplayBase->DisplayBase->Int):DisplayBase->DisplayBase->Int
 	{
 		this._regularSorting = value == null;
 		return this._sortFunction = value;
@@ -2765,9 +2768,11 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _completed:Bool = true;
 	private var _frameTime:Float = 0.0;
 	#if flash
-	private var _particles:Vector<T>;
+	private var _particles:Vector<DisplayBase>;
+	private var _particlePool:Vector<Particle> = new Vector<Particle>();
 	#else
-	private var _particles:Array<T>;
+	private var _particles:Array<DisplayBase>;
+	private var _particlePool:Array<Particle> = new Array<Particle>();
 	#end
 	private var _particleTotal:Int;
 	private var _regularSorting:Bool = true;
@@ -2781,18 +2786,24 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var _emissionInfinite:Bool;
 	
 	#if flash
-	private var _frames:Vector<Vector<Frame>> = new Vector<Vector<Frame>>();
+	private var _animations:Vector<ParticleAnimation> = new Vector<ParticleAnimation>();
+	private var _animationsToPool:Vector<ParticleAnimation> = new Vector<ParticleAnimation>();
+	private var _frames:Vector<ParticleFrame> = new Vector<ParticleFrame>();
+	private var _framesToPool:Vector<ParticleFrame> = new Vector<ParticleFrame>();
 	#else
-	private var _frames:Array<Array<Frame>> = new Array<Array<Frame>>();
+	private var _animations:Array<ParticleAnimation> = new Array<ParticleAnimation>();
+	private var _animationsToPool:Array<ParticleAnimation> = new Array<ParticleAnimation>();
+	private var _frames:Array<ParticleFrame> = new Array<ParticleFrame>();
+	private var _framesToPool:Array<ParticleFrame> = new Array<ParticleFrame>();
 	#end
 	
-	#if SWC
-	private var _frameTimings:Vector<Vector<Float>> = new Vector<Vector<Float>>();
-	#else
-	private var _frameTimings:Array<Array<Float>> = new Array<Array<Float>>();
-	#end
-	private var _numFrameSets:Int = 0;
-	private var _useMultipleFrameSets:Bool = false;
+	//#if SWC
+	//private var _frameTimings:Vector<Vector<Float>> = new Vector<Vector<Float>>();
+	//#else
+	//private var _frameTimings:Array<Array<Float>> = new Array<Array<Float>>();
+	//#end
+	//private var _numFrameSets:Int = 0;
+	//private var _useMultipleFrameSets:Bool = false;
 	
 	private var _isParticlePoolUpdatePending:Bool = false;
 
@@ -2840,14 +2851,23 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		//this._frameTime = 0.0;
 	}
 	
-	public function addFrames(frames:#if flash Vector<Frame> #else Array<Frame>#end, timings:#if SWC Vector<Float> #else Array<Float>#end = null, refreshParticles:Bool = true):Void
+	public function addAnimation(animation:Animation, weight:Float = 1.0, textureIndex:Int = 0, refreshParticles:Bool = false):Void
 	{
-		if (timings == null) timings = Animator.generateTimings(frames);
-		
-		this._frames[this._frames.length] = frames;
-		this._frameTimings[this._frameTimings.length] = timings;
-		this._numFrameSets++;
-		this._useMultipleFrameSets = this._numFrameSets > 1;
+		var particleAnimation:ParticleAnimation = ParticleAnimation.fromPool(animation, weight, textureIndex);
+		this._animationsToPool[this._animationsToPool.length] = particleAnimation;
+		addParticleAnimation(particleAnimation, refreshParticles);
+	}
+	
+	public function addFrame(frame:Frame, weight:Float = 1.0, textureIndex:Int = 0, refreshParticles:Bool = false):Void
+	{
+		var particleFrame:ParticleFrame = ParticleFrame.fromPool(frame, weight, textureIndex);
+		this._framesToPool[this._framesToPool.length] = particleFrame;
+		addParticleFrame(particleFrame, refreshParticles);
+	}
+	
+	public function addParticleAnimation(animation:ParticleAnimation, refreshParticles:Bool = false):Void
+	{
+		this._animations[this._animations.length] = animation;
 		
 		if (refreshParticles)
 		{
@@ -2863,12 +2883,60 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 	}
 	
-	public function addFramesMultiple(frames:#if flash Vector<Vector<Frame>> #else Array<Array<Frame>>#end, timings:#if SWC Vector<Vector<Float>> #else Array<Array<Float>>#end = null, refreshParticles:Bool = true):Void
+	#if flash
+	public function addParticleAnimations(animations:Vector<ParticleAnimation>, refreshParticles:Bool = false):Void
+	#else
+	public function addParticleAnimations(animations:Array<ParticleAnimation>, refreshParticles:Bool = false):Void
+	#end
+	{
+		var count:Int = animations.length;
+		for (i in 0...count)
+		{
+			addParticleAnimation(animations[i], false);
+		}
+		
+		if (refreshParticles)
+		{
+			returnParticlesToPool();
+			if (this.particlesFromPoolFunction != null)
+			{
+				getParticlesFromPool();
+			}
+			else
+			{
+				this._isParticlePoolUpdatePending = true;
+			}
+		}
+	}
+	
+	public function addParticleFrame(frame:ParticleFrame, refreshParticles:Bool = false):Void
+	{
+		this._frames[this._frames.length] = frame;
+		
+		if (refreshParticles)
+		{
+			returnParticlesToPool();
+			if (this.particlesFromPoolFunction != null)
+			{
+				getParticlesFromPool();
+			}
+			else
+			{
+				this._isParticlePoolUpdatePending = true;
+			}
+		}
+	}
+	
+	#if flash
+	public function addParticleFrames(frames:Vector<ParticleFrame>, refreshParticles:Bool = false):Void
+	#else
+	public function addParticleFrames(frames:Array<ParticleFrame>, refreshParticles:Bool = false):Void
+	#end
 	{
 		var count:Int = frames.length;
 		for (i in 0...count)
 		{
-			addFrames(frames[i], timings != null ? timings[i] : null, false);
+			addParticleFrame(frames[i], false);
 		}
 		
 		if (refreshParticles)
@@ -2889,19 +2957,35 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	{
 		returnParticlesToPool();
 		
-		#if flash
-		this._frames.length = 0;
-		#else
-		this._frames.resize(0);
-		#end
-		#if SWC
-		this._frameTimings.length = 0;
-		#else
-		this._frameTimings.resize(0);
-		#end
+		for (i in 0...this._animationsToPool.length)
+		{
+			this._animationsToPool[i].pool();
+		}
 		
-		this._numFrameSets = 0;
-		this._useMultipleFrameSets = false;
+		for (i in 0...this._framesToPool.length)
+		{
+			this._framesToPool[i].pool();
+		}
+		
+		#if flash
+		this._animations.length = 0;
+		this._animationsToPool.length = 0;
+		this._frames.length = 0;
+		this._framesToPool.length = 0;
+		#else
+		this._animations.resize(0);
+		this._animationsToPool.resize(0);
+		this._frames.resize(0);
+		this._framesToPool.resize(0);
+		#end
+		//#if SWC
+		//this._frameTimings.length = 0;
+		//#else
+		//this._frameTimings.resize(0);
+		//#end
+		
+		//this._numFrameSets = 0;
+		//this._useMultipleFrameSets = false;
 	}
 	
 	inline private function getRandomRatio():Float
@@ -2954,7 +3038,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	
 	private var __deadParticle:Bool;
 	
-	#if !debug inline #end private function initParticle(particle:T):Void
+	#if !debug inline #end private function initParticle(particle:Particle):Void
 	{
 		#if debug
 		particle.updateCount = 0;
@@ -2966,22 +3050,36 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		particle.frameTime = 0.0;
 		particle.loopCount = 0;
 		
-		if (this._useAnimationLifeSpan)
+		if (this._useAnimationLifeSpan && particle.animation != null)
 		{
-			if (this._loopAnimation)
+			//if (this._loopAnimation)
+			//{
+				//if (this._animationLoops == 0)
+				//{
+					//this.__lifeSpan = MathUtils.FLOAT_MAX;
+				//}
+				//else
+				//{
+					////this.__lifeSpan = (particle.frameTimings[particle.frameTimings.length-1] / particle.frameDelta) * this._animationLoops;
+					//this.__lifeSpan = (particle.animation.duration / particle.frameDelta) * this._animationLoops;
+				//}
+			//}
+			if (particle.animation.loop)
 			{
-				if (this._animationLoops == 0)
+				if (particle.animation.numLoops == 0)
 				{
+					// infinite loop
 					this.__lifeSpan = MathUtils.FLOAT_MAX;
 				}
 				else
 				{
-					this.__lifeSpan = (particle.frameTimings[particle.frameTimings.length-1] / particle.frameDelta) * this._animationLoops;
+					this.__lifeSpan = (particle.animation.duration / particle.frameDelta) + (particle.animation.loopDuration / particle.frameDelta) * particle.animation.numLoops;
 				}
 			}
 			else
 			{
-				this.__lifeSpan = particle.frameTimings[particle.frameTimings.length-1] / particle.frameDelta;
+				//this.__lifeSpan = particle.frameTimings[particle.frameTimings.length-1] / particle.frameDelta;
+				this.__lifeSpan = particle.animation.duration / particle.frameDelta;
 			}
 		}
 		else
@@ -3131,7 +3229,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			particle.sizeYStart = this.__sizeYStart = this._sizeYStart;
 		}
 		
-		this.__firstFrameWidth = particle.frameList[0].width;
+		//this.__firstFrameWidth = particle.frameList[0].width;
+		this.__firstFrameWidth = particle.animation != null ? particle.animation.frames[0].frame.width : particle.frame.width;
 		particle.scaleXBase = particle.scaleXStart = this.__sizeXStart / this.__firstFrameWidth;
 		particle.scaleYBase = particle.scaleYStart = this.__sizeYStart / this.__firstFrameWidth;
 		if (this._useSizeX)
@@ -3833,13 +3932,9 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			if (this._useRotation) particle.rotationDelta = 0.0;
 		}
 		
-		if (this.randomStartFrame)
+		if (particle.animation != null)
 		{
-			particle.frameIndex = MathUtils.floor(MathUtils.random() * particle.frameCount);
-		}
-		else
-		{
-			particle.frameIndex = 0;
+			particle.play(particle.animation, this.randomStartFrame ? Math.floor(MathUtils.random() * particle.animation.numFrames) : 0);
 		}
 	}
 	
@@ -3865,7 +3960,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	private var __velocityAngleCalculated:Bool;
 	private var __velocityScalar:Float;
 	
-	#if !debug inline #end private function advanceParticle(particle:T, passedTime:Float):Void
+	#if !debug inline #end private function advanceParticle(particle:Particle, passedTime:Float):Void
 	{
 		#if debug
 		particle.updateCount++;
@@ -4854,14 +4949,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		var particleIndex:Int = 0;
 		var currentIndex:Int = 0;
-		var particle:T;
+		var particle:Particle;
 		
 		// advance existing particles
 		if (this._regularSorting)
 		{
 			while (particleIndex < this._numParticles)
 			{
-				particle = this._particles[particleIndex];
+				particle = cast this._particles[particleIndex];
 				if (particle != null)
 				{
 					if (particle.timeCurrent < particle.timeTotal)
@@ -4891,7 +4986,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				var count:Int = this._particles.length;
 				for (particleIndex in particleIndex...count)
 				{
-					particle = this._particles[particleIndex];
+					particle = cast this._particles[particleIndex];
 					if (particle != null)
 					{
 						this._particles[particleIndex] = null;
@@ -4910,7 +5005,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		{
 			while (particleIndex < this._numParticles)
 			{
-				particle = this._particles[particleIndex];
+				particle = cast this._particles[particleIndex];
 				
 				if (particle.timeCurrent < particle.timeTotal)
 				{
@@ -4922,7 +5017,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 					particle.visible = false;
 					if (particleIndex != --this._numParticles)
 					{
-						var nextParticle:T = this._particles[this._numParticles];
+						var nextParticle:Particle = cast this._particles[this._numParticles];
 						this._particles[this._numParticles] = particle;
 						this._particles[particleIndex] = nextParticle;
 						sortFlag = true;
@@ -4955,7 +5050,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 						
 						while (this._numParticles < maxParticles)
 						{
-							particle = this._particles[this._numParticles];
+							particle = cast this._particles[this._numParticles];
 							initParticle(particle);
 							
 							++this._numParticles;
@@ -4991,7 +5086,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 						
 						while (this._frameTime > 0.0 && this._numParticles < maxParticles)
 						{
-							particle = this._particles[this._numParticles];
+							particle = cast this._particles[this._numParticles];
 							initParticle(particle);
 							
 							++this._numParticles;
@@ -5024,7 +5119,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				
 				while (this._frameTime > 0.0 && this._numParticles < maxParticles)
 				{
-					particle = this._particles[this._numParticles];
+					particle = cast this._particles[this._numParticles];
 					initParticle(particle);
 					advanceParticle(particle, this._frameTime);
 					
@@ -5070,7 +5165,9 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 	public function updateEmissionRate():Void
 	{
 		var lifeSpan:Float;
-		var timingsCount:Int;
+		var animCount:Int;
+		var anim:ParticleAnimation;
+		var totalWeight:Float = 0.0;
 		if (this._isModeBurst)
 		{
 			if (this._numBursts == 0)
@@ -5078,12 +5175,14 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 				if (this._useAnimationLifeSpan)
 				{
 					lifeSpan = 0.0;
-					timingsCount = this._frameTimings.length;
-					for (i in 0...timingsCount)
+					animCount = this._animations.length;
+					for (i in 0...animCount)
 					{
-						lifeSpan += this._frameTimings[i][this._frameTimings[i].length - 1] / this._frameDelta;
+						anim = this._animations[i];
+						lifeSpan += anim.animation.duration * anim.weight;
+						totalWeight += anim.weight;
 					}
-					lifeSpan /= timingsCount;
+					lifeSpan /= totalWeight;
 				}
 				else
 				{
@@ -5119,12 +5218,15 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			if (this._useAnimationLifeSpan)
 			{
 				lifeSpan = 0.0;
-				timingsCount = this._frameTimings.length;
-				for (i in 0...timingsCount)
+				animCount = this._animations.length;
+				for (i in 0...animCount)
 				{
-					lifeSpan += this._frameTimings[i][this._frameTimings[i].length - 1] / this._frameDelta;
+					anim = this._animations[i];
+					lifeSpan += anim.animation.duration * anim.weight;
+					totalWeight += anim.weight;
 				}
-				lifeSpan /= timingsCount;
+				lifeSpan /= totalWeight;
+				
 				this.emissionRate = this._maxNumParticles * this._emissionRatio / lifeSpan;
 			}
 			else
@@ -5141,7 +5243,6 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 			reset();
 		}
 		
-		//if (this._isModeBurst || this._emissionRate != 0.0)
 		if (this._emissionRate != 0.0)
 		{
 			if (this._isParticlePoolUpdatePending)
@@ -5232,6 +5333,7 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		}
 	}
 	
+	@:access(massive.display.Clip)
 	private function getParticlesFromPool():Void
 	{
 		if (this._particles.length != 0)
@@ -5241,29 +5343,129 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		
 		if (this.particlesFromPoolFunction != null)
 		{
-			particlesFromPoolFunction(this._maxNumParticles, this._particles);
+			particlesFromPoolFunction(this._maxNumParticles, this._particlePool);
+			for (i in 0...this._maxNumParticles)
+			{
+				this._particles[i] = this._particlePool[i];
+			}
 		}
 		else
 		{
 			throw new Error("ParticleSystem.getParticlesFromPool ::: null particlesFromPoolFunction");
 		}
 		
-		if (this._useMultipleFrameSets)
+		var animationsWeight:Float = 0.0;
+		var framesWeight:Float = 0.0;
+		
+		var animationCount:Int = this._animations.length;
+		for (i in 0...animationCount)
 		{
-			var r:Int;
+			animationsWeight += this._animations[i].weight;
+		}
+		
+		var frameCount:Int = this._frames.length;
+		for (i in 0...frameCount)
+		{
+			framesWeight += this._frames[i].weight;
+		}
+		
+		var canDrawAnimation:Bool = animationsWeight != 0.0;
+		var canDrawFrame:Bool = framesWeight != 0.0;
+		var particle:Particle;
+		var r:Float;
+		if (canDrawAnimation && canDrawFrame)
+		{
+			var totalWeight:Float = animationsWeight + framesWeight;
 			for (i in 0...this._maxNumParticles)
 			{
-				r = MathUtils.floor(MathUtils.random() * this._numFrameSets);
-				this._particles[i].setFrames(this._frames[r], this._frameTimings[r], this._loopAnimation, this._animationLoops);
+				particle = this._particlePool[i];
+				r = MathUtils.random() * totalWeight;
+				if (r < framesWeight)
+				{
+					// pick frame
+					for (j in 0...frameCount)
+					{
+						r -= this._frames[j].weight;
+						if (r < 0.0)
+						{
+							if (particle.animation != null) particle.clearAnimation();
+							particle.frame = this._frames[j].frame;
+							particle.textureIndex = this._frames[j].textureIndex;
+							break;
+						}
+					}
+				}
+				else
+				{
+					// pick animation
+					r -= framesWeight;
+					for (j in 0...animationCount)
+					{
+						r -= this._animations[j].weight;
+						if (r < 0.0)
+						{
+							particle.animation = this._animations[j].animation;
+							particle.textureIndex = this._animations[j].textureIndex;
+							break;
+						}
+					}
+				}
+			}
+		}
+		else if (canDrawAnimation)
+		{
+			for (i in 0...this._maxNumParticles)
+			{
+				r = MathUtils.random() * animationsWeight;
+				for (j in 0...animationCount)
+				{
+					r -= this._animations[j].weight;
+					if (r < 0.0)
+					{
+						this._particlePool[i].animation = this._animations[j].animation;
+						break;
+					}
+				}
+			}
+		}
+		else if (canDrawFrame)
+		{
+			for (i in 0...this._maxNumParticles)
+			{
+				r = MathUtils.random() * framesWeight;
+				for (j in 0...frameCount)
+				{
+					r -= this._frames[j].weight;
+					if (r < 0.0)
+					{
+						if (this._particlePool[i].animation != null) this._particlePool[i].clearAnimation();
+						this._particlePool[i].frame = this._frames[j].frame;
+					}
+				}
 			}
 		}
 		else
 		{
-			for (i in 0...this._maxNumParticles)
-			{
-				this._particles[i].setFrames(this._frames[0], this._frameTimings[0], this._loopAnimation, this._animationLoops);
-			}
+			// no frames or animations
+			throw new Error("ParticleSystem.getParticlesFromPool ::: no frame or animation");
 		}
+		
+		//if (this._useMultipleFrameSets)
+		//{
+			//var r:Int;
+			//for (i in 0...this._maxNumParticles)
+			//{
+				//r = MathUtils.floor(MathUtils.random() * this._numFrameSets);
+				//this._particlePool[i].setFrames(this._frames[r], this._frameTimings[r], this._loopAnimation, this._animationLoops);
+			//}
+		//}
+		//else
+		//{
+			//for (i in 0...this._maxNumParticles)
+			//{
+				//this._particlePool[i].setFrames(this._frames[0], this._frameTimings[0], this._loopAnimation, this._animationLoops);
+			//}
+		//}
 		
 		this._isParticlePoolUpdatePending = false;
 	}
@@ -5276,20 +5478,22 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		{
 			if (this.particlesToPoolFunction != null)
 			{
-				this.particlesToPoolFunction(this._particles);
+				this.particlesToPoolFunction(this._particlePool);
 			}
 			else
 			{
-				var count:Int = this._particles.length;
+				var count:Int = this._particlePool.length;
 				for (i in 0...count)
 				{
-					this._particles[i].pool();
+					this._particlePool[i].pool();
 				}
 			}
 			#if flash
 			this._particles.length = 0;
+			this._particlePool.length = 0;
 			#else
 			this._particles.resize(0);
+			this._particlePool.resize(0);
 			#end
 		}
 	}
@@ -5401,8 +5605,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		this.textureAnimation = options.textureAnimation;
 		this.frameDelta = options.frameDelta;
 		this.frameDeltaVariance = options.frameDeltaVariance;
-		this.loopAnimation = options.loopAnimation;
-		this.animationLoops = options.animationLoops;
+		//this.loopAnimation = options.loopAnimation;
+		//this.animationLoops = options.animationLoops;
 		this.randomStartFrame = options.randomStartFrame;
 		//\Animation
 		
@@ -5698,8 +5902,8 @@ class ParticleSystem<T:Particle = Particle> extends ImageLayer<T>
 		options.textureAnimation = this.textureAnimation;
 		options.frameDelta = this._frameDelta;
 		options.frameDeltaVariance = this.frameDeltaVariance;
-		options.loopAnimation = this._loopAnimation;
-		options.animationLoops = this._animationLoops;
+		//options.loopAnimation = this._loopAnimation;
+		//options.animationLoops = this._animationLoops;
 		options.randomStartFrame = this.randomStartFrame;
 		//\Animation
 		
