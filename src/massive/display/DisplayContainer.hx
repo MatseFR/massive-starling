@@ -935,10 +935,10 @@ class DisplayContainer extends DisplayBase
 					}
 					else
 					{
-						floatData[++this.__position] = this.__image._red4Final;
-						floatData[++this.__position] = this.__image._green4Final;
-						floatData[++this.__position] = this.__image._blue4Final;
-						floatData[++this.__position] = this.__image._alpha4Final;
+						floatData[++this.__position] = this.__image._redOffset4Final;
+						floatData[++this.__position] = this.__image._greenOffset4Final;
+						floatData[++this.__position] = this.__image._blueOffset4Final;
+						floatData[++this.__position] = this.__image._alphaOffset4Final;
 					}
 				}
 				if (this.__multiTexturing)
