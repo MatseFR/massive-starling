@@ -186,6 +186,16 @@ class ParticleSystemOptions
 	**/
 	public var fadeOutTime:Float = 0.0;
 	/**
+	   if true about 50% of emitted particles will have their texture(s) inverted on x-axis
+	   @default	false
+	**/
+	public var randomInvertX:Bool;
+	/**
+	   if true about 50% of emitted particles will have their texture(s) inverted on y-axis
+	   @default	false
+	**/
+	public var randomInvertY:Bool;
+	/**
 	   sets both sizeXStart and sizeYStart
 	**/
 	public var sizeStart(get, set):Float;
@@ -1072,6 +1082,9 @@ class ParticleSystemOptions
 		this.fadeInTime = 0.0;
 		this.fadeOutTime = 0.0;
 		
+		this.randomInvertX = false;
+		this.randomInvertY = false;
+		
 		this.sizeXStart = 20.0;
 		this.sizeXStartVariance = 0.0;
 		this.sizeYStart = 20.0;
@@ -1370,6 +1383,9 @@ class ParticleSystemOptions
 		
 		target.fadeInTime = this.fadeInTime;
 		target.fadeOutTime = this.fadeOutTime;
+		
+		target.randomInvertX = this.randomInvertX;
+		target.randomInvertY = this.randomInvertY;
 		
 		target.sizeXStart = this.sizeXStart;
 		target.sizeXStartVariance = this.sizeXStartVariance;
@@ -1674,6 +1690,9 @@ class ParticleSystemOptions
 		this.fadeInTime = json.fadeInTime;
 		this.fadeOutTime = json.fadeOutTime;
 		
+		if (json.randomInvertX != null) this.randomInvertX = json.randomInvertX;
+		if (json.randomInvertY != null) this.randomInvertY = json.randomInvertY;
+		
 		this.sizeXStart = json.sizeXStart;
 		this.sizeXStartVariance = json.sizeXStartVariance;
 		this.sizeYStart = json.sizeYStart;
@@ -1972,6 +1991,9 @@ class ParticleSystemOptions
 		
 		json.fadeInTime = this.fadeInTime;
 		json.fadeOutTime = this.fadeOutTime;
+		
+		json.randomInvertX = this.randomInvertX;
+		json.randomInvertY = this.randomInvertY;
 		
 		json.sizeXStart = this.sizeXStart;
 		json.sizeXStartVariance = this.sizeXStartVariance;

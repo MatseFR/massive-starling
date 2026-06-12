@@ -464,6 +464,18 @@ class ParticleSystem extends DisplayContainer
 		return this._fadeOutTime = value;
 	}
 	
+	/**
+	   if true about 50% of emitted particles will have their texture(s) inverted on x-axis
+	   @default	false
+	**/
+	public var randomInvertX:Bool;
+	
+	/**
+	   if true about 50% of emitted particles will have their texture(s) inverted on y-axis
+	   @default	false
+	**/
+	public var randomInvertY:Bool;
+	
 	private var _useSizeX:Bool = false;
 	private var _useSizeY:Bool = false;
 	
@@ -2994,6 +3006,24 @@ class ParticleSystem extends DisplayContainer
 		particle.frameTime = 0.0;
 		particle.loopCount = 0;
 		
+		if (this.randomInvertX)
+		{
+			particle.invertX = Math.random() < 0.5;
+		}
+		else
+		{
+			particle.invertX = false;
+		}
+		
+		if (this.randomInvertY)
+		{
+			particle.invertY = Math.random() < 0.5;
+		}
+		else
+		{
+			particle.invertY = false;
+		}
+		
 		if (this._useAnimationLifeSpan && particle.animation != null)
 		{
 			if (particle.animation.loop)
@@ -5462,6 +5492,9 @@ class ParticleSystem extends DisplayContainer
 		this.fadeInTime = options.fadeInTime;
 		this.fadeOutTime = options.fadeOutTime;
 		
+		this.randomInvertX = options.randomInvertX;
+		this.randomInvertY = options.randomInvertY;
+		
 		this.sizeXStart = options.sizeXStart;
 		this.sizeYStart = options.sizeYStart;
 		this.sizeXStartVariance = options.sizeXStartVariance;
@@ -5756,6 +5789,9 @@ class ParticleSystem extends DisplayContainer
 		
 		options.fadeInTime = this._fadeInTime;
 		options.fadeOutTime = this._fadeOutTime;
+		
+		options.randomInvertX = this.randomInvertX;
+		options.randomInvertY = this.randomInvertY;
 		
 		options.sizeXStart = this._sizeXStart;
 		options.sizeYStart = this._sizeYStart;
