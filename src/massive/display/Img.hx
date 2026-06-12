@@ -15,15 +15,20 @@ class Img extends QuadBase
 	static public var TEXTURE_INDEX_MULTIPLIER:Float;
 	
 	static private var _POOL:Array<Img> = new Array<Img>();
+	static private var _tempImg:Img;
 	
 	/**
 	   Returns an ImageData from pool if there's at least one in pool, or a new one otherwise
 	   @return
 	**/
-	static public function fromPool():Img
+	static public function fromPool(frame:Frame = null):Img
 	{
-		if (_POOL.length != 0) return _POOL.pop();
-		return new Img();
+		if (_POOL.length != 0) {
+			_tempImg = _POOL.pop();
+			_tempImg.frame = frame;
+			return _tempImg;
+		}
+		return new Img(frame);
 	}
 	
 	/**
@@ -203,9 +208,10 @@ class Img extends QuadBase
 	/**
 	   Constructor
 	**/
-	public function new() 
+	public function new(frame:Frame = null) 
 	{
 		super();
+		this.frame = frame;
 	}
 	
 	/**
@@ -213,8 +219,8 @@ class Img extends QuadBase
 	**/
 	override public function clear():Void
 	{
+		this.frame = null;
 		this.invertX = this.invertY = false;
-		
 		this.textureIndexReal = 0.0;
 		
 		super.clear();
