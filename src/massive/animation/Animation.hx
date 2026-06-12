@@ -1,4 +1,5 @@
 package massive.animation;
+import massive.data.Frame;
 #if flash
 import openfl.Vector;
 #end
@@ -23,6 +24,9 @@ class Animation
 	#else
 	public var frames:Array<AnimationFrame> = new Array<AnimationFrame>();
 	#end
+	public var hasVertexData(default, null):Bool;
+	public var hasVertexColorData(default, null):Bool;
+	public var hasVertexColorExData(default, null):Bool;
 	public var id:String;
 	public var lastFrame(default, null):Int = 0;
 	public var loop:Bool = false;
@@ -115,6 +119,22 @@ class Animation
 		else
 		{
 			this.loopDuration = this.duration - this.frames[this.loopFrame - 1].timing;
+		}
+		
+		this.hasVertexData = false;
+		this.hasVertexColorData = false;
+		this.hasVertexColorExData = false;
+		
+		var frame:AnimationFrame;
+		var count:Int = this.frames.length;
+		for (i in 0...count)
+		{
+			frame = this.frames[i];
+			if (!this.hasVertexData && frame.vertexData != null) this.hasVertexData = true;
+			if (!this.hasVertexColorData && frame.vertexColorData != null) this.hasVertexColorData = true;
+			if (!this.hasVertexColorExData && frame.vertexColorExData != null) this.hasVertexColorExData = true;
+			
+			if (this.hasVertexData && this.hasVertexColorData && this.hasVertexColorExData) break;
 		}
 	}
 	
