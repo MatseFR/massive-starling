@@ -42,8 +42,12 @@ class DisplayContainer extends DisplayBase
 	#else
 	private var _datas:Array<DisplayBase>;
 	#end
-
-	public function new(datas:#if flash Vector<DisplayBase> #else Array<DisplayBase>#end = null) 
+	
+	#if flash
+	public function new(datas:Vector<DisplayBase> = null) 
+	#else
+	public function new(datas:Array<DisplayBase> = null)
+	#end
 	{
 		super();
 		this.isContainer = true;
@@ -192,11 +196,11 @@ class DisplayContainer extends DisplayBase
 			else
 			{
 				this.__image = cast this.__data;
+				this.__frame = this.__image.frame;
+				if (this.__frame == null) continue;
 				
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
-				
-				this.__frame = this.__image.frame;
 				
 				if (this.__image._transformChanged)
 				{
@@ -459,11 +463,11 @@ class DisplayContainer extends DisplayBase
 			else
 			{
 				this.__image = cast this.__data;
+				this.__frame = this.__image.frame;
+				if (this.__frame == null) continue;
 				
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
-				
-				this.__frame = this.__image.frame;
 				
 				if (this.__image._transformChanged)
 				{
@@ -688,6 +692,7 @@ class DisplayContainer extends DisplayBase
 		}
 		
 		renderData.numQuads = this.__quadsWritten;
+		renderData.position = this.__position;
 	}
 	#end
 	
@@ -732,11 +737,11 @@ class DisplayContainer extends DisplayBase
 			else
 			{
 				this.__image = cast this.__data;
+				this.__frame = this.__image.frame;
+				if (this.__frame == null) continue;
 				
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
-				
-				this.__frame = this.__image.frame;
 				
 				if (this.__image._transformChanged)
 				{
@@ -961,6 +966,7 @@ class DisplayContainer extends DisplayBase
 		}
 		
 		renderData.numQuads = this.__quadsWritten;
+		renderData.position = this.__position;
 	}
 	#end
 	
@@ -1004,11 +1010,11 @@ class DisplayContainer extends DisplayBase
 			else
 			{
 				this.__image = cast this.__data;
+				this.__frame = this.__image.frame;
+				if (this.__frame == null) continue;
 				
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
-				
-				this.__frame = this.__image.frame;
 				
 				if (this.__image._transformChanged)
 				{
@@ -1233,6 +1239,7 @@ class DisplayContainer extends DisplayBase
 		}
 		
 		renderData.numQuads = this.__quadsWritten;
+		renderData.position = this.__position;
 	}
 	
 	public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderOffsetX:Float, renderOffsetY:Float):Void
