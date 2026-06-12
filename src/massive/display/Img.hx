@@ -155,6 +155,7 @@ class Img extends QuadBase
 	inline private function get_frame():Frame { return this._frame; }
 	inline private function set_frame(value:Frame):Frame
 	{
+		if (this._frame == value) return value;
 		this._transformChanged = this._sizeXChanged = this._sizeYChanged = true;
 		return this._frame = value;
 	}
