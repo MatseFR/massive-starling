@@ -2234,7 +2234,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
-					this._layers[i].writeDataBytesMemory(this._bufferSize, 0, 0, this._renderData, boundsData);
+					this._layers[i].writeDataBytesMemory(this._bufferSize, this.renderOffsetX, this.renderOffsetY, this._renderData, boundsData);
 				}
 				if (this._renderData.numQuads != 0)
 				{
@@ -2249,7 +2249,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				for (i in 0...this._numLayers)
 				{
 					if (!this._layers[i].visible) continue;
-					this._layers[i].writeDataBytes(this._byteData, this._bufferSize, 0, 0, this._renderData, boundsData);
+					this._layers[i].writeDataBytes(this._byteData, this._bufferSize, this.renderOffsetX, this.renderOffsetY, this._renderData, boundsData);
 				}
 				if (this._renderData.numQuads != 0)
 				{
@@ -2265,7 +2265,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			for (i in 0...this._numLayers)
 			{
 				if (!this._layers[i].visible) continue;
-				this._layers[i].writeDataFloat32Array(this._float32Data, this._bufferSize, 0, 0, this._renderData, boundsData);
+				this._layers[i].writeDataFloat32Array(this._float32Data, this._bufferSize, this.renderOffsetX, this.renderOffsetY, this._renderData, boundsData);
 			}
 			if (this._renderData.numQuads != 0)
 			{
@@ -2278,7 +2278,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			for (i in 0...this._numLayers)
 			{
 				if (!this._layers[i].visible) continue;
-				this._layers[i].writeDataVector(this._vectorData, this._bufferSize, 0, 0, this._renderData, boundsData);
+				this._layers[i].writeDataVector(this._vectorData, this._bufferSize, this.renderOffsetX, this.renderOffsetY, this._renderData, boundsData);
 			}
 			if (this._renderData.numQuads != 0)
 			{
