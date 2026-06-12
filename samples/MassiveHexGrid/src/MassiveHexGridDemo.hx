@@ -11,8 +11,10 @@ import hexagon.definition.HexDefinitionFlat;
 import hexagon.definition.HexDefinitionPointy;
 import hexagon.grid.HexGrid;
 import massive.data.Frame;
-import massive.data.ImageData;
+import massive.display.Img;
+#if flash
 import openfl.Vector;
+#end
 import openfl.geom.Point;
 import openfl.system.Capabilities;
 import openfl.utils.Assets;
@@ -48,27 +50,19 @@ class MassiveHexGridDemo extends Sprite
 	public var flatAtlas:TextureAtlas;
 	public var flatDefinition:HexDefinitionFlat;
 	public var flatTemplates:Map<String, HexTemplate> = new Map<String, HexTemplate>();
-	public var flatSelectionFrames:#if flash Vector<Frame> #else Array<Frame> #end;
-	#if flash
-	public var flatMoveCostFrames:Map<Int, Vector<Frame>> = new Map<Int, Vector<Frame>>();
-	#else
-	public var flatMoveCostFrames:Map<Int, Array<Frame>> = new Map<Int, Array<Frame>>();
-	#end
+	public var flatSelectionFrame:Frame;
+	public var flatMoveCostFrames:Map<Int, Frame> = new Map<Int, Frame>();
 	
 	public var pointyAtlas:TextureAtlas;
 	public var pointyDefinition:HexDefinitionPointy;
 	public var pointyTemplates:Map<String, HexTemplate> = new Map<String, HexTemplate>();
-	public var pointySelectionFrames:#if flash Vector<Frame> #else Array<Frame> #end;
-	#if flash
-	public var pointyMoveCostFrames:Map<Int, Vector<Frame>> = new Map<Int, Vector<Frame>>();
-	#else
-	public var pointyMoveCostFrames:Map<Int, Array<Frame>> = new Map<Int, Array<Frame>>();
-	#end
+	public var pointySelectionFrame:Frame;
+	public var pointyMoveCostFrames:Map<Int, Frame> = new Map<Int, Frame>();
 	
 	private var atlas:TextureAtlas;
 	private var definition:HexDefinition;
 	private var templates:Map<String, HexTemplate>;
-	private var selectionFrames:#if flash Vector<Frame> #else Array<Frame> #end;
+	private var selectionFrame:Frame;
 	private var hexMode:String;
 	private var numRows:Int = 30;
 	private var numColumns:Int = 30;
@@ -120,15 +114,15 @@ class MassiveHexGridDemo extends Sprite
 		texture = this.flatAtlas.getTexture("grass");
 		this.flatDefinition = new HexDefinitionFlat();
 		this.flatDefinition.fromDimensions(texture.width, texture.height);
-		textures = this.flatAtlas.getTextures("selection");
-		this.flatSelectionFrames = Frame.fromTextureVectorWithAlign(textures, alignH, alignV);
+		texture = this.flatAtlas.getTexture("selection");
+		this.flatSelectionFrame = Frame.fromTextureWithAlign(texture, alignH, alignV);
 		
 		for (i in 1...6)
 		{
-			textures = this.flatAtlas.getTextures("cost_" + i);
-			if (textures.length != 0)
+			texture = this.flatAtlas.getTexture("cost_" + i);
+			if (texture != null)
 			{
-				this.flatMoveCostFrames[i] = Frame.fromTextureVectorWithAlign(textures, alignH, alignV);
+				this.flatMoveCostFrames[i] = Frame.fromTextureWithAlign(texture, alignH, alignV);
 			}
 		}
 		
@@ -136,15 +130,15 @@ class MassiveHexGridDemo extends Sprite
 		texture = this.pointyAtlas.getTexture("grass");
 		this.pointyDefinition = new HexDefinitionPointy();
 		this.pointyDefinition.fromDimensions(texture.width, texture.height);
-		textures = this.pointyAtlas.getTextures("selection");
-		this.pointySelectionFrames = Frame.fromTextureVectorWithAlign(textures, alignH, alignV);
+		texture = this.pointyAtlas.getTexture("selection");
+		this.pointySelectionFrame = Frame.fromTextureWithAlign(texture, alignH, alignV);
 		
 		for (i in 1...6)
 		{
-			textures = this.pointyAtlas.getTextures("cost_" + i);
-			if (textures.length != 0)
+			texture = this.pointyAtlas.getTexture("cost_" + i);
+			if (texture != null)
 			{
-				this.pointyMoveCostFrames[i] = Frame.fromTextureVectorWithAlign(textures, alignH, alignV);
+				this.pointyMoveCostFrames[i] = Frame.fromTextureWithAlign(texture, alignH, alignV);
 			}
 		}
 		
@@ -155,9 +149,9 @@ class MassiveHexGridDemo extends Sprite
 			template.cost = this.templateCosts[name];
 			template.isBlockingLoS = this.templateBlockLoS[name];
 			template.isTraversable = this.templateTraversable[name];
-			textures = this.flatAtlas.getTextures(name);
-			template.frames = Frame.fromTextureVectorWithAlign(textures, alignH, alignV);
-			template.costFrames = this.flatMoveCostFrames[template.cost];
+			texture = this.flatAtlas.getTexture(name);
+			template.frame = Frame.fromTextureWithAlign(texture, alignH, alignV);
+			template.costFrame = this.flatMoveCostFrames[template.cost];
 			this.flatTemplates[name] = template;
 			
 			// template for pointy orientation
@@ -165,9 +159,9 @@ class MassiveHexGridDemo extends Sprite
 			template.cost = this.templateCosts[name];
 			template.isBlockingLoS = this.templateBlockLoS[name];
 			template.isTraversable = this.templateTraversable[name];
-			textures = this.pointyAtlas.getTextures(name);
-			template.frames = Frame.fromTextureVectorWithAlign(textures, alignH, alignV);
-			template.costFrames = this.pointyMoveCostFrames[template.cost];
+			texture = this.pointyAtlas.getTexture(name);
+			template.frame = Frame.fromTextureWithAlign(texture, alignH, alignV);
+			template.costFrame = this.pointyMoveCostFrames[template.cost];
 			this.pointyTemplates[name] = template;
 		}
 		
@@ -472,7 +466,7 @@ class MassiveHexGridDemo extends Sprite
 		this.atlas = this.flatAtlas;
 		this.definition = this.flatDefinition;
 		this.templates = this.flatTemplates;
-		this.selectionFrames = this.flatSelectionFrames;
+		this.selectionFrame = this.flatSelectionFrame;
 		
 		startScene();
 	}
@@ -483,7 +477,7 @@ class MassiveHexGridDemo extends Sprite
 		this.atlas = this.flatAtlas;
 		this.definition = this.flatDefinition;
 		this.templates = this.flatTemplates;
-		this.selectionFrames = this.flatSelectionFrames;
+		this.selectionFrame = this.flatSelectionFrame;
 		
 		startScene();
 	}
@@ -494,7 +488,7 @@ class MassiveHexGridDemo extends Sprite
 		this.atlas = this.pointyAtlas;
 		this.definition = this.pointyDefinition;
 		this.templates = this.pointyTemplates;
-		this.selectionFrames = this.pointySelectionFrames;
+		this.selectionFrame = this.pointySelectionFrame;
 		
 		startScene();
 	}
@@ -505,7 +499,7 @@ class MassiveHexGridDemo extends Sprite
 		this.atlas = this.pointyAtlas;
 		this.definition = this.pointyDefinition;
 		this.templates = this.pointyTemplates;
-		this.selectionFrames = this.pointySelectionFrames;
+		this.selectionFrame = this.pointySelectionFrame;
 		
 		startScene();
 	}
@@ -516,7 +510,7 @@ class MassiveHexGridDemo extends Sprite
 		grid.build(this.numColumns, this.numRows, false, this.wrapAroundQ, this.wrapAroundR);
 		
 		var templateName:String;
-		var imgData:ImageData;
+		var img:Img;
 		var pt:Point = Pool.getPoint();
 		var hex:Hex;
 		var hexes:Array<Hex> = grid.allHexes;
@@ -525,10 +519,10 @@ class MassiveHexGridDemo extends Sprite
 		{
 			hex = hexes[i];
 			grid.hexToPixel(hex, this.definition, pt);
-			imgData = new ImageData();
-			hex.x = imgData.x = pt.x;
-			hex.y = imgData.y = pt.y;
-			hex.imageData = imgData;
+			img = new Img();
+			hex.x = img.x = pt.x;
+			hex.y = img.y = pt.y;
+			hex.imageData = img;
 			templateName = this.templateNames[Std.random(this.templateNames.length)];
 			assignHexTemplate(hex, this.templates[templateName]);
 		}
@@ -538,7 +532,7 @@ class MassiveHexGridDemo extends Sprite
 		scene.grid = grid;
 		scene.hexDefinition = this.definition;
 		scene.atlasTexture = this.atlas.texture;
-		scene.selectionFrames = this.selectionFrames;
+		scene.selectionFrame = this.selectionFrame;
 		
 		showSceneList([scene]);
 	}
@@ -548,14 +542,13 @@ class MassiveHexGridDemo extends Sprite
 		hex.cost = template.cost;
 		hex.isBlockingLoS = template.isBlockingLoS;
 		hex.isTraversable = template.isTraversable;
-		hex.imageData.setFrames(template.frames);
+		hex.imageData.frame = template.frame;
 		
-		if (template.costFrames != null)
+		if (template.costFrame != null)
 		{
-			hex.costImageData = new ImageData();
+			hex.costImageData = new Img(template.costFrame);
 			hex.costImageData.x = hex.x;
 			hex.costImageData.y = hex.y;
-			hex.costImageData.setFrames(template.costFrames);
 		}
 	}
 	

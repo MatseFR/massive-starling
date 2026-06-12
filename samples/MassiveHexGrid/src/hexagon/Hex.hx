@@ -1,5 +1,5 @@
 package hexagon;
-import massive.data.ImageData;
+import massive.display.Img;
 
 /**
  * ...
@@ -25,8 +25,8 @@ class Hex
 	public var y:Float;
 	public var offsetX:Float;
 	public var offsetY:Float;
-	public var imageData:ImageData;
-	public var costImageData:ImageData;
+	public var imageData:Img;
+	public var costImageData:Img;
 	public var visible:Bool = false;
 	
 	public function new() 

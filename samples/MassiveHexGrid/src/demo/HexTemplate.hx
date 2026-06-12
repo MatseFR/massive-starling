@@ -1,8 +1,5 @@
 package demo;
 import massive.data.Frame;
-#if flash
-import openfl.Vector;
-#end
 
 /**
  * ...
@@ -13,8 +10,8 @@ class HexTemplate
 	public var cost:Int;
 	public var isBlockingLoS:Bool;
 	public var isTraversable:Bool;
-	public var frames:#if flash Vector<Frame> #else Array<Frame> #end;
-	public var costFrames:#if flash Vector<Frame> #else Array<Frame> #end;
+	public var frame:Frame;
+	public var costFrame:Frame;
 	
 	public function new() 
 	{

@@ -6,12 +6,14 @@ import hexagon.definition.HexDefinition;
 import hexagon.grid.HexGrid;
 import hexagon.path.HexPathFinder;
 import massive.data.Frame;
-import massive.data.ImageData;
+import massive.display.DisplayContainer;
+import massive.display.Img;
 import massive.display.MassiveDisplay;
-import massive.display.ImageLayer;
 #if flash
 import openfl.Vector;
 #end
+import massive.display.base.DisplayBase;
+import massive.display.render.RenderMode;
 import openfl.events.MouseEvent;
 import openfl.geom.Point;
 import openfl.ui.Keyboard;
@@ -36,7 +38,7 @@ class CameraScene extends Scene implements IAnimatable
 	public var atlasTexture:Texture;
 	public var grid:HexGrid;
 	public var hexDefinition:HexDefinition;
-	public var selectionFrames:#if flash Vector<Frame> #else Array<Frame>#end;
+	public var selectionFrame:Frame;
 	public var viewRatio:Float = 0.75;
 	
 	private var _pathFinder:HexPathFinder;
@@ -44,26 +46,26 @@ class CameraScene extends Scene implements IAnimatable
 	private var _camera:HexCamera;
 	private var _cameraDebug:CameraDebugUI;
 	private var _display:MassiveDisplay;
-	private var _hexLayer:ImageLayer;
-	private var _costLayer:ImageLayer;
-	private var _selectionLayer:ImageLayer;
-	private var _rolloverLayer:ImageLayer;
+	private var _hexLayer:DisplayContainer;
+	private var _costLayer:DisplayContainer;
+	private var _selectionLayer:DisplayContainer;
+	private var _rolloverLayer:DisplayContainer;
 	private var _touchQuad:Quad;
 	
 	private var _rolloverHex:Hex;
-	private var _rolloverImage:ImageData;
+	private var _rolloverImage:Img;
 	private var _selectedHex:Hex;
-	private var _selectedImage:ImageData;
+	private var _selectedImage:Img;
 	private var _selectionHexList:Array<Hex> = new Array<Hex>();
-	private var _selectionImageList:Array<ImageData> = new Array<ImageData>();
+	private var _selectionImageList:Array<Img> = new Array<Img>();
 	
 	private var _hexList:Array<Hex> = new Array<Hex>();
 	#if flash
-	private var _hexDataList:Vector<ImageData> = new Vector<ImageData>();
-	private var _costDataList:Vector<ImageData> = new Vector<ImageData>();
+	private var _hexDataList:Vector<DisplayBase> = new Vector<DisplayBase>();
+	private var _costDataList:Vector<DisplayBase> = new Vector<DisplayBase>();
 	#else
-	private var _hexDataList:Array<ImageData> = new Array<ImageData>();
-	private var _costDataList:Array<ImageData> = new Array<ImageData>();
+	private var _hexDataList:Array<DisplayBase> = new Array<DisplayBase>();
+	private var _costDataList:Array<DisplayBase> = new Array<DisplayBase>();
 	#end
 	
 	private var _keyPressed:Map<UInt, Bool> = new Map<UInt, Bool>();
@@ -102,35 +104,33 @@ class CameraScene extends Scene implements IAnimatable
 		addChild(this._touchQuad);
 		this._touchQuad.addEventListener(TouchEvent.TOUCH, onTouch);
 		
-		_display = new MassiveDisplay(this.atlasTexture);
+		this._display = new MassiveDisplay(this.atlasTexture);
 		this._display.textureSmoothing = TextureSmoothing.TRILINEAR;
 		addChild(this._display);
 		
-		this._hexLayer = new ImageLayer(this._hexDataList);
+		this._hexLayer = new DisplayContainer(this._hexDataList);
 		this._display.addLayer(this._hexLayer);
 		
-		this._costLayer = new ImageLayer(this._costDataList);
+		this._costLayer = new DisplayContainer(this._costDataList);
 		this._costLayer.visible = false;
 		this._display.addLayer(this._costLayer);
 		
-		this._selectionLayer = new ImageLayer();
+		this._selectionLayer = new DisplayContainer();
 		this._display.addLayer(this._selectionLayer);
 		
-		this._rolloverLayer = new ImageLayer();
+		this._rolloverLayer = new DisplayContainer();
 		this._display.addLayer(this._rolloverLayer);
 		
-		this._rolloverImage = new ImageData();
+		this._rolloverImage = new Img(this.selectionFrame);
 		this._rolloverImage.green = 0.75;
 		this._rolloverImage.blue = 0;
-		this._rolloverImage.setFrames(this.selectionFrames);
-		this._rolloverLayer.addImage(this._rolloverImage);
+		this._rolloverLayer.addChild(this._rolloverImage);
 		
-		this._selectedImage = new ImageData();
+		this._selectedImage = new Img(this.selectionFrame);
 		this._selectedImage.red = 0;
 		this._selectedImage.green = 0.25;
-		this._selectedImage.setFrames(this.selectionFrames);
 		this._selectedImage.visible = false;
-		this._rolloverLayer.addImage(this._selectedImage);
+		this._rolloverLayer.addChild(this._selectedImage);
 		
 		this._camera = new HexCamera();
 		this._camera.width = stageWidth * this.viewRatio;
@@ -320,24 +320,23 @@ class CameraScene extends Scene implements IAnimatable
 		this._rolloverImage.alpha = 0;
 	}
 	
-	private function createSelectedImage(hex:Hex):ImageData
+	private function createSelectedImage(hex:Hex):Img
 	{
-		var img:ImageData = ImageData.fromPool();
-		img.setFrames(this.selectionFrames);
+		var img:Img = Img.fromPool(this.selectionFrame);
 		img.x = hex.x;
 		img.y = hex.y;
 		img.red = 0;
 		img.green = 0.5;
 		this._selectionImageList[this._selectionImageList.length] = img;
 		this._selectionHexList[this._selectionHexList.length] = hex;
-		this._selectionLayer.addImage(img);
+		this._selectionLayer.addChild(img);
 		return img;
 	}
 	
 	private function clearSelection():Void
 	{
-		this._selectionLayer.removeAllData();
-		ImageData.toPoolArray(this._selectionImageList);
+		this._selectionLayer.removeAllChildren();
+		Img.toPoolArray(this._selectionImageList);
 		this._selectionImageList.resize(0);
 		this._selectionHexList.resize(0);
 	}
