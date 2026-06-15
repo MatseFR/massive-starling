@@ -161,6 +161,30 @@ class Img extends QuadBase
 	inline private function set_frame(value:Frame):Frame
 	{
 		if (this._frame == value) return value;
+		if (value != null)
+		{
+			if (this._invertX)
+			{
+				this._u1 = value.u2;
+				this._u2 = value.u1;
+			}
+			else
+			{
+				this._u1 = value.u1;
+				this._u2 = value.u2;
+			}
+			
+			if (this._invertY)
+			{
+				this._v1 = value.v2;
+				this._v2 = value.v1;
+			}
+			else
+			{
+				this._v1 = value.v1;
+				this._v2 = value.v2;
+			}
+		}
 		this._transformChanged = this._sizeXChanged = this._sizeYChanged = true;
 		return this._frame = value;
 	}
@@ -178,6 +202,19 @@ class Img extends QuadBase
 	inline private function set_invertX(value:Bool):Bool
 	{
 		if (this._invertX == value) return value;
+		if (this._frame != null)
+		{
+			if (value)
+			{
+				this._u1 = this._frame.u2;
+				this._u2 = this._frame.u1;
+			}
+			else
+			{
+				this._u1 = this._frame.u1;
+				this._u2 = this._frame.u2;
+			}
+		}
 		this._transformChanged = this._sizeXChanged = this._colorChanged = this._colorOffsetChanged = true;
 		return this._invertX = value;
 	}
@@ -187,6 +224,19 @@ class Img extends QuadBase
 	inline private function set_invertY(value:Bool):Bool
 	{
 		if (this._invertY == value) return value;
+		if (this._frame != null)
+		{
+			if (value)
+			{
+				this._v1 = this._frame.v2;
+				this._v2 = this._frame.v1;
+			}
+			else
+			{
+				this._v1 = this._frame.v1;
+				this._v2 = this._frame.v2;
+			}
+		}
 		this._transformChanged = this._sizeYChanged = this._colorChanged = this._colorOffsetChanged = true;
 		return this._invertY = value;
 	}
@@ -204,6 +254,11 @@ class Img extends QuadBase
 		this.scaleX = value / this._frame.width;
 		return value;
 	}
+	
+	private var _u1:Float = 0.0;
+	private var _u2:Float = 0.0;
+	private var _v1:Float = 0.0;
+	private var _v2:Float = 0.0;
 	
 	/**
 	   Constructor
