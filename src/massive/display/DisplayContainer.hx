@@ -204,7 +204,7 @@ class DisplayContainer extends DisplayBase
 				
 				if (this.__image._transformChanged)
 				{
-					updateTransform(this.__image);
+					updateTransform();
 				}
 				else
 				{
@@ -476,7 +476,7 @@ class DisplayContainer extends DisplayBase
 				
 				if (this.__image._transformChanged)
 				{
-					updateTransform(this.__image);
+					updateTransform();
 				}
 				else
 				{
@@ -755,7 +755,7 @@ class DisplayContainer extends DisplayBase
 				
 				if (this.__image._transformChanged)
 				{
-					updateTransform(this.__image);
+					updateTransform();
 				}
 				else
 				{
@@ -1033,7 +1033,7 @@ class DisplayContainer extends DisplayBase
 				
 				if (this.__image._transformChanged)
 				{
-					updateTransform(this.__image);
+					updateTransform();
 				}
 				else
 				{
@@ -1289,7 +1289,7 @@ class DisplayContainer extends DisplayBase
 				
 				if (this.__image._transformChanged)
 				{
-					updateTransform(this.__image);
+					updateTransform();
 				}
 				else
 				{
@@ -2078,123 +2078,123 @@ class DisplayContainer extends DisplayBase
 		}
 	}
 	
-	inline private function updateTransform(data:Img):Void
+	inline private function updateTransform():Void
 	{
-		this.__rotationChanged = data._rotationChanged;
-		this.__skewXChanged = data._skewXChanged;
-		this.__skewYChanged = data._skewYChanged;
+		this.__rotationChanged = this.__image._rotationChanged;
+		this.__skewXChanged = this.__image._skewXChanged;
+		this.__skewYChanged = this.__image._skewYChanged;
 		
 		// temp
-		this.__frame = data._frame;
+		this.__frame = this.__image._frame;
 		
 		if (this.__rotationChanged)
 		{
-			this.__rotation = data._rotation;
-			this.__cosRotation = data._cosRotation = Math.cos(this.__rotation);
-			this.__sinRotation = data._sinRotation = Math.sin(this.__rotation);
-			data._rotationChanged = false;
+			this.__rotation = this.__image._rotation;
+			this.__cosRotation = this.__image._cosRotation = Math.cos(this.__rotation);
+			this.__sinRotation = this.__image._sinRotation = Math.sin(this.__rotation);
+			this.__image._rotationChanged = false;
 		}
 		else
 		{
-			this.__cosRotation = data._cosRotation;
-			this.__sinRotation = data._sinRotation;
+			this.__cosRotation = this.__image._cosRotation;
+			this.__sinRotation = this.__image._sinRotation;
 		}
 		
 		if (this.__skewXChanged)
 		{
-			this.__skewX = data._skewX;
-			this.__cosSkewX = data._cosSkewX = Math.cos(this.__skewX);
-			this.__sinSkewX = data._sinSkewX = -Math.sin(this.__skewX);
-			data._skewXChanged = false;
+			this.__skewX = this.__image._skewX;
+			this.__cosSkewX = this.__image._cosSkewX = Math.cos(this.__skewX);
+			this.__sinSkewX = this.__image._sinSkewX = -Math.sin(this.__skewX);
+			this.__image._skewXChanged = false;
 		}
 		else
 		{
-			this.__cosSkewX = data._cosSkewX;
-			this.__sinSkewX = data._sinSkewX;
+			this.__cosSkewX = this.__image._cosSkewX;
+			this.__sinSkewX = this.__image._sinSkewX;
 		}
 		
 		if (this.__skewYChanged)
 		{
-			this.__skewY = data._skewY;
-			this.__cosSkewY = data._cosSkewY = Math.cos(this.__skewY);
-			this.__sinSkewY = data._sinSkewY = Math.sin(this.__skewY);
-			data._skewYChanged = false;
+			this.__skewY = this.__image._skewY;
+			this.__cosSkewY = this.__image._cosSkewY = Math.cos(this.__skewY);
+			this.__sinSkewY = this.__image._sinSkewY = Math.sin(this.__skewY);
+			this.__image._skewYChanged = false;
 		}
 		else
 		{
-			this.__cosSkewY = data._cosSkewY;
-			this.__sinSkewY = data._sinSkewY;
+			this.__cosSkewY = this.__image._cosSkewY;
+			this.__sinSkewY = this.__image._sinSkewY;
 		}
 		
-		if (data._sizeXChanged)
+		if (this.__image._sizeXChanged)
 		{
-			if (data._invertX)
+			if (this.__image._invertX)
 			{
-				data._leftOffset = this.__frame.rightWidth * data._scaleX;
-				this.__leftOffset = -data._leftOffset;
-				this.__rightOffset = data._rightOffset = this.__frame.leftWidth * data._scaleX;
+				this.__image._leftOffset = this.__frame.rightWidth * this.__image._scaleX;
+				this.__leftOffset = -this.__image._leftOffset;
+				this.__rightOffset = this.__image._rightOffset = this.__frame.leftWidth * this.__image._scaleX;
 			}
 			else
 			{
-				data._leftOffset = this.__frame.leftWidth * data._scaleX;
-				this.__leftOffset = -data._leftOffset;
-				this.__rightOffset = data._rightOffset = this.__frame.rightWidth * data._scaleX;
+				this.__image._leftOffset = this.__frame.leftWidth * this.__image._scaleX;
+				this.__leftOffset = -this.__image._leftOffset;
+				this.__rightOffset = this.__image._rightOffset = this.__frame.rightWidth * this.__image._scaleX;
 			}
-			data._sizeXChanged = false;
+			this.__image._sizeXChanged = false;
 		}
 		else
 		{
-			this.__leftOffset = -data._leftOffset;
-			this.__rightOffset = data._rightOffset;
+			this.__leftOffset = -this.__image._leftOffset;
+			this.__rightOffset = this.__image._rightOffset;
 		}
 		
-		if (data._sizeYChanged)
+		if (this.__image._sizeYChanged)
 		{
-			if (data._invertY)
+			if (this.__image._invertY)
 			{
-				data._topOffset = this.__frame.bottomHeight * data._scaleY;
-				this.__topOffset = -data._topOffset;
-				this.__bottomOffset = data._bottomOffset = this.__frame.topHeight * data._scaleY;
+				this.__image._topOffset = this.__frame.bottomHeight * this.__image._scaleY;
+				this.__topOffset = -this.__image._topOffset;
+				this.__bottomOffset = this.__image._bottomOffset = this.__frame.topHeight * this.__image._scaleY;
 			}
 			else
 			{
-				data._topOffset = this.__frame.topHeight * data._scaleY;
-				this.__topOffset = -data._topOffset;
-				this.__bottomOffset = data._bottomOffset = this.__frame.bottomHeight * data._scaleY;
+				this.__image._topOffset = this.__frame.topHeight * this.__image._scaleY;
+				this.__topOffset = -this.__image._topOffset;
+				this.__bottomOffset = this.__image._bottomOffset = this.__frame.bottomHeight * this.__image._scaleY;
 			}
-			data._sizeYChanged = false;
+			this.__image._sizeYChanged = false;
 		}
 		else
 		{
-			this.__topOffset = -data._topOffset;
-			this.__bottomOffset = data._bottomOffset;
+			this.__topOffset = -this.__image._topOffset;
+			this.__bottomOffset = this.__image._bottomOffset;
 		}
 		
-		data._transformChanged = false;
+		this.__image._transformChanged = false;
 		
 		if (this.__rotationChanged || this.__skewXChanged || this.__skewYChanged)
 		{
-			this.__a = data._a = this.__cosSkewY * this.__cosRotation - this.__sinSkewY * this.__sinRotation;
-			this.__b = data._b = this.__cosSkewY * this.__sinRotation + this.__sinSkewY * this.__cosRotation;
-			this.__c = data._c = this.__sinSkewX * this.__cosRotation - this.__cosSkewX * this.__sinRotation;
-			this.__d = data._d = this.__sinSkewX * this.__sinRotation + this.__cosSkewX * this.__cosRotation;
+			this.__a = this.__image._a = this.__cosSkewY * this.__cosRotation - this.__sinSkewY * this.__sinRotation;
+			this.__b = this.__image._b = this.__cosSkewY * this.__sinRotation + this.__sinSkewY * this.__cosRotation;
+			this.__c = this.__image._c = this.__sinSkewX * this.__cosRotation - this.__cosSkewX * this.__sinRotation;
+			this.__d = this.__image._d = this.__sinSkewX * this.__sinRotation + this.__cosSkewX * this.__cosRotation;
 		}
 		else
 		{
-			this.__a = data._a;
-			this.__b = data._b;
-			this.__c = data._c;
-			this.__d = data._d;
+			this.__a = this.__image._a;
+			this.__b = this.__image._b;
+			this.__c = this.__image._c;
+			this.__d = this.__image._d;
 		}
 		
-		this.__x1 = data._x1 = this.__leftOffset * this.__a + this.__topOffset * this.__c;
-		this.__y1 = data._y1 = this.__leftOffset * this.__b + this.__topOffset * this.__d;
-		this.__x2 = data._x2 = this.__rightOffset * this.__a + this.__topOffset * this.__c;
-		this.__y2 = data._y2 = this.__rightOffset * this.__b + this.__topOffset * this.__d;
-		this.__x3 = data._x3 = this.__leftOffset * this.__a + this.__bottomOffset * this.__c;
-		this.__y3 = data._y3 = this.__leftOffset * this.__b + this.__bottomOffset * this.__d;
-		this.__x4 = data._x4 = this.__rightOffset * this.__a + this.__bottomOffset * this.__c;
-		this.__y4 = data._y4 = this.__rightOffset * this.__b + this.__bottomOffset * this.__d;
+		this.__x1 = this.__image._x1 = this.__leftOffset * this.__a + this.__topOffset * this.__c;
+		this.__y1 = this.__image._y1 = this.__leftOffset * this.__b + this.__topOffset * this.__d;
+		this.__x2 = this.__image._x2 = this.__rightOffset * this.__a + this.__topOffset * this.__c;
+		this.__y2 = this.__image._y2 = this.__rightOffset * this.__b + this.__topOffset * this.__d;
+		this.__x3 = this.__image._x3 = this.__leftOffset * this.__a + this.__bottomOffset * this.__c;
+		this.__y3 = this.__image._y3 = this.__leftOffset * this.__b + this.__bottomOffset * this.__d;
+		this.__x4 = this.__image._x4 = this.__rightOffset * this.__a + this.__bottomOffset * this.__c;
+		this.__y4 = this.__image._y4 = this.__rightOffset * this.__b + this.__bottomOffset * this.__d;
 	}
 	
 	private var __data:DisplayBase;
