@@ -5,6 +5,9 @@ import openfl.Vector;
 #end
 import massive.animation.AnimationFrame;
 import massive.animation.QueuedAnimation;
+import massive.data.VertexColorData;
+import massive.data.VertexColorExData;
+import massive.data.VertexData;
 import massive.display.Img;
 import massive.event.MassiveEvent;
 
@@ -162,6 +165,40 @@ class Clip extends Img
 		this.animationFrame = this.animation.frames[value];
 		this.frame = this.animationFrame.frame;
 		this.frameTimingCurrent = this.animationFrame.timing;
+		
+		if (this.__useVertexData)
+		{
+			this.__vertexData = this.animationFrame.vertexData;
+			if (this.__vertexData != null)
+			{
+				this._x1 = this.__vertexData.x1 * this._scaleX;
+				this._x2 = this.__vertexData.x2 * this._scaleX;
+				this._x3 = this.__vertexData.x3 * this._scaleX;
+				this._x4 = this.__vertexData.x4 * this._scaleX;
+				this._y1 = this.__vertexData.y1 * this._scaleY;
+				this._y2 = this.__vertexData.y2 * this._scaleY;
+				this._y3 = this.__vertexData.y3 * this._scaleY;
+				this._y4 = this.__vertexData.y4 * this._scaleY;
+				this._transformChanged = false;
+			}
+		}
+		
+		if (this.__useVertexColorData)
+		{
+			this.__vertexColorData = this.animationFrame.vertexColorData;
+			if (this.__vertexColorData != null)
+			{
+				
+			}
+		}
+		else if (this.__useVertexColorExData)
+		{
+			this.__vertexColorExData = this.animationFrame.vertexColorExData;
+			if (this.__vertexColorExData != null)
+			{
+				
+			}
+		}
 		return this._frameIndex = value;
 	}
 	
@@ -177,7 +214,14 @@ class Clip extends Img
 	
 	private var _playIndex:Int;
 	
+	private var __useVertexData:Bool;
+	private var __useVertexColorData:Bool;
+	private var __useVertexColorExData:Bool;
+	
 	private var __tempFrame:AnimationFrame;
+	private var __vertexData:VertexData;
+	private var __vertexColorData:VertexColorData;
+	private var __vertexColorExData:VertexColorExData;
 	
 	public function new() 
 	{
@@ -191,8 +235,6 @@ class Clip extends Img
 		this.loop = true;
 		
 		super.clear();
-		
-		//this.animate = false;
 	}
 	
 	override public function pool():Void 
@@ -213,6 +255,11 @@ class Clip extends Img
 		this.frameTime = 0.0;
 		this.loopCount = this.numLoops = this.numFrames = 0;
 		this.animate = false;
+		
+		this.__tempFrame = null;
+		this.__vertexData = null;
+		this.__vertexColorData = null;
+		this.__vertexColorExData = null;
 	}
 	
 	public function play(animation:Animation, frameIndex:Int = 0):Void
@@ -225,6 +272,10 @@ class Clip extends Img
 		this.frameIndex = frameIndex;
 		this.animate = true;
 		this._animationComplete = false;
+		
+		this.__useVertexData = this.animation.hasVertexData;
+		this.__useVertexColorData = this.animation.hasVertexColorData;
+		this.__useVertexColorExData = this.animation.hasVertexColorExData;
 	}
 	
 	public function playWithID(animationID:String, frameIndex:Int = 0):Void
@@ -313,7 +364,7 @@ class Clip extends Img
 		}
 	}
 	
-	public function advanceTime(time:Float):Void
+	inline public function advanceTime(time:Float):Void
 	{
 		this._playIndex = this._frameIndex;
 		this.frameTime += time * this.frameDelta;
@@ -350,7 +401,7 @@ class Clip extends Img
 						nextFromQueue();
 					}
 					if (this._animationComplete) this.animate = false;
-					return;
+					//return;
 				}
 			}
 		}
