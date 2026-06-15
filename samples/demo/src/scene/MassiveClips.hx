@@ -3,9 +3,11 @@ package scene;
 import massive.animation.Animation;
 import massive.animation.Animator;
 import massive.data.Frame;
+import massive.data.VertexData;
 import massive.display.Clip;
 import massive.display.DisplayContainer;
 import massive.display.MassiveDisplay;
+import massive.util.DisplayUtils;
 import massive.util.MathUtils;
 import openfl.Vector;
 import starling.animation.IAnimatable;
@@ -34,7 +36,11 @@ class MassiveClips extends Scene implements IAnimatable
 	public var useRandomRotation:Bool;
 	public var useSprite3D:Bool;
 	public var imgScale:Float = 1;
+	#if flash
+	public var atlasTextures:Vector<Texture> = new Vector<Texture>();
+	#else
 	public var atlasTextures:Array<Texture> = new Array<Texture>();
+	#end
 	public var textures:Array<Vector<Texture>>;
 	
 	override function set_animation(value:Bool):Bool 
@@ -78,10 +84,11 @@ class MassiveClips extends Scene implements IAnimatable
 	{
 		for (i in 0...atlases.length)
 		{
-			this.atlasTextures.push(atlases[i].texture);
+			this.atlasTextures[this.atlasTextures.length] = atlases[i].texture;
 		}
 	}
 	
+	@:access(massive.display.Clip)
 	private function addedToStageHandler(evt:Event):Void
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
@@ -108,6 +115,35 @@ class MassiveClips extends Scene implements IAnimatable
 			frames.resize(0);
 			#end
 		}
+		
+		// vertex animation test
+		//animation = this._animations[0];
+		//var bend:Float = 50.0;
+		//var bendStart:Float = -bend;
+		//var bendStep:Float = (bend * 2) / animation.lastFrame;
+		//var clip:Clip = Clip.fromPool();
+		////clip.scaleX = 0.2;
+		////clip.scaleY = 0.2;
+		//clip.play(animation);
+		//var vertexData:VertexData;
+		//for (i in 0...animation.numFrames)
+		//{
+			//clip.frameIndex = i;
+			//DisplayUtils.updateTransform(clip);
+			//vertexData = VertexData.fromPool(clip._x1, clip._x2, clip._x3, clip._x4, clip._y1, clip._y2, clip._y3, clip._y4);
+			//vertexData.x1 += bendStart + bendStep * i;
+			//vertexData.x2 += bendStart + bendStep * i;
+			//for (j in 0...numTextures)
+			//{
+				//this._animations[j].frames[i].vertexData = vertexData;
+			//}
+		//}
+		//
+		//for (i in 0...numTextures)
+		//{
+			//this._animations[i].ready();
+		//}
+		//\vertex animation test
 		
 		// test with black quads
 		//var tex:Texture = Texture.fromColor(64, 64, 0x000000);
@@ -151,6 +187,29 @@ class MassiveClips extends Scene implements IAnimatable
 		
 		layer = new DisplayContainer();
 		this._display.addLayer(layer);
+		
+		//this.numObjects = 0;
+		//var tX:Float = stageWidth / 2 - 200.0;
+		//var tY:Float = stageHeight / 2;
+		//variant = 0;
+		//clip = new MassiveClip();
+		//clip.textureIndex = variant;
+		//clip.frameDelta = 0.2;
+		//clip.play(this._animations[variant]);
+		//clip.x = tX;
+		//clip.y = tY;
+		//layer.addChild(clip);
+		//
+		//tX += 100.0;
+		//variant = 1;
+		//clip = new MassiveClip();
+		//clip.textureIndex = variant;
+		//clip.frameDelta = 0.2;
+		//clip.invertX = true;
+		//clip.play(this._animations[variant]);
+		//clip.x = tX;
+		//clip.y = tY;
+		//layer.addChild(clip);
 		
 		//this.numObjects = 100;
 		for (i in 0...this.numObjects)
