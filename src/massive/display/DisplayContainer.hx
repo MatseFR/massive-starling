@@ -196,8 +196,8 @@ class DisplayContainer extends DisplayBase
 			else
 			{
 				this.__image = cast this.__data;
-				this.__frame = this.__image.frame;
-				if (this.__frame == null) continue;
+				//this.__frame = this.__image.frame;
+				//if (this.__frame == null) continue;
 				
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
@@ -218,27 +218,32 @@ class DisplayContainer extends DisplayBase
 					this.__y4 = this.__image._y4;
 				}
 				
-				if (this.__image._invertX)
-				{
-					this.__u1 = this.__frame.u2;
-					this.__u2 = this.__frame.u1;
-				}
-				else
-				{
-					this.__u1 = this.__frame.u1;
-					this.__u2 = this.__frame.u2;
-				}
+				//if (this.__image._invertX)
+				//{
+					//this.__u1 = this.__frame.u2;
+					//this.__u2 = this.__frame.u1;
+				//}
+				//else
+				//{
+					//this.__u1 = this.__frame.u1;
+					//this.__u2 = this.__frame.u2;
+				//}
+				//
+				//if (this.__image._invertY)
+				//{
+					//this.__v1 = this.__frame.v2;
+					//this.__v2 = this.__frame.v1;
+				//}
+				//else
+				//{
+					//this.__v1 = this.__frame.v1;
+					//this.__v2 = this.__frame.v2;
+				//}
 				
-				if (this.__image._invertY)
-				{
-					this.__v1 = this.__frame.v2;
-					this.__v2 = this.__frame.v1;
-				}
-				else
-				{
-					this.__v1 = this.__frame.v1;
-					this.__v2 = this.__frame.v2;
-				}
+				this.__u1 = this.__image._u1;
+				this.__u2 = this.__image._u2;
+				this.__v1 = this.__image._v1;
+				this.__v2 = this.__image._v2;
 				
 				updateColor(this.__image);
 				
@@ -463,8 +468,8 @@ class DisplayContainer extends DisplayBase
 			else
 			{
 				this.__image = cast this.__data;
-				this.__frame = this.__image.frame;
-				if (this.__frame == null) continue;
+				//this.__frame = this.__image.frame;
+				//if (this.__frame == null) continue;
 				
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
@@ -485,27 +490,32 @@ class DisplayContainer extends DisplayBase
 					this.__y4 = this.__image._y4;
 				}
 				
-				if (this.__image._invertX)
-				{
-					this.__u1 = this.__frame.u2;
-					this.__u2 = this.__frame.u1;
-				}
-				else
-				{
-					this.__u1 = this.__frame.u1;
-					this.__u2 = this.__frame.u2;
-				}
+				//if (this.__image._invertX)
+				//{
+					//this.__u1 = this.__frame.u2;
+					//this.__u2 = this.__frame.u1;
+				//}
+				//else
+				//{
+					//this.__u1 = this.__frame.u1;
+					//this.__u2 = this.__frame.u2;
+				//}
+				//
+				//if (this.__image._invertY)
+				//{
+					//this.__v1 = this.__frame.v2;
+					//this.__v2 = this.__frame.v1;
+				//}
+				//else
+				//{
+					//this.__v1 = this.__frame.v1;
+					//this.__v2 = this.__frame.v2;
+				//}
 				
-				if (this.__image._invertY)
-				{
-					this.__v1 = this.__frame.v2;
-					this.__v2 = this.__frame.v1;
-				}
-				else
-				{
-					this.__v1 = this.__frame.v1;
-					this.__v2 = this.__frame.v2;
-				}
+				this.__u1 = this.__image._u1;
+				this.__u2 = this.__image._u2;
+				this.__v1 = this.__image._v1;
+				this.__v2 = this.__image._v2;
 				
 				updateColor(this.__image);
 				
@@ -737,8 +747,8 @@ class DisplayContainer extends DisplayBase
 			else
 			{
 				this.__image = cast this.__data;
-				this.__frame = this.__image.frame;
-				if (this.__frame == null) continue;
+				//this.__frame = this.__image.frame;
+				//if (this.__frame == null) continue;
 				
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
@@ -759,27 +769,32 @@ class DisplayContainer extends DisplayBase
 					this.__y4 = this.__image._y4;
 				}
 				
-				if (this.__image._invertX)
-				{
-					this.__u1 = this.__frame.u2;
-					this.__u2 = this.__frame.u1;
-				}
-				else
-				{
-					this.__u1 = this.__frame.u1;
-					this.__u2 = this.__frame.u2;
-				}
+				//if (this.__image._invertX)
+				//{
+					//this.__u1 = this.__frame.u2;
+					//this.__u2 = this.__frame.u1;
+				//}
+				//else
+				//{
+					//this.__u1 = this.__frame.u1;
+					//this.__u2 = this.__frame.u2;
+				//}
+				//
+				//if (this.__image._invertY)
+				//{
+					//this.__v1 = this.__frame.v2;
+					//this.__v2 = this.__frame.v1;
+				//}
+				//else
+				//{
+					//this.__v1 = this.__frame.v1;
+					//this.__v2 = this.__frame.v2;
+				//}
 				
-				if (this.__image._invertY)
-				{
-					this.__v1 = this.__frame.v2;
-					this.__v2 = this.__frame.v1;
-				}
-				else
-				{
-					this.__v1 = this.__frame.v1;
-					this.__v2 = this.__frame.v2;
-				}
+				this.__u1 = this.__image._u1;
+				this.__u2 = this.__image._u2;
+				this.__v1 = this.__image._v1;
+				this.__v2 = this.__image._v2;
 				
 				updateColor(this.__image);
 				
@@ -1010,8 +1025,8 @@ class DisplayContainer extends DisplayBase
 			else
 			{
 				this.__image = cast this.__data;
-				this.__frame = this.__image.frame;
-				if (this.__frame == null) continue;
+				//this.__frame = this.__image.frame;
+				//if (this.__frame == null) continue;
 				
 				this.__x = this.__image.x + this.__image.offsetX + renderOffsetX;
 				this.__y = this.__image.y + this.__image.offsetY + renderOffsetY;
@@ -1032,27 +1047,32 @@ class DisplayContainer extends DisplayBase
 					this.__y4 = this.__image._y4;
 				}
 				
-				if (this.__image._invertX)
-				{
-					this.__u1 = this.__frame.u2;
-					this.__u2 = this.__frame.u1;
-				}
-				else
-				{
-					this.__u1 = this.__frame.u1;
-					this.__u2 = this.__frame.u2;
-				}
+				//if (this.__image._invertX)
+				//{
+					//this.__u1 = this.__frame.u2;
+					//this.__u2 = this.__frame.u1;
+				//}
+				//else
+				//{
+					//this.__u1 = this.__frame.u1;
+					//this.__u2 = this.__frame.u2;
+				//}
+				//
+				//if (this.__image._invertY)
+				//{
+					//this.__v1 = this.__frame.v2;
+					//this.__v2 = this.__frame.v1;
+				//}
+				//else
+				//{
+					//this.__v1 = this.__frame.v1;
+					//this.__v2 = this.__frame.v2;
+				//}
 				
-				if (this.__image._invertY)
-				{
-					this.__v1 = this.__frame.v2;
-					this.__v2 = this.__frame.v1;
-				}
-				else
-				{
-					this.__v1 = this.__frame.v1;
-					this.__v2 = this.__frame.v2;
-				}
+				this.__u1 = this.__image._u1;
+				this.__u2 = this.__image._u2;
+				this.__v1 = this.__image._v1;
+				this.__v2 = this.__image._v2;
 				
 				updateColor(this.__image);
 				
@@ -1320,7 +1340,7 @@ class DisplayContainer extends DisplayBase
 		return Std.int(this.__red * 255) | Std.int(this.__green * 255) << 8 | Std.int(this.__blue * 255) << 16 | Std.int(this.__alpha * 255) << 24;
 	}
 	
-	private function updateColor(data:Img):Void
+	inline private function updateColor(data:Img):Void
 	{
 		if (this.__useColor && data._colorChanged)
 		{
@@ -2063,6 +2083,9 @@ class DisplayContainer extends DisplayBase
 		this.__rotationChanged = data._rotationChanged;
 		this.__skewXChanged = data._skewXChanged;
 		this.__skewYChanged = data._skewYChanged;
+		
+		// temp
+		this.__frame = data._frame;
 		
 		if (this.__rotationChanged)
 		{
