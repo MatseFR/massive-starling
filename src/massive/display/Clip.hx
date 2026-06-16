@@ -375,7 +375,7 @@ class Clip extends Img
 				++this._playIndex;
 				this.__tempFrame = this._frames[this._playIndex];
 				this.frameTimingCurrent = this.__tempFrame.timing;
-				if (this.__tempFrame.event != null) dispatchEventWith(this.__tempFrame.event, false, this.__tempFrame.eventParams);
+				//if (this.__tempFrame.event != null) dispatchEventWith(this.__tempFrame.event, false, this.__tempFrame.eventParams);
 			}
 			else
 			{
@@ -391,7 +391,7 @@ class Clip extends Img
 				{
 					// animation complete
 					this._animationComplete = true;
-					dispatchEventWith(MassiveEvent.ANIMATION_COMPLETE);
+					//dispatchEventWith(MassiveEvent.ANIMATION_COMPLETE);
 					if (this.animation.nextAnimationID != null)
 					{
 						playWithID(this.animation.nextAnimationID);
