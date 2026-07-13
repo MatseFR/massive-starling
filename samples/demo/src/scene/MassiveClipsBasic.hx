@@ -1,14 +1,15 @@
 package scene;
-import massive.animation.Animation;
 import massive.animation.Animator;
+import massive.animation.BasicAnimation;
 import massive.data.Frame;
 import massive.display.BasicClip;
 import massive.display.Clip;
 import massive.display.ImgContainer;
 import massive.display.MixedContainer;
+import massive.particle.Particle;
 import massive.util.AnimUtils;
 import openfl.Vector;
-import scene.object.MovingClip;
+import scene.object.MovingBasicClip;
 import starling.core.Starling;
 import starling.utils.Align;
 
@@ -16,16 +17,16 @@ import starling.utils.Align;
  * ...
  * @author Matse
  */
-class MassiveClips extends MassiveClipsBase 
+class MassiveClipsBasic extends MassiveClipsBase 
 {
-	private var _animations:Array<Animation> = new Array<Animation>();
+	private var _animations:Array<BasicAnimation> = new Array<BasicAnimation>();
 	private var _animator:Animator = new Animator();
 	#if flash
-	private var _clips:Vector<Clip> = new Vector<Clip>();
+	private var _clips:Vector<BasicClip> = new Vector<BasicClip>();
 	#else
-	private var _clips:Array<Clip> = new Array<Clip>();
+	private var _clips:Array<BasicClip> = new Array<BasicClip>();
 	#end
-	
+
 	public function new() 
 	{
 		super();
@@ -47,7 +48,7 @@ class MassiveClips extends MassiveClipsBase
 	
 	private function init():Void
 	{
-		var animation:Animation;
+		var animation:BasicAnimation;
 		#if flash
 		var frames:Vector<Frame> = new Vector<Frame>();
 		#else
@@ -57,7 +58,7 @@ class MassiveClips extends MassiveClipsBase
 		for (i in 0...this._numTextures)
 		{
 			Frame.fromTextureVectorWithAlign(this.textures[i], Align.CENTER, Align.CENTER, frames);
-			animation = AnimUtils.createAnimation(frames);
+			animation = AnimUtils.createBasicAnimation(frames);
 			animation.loop = true;
 			this._animations[this._animations.length] = animation;
 			
@@ -68,7 +69,7 @@ class MassiveClips extends MassiveClipsBase
 			#end
 		}
 		
-		var clip:MovingClip;
+		var clip:MovingBasicClip;
 		var variant:Int;
 		
 		if (this.containerType == ContainerType.IMG)
@@ -78,7 +79,7 @@ class MassiveClips extends MassiveClipsBase
 			
 			for (i in 0...this.numObjects)
 			{
-				clip = new MovingClip();
+				clip = new MovingBasicClip();
 				variant = initClip(clip);
 				clip.play(this._animations[variant]);
 				this._clips[this._clips.length] = clip;
@@ -92,59 +93,24 @@ class MassiveClips extends MassiveClipsBase
 			
 			for (i in 0...this.numObjects)
 			{
-				clip = new MovingClip();
-				variant = initClip(clip);
-				clip.play(this._animations[variant]);
+				clip = new MovingBasicClip();
+				initClip(clip);
 				this._clips[this._clips.length] = clip;
 				mixedLayer.addChild(clip);
 			}
 		}
 		
-		this._animator.addClipList(this._clips);
+		this._animator.addBasicClipList(this._clips);
 		
 		Starling.currentJuggler.add(this._animator);
 		
-		//var layer:ImgContainer = new ImgContainer();
+		//var layer:MixedContainer = new MixedContainer();
 		//this._display.addLayer(layer);
 		//
 		//for (i in 0...this.numObjects)
 		//{
 			//layer.addChild(createClip());
 		//}
-	}
-	
-	override public function advanceTime(time:Float):Void 
-	{
-		super.advanceTime(time);
-		
-		var clip:MovingClip;
-		for (i in 0...this.numObjects)
-		{
-			clip = this._clipList[i];
-			if (this._movement)
-			{
-				clip.x += clip.velocityX * time;
-				clip.y += clip.velocityY * time;
-				
-				if (clip.x < this._left)
-				{
-					clip.x = this._right;
-				}
-				else if (clip.x > this._right)
-				{
-					clip.x = this._left;
-				}
-				
-				if (clip.y < this._top)
-				{
-					clip.y = this._bottom;
-				}
-				else if (clip.y > this._bottom)
-				{
-					clip.y = this._top;
-				}
-			}
-		}
 	}
 	
 }

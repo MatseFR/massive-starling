@@ -3,7 +3,7 @@ package massive.particle;
 import massive.animation.Animation;
 import massive.animation.Animator;
 import massive.display.base.DisplayBase;
-import massive.display.DisplayContainer;
+import massive.display.MixedContainer;
 import massive.data.Frame;
 //import massive.display.ImageLayer;
 import massive.util.MassiveTint;
@@ -20,7 +20,7 @@ import starling.events.Event;
  * @author Matse
  */
 //@:generic
-class ParticleSystem extends DisplayContainer
+class ParticleSystem extends MixedContainer
 {
 	public var autoClearOnComplete:Bool = ParticleSystemDefaults.AUTO_CLEAR_ON_COMPLETE;
 	public var randomSeed:Int = ParticleSystemDefaults.RANDOM_SEED;

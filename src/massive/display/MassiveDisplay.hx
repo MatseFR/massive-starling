@@ -1,8 +1,8 @@
 package massive.display;
 
-import massive.display.DisplayContainer;
-import massive.display.Img;
 import massive.data.MassiveConstants;
+import massive.display.Img;
+import massive.display.base.ContainerBase;
 import massive.display.color.ColorMode;
 import massive.display.color.ColorOffsetMode;
 import massive.display.render.RenderData;
@@ -742,9 +742,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	#end
 	
 	#if flash
-	private var _layers:Vector<DisplayContainer> = new Vector<DisplayContainer>();
+	private var _layers:Vector<ContainerBase> = new Vector<ContainerBase>();
 	#else
-	private var _layers:Array<DisplayContainer> = new Array<DisplayContainer>();
+	private var _layers:Array<ContainerBase> = new Array<ContainerBase>();
 	#end
 	private var _numLayers:Int;
 	
@@ -753,6 +753,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _numBuffers:Int;
 	
 	private var _indexBuffer:IndexBuffer3D;
+	private var _indexBufferIndex:Int;
+	private var _indexBuffers:Array<IndexBuffer3D>;
 	private var _vertexBuffer:VertexBuffer3D;
 	private var _vertexBufferIndex:Int;
 	private var _vertexBuffers:Array<VertexBuffer3D>;
@@ -930,10 +932,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	override public function dispose():Void 
 	{
 		disposeBuffers();
-		if (!this._isUserProgram && this._isMultiTexturingProgram && this._program != null)
-		{
-			this._program.dispose();
-		}
+		//if (!this._isUserProgram && this._isMultiTexturingProgram && this._program != null)
+		//{
+			//this._program.dispose();
+		//}
 		this._program = null;
 		removeAllLayers(true, false);
 		this._textures = null;
@@ -944,10 +946,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function clear(disposeLayers:Bool = true, poolDatas:Bool = true):Void
 	{
 		disposeBuffers();
-		if (!this._isUserProgram && this._isMultiTexturingProgram && this._program != null)
-		{
-			this._program.dispose();
-		}
+		//if (!this._isUserProgram && this._isMultiTexturingProgram && this._program != null)
+		//{
+			//this._program.dispose();
+		//}
 		this._program = null;
 		removeAllLayers(disposeLayers, poolDatas);
 		this._textures.resize(0);
@@ -1206,7 +1208,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			var numVertices:UInt = 0;
 			_uint16Indices = new UInt16Array(MassiveConstants.MAX_QUADS * MassiveConstants.INDICES_PER_QUAD);
-
+			
 			var position:Int = -1;
 			for (i in 0...MassiveConstants.MAX_QUADS)
 			{
@@ -1971,7 +1973,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   Adds specified layer on top of other existing layers
 	   @param	layer
 	**/
-	public function addLayer(layer:DisplayContainer):Void
+	public function addLayer(layer:ContainerBase):Void
 	{
 		//layer.display = this;
 		this._layers[this._layers.length] = layer;
@@ -1982,7 +1984,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	layer
 	   @param	index
 	**/
-	public function addLayerAt(layer:DisplayContainer, index:Int):Void
+	public function addLayerAt(layer:ContainerBase, index:Int):Void
 	{
 		//layer.display = this;
 		#if flash
@@ -1997,7 +1999,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	name
 	   @return
 	**/
-	public function getLayer(name:String):DisplayContainer
+	public function getLayer(name:String):ContainerBase
 	{
 		this._numLayers = this._layers.length;
 		for (i in 0...this._numLayers)
@@ -2012,7 +2014,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	index
 	   @return
 	**/
-	public function getLayerAt(index:Int):DisplayContainer
+	public function getLayerAt(index:Int):ContainerBase
 	{
 		return this._layers[index];
 	}
@@ -2050,7 +2052,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	dispose
 	   @return
 	**/
-	public function removeLayer(layer:DisplayContainer, dispose:Bool = false):DisplayContainer
+	public function removeLayer(layer:ContainerBase, dispose:Bool = false):ContainerBase
 	{
 		var index:Int = this._layers.indexOf(layer);
 		if (index != -1)
@@ -2073,9 +2075,9 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	dispose
 	   @return
 	**/
-	public function removeLayerAt(index:Int, dispose:Bool = false):DisplayContainer
+	public function removeLayerAt(index:Int, dispose:Bool = false):ContainerBase
 	{
-		var layer:DisplayContainer = this._layers[index];
+		var layer:ContainerBase = this._layers[index];
 		#if flash
 		this._layers.removeAt(index);
 		#else
@@ -2092,7 +2094,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   @param	dispose
 	   @return
 	**/
-	public function removeLayerWithName(name:String, dispose:Bool = false):DisplayContainer
+	public function removeLayerWithName(name:String, dispose:Bool = false):ContainerBase
 	{
 		this._numLayers = this._layers.length;
 		for (i in 0...this._numLayers)
@@ -2113,11 +2115,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		if (this.animate)
 		{
-			this._numLayers = this._layers.length;
-			for (i in 0...this._numLayers)
-			{
-				if (this._layers[i].animate) this._layers[i].advanceTime(time);
-			}
+			//this._numLayers = this._layers.length;
+			//for (i in 0...this._numLayers)
+			//{
+				//if (this._layers[i].animate) this._layers[i].advanceTime(time);
+			//}
 		}
 		
 		setRequiresRedraw();
@@ -2328,7 +2330,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		nextBuffer(this._context, this._forceBuffer);
 		this._forceBuffer = false;
-		this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD * 4); // uploadFromTypedArray's byteLength param is currently not used
+		this._vertexBuffer.uploadFromTypedArray(this._float32Data, this._renderData.numQuads * MassiveConstants.VERTICES_PER_QUAD); // uploadFromTypedArray's byteLength param is currently not used
 		this._context.drawTriangles(this._indexBuffer, 0, this._renderData.numQuads * 2);
 		this._renderData.render();
 		++this._painter.drawCount;

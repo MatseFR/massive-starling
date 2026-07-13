@@ -150,7 +150,8 @@ class Img extends QuadBase
 	   Texture index used for rendering, if the profile is baseline it will differ from textureIndex
 	   @default	0
 	**/
-	public var textureIndexReal(default, null):Float = 0.0;
+	//public var textureIndexReal(default, null):Float = 0.0;
+	public var textureIndexReal:Float = 0.0;
 	/**
 	   Current frame's width, if any, multiplied by scaleX (0 otherwise)
 	**/
@@ -288,6 +289,11 @@ class Img extends QuadBase
 	{
 		clear();
 		_POOL[_POOL.length] = this;
+	}
+	
+	public function advanceTime(time:Float):Void
+	{
+		// nothing
 	}
 	
 }

@@ -6,10 +6,9 @@ import openfl.Vector;
 import massive.animation.AnimationFrame;
 import massive.animation.QueuedAnimation;
 import massive.data.VertexColorData;
-import massive.data.VertexColorExData;
-import massive.data.VertexData;
+import massive.data.VertexPositionData;
 import massive.display.Img;
-import massive.event.MassiveEvent;
+//import massive.event.MassiveEvent;
 
 /**
  * ...
@@ -110,6 +109,10 @@ class Clip extends Img
 	#end
 	
 	/**
+	   Tells whether this object is animated or not
+	**/
+	public var animate:Bool = false;
+	/**
 	   
 	**/
 	public var animation(default, null):Animation;
@@ -137,6 +140,10 @@ class Clip extends Img
 	**/
 	public var frameTimingCurrent(default, null):Float;
 	/**
+	   Index of the last frame in the current animation
+	**/
+	public var lastFrameIndex:Int = -1;
+	/**
 	   Tells whether to loop frames
 	   @default	true
 	**/
@@ -146,11 +153,6 @@ class Clip extends Img
 	   @default	0
 	**/
 	public var loopCount:Int = 0;
-	/**
-	   How many frames
-	   @default	0
-	**/
-	public var numFrames(default, null):Int = 0;
 	/**
 	   How many loops, 0 == infinite
 	   @default	0
@@ -162,48 +164,29 @@ class Clip extends Img
 	inline private function set_frameIndex(value:Int):Int
 	{
 		if (this._frameIndex == value) return value;
-		this.animationFrame = this.animation.frames[value];
+		this.animationFrame = this._frames[value];
 		this.frame = this.animationFrame.frame;
 		this.frameTimingCurrent = this.animationFrame.timing;
 		
 		if (this.__useVertexData)
 		{
-			this.__vertexData = this.animationFrame.vertexData;
-			if (this.__vertexData != null)
-			{
-				this._x1 = this.__vertexData.x1 * this._scaleX;
-				this._x2 = this.__vertexData.x2 * this._scaleX;
-				this._x3 = this.__vertexData.x3 * this._scaleX;
-				this._x4 = this.__vertexData.x4 * this._scaleX;
-				this._y1 = this.__vertexData.y1 * this._scaleY;
-				this._y2 = this.__vertexData.y2 * this._scaleY;
-				this._y3 = this.__vertexData.y3 * this._scaleY;
-				this._y4 = this.__vertexData.y4 * this._scaleY;
-				this._transformChanged = false;
-			}
+			this.vertexData = this.animationFrame.vertexPosition;
 		}
 		
 		if (this.__useVertexColorData)
 		{
-			this.__vertexColorData = this.animationFrame.vertexColorData;
-			if (this.__vertexColorData != null)
-			{
-				
-			}
+			this.vertexColor = this.animationFrame.vertexColor;
 		}
-		else if (this.__useVertexColorExData)
+		
+		if (this.__useVertexColorExData)
 		{
-			this.__vertexColorExData = this.animationFrame.vertexColorExData;
-			if (this.__vertexColorExData != null)
-			{
-				
-			}
+			this.vertexColorOffset = this.animationFrame.vertexColorOffset;
 		}
+		
 		return this._frameIndex = value;
 	}
 	
 	private var _animationComplete:Bool;
-	private var _animationMap:Map<String, Animation> = new Map<String, Animation>();
 	private var _animationQueue:Array<QueuedAnimation> = new Array<QueuedAnimation>();
 	
 	#if flash
@@ -219,9 +202,6 @@ class Clip extends Img
 	private var __useVertexColorExData:Bool;
 	
 	private var __tempFrame:AnimationFrame;
-	private var __vertexData:VertexData;
-	private var __vertexColorData:VertexColorData;
-	private var __vertexColorExData:VertexColorExData;
 	
 	public function new() 
 	{
@@ -232,7 +212,6 @@ class Clip extends Img
 	{
 		clearAnimation();
 		this.frameDelta = 1.0;
-		this.loop = true;
 		
 		super.clear();
 	}
@@ -248,39 +227,42 @@ class Clip extends Img
 		this.animation = null;
 		this.animationFrame = null;
 		this._animationComplete = false;
-		this._animationMap.clear();
 		this._animationQueue.resize(0);
-		this._frameIndex = -1;
+		this._frameIndex = this.lastFrameIndex = -1;
 		this._frames = null;
 		this.frameTime = 0.0;
-		this.loopCount = this.numLoops = this.numFrames = 0;
+		this.loop = false;
+		this.loopCount = this.numLoops = 0;
 		this.animate = false;
 		
 		this.__tempFrame = null;
-		this.__vertexData = null;
-		this.__vertexColorData = null;
-		this.__vertexColorExData = null;
 	}
 	
 	public function play(animation:Animation, frameIndex:Int = 0):Void
 	{
 		this.animation = animation;
 		this._frames = this.animation.frames;
-		this.numFrames = this.animation.lastFrame;
+		this.lastFrameIndex = this.animation.lastFrame;
 		this.loop = this.animation.loop;
 		this.numLoops = this.animation.numLoops;
 		this.frameIndex = frameIndex;
+		this.frameTime = this._frameIndex == 0 ? 0.0 : this._frames[this._frameIndex - 1].timing;
 		this.animate = true;
 		this._animationComplete = false;
 		
-		this.__useVertexData = this.animation.hasVertexData;
-		this.__useVertexColorData = this.animation.hasVertexColorData;
-		this.__useVertexColorExData = this.animation.hasVertexColorExData;
+		this.__useVertexData = this.animation.hasVertexPosition;
+		this.__useVertexColorData = this.animation.hasVertexColor;
+		this.__useVertexColorExData = this.animation.hasVertexColorOffset;
 	}
 	
-	public function playWithID(animationID:String, frameIndex:Int = 0):Void
+	//public function playWithID(animationID:String, frameIndex:Int = 0):Void
+	//{
+		//play(this._animationMap.get(animationID), frameIndex);
+	//}
+	
+	public function pause():Void
 	{
-		play(this._animationMap.get(animationID), frameIndex);
+		this.animate = false;
 	}
 	
 	public function resume():Void
@@ -288,25 +270,20 @@ class Clip extends Img
 		this.animate = true;
 	}
 	
-	public function stop():Void
-	{
-		this.animate = false;
-	}
+	//public function registerAnimation(animation:Animation):Void
+	//{
+		//this._animationMap.set(animation.id, animation);
+	//}
+	//
+	//public function unregisterAnimation(animation:Animation):Void
+	//{
+		//this._animationMap.remove(animation.id);
+	//}
 	
-	public function registerAnimation(animation:Animation):Void
-	{
-		this._animationMap.set(animation.id, animation);
-	}
-	
-	public function unregisterAnimation(animation:Animation):Void
-	{
-		this._animationMap.remove(animation.id);
-	}
-	
-	public function unregisterAnimationWithID(animationID:String):Void
-	{
-		this._animationMap.remove(animationID);
-	}
+	//public function unregisterAnimationWithID(animationID:String):Void
+	//{
+		//this._animationMap.remove(animationID);
+	//}
 	
 	public function clearQueue():Void
 	{
@@ -331,10 +308,10 @@ class Clip extends Img
 		this._animationQueue[this._animationQueue.length] = anim;
 	}
 	
-	public function queueWithID(animationID:String, frameIndex:Int = 0):Void
-	{
-		queue(this._animationMap.get(animationID), frameIndex);
-	}
+	//public function queueWithID(animationID:String, frameIndex:Int = 0):Void
+	//{
+		//queue(this._animationMap.get(animationID), frameIndex);
+	//}
 	
 	public function removeFromQueue(animation:Animation):Void
 	{
@@ -364,13 +341,13 @@ class Clip extends Img
 		}
 	}
 	
-	inline public function advanceTime(time:Float):Void
+	override public function advanceTime(time:Float):Void
 	{
 		this._playIndex = this._frameIndex;
 		this.frameTime += time * this.frameDelta;
 		while (this.frameTime > this.frameTimingCurrent)
 		{
-			if (this._playIndex < this.numFrames)
+			if (this._playIndex < this.lastFrameIndex)
 			{
 				++this._playIndex;
 				this.__tempFrame = this._frames[this._playIndex];
@@ -394,7 +371,7 @@ class Clip extends Img
 					//dispatchEventWith(MassiveEvent.ANIMATION_COMPLETE);
 					if (this.animation.nextAnimationID != null)
 					{
-						playWithID(this.animation.nextAnimationID);
+						//playWithID(this.animation.nextAnimationID);
 					}
 					else
 					{

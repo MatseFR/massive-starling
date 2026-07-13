@@ -1,6 +1,5 @@
 package massive.util;
 import massive.display.Img;
-import massive.display.base.QuadBase;
 
 /**
  * ...

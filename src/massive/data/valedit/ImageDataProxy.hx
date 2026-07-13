@@ -1,6 +1,6 @@
 package massive.data.valedit;
 
-import massive.data.ImageData;
+import massive.display.Img;
 import starling.display.Image;
 import starling.textures.Texture;
 
@@ -10,10 +10,10 @@ import starling.textures.Texture;
  */
 class ImageDataProxy extends Image 
 {
-	public var imageData(get, set):ImageData;
-	private var _imageData:ImageData;
-	private function get_imageData():ImageData { return this._imageData; }
-	private function set_imageData(value:ImageData):ImageData
+	public var imageData(get, set):Img;
+	private var _imageData:Img;
+	private function get_imageData():Img { return this._imageData; }
+	private function set_imageData(value:Img):Img
 	{
 		return this._imageData = value;
 	}

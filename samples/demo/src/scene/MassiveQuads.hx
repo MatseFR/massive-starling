@@ -1,6 +1,6 @@
 package scene;
 
-import massive.display.DisplayContainer;
+import massive.display.MixedContainer;
 import massive.display.Img;
 import massive.display.MassiveDisplay;
 import massive.util.MathUtils;
@@ -82,7 +82,7 @@ class MassiveQuads extends Scene implements IAnimatable
 			addChild(this._sprite3D);
 		}
 		
-		var layer:DisplayContainer;
+		var layer:MixedContainer;
 		#if flash
 		this._quads = new Vector<MassiveQuad>();
 		#else
@@ -96,7 +96,7 @@ class MassiveQuads extends Scene implements IAnimatable
 		this._display.autoUpdateBounds = this.autoUpdateBounds;
 		this._display.animate = this._animation;
 		
-		layer = new DisplayContainer();
+		layer = new MixedContainer();
 		layer.textureAnimation = false;
 		this._display.addLayer(layer);
 		

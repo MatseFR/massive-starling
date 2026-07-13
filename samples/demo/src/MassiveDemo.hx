@@ -5,12 +5,15 @@ import massive.display.color.ColorMode;
 import massive.display.render.RenderMode;
 import massive.util.MathUtils;
 import openfl.Vector;
+import openfl.errors.Error;
 import openfl.system.Capabilities;
 import openfl.system.System;
 import openfl.utils.Assets;
 import scene.ClassicClips;
 import scene.ClassicQuads;
+import scene.MassiveClipsBase;
 import scene.MassiveClips;
+import scene.MassiveClipsBasic;
 import scene.MassiveQuads;
 import scene.Scene;
 import starling.assets.AssetManager;
@@ -48,6 +51,8 @@ class MassiveDemo extends Sprite
 	private var scaleSprite:Sprite;
 	private var colorModeSprite:Sprite;
 	private var renderModeSprite:Sprite;
+	private var clipTypeSprite:Sprite;
+	private var containerTypeSprite:Sprite;
 	private var maxTextureSprite:Sprite;
 	private var classicSprite:Sprite;
 	private var massiveSprite:Sprite;
@@ -63,6 +68,8 @@ class MassiveDemo extends Sprite
 	
 	private var animation:Bool = true;
 	private var autoUpdateBounds:Bool = false;
+	private var clipType:String = ClipType.BASIC;
+	private var containerType:String = ContainerType.IMG;
 	private var colorMode:String;
 	private var displayScale:Float = 1.0;
 	private var frameDeltaBase:Float;
@@ -91,6 +98,8 @@ class MassiveDemo extends Sprite
 	private var atlasButtons:Array<Button> = new Array<Button>();
 	private var scaleButtons:Array<Button> = new Array<Button>();
 	private var colorModeButtons:Array<Button> = new Array<Button>();
+	private var clipTypeButtons:Array<Button> = new Array<Button>();
+	private var containerTypeButtons:Array<Button> = new Array<Button>();
 	private var renderModeButtons:Array<Button> = new Array<Button>();
 	private var maxTextureButtons:Array<Button> = new Array<Button>();
 	private var classicClipsButtons:Array<Button> = new Array<Button>();
@@ -382,6 +391,56 @@ class MassiveDemo extends Sprite
 		}
 		
 		this.colorModeSprite.x = (this.buttonTextureOFF.width - this.colorModeSprite.width) / 2;
+		
+		// Clip type
+		tY += btnHeight + gap;
+		this.clipTypeSprite = new Sprite();
+		this.clipTypeSprite.y = tY;
+		this.menuSprite.addChild(this.clipTypeSprite);
+		tf = createTextField("clip type");
+		tf.y = (btnHeight - tf.height) / 2;
+		this.clipTypeSprite.addChild(tf);
+		tX = tf.width + gap;
+		
+		var clipTypes:Array<String> = ClipType.getValues();
+		for (i in 0...clipTypes.length)
+		{
+			btn = createButton(this.clipType == clipTypes[i] ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, clipTypes[i], null, this.mediumButtonTextureON);
+			btn.x = tX;
+			btn.y = tf.y + (tf.height - btnHeight) / 2;
+			btn.addEventListener(Event.TRIGGERED, toggleClipType);
+			this.clipTypeButtons.push(btn);
+			this.clipTypeSprite.addChild(btn);
+			
+			tX += btn.width + gap;
+		}
+		
+		this.clipTypeSprite.x = (this.buttonTextureOFF.width - this.clipTypeSprite.width) / 2;
+		
+		// Container type
+		tY += btnHeight + gap;
+		this.containerTypeSprite = new Sprite();
+		this.containerTypeSprite.y = tY;
+		this.menuSprite.addChild(this.containerTypeSprite);
+		tf = createTextField("container type");
+		tf.y = (btnHeight - tf.height) / 2;
+		this.containerTypeSprite.addChild(tf);
+		tX = tf.width + gap;
+		
+		var containerTypes:Array<String> = ContainerType.getValues();
+		for (i in 0...containerTypes.length)
+		{
+			btn = createButton(this.containerType == containerTypes[i] ? this.mediumButtonTextureON : this.mediumButtonTextureOFF, containerTypes[i], null, this.mediumButtonTextureON);
+			btn.x = tX;
+			btn.y = tf.y + (tf.height - btnHeight) / 2;
+			btn.addEventListener(Event.TRIGGERED, toggleContainerType);
+			this.containerTypeButtons.push(btn);
+			this.containerTypeSprite.addChild(btn);
+			
+			tX += btn.width + gap;
+		}
+		
+		this.containerTypeSprite.x = (this.buttonTextureOFF.width - this.containerTypeSprite.width) / 2;
 		
 		tY += btnHeight + gap * 2;
 		tf = createTextField("Starling options");
@@ -746,6 +805,19 @@ class MassiveDemo extends Sprite
 		}
 	}
 	
+	private function toggleClipType(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		for (otherBtn in this.clipTypeButtons)
+		{
+			if (otherBtn == btn) continue;
+			otherBtn.upState = this.mediumButtonTextureOFF;
+		}
+		
+		this.clipType = btn.text;
+		btn.upState = this.mediumButtonTextureON;
+	}
+	
 	private function toggleColorMode(evt:Event):Void
 	{
 		var btn:Button = cast evt.target;
@@ -756,6 +828,19 @@ class MassiveDemo extends Sprite
 		}
 		
 		this.colorMode = btn.text;
+		btn.upState = this.mediumButtonTextureON;
+	}
+	
+	private function toggleContainerType(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		for (otherBtn in this.containerTypeButtons)
+		{
+			if (otherBtn == btn) continue;
+			otherBtn.upState = this.mediumButtonTextureOFF;
+		}
+		
+		this.containerType = btn.text;
 		btn.upState = this.mediumButtonTextureON;
 	}
 	
@@ -958,7 +1043,33 @@ class MassiveDemo extends Sprite
 		this.animationButton.enabled = true;
 		this.autoUpdateBoundsButton.enabled = true;
 		
-		var massive:MassiveClips = new MassiveClips();
+		var massive:MassiveClipsBase;
+		
+		//switch (this.containerType)
+		//{
+			//case ContainerType.CLIP :
+				//massive = new MassiveClipsClip();
+			//
+			//case ContainerType.IMG :
+				//massive = new MassiveClips();
+			//
+			//case ContainerType.MIXED :
+				//massive = new MassiveClipsBasic();
+			//
+			//default :
+				//throw new Error("unknown container type " + this.containerType);
+		//}
+		
+		if (this.clipType == ClipType.BASIC)
+		{
+			massive = new MassiveClipsBasic();
+		}
+		else
+		{
+			massive = new MassiveClips();
+		}
+		
+		massive.containerType = this.containerType;
 		massive.animation = this.animation;
 		massive.movement = this.movement;
 		massive.autoUpdateBounds = this.autoUpdateBounds;

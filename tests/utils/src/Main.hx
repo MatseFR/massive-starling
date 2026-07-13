@@ -1,12 +1,19 @@
 package;
 
 import haxe.Timer;
+import massive.data.Frame;
 import massive.data.MassiveConstants;
+import massive.display.Img;
+import massive.display.ImgContainer;
+import massive.display.render.RenderData;
 import massive.util.LookUp;
 import massive.util.MathUtils;
 import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
+import openfl.utils._internal.Float32Array;
+import starling.textures.Texture;
+import starling.utils.Align;
 import starling.utils.MathUtil;
 
 /**
@@ -32,8 +39,12 @@ class Main extends Sprite
 		
 		LookUp.init();
 		
-		getterSetterBool();
-		getterSetterInt();
+		massiveWebPerf();
+		//conditionCheck();
+		//boolNullCheck();
+		//getterSetterBool();
+		//getterSetterInt();
+		//setterMulti();
 		//cos();
 		//sin();
 		//cos_and_sin();
@@ -107,6 +118,150 @@ class Main extends Sprite
 		#else
 		return Timer.stamp();
 		#end
+	}
+	
+	#if !flash
+	private function massiveWebPerf():Void
+	{
+		var img:Img;
+		var imgList:Array<Img> = new Array<Img>();
+		var imgCount:Int = 16000;
+		var elementsPerQuad:Int = 20;
+		var frame:Frame = new Frame(8, 8, 0, 0, 8, 8, false);
+		for (i in 0...imgCount)
+		{
+			img = new Img(frame);
+			imgList[i] = img;
+		}
+		var container:ImgContainer = new ImgContainer(imgList);
+		var floatData:Float32Array = new Float32Array(imgCount * elementsPerQuad);
+		var renderData:RenderData = new RenderData(null);
+		renderData.multiTexturing = true;
+		renderData.pma = true;
+		renderData.useAlpha = true;
+		renderData.useColor = true;
+		renderData.useDisplayColor = true;
+		
+		var t1:Float;
+		var t2:Float;
+		var time1:Float;
+		var time2:Float;
+		var iterations:Int = 1000;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			container.writeDataFloat32Array(floatData, MassiveConstants.MAX_QUADS, 0.0, 0.0, renderData);
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		log("massiveWebPerf NEW took " + time1);
+	}
+	#end
+	
+	private function conditionCheck():Void
+	{
+		var t1:Float;
+		var t2:Float;
+		var time1:Float;
+		var time2:Float;
+		var iterations:Int = 100000000;
+		
+		var a:Int;
+		var b:Int;
+		var limit:Int = 15000;
+		
+		a = 0;
+		b = 0;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			++a;
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		//a = 0;
+		//b = 0;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			if (++a == limit)
+			{
+				++b;
+			}
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("no condition", time1, "condition", time2);
+	}
+	
+	private function boolNullCheck():Void
+	{
+		var t1:Float;
+		var t2:Float;
+		var time1:Float;
+		var time2:Float;
+		var iterations:Int = 100000000;
+		
+		var bool:Bool = false;
+		var obj:TestClass = null;
+		var value:Int = 0;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			if (bool)
+			{
+				++value;
+			}
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			if (obj != null)
+			{
+				++value;
+			}
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Bool check", time1, "null check", time2);
+		
+		bool = true;
+		obj = new TestClass();
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			if (bool)
+			{
+				++value;
+			}
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			if (obj != null)
+			{
+				++value;
+			}
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("Bool check", time1, "null check", time2);
 	}
 	
 	private function getterSetterBool():Void
@@ -254,6 +409,37 @@ class Main extends Sprite
 		time2 = t2 - t1;
 		
 		logResults("Int inline setter", time2, "Int public var", time1);
+	}
+	
+	private function setterMulti():Void
+	{
+		var t1:Float;
+		var t2:Float;
+		var time1:Float;
+		var time2:Float;
+		var iterations:Int = 100000000;
+		
+		var value:Float = 1.0;
+		
+		var obj:TestClass = new TestClass();
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			obj.red = value;
+		}
+		t2 = timeStamp();
+		time1 = t2 - t1;
+		
+		t1 = timeStamp();
+		for (i in 0...iterations)
+		{
+			obj.inlineRed = value;
+		}
+		t2 = timeStamp();
+		time2 = t2 - t1;
+		
+		logResults("setter multi", time1, "inline setter multi", time2);
 	}
 	
 	private function cos():Void

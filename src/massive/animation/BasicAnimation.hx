@@ -1,32 +1,26 @@
 package massive.animation;
-
-#if flash
 import openfl.Vector;
-#end
 
 /**
  * ...
  * @author Matse
  */
-class Animation 
+class BasicAnimation 
 {
-	static private var _POOL:Array<Animation> = new Array<Animation>();
+	static private var _POOL:Array<BasicAnimation> = new Array<BasicAnimation>();
 	
-	static public function fromPool():Animation
+	static public function fromPool():BasicAnimation
 	{
 		if (_POOL.length != 0) return _POOL.pop();
-		return new Animation();
+		return new BasicAnimation();
 	}
 	
 	public var duration(default, null):Float = 0.0;
 	#if flash
-	public var frames:Vector<AnimationFrame> = new Vector<AnimationFrame>();
+	public var frames:Vector<BasicAnimationFrame> = new Vector<BasicAnimationFrame>();
 	#else
-	public var frames:Array<AnimationFrame> = new Array<AnimationFrame>();
+	public var frames:Array<BasicAnimationFrame> = new Array<BasicAnimationFrame>();
 	#end
-	public var hasVertexPosition(default, null):Bool;
-	public var hasVertexColor(default, null):Bool;
-	public var hasVertexColorOffset(default, null):Bool;
 	public var id:String;
 	public var lastFrame(default, null):Int = 0;
 	public var loop:Bool = false;
@@ -40,10 +34,9 @@ class Animation
 	   @default	0
 	**/
 	public var loopFrame:Int = 0;
-	public var nextAnimationID:String;
 	public var numFrames(default, null):Int = 0;
 	public var numLoops:Int = 0;
-	
+
 	public function new() 
 	{
 		
@@ -51,20 +44,19 @@ class Animation
 	
 	public function clear():Void
 	{
-		for (i in 0...this.numFrames)
-		{
-			this.frames[i].pool();
-		}
+		this.duration = 0.0;
 		#if flash
 		this.frames.length = 0;
 		#else
 		this.frames.resize(0);
 		#end
-		
-		this.duration = this.loopDuration = 0.0;
-		this.id = this.nextAnimationID = null;
+		this.id = null;
+		this.lastFrame = 0;
 		this.loop = false;
-		this.lastFrame = this.loopFrame = this.numFrames = this.numLoops = 0;
+		this.loopDuration = 0.0;
+		this.loopFrame = 0;
+		this.numFrames = 0;
+		this.numLoops = 0;
 	}
 	
 	public function pool():Void
@@ -73,12 +65,12 @@ class Animation
 		_POOL[_POOL.length] = this;
 	}
 	
-	public function addFrame(frame:AnimationFrame):Void
+	public function addFrame(frame:BasicAnimationFrame):Void
 	{
 		this.frames[this.frames.length] = frame;
 	}
 	
-	public function addFrameAt(frame:AnimationFrame, index:Int):Void
+	public function addFrameAt(frame:BasicAnimationFrame, index:Int):Void
 	{
 		#if flash
 		this.frames.insertAt(index, frame);
@@ -87,7 +79,7 @@ class Animation
 		#end
 	}
 	
-	public function removeFrame(frame:AnimationFrame, pool:Bool = true):Void
+	public function removeFrame(frame:BasicAnimationFrame, pool:Bool = true):Void
 	{
 		if (pool) frame.pool();
 		#if flash
@@ -119,22 +111,6 @@ class Animation
 		else
 		{
 			this.loopDuration = this.duration - this.frames[this.loopFrame - 1].timing;
-		}
-		
-		this.hasVertexPosition = false;
-		this.hasVertexColor = false;
-		this.hasVertexColorOffset = false;
-		
-		var frame:AnimationFrame;
-		var count:Int = this.frames.length;
-		for (i in 0...count)
-		{
-			frame = this.frames[i];
-			if (!this.hasVertexPosition && frame.vertexPosition != null) this.hasVertexPosition = true;
-			if (!this.hasVertexColor && frame.vertexColor != null) this.hasVertexColor = true;
-			if (!this.hasVertexColorOffset && frame.vertexColorOffset != null) this.hasVertexColorOffset = true;
-			
-			if (this.hasVertexPosition && this.hasVertexColor && this.hasVertexColorOffset) break;
 		}
 	}
 	

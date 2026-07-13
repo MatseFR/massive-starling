@@ -25,7 +25,7 @@
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="lime=8.3.0&#xA;massive=1.0.0-alpha.0&#xA;openfl=9.5.0&#xA;starling=2.7.1&#xA;AIR_SDK=C:\Users\Matse\AppData\Local\HaxeDevelop\Apps\flexairsdk\4.6.0+32.0.0&#xA;lime-threads&#xA;tools=8.3.0&#xA;lime-canvas&#xA;howlerjs&#xA;no-compilation&#xA;openfl-html5&#xA;disable_preloader_assets=1&#xA;lime-webgl&#xA;lime-dom&#xA;lime-howlerjs&#xA;lime-html5&#xA;fdb&#xA;html5&#xA;web&#xA;html5" />
+    <option directives="lime=8.3.0&#xA;massive-starling=1.0.0-alpha.4&#xA;openfl=9.5.0&#xA;starling=2.8.0&#xA;AIR_SDK=C:\Users\Matse\AppData\Local\FlashDevelop\Apps\flexairsdk\4.6.0+50.2.3.4&#xA;lime-threads&#xA;tools=8.3.0&#xA;lime-canvas&#xA;howlerjs&#xA;no-compilation&#xA;openfl-html5&#xA;disable_preloader_assets=1&#xA;lime-webgl&#xA;lime-dom&#xA;lime-howlerjs&#xA;lime-html5&#xA;fdb&#xA;html5&#xA;web&#xA;html5" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />

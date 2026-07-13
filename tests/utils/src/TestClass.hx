@@ -12,6 +12,8 @@ class TestClass
 	public var getSetInt(get, set):Int;
 	public var inlineGetSetBool(get, set):Bool;
 	public var inlineGetSetInt(get, set):Int;
+	public var red(get, set):Float;
+	public var inlineRed(get, set):Float;
 	
 	private var _getSetBool:Bool;
 	private function get_getSetBool():Bool { return this._getSetBool; }
@@ -40,6 +42,27 @@ class TestClass
 	{
 		return this._inlineGetSetInt = value;
 	}
+	
+	private var _red:Float;
+	private function get_red():Float { return this._red; }
+	private function set_red(value:Float):Float
+	{
+		this._red1 = this._red2 = this._red3 = this._red4 = value;
+		return this._red = value;
+	}
+	
+	private var _inlineRed:Float;
+	inline private function get_inlineRed():Float { return this._red; }
+	inline private function set_inlineRed(value:Float):Float
+	{
+		this._red1 = this._red2 = this._red3 = this._red4 = value;
+		return this._inlineRed = value;
+	}
+	
+	private var _red1:Float;
+	private var _red2:Float;
+	private var _red3:Float;
+	private var _red4:Float;
 
 	public function new() 
 	{

@@ -18,6 +18,8 @@
 	<haxelib name="starling" />
 	<haxelib name="massive-starling" />
 	
+	<haxedef name="advanced-telemetry" />
+	
 	<!-- assets -->
 	<icon path="assets/openfl.svg" />
 	<assets path="assets/img" rename="img" embed="false" />

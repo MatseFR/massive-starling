@@ -35,7 +35,7 @@
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="lime=8.3.0&#xA;massive=1.0.0-alpha.0&#xA;starling=2.7.1&#xA;valeditor=0.0.1&#xA;feathersui=1.4.0-alpha.0&#xA;actuate=1.9.0&#xA;hxargs=4.0.0&#xA;openfl=9.5.0&#xA;inputAction=1.0.0&#xA;openfl-juggler=1.0.0&#xA;valedit=0.0.1&#xA;AIR_SDK=C:\Users\Matse\AppData\Local\HaxeDevelop\Apps\flexairsdk\4.6.0+32.0.0&#xA;native-trace&#xA;tools=8.3.0&#xA;flash-use-stage&#xA;lime-opengl&#xA;no-compilation&#xA;openfl-flash&#xA;fdb&#xA;openfl-disable-handle-error&#xA;air&#xA;desktop&#xA;air" />
+    <option directives="lime=8.3.0&#xA;massive-starling=1.0.0-alpha.4&#xA;starling=2.8.0&#xA;valeditor=0.0.1&#xA;feathersui=1.4.0-alpha.0&#xA;actuate=1.9.0&#xA;hxargs=4.0.0&#xA;openfl=9.5.0&#xA;inputAction=1.0.0&#xA;openfl-juggler=1.0.0&#xA;valedit=0.0.1&#xA;AIR_SDK=C:\Users\Matse\AppData\Local\FlashDevelop\Apps\flexairsdk\4.6.0+50.2.3.4&#xA;native-trace&#xA;tools=8.3.0&#xA;flash-use-stage&#xA;lime-opengl&#xA;no-compilation&#xA;openfl-flash&#xA;fdb&#xA;openfl-disable-handle-error&#xA;air&#xA;desktop&#xA;air" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
