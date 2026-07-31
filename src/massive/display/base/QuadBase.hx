@@ -66,7 +66,7 @@ abstract class QuadBase extends DisplayBase
 	/**
 	   
 	**/
-	public var vertexData(get, set):VertexPositionData;
+	public var vertexPosition(get, set):VertexPositionData;
 	/**
 	   Int color for all vertices
 	   @default 0xffffff
@@ -166,6 +166,7 @@ abstract class QuadBase extends DisplayBase
 	inline private function get_vertexColor():VertexColorData { return this._vertexColor; }
 	inline private function set_vertexColor(value:VertexColorData):VertexColorData
 	{
+		if (this._vertexColor == value) return value;
 		this.hasVertexColor = value != null;
 		this._colorChanged = true;
 		return this._vertexColor = value;
@@ -175,27 +176,24 @@ abstract class QuadBase extends DisplayBase
 	inline private function get_vertexColorOffset():VertexColorData { return this._vertexColorOffset; }
 	inline private function set_vertexColorOffset(value:VertexColorData):VertexColorData
 	{
+		if (this._vertexColorOffset == value) return value;
 		this.hasVertexColorOffset = value != null;
 		this._colorOffsetChanged = true;
 		return this._vertexColorOffset = value;
 	}
 	
-	private var _vertexData:VertexPositionData;
-	inline private function get_vertexData():VertexPositionData { return this._vertexData; }
-	inline private function set_vertexData(value:VertexPositionData):VertexPositionData
+	private var _vertexPosition:VertexPositionData;
+	inline private function get_vertexPosition():VertexPositionData { return this._vertexPosition; }
+	inline private function set_vertexPosition(value:VertexPositionData):VertexPositionData
 	{
-		this._vertexData = value;
-		if (this._vertexData != null)
+		if (this._vertexPosition == value) return value;
+		this.hasVertexPosition = value != null;
+		this._transformChanged = true;
+		if (!this.hasVertexPosition)
 		{
-			applyVertexData();
-			this.hasVertexPosition = true;
+			this._sizeXChanged = this._sizeYChanged = true;
 		}
-		else if (this.hasVertexPosition)
-		{
-			this._transformChanged = true;
-			this.hasVertexPosition = false;
-		}
-		return this._vertexData;
+		return this._vertexPosition = value;
 	}
 	
 	private function get_color():Int
@@ -357,14 +355,14 @@ abstract class QuadBase extends DisplayBase
 	
 	inline private function applyVertexData():Void
 	{
-		this._x1 = this._vertexData.x1 * this._scaleX;
-		this._x2 = this._vertexData.x2 * this._scaleX;
-		this._x3 = this._vertexData.x3 * this._scaleX;
-		this._x4 = this._vertexData.x4 * this._scaleX;
-		this._y1 = this._vertexData.y1 * this._scaleY;
-		this._y2 = this._vertexData.y2 * this._scaleY;
-		this._y3 = this._vertexData.y3 * this._scaleY;
-		this._y4 = this._vertexData.y4 * this._scaleY;
+		this._x1 = this._vertexPosition.x1 * this._scaleX;
+		this._x2 = this._vertexPosition.x2 * this._scaleX;
+		this._x3 = this._vertexPosition.x3 * this._scaleX;
+		this._x4 = this._vertexPosition.x4 * this._scaleX;
+		this._y1 = this._vertexPosition.y1 * this._scaleY;
+		this._y2 = this._vertexPosition.y2 * this._scaleY;
+		this._y3 = this._vertexPosition.y3 * this._scaleY;
+		this._y4 = this._vertexPosition.y4 * this._scaleY;
 		this._sizeXChanged = this._sizeYChanged = this._transformChanged = false;
 	}
 	

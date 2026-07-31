@@ -202,10 +202,6 @@ class MixedContainer extends ContainerBase
 					this.__quadsWritten = 0;
 					this.__position = 0;
 				}
-				else
-				{
-					this.__position += 4;
-				}
 			}
 		}
 		
@@ -249,10 +245,6 @@ class MixedContainer extends ContainerBase
 					this.__quadsWritten = 0;
 					this.__position = 0;
 				}
-				else
-				{
-					++this.__position;
-				}
 			}
 		}
 		
@@ -294,10 +286,6 @@ class MixedContainer extends ContainerBase
 					renderData.display.drawVector();
 					this.__quadsWritten = 0;
 					this.__position = 0;
-				}
-				else
-				{
-					++this.__position;
 				}
 			}
 		}

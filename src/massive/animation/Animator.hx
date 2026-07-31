@@ -2,6 +2,7 @@ package massive.animation;
 
 import massive.display.BasicClip;
 import massive.display.Clip;
+import massive.event.MassiveEvent;
 import massive.particle.Particle;
 import starling.animation.IAnimatable;
 #if flash
@@ -15,6 +16,11 @@ import openfl.Vector;
 //class Animator<B:BasicClip = BasicClip, C:Clip = Clip, P:Particle = Particle> implements IAnimatable
 class Animator implements IAnimatable
 {
+	/**
+	 * @default	true
+	 */
+	public var animate:Bool = true;
+	
 	#if flash
 	private var _basicClipLists:Vector<Vector<BasicClip>>;
 	private var _basicClips:Vector<BasicClip>;
@@ -107,9 +113,9 @@ class Animator implements IAnimatable
 	#end
 	{
 		#if flash
-		
+		this._basicClipLists.removeAt(this._basicClipLists.indexOf(clips));
 		#else
-		
+		this._basicClipLists.splice(this._basicClipLists.indexOf(clips), 1);
 		#end
 	}
 	
@@ -196,6 +202,8 @@ class Animator implements IAnimatable
 	
 	public function advanceTime(time:Float):Void
 	{
+		if (!this.animate) return;
+		
 		var count:Int;
 		
 		if (this._basicClips.length != 0) animateBasicClips(this._basicClips, time);
@@ -211,6 +219,12 @@ class Animator implements IAnimatable
 		{
 			animateClips(this._clipLists[i], time);
 		}
+		
+		//count = this._particleLists.length;
+		//for (i in 0...count)
+		//{
+			//
+		//}
 	}
 	
 	@:access(massive.display.BasicClip)
@@ -240,6 +254,10 @@ class Animator implements IAnimatable
 					clip.frameTime -= clip.animation.loopDuration;
 					++clip.loopCount;
 				}
+				else if (clip.completeCallback != null)
+				{
+					clip.completeCallback(clip);
+				}
 			}
 		}
 	}
@@ -254,6 +272,40 @@ class Animator implements IAnimatable
 		var clip:Clip;
 		var frameIndex:Int;
 		var count:Int = clips.length;
+		//for (i in 0...count)
+		//{
+			//clip = clips[i];
+			//if (!clip.animate) continue;
+			//
+			//clip.frameTime += time * clip.frameDelta;
+			//if (clip.frameTime >= clip.frameTimingCurrent)
+			//{
+				//frameIndex = clip._frameIndex;
+				//while (true)
+				//{
+					//if (frameIndex < clip.lastFrameIndex)
+					//{
+						//++frameIndex;
+						//clip.frameTimingCurrent = clip._animationFrames[frameIndex].timing;
+					//}
+					//else if (clip.loop && (clip.numLoops == 0 || clip.loopCount < clip.numLoops))
+					//{
+						//frameIndex = clip.animation.loopFrame;
+						//++clip.loopCount;
+						//clip.frameTime -= clip.animation.loopDuration;
+						//clip.frameTimingCurrent = clip._animationFrames[frameIndex].timing;
+					//}
+					//else
+					//{
+						//// animation complete
+						//break;
+					//}
+					//if (clip.frameTime < clip.frameTimingCurrent) break;
+				//}
+				//clip.frameIndex = frameIndex;
+			//}
+		//}
+		
 		for (i in 0...count)
 		{
 			clip = clips[i];
@@ -268,18 +320,23 @@ class Animator implements IAnimatable
 					if (frameIndex < clip.lastFrameIndex)
 					{
 						++frameIndex;
-						clip.frameTimingCurrent = clip._frames[frameIndex].timing;
+						clip.frameTimingCurrent = clip._timings[frameIndex];
+						if (clip._events[frameIndex] != null)
+						{
+							clip.dispatchEventWith(clip._events[frameIndex], false, clip._eventParams[frameIndex]);
+						}
 					}
 					else if (clip.loop && (clip.numLoops == 0 || clip.loopCount < clip.numLoops))
 					{
 						frameIndex = clip.animation.loopFrame;
 						++clip.loopCount;
 						clip.frameTime -= clip.animation.loopDuration;
-						clip.frameTimingCurrent = clip._frames[frameIndex].timing;
+						clip.frameTimingCurrent = clip._timings[frameIndex];
 					}
 					else
 					{
 						// animation complete
+						clip.dispatchEventWith(MassiveEvent.ANIMATION_COMPLETE);
 						break;
 					}
 					if (clip.frameTime < clip.frameTimingCurrent) break;

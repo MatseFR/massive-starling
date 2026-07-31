@@ -158,11 +158,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	**/
 	public var alphaOffset(get, set):Float;
 	/**
-	   Tells whether to animate layers
-	   @default true
-	**/
-	public var animate:Bool = true;
-	/**
 	   If set to true, the MassiveDisplay instance will automatically add itself to the juggler 
 	   when added to stage and remove itself when removed from stage. Default is true.
 	   @default true
@@ -954,7 +949,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		removeAllLayers(disposeLayers, poolDatas);
 		this._textures.resize(0);
 		
-		this.animate = true;
 		this._autoHandleJuggler = true;
 		this._autoUpdateBounds = false;
 		this.blendMode = BlendMode.NORMAL;
@@ -2108,20 +2102,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	}
 	
 	/**
-	   advances time for all animated layers
+	   forces redraw
 	   @param	time
 	**/
 	public function advanceTime(time:Float):Void
 	{
-		if (this.animate)
-		{
-			//this._numLayers = this._layers.length;
-			//for (i in 0...this._numLayers)
-			//{
-				//if (this._layers[i].animate) this._layers[i].advanceTime(time);
-			//}
-		}
-		
 		setRequiresRedraw();
 	}
 	

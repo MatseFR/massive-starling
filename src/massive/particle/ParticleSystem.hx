@@ -3189,7 +3189,7 @@ class ParticleSystem extends MixedContainer
 			particle.sizeYStart = this.__sizeYStart = this._sizeYStart;
 		}
 		
-		this.__firstFrameWidth = particle.animation != null ? particle.animation.frames[0].frame.width : particle.frame.width;
+		this.__firstFrameWidth = particle.animation != null ? particle.animation.animationFrames[0].frame.width : particle.frame.width;
 		particle.scaleXBase = particle.scaleXStart = this.__sizeXStart / this.__firstFrameWidth;
 		particle.scaleYBase = particle.scaleYStart = this.__sizeYStart / this.__firstFrameWidth;
 		if (this._useSizeX)

@@ -150,8 +150,7 @@ class Img extends QuadBase
 	   Texture index used for rendering, if the profile is baseline it will differ from textureIndex
 	   @default	0
 	**/
-	//public var textureIndexReal(default, null):Float = 0.0;
-	public var textureIndexReal:Float = 0.0;
+	public var textureIndexReal(default, null):Float = 0.0;
 	/**
 	   Current frame's width, if any, multiplied by scaleX (0 otherwise)
 	**/
@@ -161,31 +160,7 @@ class Img extends QuadBase
 	inline private function get_frame():Frame { return this._frame; }
 	inline private function set_frame(value:Frame):Frame
 	{
-		if (this._frame == value) return value;
-		if (value != null)
-		{
-			if (this._invertX)
-			{
-				this._u1 = value.u2;
-				this._u2 = value.u1;
-			}
-			else
-			{
-				this._u1 = value.u1;
-				this._u2 = value.u2;
-			}
-			
-			if (this._invertY)
-			{
-				this._v1 = value.v2;
-				this._v2 = value.v1;
-			}
-			else
-			{
-				this._v1 = value.v1;
-				this._v2 = value.v2;
-			}
-		}
+		//if (this._frame == value) return value;
 		this._transformChanged = this._sizeXChanged = this._sizeYChanged = true;
 		return this._frame = value;
 	}
@@ -203,20 +178,7 @@ class Img extends QuadBase
 	inline private function set_invertX(value:Bool):Bool
 	{
 		if (this._invertX == value) return value;
-		if (this._frame != null)
-		{
-			if (value)
-			{
-				this._u1 = this._frame.u2;
-				this._u2 = this._frame.u1;
-			}
-			else
-			{
-				this._u1 = this._frame.u1;
-				this._u2 = this._frame.u2;
-			}
-		}
-		this._transformChanged = this._sizeXChanged = this._colorChanged = this._colorOffsetChanged = true;
+		this._transformChanged = this._sizeXChanged = true;
 		return this._invertX = value;
 	}
 	
@@ -225,20 +187,7 @@ class Img extends QuadBase
 	inline private function set_invertY(value:Bool):Bool
 	{
 		if (this._invertY == value) return value;
-		if (this._frame != null)
-		{
-			if (value)
-			{
-				this._v1 = this._frame.v2;
-				this._v2 = this._frame.v1;
-			}
-			else
-			{
-				this._v1 = this._frame.v1;
-				this._v2 = this._frame.v2;
-			}
-		}
-		this._transformChanged = this._sizeYChanged = this._colorChanged = this._colorOffsetChanged = true;
+		this._transformChanged = this._sizeYChanged = true;
 		return this._invertY = value;
 	}
 	
@@ -255,11 +204,6 @@ class Img extends QuadBase
 		this.scaleX = value / this._frame.width;
 		return value;
 	}
-	
-	private var _u1:Float = 0.0;
-	private var _u2:Float = 0.0;
-	private var _v1:Float = 0.0;
-	private var _v2:Float = 0.0;
 	
 	/**
 	   Constructor
@@ -289,11 +233,6 @@ class Img extends QuadBase
 	{
 		clear();
 		_POOL[_POOL.length] = this;
-	}
-	
-	public function advanceTime(time:Float):Void
-	{
-		// nothing
 	}
 	
 }

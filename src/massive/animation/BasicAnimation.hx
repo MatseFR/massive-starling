@@ -1,5 +1,8 @@
 package massive.animation;
+import massive.data.Frame;
+#if flash
 import openfl.Vector;
+#end
 
 /**
  * ...
@@ -15,14 +18,14 @@ class BasicAnimation
 		return new BasicAnimation();
 	}
 	
-	public var duration(default, null):Float = 0.0;
 	#if flash
-	public var frames:Vector<BasicAnimationFrame> = new Vector<BasicAnimationFrame>();
+	public var animationFrames:Vector<BasicAnimationFrame> = new Vector<BasicAnimationFrame>();
 	#else
-	public var frames:Array<BasicAnimationFrame> = new Array<BasicAnimationFrame>();
+	public var animationFrames:Array<BasicAnimationFrame> = new Array<BasicAnimationFrame>();
 	#end
+	public var duration(default, null):Float = 0.0;
 	public var id:String;
-	public var lastFrame(default, null):Int = 0;
+	public var lastFrameIndex(default, null):Int = -1;
 	public var loop:Bool = false;
 	/**
 	   duration of a loop, different from `duration` if `loopFrame` != 0
@@ -36,6 +39,13 @@ class BasicAnimation
 	public var loopFrame:Int = 0;
 	public var numFrames(default, null):Int = 0;
 	public var numLoops:Int = 0;
+	
+	#if flash
+	private var _frames:Vector<Frame> = new Vector<Frame>();
+	#else
+	private var _frames:Array<Frame> = new Array<Frame>();
+	#end
+	private var _timings:Array<Float> = new Array<Float>();
 
 	public function new() 
 	{
@@ -44,19 +54,23 @@ class BasicAnimation
 	
 	public function clear():Void
 	{
-		this.duration = 0.0;
+		this.duration = this.loopDuration = 0.0;
 		#if flash
-		this.frames.length = 0;
+		this.animationFrames.length = 0;
 		#else
-		this.frames.resize(0);
+		this.animationFrames.resize(0);
 		#end
 		this.id = null;
-		this.lastFrame = 0;
+		this.lastFrameIndex = -1;
 		this.loop = false;
-		this.loopDuration = 0.0;
-		this.loopFrame = 0;
-		this.numFrames = 0;
-		this.numLoops = 0;
+		this.loopFrame = this.numFrames = this.numLoops = 0;
+		
+		#if flash
+		this._frames.length = 0;
+		#else
+		this._frames.resize(0);
+		#end
+		this._timings.resize(0);
 	}
 	
 	public function pool():Void
@@ -67,15 +81,15 @@ class BasicAnimation
 	
 	public function addFrame(frame:BasicAnimationFrame):Void
 	{
-		this.frames[this.frames.length] = frame;
+		this.animationFrames[this.animationFrames.length] = frame;
 	}
 	
 	public function addFrameAt(frame:BasicAnimationFrame, index:Int):Void
 	{
 		#if flash
-		this.frames.insertAt(index, frame);
+		this.animationFrames.insertAt(index, frame);
 		#else
-		this.frames.insert(index, frame);
+		this.animationFrames.insert(index, frame);
 		#end
 	}
 	
@@ -83,34 +97,46 @@ class BasicAnimation
 	{
 		if (pool) frame.pool();
 		#if flash
-		this.frames.removeAt(this.frames.indexOf(frame));
+		this.animationFrames.removeAt(this.animationFrames.indexOf(frame));
 		#else
-		this.frames.splice(this.frames.indexOf(frame), 1);
+		this.animationFrames.splice(this.animationFrames.indexOf(frame), 1);
 		#end
 	}
 	
 	public function removeFrameAt(index:Int, pool:Bool = true):Void
 	{
-		if (pool) this.frames[index].pool();
+		if (pool) this.animationFrames[index].pool();
 		#if flash
-		this.frames.removeAt(index);
+		this.animationFrames.removeAt(index);
 		#else
-		this.frames.splice(index, 1);
+		this.animationFrames.splice(index, 1);
 		#end
 	}
 	
 	public function ready():Void
 	{
-		this.numFrames = this.frames.length;
-		this.lastFrame = this.numFrames - 1;
-		this.duration = this.lastFrame != -1 ? this.frames[this.lastFrame].timing : 0.0;
+		this.numFrames = this.animationFrames.length;
+		this.lastFrameIndex = this.numFrames - 1;
+		this.duration = this.lastFrameIndex != -1 ? this.animationFrames[this.lastFrameIndex].timing : 0.0;
 		if (this.loopFrame == 0 || this.numFrames == 0)
 		{
 			this.loopDuration = this.duration;
 		}
 		else
 		{
-			this.loopDuration = this.duration - this.frames[this.loopFrame - 1].timing;
+			this.loopDuration = this.duration - this.animationFrames[this.loopFrame - 1].timing;
+		}
+		
+		#if flash
+		this._frames.length = 0;
+		#else
+		this._frames.resize(0);
+		#end
+		this._timings.resize(0);
+		for (i in 0...this.numFrames)
+		{
+			this._frames[i] = this.animationFrames[i].frame;
+			this._timings[i] = this.animationFrames[i].timing;
 		}
 	}
 	

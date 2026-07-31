@@ -1,6 +1,7 @@
 package massive.display;
 import massive.animation.BasicAnimation;
 import massive.animation.BasicAnimationFrame;
+import massive.data.Frame;
 import openfl.Vector;
 
 /**
@@ -25,7 +26,6 @@ class BasicClip extends Img
 	   Current animation
 	**/
 	public var animation(default, null):BasicAnimation;
-	public var animationFrame:BasicAnimationFrame;
 	public var completeCallback:BasicClip->Void;
 	public var frameDelta:Float = 1.0;
 	public var frameIndex(get, set):Int;
@@ -45,17 +45,17 @@ class BasicClip extends Img
 	private inline function set_frameIndex(value:Int):Int
 	{
 		if (this._frameIndex == value) return value;
-		this.animationFrame = this._frames[value];
-		this.frame = this.animationFrame.frame;
-		this.frameTimingCurrent = this.animationFrame.timing;
+		this.frame = this._frames[value];
+		this.frameTimingCurrent = this._timings[value];
 		return this._frameIndex = value;
 	}
 	
 	#if flash
-	private var _frames:Vector<BasicAnimationFrame>;
+	private var _frames:Vector<Frame>;
 	#else
-	private var _frames:Array<BasicAnimationFrame>;
+	private var _frames:Array<Frame>;
 	#end
+	private var _timings:Array<Float>;
 
 	public function new() 
 	{
@@ -82,16 +82,21 @@ class BasicClip extends Img
 		this.loop = false;
 		this.loopCount = 0;
 		this.numLoops = 0;
+		
+		this._frames = null;
+		this._timings = null;
 	}
 	
+	@:access(massive.animation.BasicAnimation)
 	public function play(animation:BasicAnimation, frameIndex:Int = 0, completeCallback:BasicClip->Void = null):Void
 	{
 		this.animation = animation;
-		this._frames = this.animation.frames;
+		this._frames = this.animation._frames;
+		this._timings = this.animation._timings;
 		this.frameIndex = frameIndex;
-		this.frameTime = this._frameIndex == 0 ? 0.0 : this._frames[this._frameIndex - 1].timing;
+		this.frameTime = this._frameIndex == 0 ? 0.0 : this._timings[this._frameIndex - 1];
 		this.completeCallback = completeCallback;
-		this.lastFrameIndex = this.animation.lastFrame;
+		this.lastFrameIndex = this.animation.lastFrameIndex;
 		this.loop = this.animation.loop;
 		this.numLoops = this.animation.numLoops;
 		this.animate = true;

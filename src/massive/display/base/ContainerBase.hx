@@ -1,6 +1,7 @@
 package massive.display.base;
 import massive.data.Frame;
 import massive.data.VertexColorData;
+import massive.data.VertexPositionData;
 import massive.display.Clip;
 import massive.display.render.RenderData;
 #if flash
@@ -40,7 +41,6 @@ abstract class ContainerBase extends DisplayBase
 	{
 		super();
 		this.isContainer = true;
-		//this.animate = true;
 	}
 	
 	inline private function prepareDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
@@ -211,342 +211,3516 @@ abstract class ContainerBase extends DisplayBase
 	
 	inline private function writeImageBytes():Void
 	{
-		this.__x = this.__image.x + this.__image.offsetX + this.__renderOffsetX;
-		this.__y = this.__image.y + this.__image.offsetY + this.__renderOffsetY;
+		setupImage();
 		
-		if (this.__image._transformChanged)
+		if (this.__useColor)
 		{
-			updateTransform();
+			if (this.__useColorOffset)
+			{
+				if (this.__simpleColor)
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_bytes();
+								writeColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex2_bytes();
+								writeColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex3_bytes();
+								writeColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex4_bytes();
+								writeColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+							}
+							else
+							{
+								writeVertex1_bytes();
+								writeColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								
+								writeVertex2_bytes();
+								writeColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								
+								writeVertex3_bytes();
+								writeColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								
+								writeVertex4_bytes();
+								writeColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_bytes();
+								writeColorSimple_bytes();
+								writeVertex1ColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex2_bytes();
+								writeColorSimple_bytes();
+								writeVertex2ColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex3_bytes();
+								writeColorSimple_bytes();
+								writeVertex3ColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex4_bytes();
+								writeColorSimple_bytes();
+								writeVertex4ColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+							}
+							else
+							{
+								writeVertex1_bytes();
+								writeColorSimple_bytes();
+								writeVertex1ColorOffsetSimple_bytes();
+								
+								writeVertex2_bytes();
+								writeColorSimple_bytes();
+								writeVertex2ColorOffsetSimple_bytes();
+								
+								writeVertex3_bytes();
+								writeColorSimple_bytes();
+								writeVertex3ColorOffsetSimple_bytes();
+								
+								writeVertex4_bytes();
+								writeColorSimple_bytes();
+								writeVertex4ColorOffsetSimple_bytes();
+							}
+						}
+					}
+					else
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_bytes();
+								writeVertex1ColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex2_bytes();
+								writeVertex2ColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex3_bytes();
+								writeVertex3ColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex4_bytes();
+								writeVertex4ColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+							}
+							else
+							{
+								writeVertex1_bytes();
+								writeVertex1ColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								
+								writeVertex2_bytes();
+								writeVertex2ColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								
+								writeVertex3_bytes();
+								writeVertex3ColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+								
+								writeVertex4_bytes();
+								writeVertex4ColorSimple_bytes();
+								writeColorOffsetSimple_bytes();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_bytes();
+								writeVertex1ColorSimple_bytes();
+								writeVertex1ColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex2_bytes();
+								writeVertex2ColorSimple_bytes();
+								writeVertex2ColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex3_bytes();
+								writeVertex3ColorSimple_bytes();
+								writeVertex3ColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex4_bytes();
+								writeVertex4ColorSimple_bytes();
+								writeVertex4ColorOffsetSimple_bytes();
+								writeMultiTexturing_bytes();
+							}
+							else
+							{
+								writeVertex1_bytes();
+								writeVertex1ColorSimple_bytes();
+								writeVertex1ColorOffsetSimple_bytes();
+								
+								writeVertex2_bytes();
+								writeVertex2ColorSimple_bytes();
+								writeVertex2ColorOffsetSimple_bytes();
+								
+								writeVertex3_bytes();
+								writeVertex3ColorSimple_bytes();
+								writeVertex3ColorOffsetSimple_bytes();
+								
+								writeVertex4_bytes();
+								writeVertex4ColorSimple_bytes();
+								writeVertex4ColorOffsetSimple_bytes();
+							}
+						}
+					}
+				}
+				else // non-simple color
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_bytes();
+								writeColor_bytes();
+								writeColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex2_bytes();
+								writeColor_bytes();
+								writeColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex3_bytes();
+								writeColor_bytes();
+								writeColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex4_bytes();
+								writeColor_bytes();
+								writeColorOffset_bytes();
+								writeMultiTexturing_bytes();
+							}
+							else
+							{
+								writeVertex1_bytes();
+								writeColor_bytes();
+								writeColorOffset_bytes();
+								
+								writeVertex2_bytes();
+								writeColor_bytes();
+								writeColorOffset_bytes();
+								
+								writeVertex3_bytes();
+								writeColor_bytes();
+								writeColorOffset_bytes();
+								
+								writeVertex4_bytes();
+								writeColor_bytes();
+								writeColorOffset_bytes();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_bytes();
+								writeColor_bytes();
+								writeVertex1ColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex2_bytes();
+								writeColor_bytes();
+								writeVertex2ColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex3_bytes();
+								writeColor_bytes();
+								writeVertex3ColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex4_bytes();
+								writeColor_bytes();
+								writeVertex4ColorOffset_bytes();
+								writeMultiTexturing_bytes();
+							}
+							else
+							{
+								writeVertex1_bytes();
+								writeColor_bytes();
+								writeVertex1ColorOffset_bytes();
+								
+								writeVertex2_bytes();
+								writeColor_bytes();
+								writeVertex2ColorOffset_bytes();
+								
+								writeVertex3_bytes();
+								writeColor_bytes();
+								writeVertex3ColorOffset_bytes();
+								
+								writeVertex4_bytes();
+								writeColor_bytes();
+								writeVertex4ColorOffset_bytes();
+							}
+						}
+					}
+					else // non-uniform color
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_bytes();
+								writeVertex1Color_bytes();
+								writeColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex2_bytes();
+								writeVertex2Color_bytes();
+								writeColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex3_bytes();
+								writeVertex3Color_bytes();
+								writeColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex4_bytes();
+								writeVertex4Color_bytes();
+								writeColorOffset_bytes();
+								writeMultiTexturing_bytes();
+							}
+							else
+							{
+								writeVertex1_bytes();
+								writeVertex1Color_bytes();
+								writeColorOffset_bytes();
+								
+								writeVertex2_bytes();
+								writeVertex2Color_bytes();
+								writeColorOffset_bytes();
+								
+								writeVertex3_bytes();
+								writeVertex3Color_bytes();
+								writeColorOffset_bytes();
+								
+								writeVertex4_bytes();
+								writeVertex4Color_bytes();
+								writeColorOffset_bytes();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_bytes();
+								writeVertex1Color_bytes();
+								writeVertex1ColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex2_bytes();
+								writeVertex2Color_bytes();
+								writeVertex2ColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex3_bytes();
+								writeVertex3Color_bytes();
+								writeVertex3ColorOffset_bytes();
+								writeMultiTexturing_bytes();
+								
+								writeVertex4_bytes();
+								writeVertex4Color_bytes();
+								writeVertex4ColorOffset_bytes();
+								writeMultiTexturing_bytes();
+							}
+							else
+							{
+								writeVertex1_bytes();
+								writeVertex1Color_bytes();
+								writeVertex1ColorOffset_bytes();
+								
+								writeVertex2_bytes();
+								writeVertex2Color_bytes();
+								writeVertex2ColorOffset_bytes();
+								
+								writeVertex3_bytes();
+								writeVertex3Color_bytes();
+								writeVertex3ColorOffset_bytes();
+								
+								writeVertex4_bytes();
+								writeVertex4Color_bytes();
+								writeVertex4ColorOffset_bytes();
+							}
+						}
+					}
+				}
+			}
+			else // no color offset
+			{
+				if (this.__simpleColor)
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_bytes();
+							writeColorSimple_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex2_bytes();
+							writeColorSimple_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex3_bytes();
+							writeColorSimple_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex4_bytes();
+							writeColorSimple_bytes();
+							writeMultiTexturing_bytes();
+						}
+						else
+						{
+							writeVertex1_bytes();
+							writeColorSimple_bytes();
+							
+							writeVertex2_bytes();
+							writeColorSimple_bytes();
+							
+							writeVertex3_bytes();
+							writeColorSimple_bytes();
+							
+							writeVertex4_bytes();
+							writeColorSimple_bytes();
+						}
+					}
+					else
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_bytes();
+							writeVertex1ColorSimple_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex2_bytes();
+							writeVertex2ColorSimple_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex3_bytes();
+							writeVertex3ColorSimple_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex4_bytes();
+							writeVertex4ColorSimple_bytes();
+							writeMultiTexturing_bytes();
+						}
+						else
+						{
+							writeVertex1_bytes();
+							writeVertex1ColorSimple_bytes();
+							
+							writeVertex2_bytes();
+							writeVertex2ColorSimple_bytes();
+							
+							writeVertex3_bytes();
+							writeVertex3ColorSimple_bytes();
+							
+							writeVertex4_bytes();
+							writeVertex4ColorSimple_bytes();
+						}
+					}
+				}
+				else // non-simple color
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_bytes();
+							writeColor_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex2_bytes();
+							writeColor_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex3_bytes();
+							writeColor_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex4_bytes();
+							writeColor_bytes();
+							writeMultiTexturing_bytes();
+						}
+						else
+						{
+							writeVertex1_bytes();
+							writeColor_bytes();
+							
+							writeVertex2_bytes();
+							writeColor_bytes();
+							
+							writeVertex3_bytes();
+							writeColor_bytes();
+							
+							writeVertex4_bytes();
+							writeColor_bytes();
+						}
+					}
+					else
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_bytes();
+							writeVertex1Color_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex2_bytes();
+							writeVertex2Color_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex3_bytes();
+							writeVertex3Color_bytes();
+							writeMultiTexturing_bytes();
+							
+							writeVertex4_bytes();
+							writeVertex4Color_bytes();
+							writeMultiTexturing_bytes();
+						}
+						else
+						{
+							writeVertex1_bytes();
+							writeVertex1Color_bytes();
+							
+							writeVertex2_bytes();
+							writeVertex2Color_bytes();
+							
+							writeVertex3_bytes();
+							writeVertex3Color_bytes();
+							
+							writeVertex4_bytes();
+							writeVertex4Color_bytes();
+						}
+					}
+				}
+			}
 		}
-		else
+		else if (this.__useColorOffset)
 		{
-			this.__x1 = this.__image._x1;
-			this.__y1 = this.__image._y1;
-			this.__x2 = this.__image._x2;
-			this.__y2 = this.__image._y2;
-			this.__x3 = this.__image._x3;
-			this.__y3 = this.__image._y3;
-			this.__x4 = this.__image._x4;
-			this.__y4 = this.__image._y4;
+			if (this.__simpleColor)
+			{
+				if (this.__uniformColorOffset)
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_bytes();
+						writeColorOffsetSimple_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex2_bytes();
+						writeColorOffsetSimple_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex3_bytes();
+						writeColorOffsetSimple_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex4_bytes();
+						writeColorOffsetSimple_bytes();
+						writeMultiTexturing_bytes();
+					}
+					else
+					{
+						writeVertex1_bytes();
+						writeColorOffsetSimple_bytes();
+						
+						writeVertex2_bytes();
+						writeColorOffsetSimple_bytes();
+						
+						writeVertex3_bytes();
+						writeColorOffsetSimple_bytes();
+						
+						writeVertex4_bytes();
+						writeColorOffsetSimple_bytes();
+					}
+				}
+				else
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_bytes();
+						writeVertex1ColorOffsetSimple_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex2_bytes();
+						writeVertex2ColorOffsetSimple_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex3_bytes();
+						writeVertex3ColorOffsetSimple_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex4_bytes();
+						writeVertex4ColorOffsetSimple_bytes();
+						writeMultiTexturing_bytes();
+					}
+					else
+					{
+						writeVertex1_bytes();
+						writeVertex1ColorOffsetSimple_bytes();
+						
+						writeVertex2_bytes();
+						writeVertex2ColorOffsetSimple_bytes();
+						
+						writeVertex3_bytes();
+						writeVertex3ColorOffsetSimple_bytes();
+						
+						writeVertex4_bytes();
+						writeVertex4ColorOffsetSimple_bytes();
+					}
+				}
+			}
+			else // non-simple
+			{
+				if (this.__uniformColorOffset)
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_bytes();
+						writeColorOffset_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex2_bytes();
+						writeColorOffset_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex3_bytes();
+						writeColorOffset_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex4_bytes();
+						writeColorOffset_bytes();
+						writeMultiTexturing_bytes();
+					}
+					else
+					{
+						writeVertex1_bytes();
+						writeColorOffset_bytes();
+						
+						writeVertex2_bytes();
+						writeColorOffset_bytes();
+						
+						writeVertex3_bytes();
+						writeColorOffset_bytes();
+						
+						writeVertex4_bytes();
+						writeColorOffset_bytes();
+					}
+				}
+				else
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_bytes();
+						writeVertex1ColorOffset_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex2_bytes();
+						writeVertex2ColorOffset_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex3_bytes();
+						writeVertex3ColorOffset_bytes();
+						writeMultiTexturing_bytes();
+						
+						writeVertex4_bytes();
+						writeVertex4ColorOffset_bytes();
+						writeMultiTexturing_bytes();
+					}
+					else
+					{
+						writeVertex1_bytes();
+						writeVertex1ColorOffset_bytes();
+						
+						writeVertex2_bytes();
+						writeVertex2ColorOffset_bytes();
+						
+						writeVertex3_bytes();
+						writeVertex3ColorOffset_bytes();
+						
+						writeVertex4_bytes();
+						writeVertex4ColorOffset_bytes();
+					}
+				}
+			}
 		}
-		
-		this.__u1 = this.__image._u1;
-		this.__u2 = this.__image._u2;
-		this.__v1 = this.__image._v1;
-		this.__v2 = this.__image._v2;
-		
-		updateColor();
-		
-		if (this.__storeBounds)
+		else // no color / color offset
 		{
-			this.__boundsData[++this.__boundsIndex] = this.__x + this.__x1;
-			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y1;
-			this.__boundsData[++this.__boundsIndex] = this.__x + this.__x2;
-			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y2;
-			this.__boundsData[++this.__boundsIndex] = this.__x + this.__x3;
-			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y3;
-			this.__boundsData[++this.__boundsIndex] = this.__x + this.__x4;
-			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y4;
+			if (this.__multiTexturing)
+			{
+				writeVertex1_bytes();
+				writeMultiTexturing_bytes();
+				
+				writeVertex2_bytes();
+				writeMultiTexturing_bytes();
+				
+				writeVertex3_bytes();
+				writeMultiTexturing_bytes();
+				
+				writeVertex4_bytes();
+				writeMultiTexturing_bytes();
+			}
+			else
+			{
+				writeVertex1_bytes();
+				
+				writeVertex2_bytes();
+				
+				writeVertex3_bytes();
+				
+				writeVertex4_bytes();
+			}
 		}
-		
+	}
+	
+	inline private function writeVertex1_bytes():Void
+	{
 		// TOP LEFT
 		// u1 v1
 		this.__byteData.writeFloat(this.__x + this.__x1);
 		this.__byteData.writeFloat(this.__y + this.__y1);
 		this.__byteData.writeFloat(this.__u1);
 		this.__byteData.writeFloat(this.__v1);
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__color);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__red);
-					this.__byteData.writeFloat(this.__green);
-					this.__byteData.writeFloat(this.__blue);
-					this.__byteData.writeFloat(this.__alpha);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__vertexColor.color1);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__vertexColor.red1);
-					this.__byteData.writeFloat(this.__vertexColor.green1);
-					this.__byteData.writeFloat(this.__vertexColor.blue1);
-					this.__byteData.writeFloat(this.__vertexColor.alpha1);
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__colorOffset);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__redOffset);
-					this.__byteData.writeFloat(this.__greenOffset);
-					this.__byteData.writeFloat(this.__blueOffset);
-					this.__byteData.writeFloat(this.__alphaOffset);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__vertexColorOffset.color1);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__vertexColorOffset.red1);
-					this.__byteData.writeFloat(this.__vertexColorOffset.green1);
-					this.__byteData.writeFloat(this.__vertexColorOffset.blue1);
-					this.__byteData.writeFloat(this.__vertexColorOffset.alpha1);
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__byteData.writeFloat(this.__image.textureIndexReal);
-		}
-		
+	}
+	
+	inline private function writeVertex2_bytes():Void
+	{
 		// TOP RIGHT
 		// u2 v1
 		this.__byteData.writeFloat(this.__x + this.__x2);
 		this.__byteData.writeFloat(this.__y + this.__y2);
 		this.__byteData.writeFloat(this.__u2);
 		this.__byteData.writeFloat(this.__v1);
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__color);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__red);
-					this.__byteData.writeFloat(this.__green);
-					this.__byteData.writeFloat(this.__blue);
-					this.__byteData.writeFloat(this.__alpha);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__vertexColor.color2);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__vertexColor.red2);
-					this.__byteData.writeFloat(this.__vertexColor.green2);
-					this.__byteData.writeFloat(this.__vertexColor.blue2);
-					this.__byteData.writeFloat(this.__vertexColor.alpha2);
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__colorOffset);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__redOffset);
-					this.__byteData.writeFloat(this.__greenOffset);
-					this.__byteData.writeFloat(this.__blueOffset);
-					this.__byteData.writeFloat(this.__alphaOffset);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__vertexColorOffset.color2);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__vertexColorOffset.red2);
-					this.__byteData.writeFloat(this.__vertexColorOffset.green2);
-					this.__byteData.writeFloat(this.__vertexColorOffset.blue2);
-					this.__byteData.writeFloat(this.__vertexColorOffset.alpha2);
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__byteData.writeFloat(this.__image.textureIndexReal);
-		}
-		
+	}
+	
+	inline private function writeVertex3_bytes():Void
+	{
 		// BOTTOM LEFT
 		// u1 v2
 		this.__byteData.writeFloat(this.__x + this.__x3);
 		this.__byteData.writeFloat(this.__y + this.__y3);
 		this.__byteData.writeFloat(this.__u1);
 		this.__byteData.writeFloat(this.__v2);
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__color);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__red);
-					this.__byteData.writeFloat(this.__green);
-					this.__byteData.writeFloat(this.__blue);
-					this.__byteData.writeFloat(this.__alpha);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__vertexColor.color3);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__vertexColor.red3);
-					this.__byteData.writeFloat(this.__vertexColor.green3);
-					this.__byteData.writeFloat(this.__vertexColor.blue3);
-					this.__byteData.writeFloat(this.__vertexColor.alpha3);
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__colorOffset);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__redOffset);
-					this.__byteData.writeFloat(this.__greenOffset);
-					this.__byteData.writeFloat(this.__blueOffset);
-					this.__byteData.writeFloat(this.__alphaOffset);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__vertexColorOffset.color3);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__vertexColorOffset.red3);
-					this.__byteData.writeFloat(this.__vertexColorOffset.green3);
-					this.__byteData.writeFloat(this.__vertexColorOffset.blue3);
-					this.__byteData.writeFloat(this.__vertexColorOffset.alpha3);
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__byteData.writeFloat(this.__image.textureIndexReal);
-		}
-		
+	}
+	
+	inline private function writeVertex4_bytes():Void
+	{
 		// BOTTOM RIGHT
 		// u2 v2
 		this.__byteData.writeFloat(this.__x + this.__x4);
 		this.__byteData.writeFloat(this.__y + this.__y4);
 		this.__byteData.writeFloat(this.__u2);
 		this.__byteData.writeFloat(this.__v2);
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__color);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__red);
-					this.__byteData.writeFloat(this.__green);
-					this.__byteData.writeFloat(this.__blue);
-					this.__byteData.writeFloat(this.__alpha);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__vertexColor.color4);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__vertexColor.red4);
-					this.__byteData.writeFloat(this.__vertexColor.green4);
-					this.__byteData.writeFloat(this.__vertexColor.blue4);
-					this.__byteData.writeFloat(this.__vertexColor.alpha4);
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__colorOffset);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__redOffset);
-					this.__byteData.writeFloat(this.__greenOffset);
-					this.__byteData.writeFloat(this.__blueOffset);
-					this.__byteData.writeFloat(this.__alphaOffset);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__byteData.writeInt(this.__vertexColorOffset.color4);
-				}
-				else
-				{
-					this.__byteData.writeFloat(this.__vertexColorOffset.red4);
-					this.__byteData.writeFloat(this.__vertexColorOffset.green4);
-					this.__byteData.writeFloat(this.__vertexColorOffset.blue4);
-					this.__byteData.writeFloat(this.__vertexColorOffset.alpha4);
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__byteData.writeFloat(this.__image.textureIndexReal);
-		}
+	}
+	
+	inline private function writeColor_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__red);
+		this.__byteData.writeFloat(this.__green);
+		this.__byteData.writeFloat(this.__blue);
+		this.__byteData.writeFloat(this.__alpha);
+	}
+	
+	inline private function writeColorSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__color);
+	}
+	
+	inline private function writeVertex1Color_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__vertexColor.red1);
+		this.__byteData.writeFloat(this.__vertexColor.green1);
+		this.__byteData.writeFloat(this.__vertexColor.blue1);
+		this.__byteData.writeFloat(this.__vertexColor.alpha1);
+	}
+	
+	inline private function writeVertex2Color_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__vertexColor.red2);
+		this.__byteData.writeFloat(this.__vertexColor.green2);
+		this.__byteData.writeFloat(this.__vertexColor.blue2);
+		this.__byteData.writeFloat(this.__vertexColor.alpha2);
+	}
+	
+	inline private function writeVertex3Color_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__vertexColor.red3);
+		this.__byteData.writeFloat(this.__vertexColor.green3);
+		this.__byteData.writeFloat(this.__vertexColor.blue3);
+		this.__byteData.writeFloat(this.__vertexColor.alpha3);
+	}
+	
+	inline private function writeVertex4Color_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__vertexColor.red4);
+		this.__byteData.writeFloat(this.__vertexColor.green4);
+		this.__byteData.writeFloat(this.__vertexColor.blue4);
+		this.__byteData.writeFloat(this.__vertexColor.alpha4);
+	}
+	
+	inline private function writeVertex1ColorSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__vertexColor.color1);
+	}
+	
+	inline private function writeVertex2ColorSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__vertexColor.color2);
+	}
+	
+	inline private function writeVertex3ColorSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__vertexColor.color3);
+	}
+	
+	inline private function writeVertex4ColorSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__vertexColor.color4);
+	}
+	
+	inline private function writeColorOffset_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__redOffset);
+		this.__byteData.writeFloat(this.__greenOffset);
+		this.__byteData.writeFloat(this.__blueOffset);
+		this.__byteData.writeFloat(this.__alphaOffset);
+	}
+	
+	inline private function writeColorOffsetSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__colorOffset);
+	}
+	
+	inline private function writeVertex1ColorOffset_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__vertexColorOffset.red1);
+		this.__byteData.writeFloat(this.__vertexColorOffset.green1);
+		this.__byteData.writeFloat(this.__vertexColorOffset.blue1);
+		this.__byteData.writeFloat(this.__vertexColorOffset.alpha1);
+	}
+	
+	inline private function writeVertex2ColorOffset_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__vertexColorOffset.red2);
+		this.__byteData.writeFloat(this.__vertexColorOffset.green2);
+		this.__byteData.writeFloat(this.__vertexColorOffset.blue2);
+		this.__byteData.writeFloat(this.__vertexColorOffset.alpha2);
+	}
+	
+	inline private function writeVertex3ColorOffset_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__vertexColorOffset.red3);
+		this.__byteData.writeFloat(this.__vertexColorOffset.green3);
+		this.__byteData.writeFloat(this.__vertexColorOffset.blue3);
+		this.__byteData.writeFloat(this.__vertexColorOffset.alpha3);
+	}
+	
+	inline private function writeVertex4ColorOffset_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__vertexColorOffset.red4);
+		this.__byteData.writeFloat(this.__vertexColorOffset.green4);
+		this.__byteData.writeFloat(this.__vertexColorOffset.blue4);
+		this.__byteData.writeFloat(this.__vertexColorOffset.alpha4);
+	}
+	
+	inline private function writeVertex1ColorOffsetSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__vertexColorOffset.color1);
+	}
+	
+	inline private function writeVertex2ColorOffsetSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__vertexColorOffset.color2);
+	}
+	
+	inline private function writeVertex3ColorOffsetSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__vertexColorOffset.color3);
+	}
+	
+	inline private function writeVertex4ColorOffsetSimple_bytes():Void
+	{
+		this.__byteData.writeInt(this.__vertexColorOffset.color4);
+	}
+	
+	inline private function writeMultiTexturing_bytes():Void
+	{
+		this.__byteData.writeFloat(this.__textureIndex);
 	}
 	
 	#if flash
-	inline private function writeImageBytesMemory():Void
+	private function writeImageBytesMemory():Void
+	{
+		setupImage();
+		
+		if (this.__useColor)
+		{
+			if (this.__useColorOffset)
+			{
+				if (this.__simpleColor)
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_byteMemory();
+								writeColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+							}
+							else
+							{
+								writeVertex1_byteMemory();
+								writeColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_byteMemory();
+								writeColorSimple_byteMemory();
+								writeVertex1ColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeColorSimple_byteMemory();
+								writeVertex2ColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeColorSimple_byteMemory();
+								writeVertex3ColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeColorSimple_byteMemory();
+								writeVertex4ColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+							}
+							else
+							{
+								writeVertex1_byteMemory();
+								writeColorSimple_byteMemory();
+								writeVertex1ColorOffsetSimple_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeColorSimple_byteMemory();
+								writeVertex2ColorOffsetSimple_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeColorSimple_byteMemory();
+								writeVertex3ColorOffsetSimple_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeColorSimple_byteMemory();
+								writeVertex4ColorOffsetSimple_byteMemory();
+							}
+						}
+					}
+					else
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_byteMemory();
+								writeVertex1ColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeVertex2ColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeVertex3ColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeVertex4ColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+							}
+							else
+							{
+								writeVertex1_byteMemory();
+								writeVertex1ColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeVertex2ColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeVertex3ColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeVertex4ColorSimple_byteMemory();
+								writeColorOffsetSimple_byteMemory();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_byteMemory();
+								writeVertex1ColorSimple_byteMemory();
+								writeVertex1ColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeVertex2ColorSimple_byteMemory();
+								writeVertex2ColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeVertex3ColorSimple_byteMemory();
+								writeVertex3ColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeVertex4ColorSimple_byteMemory();
+								writeVertex4ColorOffsetSimple_byteMemory();
+								writeMultiTexturing_byteMemory();
+							}
+							else
+							{
+								writeVertex1_byteMemory();
+								writeVertex1ColorSimple_byteMemory();
+								writeVertex1ColorOffsetSimple_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeVertex2ColorSimple_byteMemory();
+								writeVertex2ColorOffsetSimple_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeVertex3ColorSimple_byteMemory();
+								writeVertex3ColorOffsetSimple_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeVertex4ColorSimple_byteMemory();
+								writeVertex4ColorOffsetSimple_byteMemory();
+							}
+						}
+					}
+				}
+				else // non-simple color
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_byteMemory();
+								writeColor_byteMemory();
+								writeColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeColor_byteMemory();
+								writeColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeColor_byteMemory();
+								writeColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeColor_byteMemory();
+								writeColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+							}
+							else
+							{
+								writeVertex1_byteMemory();
+								writeColor_byteMemory();
+								writeColorOffset_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeColor_byteMemory();
+								writeColorOffset_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeColor_byteMemory();
+								writeColorOffset_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeColor_byteMemory();
+								writeColorOffset_byteMemory();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_byteMemory();
+								writeColor_byteMemory();
+								writeVertex1ColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeColor_byteMemory();
+								writeVertex2ColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeColor_byteMemory();
+								writeVertex3ColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeColor_byteMemory();
+								writeVertex4ColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+							}
+							else
+							{
+								writeVertex1_byteMemory();
+								writeColor_byteMemory();
+								writeVertex1ColorOffset_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeColor_byteMemory();
+								writeVertex2ColorOffset_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeColor_byteMemory();
+								writeVertex3ColorOffset_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeColor_byteMemory();
+								writeVertex4ColorOffset_byteMemory();
+							}
+						}
+					}
+					else // non-uniform color
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_byteMemory();
+								writeVertex1Color_byteMemory();
+								writeColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeVertex2Color_byteMemory();
+								writeColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeVertex3Color_byteMemory();
+								writeColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeVertex4Color_byteMemory();
+								writeColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+							}
+							else
+							{
+								writeVertex1_byteMemory();
+								writeVertex1Color_byteMemory();
+								writeColorOffset_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeVertex2Color_byteMemory();
+								writeColorOffset_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeVertex3Color_byteMemory();
+								writeColorOffset_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeVertex4Color_byteMemory();
+								writeColorOffset_byteMemory();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_byteMemory();
+								writeVertex1Color_byteMemory();
+								writeVertex1ColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeVertex2Color_byteMemory();
+								writeVertex2ColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeVertex3Color_byteMemory();
+								writeVertex3ColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeVertex4Color_byteMemory();
+								writeVertex4ColorOffset_byteMemory();
+								writeMultiTexturing_byteMemory();
+							}
+							else
+							{
+								writeVertex1_byteMemory();
+								writeVertex1Color_byteMemory();
+								writeVertex1ColorOffset_byteMemory();
+								
+								writeVertex2_byteMemory();
+								writeVertex2Color_byteMemory();
+								writeVertex2ColorOffset_byteMemory();
+								
+								writeVertex3_byteMemory();
+								writeVertex3Color_byteMemory();
+								writeVertex3ColorOffset_byteMemory();
+								
+								writeVertex4_byteMemory();
+								writeVertex4Color_byteMemory();
+								writeVertex4ColorOffset_byteMemory();
+							}
+						}
+					}
+				}
+			}
+			else // no color offset
+			{
+				if (this.__simpleColor)
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_byteMemory();
+							writeColorSimple_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex2_byteMemory();
+							writeColorSimple_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex3_byteMemory();
+							writeColorSimple_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex4_byteMemory();
+							writeColorSimple_byteMemory();
+							writeMultiTexturing_byteMemory();
+						}
+						else
+						{
+							writeVertex1_byteMemory();
+							writeColorSimple_byteMemory();
+							
+							writeVertex2_byteMemory();
+							writeColorSimple_byteMemory();
+							
+							writeVertex3_byteMemory();
+							writeColorSimple_byteMemory();
+							
+							writeVertex4_byteMemory();
+							writeColorSimple_byteMemory();
+						}
+					}
+					else
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_byteMemory();
+							writeVertex1ColorSimple_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex2_byteMemory();
+							writeVertex2ColorSimple_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex3_byteMemory();
+							writeVertex3ColorSimple_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex4_byteMemory();
+							writeVertex4ColorSimple_byteMemory();
+							writeMultiTexturing_byteMemory();
+						}
+						else
+						{
+							writeVertex1_byteMemory();
+							writeVertex1ColorSimple_byteMemory();
+							
+							writeVertex2_byteMemory();
+							writeVertex2ColorSimple_byteMemory();
+							
+							writeVertex3_byteMemory();
+							writeVertex3ColorSimple_byteMemory();
+							
+							writeVertex4_byteMemory();
+							writeVertex4ColorSimple_byteMemory();
+						}
+					}
+				}
+				else // non-simple color
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_byteMemory();
+							writeColor_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex2_byteMemory();
+							writeColor_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex3_byteMemory();
+							writeColor_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex4_byteMemory();
+							writeColor_byteMemory();
+							writeMultiTexturing_byteMemory();
+						}
+						else
+						{
+							writeVertex1_byteMemory();
+							writeColor_byteMemory();
+							
+							writeVertex2_byteMemory();
+							writeColor_byteMemory();
+							
+							writeVertex3_byteMemory();
+							writeColor_byteMemory();
+							
+							writeVertex4_byteMemory();
+							writeColor_byteMemory();
+						}
+					}
+					else
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_byteMemory();
+							writeVertex1Color_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex2_byteMemory();
+							writeVertex2Color_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex3_byteMemory();
+							writeVertex3Color_byteMemory();
+							writeMultiTexturing_byteMemory();
+							
+							writeVertex4_byteMemory();
+							writeVertex4Color_byteMemory();
+							writeMultiTexturing_byteMemory();
+						}
+						else
+						{
+							writeVertex1_byteMemory();
+							writeVertex1Color_byteMemory();
+							
+							writeVertex2_byteMemory();
+							writeVertex2Color_byteMemory();
+							
+							writeVertex3_byteMemory();
+							writeVertex3Color_byteMemory();
+							
+							writeVertex4_byteMemory();
+							writeVertex4Color_byteMemory();
+						}
+					}
+				}
+			}
+		}
+		else if (this.__useColorOffset)
+		{
+			if (this.__simpleColor)
+			{
+				if (this.__uniformColorOffset)
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_byteMemory();
+						writeColorOffsetSimple_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex2_byteMemory();
+						writeColorOffsetSimple_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex3_byteMemory();
+						writeColorOffsetSimple_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex4_byteMemory();
+						writeColorOffsetSimple_byteMemory();
+						writeMultiTexturing_byteMemory();
+					}
+					else
+					{
+						writeVertex1_byteMemory();
+						writeColorOffsetSimple_byteMemory();
+						
+						writeVertex2_byteMemory();
+						writeColorOffsetSimple_byteMemory();
+						
+						writeVertex3_byteMemory();
+						writeColorOffsetSimple_byteMemory();
+						
+						writeVertex4_byteMemory();
+						writeColorOffsetSimple_byteMemory();
+					}
+				}
+				else
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_byteMemory();
+						writeVertex1ColorOffsetSimple_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex2_byteMemory();
+						writeVertex2ColorOffsetSimple_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex3_byteMemory();
+						writeVertex3ColorOffsetSimple_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex4_byteMemory();
+						writeVertex4ColorOffsetSimple_byteMemory();
+						writeMultiTexturing_byteMemory();
+					}
+					else
+					{
+						writeVertex1_byteMemory();
+						writeVertex1ColorOffsetSimple_byteMemory();
+						
+						writeVertex2_byteMemory();
+						writeVertex2ColorOffsetSimple_byteMemory();
+						
+						writeVertex3_byteMemory();
+						writeVertex3ColorOffsetSimple_byteMemory();
+						
+						writeVertex4_byteMemory();
+						writeVertex4ColorOffsetSimple_byteMemory();
+					}
+				}
+			}
+			else // non-simple
+			{
+				if (this.__uniformColorOffset)
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_byteMemory();
+						writeColorOffset_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex2_byteMemory();
+						writeColorOffset_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex3_byteMemory();
+						writeColorOffset_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex4_byteMemory();
+						writeColorOffset_byteMemory();
+						writeMultiTexturing_byteMemory();
+					}
+					else
+					{
+						writeVertex1_byteMemory();
+						writeColorOffset_byteMemory();
+						
+						writeVertex2_byteMemory();
+						writeColorOffset_byteMemory();
+						
+						writeVertex3_byteMemory();
+						writeColorOffset_byteMemory();
+						
+						writeVertex4_byteMemory();
+						writeColorOffset_byteMemory();
+					}
+				}
+				else
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_byteMemory();
+						writeVertex1ColorOffset_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex2_byteMemory();
+						writeVertex2ColorOffset_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex3_byteMemory();
+						writeVertex3ColorOffset_byteMemory();
+						writeMultiTexturing_byteMemory();
+						
+						writeVertex4_byteMemory();
+						writeVertex4ColorOffset_byteMemory();
+						writeMultiTexturing_byteMemory();
+					}
+					else
+					{
+						writeVertex1_byteMemory();
+						writeVertex1ColorOffset_byteMemory();
+						
+						writeVertex2_byteMemory();
+						writeVertex2ColorOffset_byteMemory();
+						
+						writeVertex3_byteMemory();
+						writeVertex3ColorOffset_byteMemory();
+						
+						writeVertex4_byteMemory();
+						writeVertex4ColorOffset_byteMemory();
+					}
+				}
+			}
+		}
+		else // no color / color offset
+		{
+			if (this.__multiTexturing)
+			{
+				writeVertex1_byteMemory();
+				writeMultiTexturing_byteMemory();
+				
+				writeVertex2_byteMemory();
+				writeMultiTexturing_byteMemory();
+				
+				writeVertex3_byteMemory();
+				writeMultiTexturing_byteMemory();
+				
+				writeVertex4_byteMemory();
+				writeMultiTexturing_byteMemory();
+			}
+			else
+			{
+				writeVertex1_byteMemory();
+				
+				writeVertex2_byteMemory();
+				
+				writeVertex3_byteMemory();
+				
+				writeVertex4_byteMemory();
+			}
+		}
+		
+		this.__position += 4;
+	}
+	
+	inline private function writeVertex1_byteMemory():Void
+	{
+		// TOP LEFT
+		// u1 v1
+		Memory.setFloat(this.__position, this.__x + this.__x1);
+		Memory.setFloat(this.__position += 4, this.__y + this.__y1);
+		Memory.setFloat(this.__position += 4, this.__u1);
+		Memory.setFloat(this.__position += 4, this.__v1);
+	}
+	
+	inline private function writeVertex2_byteMemory():Void
+	{
+		// TOP RIGHT
+		// u2 v1
+		Memory.setFloat(this.__position += 4, this.__x + this.__x2);
+		Memory.setFloat(this.__position += 4, this.__y + this.__y2);
+		Memory.setFloat(this.__position += 4, this.__u2);
+		Memory.setFloat(this.__position += 4, this.__v1);
+	}
+	
+	inline private function writeVertex3_byteMemory():Void
+	{
+		// BOTTOM LEFT
+		// u1 v2
+		Memory.setFloat(this.__position += 4, this.__x + this.__x3);
+		Memory.setFloat(this.__position += 4, this.__y + this.__y3);
+		Memory.setFloat(this.__position += 4, this.__u1);
+		Memory.setFloat(this.__position += 4, this.__v2);
+	}
+	
+	inline private function writeVertex4_byteMemory():Void
+	{
+		// BOTTOM RIGHT
+		// u2 v2
+		Memory.setFloat(this.__position += 4, this.__x + this.__x4);
+		Memory.setFloat(this.__position += 4, this.__y + this.__y4);
+		Memory.setFloat(this.__position += 4, this.__u2);
+		Memory.setFloat(this.__position += 4, this.__v2);
+	}
+	
+	inline private function writeColor_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__red);
+		Memory.setFloat(this.__position += 4, this.__green);
+		Memory.setFloat(this.__position += 4, this.__blue);
+		Memory.setFloat(this.__position += 4, this.__alpha);
+	}
+	
+	inline private function writeColorSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__color);
+	}
+	
+	inline private function writeVertex1Color_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColor.red1);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.green1);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.blue1);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.alpha1);
+	}
+	
+	inline private function writeVertex2Color_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColor.red2);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.green2);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.blue2);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.alpha2);
+	}
+	
+	inline private function writeVertex3Color_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColor.red3);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.green3);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.blue3);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.alpha3);
+	}
+	
+	inline private function writeVertex4Color_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColor.red4);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.green4);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.blue4);
+		Memory.setFloat(this.__position += 4, this.__vertexColor.alpha4);
+	}
+	
+	inline private function writeVertex1ColorSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__vertexColor.color1);
+	}
+	
+	inline private function writeVertex2ColorSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__vertexColor.color2);
+	}
+	
+	inline private function writeVertex3ColorSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__vertexColor.color3);
+	}
+	
+	inline private function writeVertex4ColorSimple_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColor.color4);
+	}
+	
+	inline private function writeColorOffset_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__redOffset);
+		Memory.setFloat(this.__position += 4, this.__greenOffset);
+		Memory.setFloat(this.__position += 4, this.__blueOffset);
+		Memory.setFloat(this.__position += 4, this.__alphaOffset);
+	}
+	
+	inline private function writeColorOffsetSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__colorOffset);
+	}
+	
+	inline private function writeVertex1ColorOffset_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.red1);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.green1);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.blue1);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.alpha1);
+	}
+	
+	inline private function writeVertex2ColorOffset_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.red2);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.green2);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.blue2);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.alpha2);
+	}
+	
+	inline private function writeVertex3ColorOffset_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.red3);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.green3);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.blue3);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.alpha3);
+	}
+	
+	inline private function writeVertex4ColorOffset_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.red4);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.green4);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.blue4);
+		Memory.setFloat(this.__position += 4, this.__vertexColorOffset.alpha4);
+	}
+	
+	inline private function writeVertex1ColorOffsetSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__vertexColorOffset.color1);
+	}
+	
+	inline private function writeVertex2ColorOffsetSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__vertexColorOffset.color2);
+	}
+	
+	inline private function writeVertex3ColorOffsetSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__vertexColorOffset.color3);
+	}
+	
+	inline private function writeVertex4ColorOffsetSimple_byteMemory():Void
+	{
+		Memory.setI32(this.__position += 4, this.__vertexColorOffset.color4);
+	}
+	
+	inline private function writeMultiTexturing_byteMemory():Void
+	{
+		Memory.setFloat(this.__position += 4, this.__textureIndex);
+	}
+	#end
+	
+	#if !flash
+	inline private function writeImageFloat32Array():Void
+	{
+		setupImage();
+		
+		if (this.__useColor)
+		{
+			if (this.__useColorOffset)
+			{
+				if (this.__simpleColor)
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_float32Array();
+								writeColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex2_float32Array();
+								writeColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex3_float32Array();
+								writeColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex4_float32Array();
+								writeColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+							}
+							else
+							{
+								writeVertex1_float32Array();
+								writeColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								
+								writeVertex2_float32Array();
+								writeColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								
+								writeVertex3_float32Array();
+								writeColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								
+								writeVertex4_float32Array();
+								writeColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_float32Array();
+								writeColorSimple_float32Array();
+								writeVertex1ColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex2_float32Array();
+								writeColorSimple_float32Array();
+								writeVertex2ColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex3_float32Array();
+								writeColorSimple_float32Array();
+								writeVertex3ColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex4_float32Array();
+								writeColorSimple_float32Array();
+								writeVertex4ColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+							}
+							else
+							{
+								writeVertex1_float32Array();
+								writeColorSimple_float32Array();
+								writeVertex1ColorOffsetSimple_float32Array();
+								
+								writeVertex2_float32Array();
+								writeColorSimple_float32Array();
+								writeVertex2ColorOffsetSimple_float32Array();
+								
+								writeVertex3_float32Array();
+								writeColorSimple_float32Array();
+								writeVertex3ColorOffsetSimple_float32Array();
+								
+								writeVertex4_float32Array();
+								writeColorSimple_float32Array();
+								writeVertex4ColorOffsetSimple_float32Array();
+							}
+						}
+					}
+					else
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_float32Array();
+								writeVertex1ColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex2_float32Array();
+								writeVertex2ColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex3_float32Array();
+								writeVertex3ColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex4_float32Array();
+								writeVertex4ColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+							}
+							else
+							{
+								writeVertex1_float32Array();
+								writeVertex1ColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								
+								writeVertex2_float32Array();
+								writeVertex2ColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								
+								writeVertex3_float32Array();
+								writeVertex3ColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+								
+								writeVertex4_float32Array();
+								writeVertex4ColorSimple_float32Array();
+								writeColorOffsetSimple_float32Array();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_float32Array();
+								writeVertex1ColorSimple_float32Array();
+								writeVertex1ColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex2_float32Array();
+								writeVertex2ColorSimple_float32Array();
+								writeVertex2ColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex3_float32Array();
+								writeVertex3ColorSimple_float32Array();
+								writeVertex3ColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex4_float32Array();
+								writeVertex4ColorSimple_float32Array();
+								writeVertex4ColorOffsetSimple_float32Array();
+								writeMultiTexturing_float32Array();
+							}
+							else
+							{
+								writeVertex1_float32Array();
+								writeVertex1ColorSimple_float32Array();
+								writeVertex1ColorOffsetSimple_float32Array();
+								
+								writeVertex2_float32Array();
+								writeVertex2ColorSimple_float32Array();
+								writeVertex2ColorOffsetSimple_float32Array();
+								
+								writeVertex3_float32Array();
+								writeVertex3ColorSimple_float32Array();
+								writeVertex3ColorOffsetSimple_float32Array();
+								
+								writeVertex4_float32Array();
+								writeVertex4ColorSimple_float32Array();
+								writeVertex4ColorOffsetSimple_float32Array();
+							}
+						}
+					}
+				}
+				else // non-simple color
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_float32Array();
+								writeColor_float32Array();
+								writeColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex2_float32Array();
+								writeColor_float32Array();
+								writeColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex3_float32Array();
+								writeColor_float32Array();
+								writeColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex4_float32Array();
+								writeColor_float32Array();
+								writeColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+							}
+							else
+							{
+								writeVertex1_float32Array();
+								writeColor_float32Array();
+								writeColorOffset_float32Array();
+								
+								writeVertex2_float32Array();
+								writeColor_float32Array();
+								writeColorOffset_float32Array();
+								
+								writeVertex3_float32Array();
+								writeColor_float32Array();
+								writeColorOffset_float32Array();
+								
+								writeVertex4_float32Array();
+								writeColor_float32Array();
+								writeColorOffset_float32Array();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_float32Array();
+								writeColor_float32Array();
+								writeVertex1ColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex2_float32Array();
+								writeColor_float32Array();
+								writeVertex2ColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex3_float32Array();
+								writeColor_float32Array();
+								writeVertex3ColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex4_float32Array();
+								writeColor_float32Array();
+								writeVertex4ColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+							}
+							else
+							{
+								writeVertex1_float32Array();
+								writeColor_float32Array();
+								writeVertex1ColorOffset_float32Array();
+								
+								writeVertex2_float32Array();
+								writeColor_float32Array();
+								writeVertex2ColorOffset_float32Array();
+								
+								writeVertex3_float32Array();
+								writeColor_float32Array();
+								writeVertex3ColorOffset_float32Array();
+								
+								writeVertex4_float32Array();
+								writeColor_float32Array();
+								writeVertex4ColorOffset_float32Array();
+							}
+						}
+					}
+					else // non-uniform color
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_float32Array();
+								writeVertex1Color_float32Array();
+								writeColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex2_float32Array();
+								writeVertex2Color_float32Array();
+								writeColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex3_float32Array();
+								writeVertex3Color_float32Array();
+								writeColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex4_float32Array();
+								writeVertex4Color_float32Array();
+								writeColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+							}
+							else
+							{
+								writeVertex1_float32Array();
+								writeVertex1Color_float32Array();
+								writeColorOffset_float32Array();
+								
+								writeVertex2_float32Array();
+								writeVertex2Color_float32Array();
+								writeColorOffset_float32Array();
+								
+								writeVertex3_float32Array();
+								writeVertex3Color_float32Array();
+								writeColorOffset_float32Array();
+								
+								writeVertex4_float32Array();
+								writeVertex4Color_float32Array();
+								writeColorOffset_float32Array();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_float32Array();
+								writeVertex1Color_float32Array();
+								writeVertex1ColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex2_float32Array();
+								writeVertex2Color_float32Array();
+								writeVertex2ColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex3_float32Array();
+								writeVertex3Color_float32Array();
+								writeVertex3ColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+								
+								writeVertex4_float32Array();
+								writeVertex4Color_float32Array();
+								writeVertex4ColorOffset_float32Array();
+								writeMultiTexturing_float32Array();
+							}
+							else
+							{
+								writeVertex1_float32Array();
+								writeVertex1Color_float32Array();
+								writeVertex1ColorOffset_float32Array();
+								
+								writeVertex2_float32Array();
+								writeVertex2Color_float32Array();
+								writeVertex2ColorOffset_float32Array();
+								
+								writeVertex3_float32Array();
+								writeVertex3Color_float32Array();
+								writeVertex3ColorOffset_float32Array();
+								
+								writeVertex4_float32Array();
+								writeVertex4Color_float32Array();
+								writeVertex4ColorOffset_float32Array();
+							}
+						}
+					}
+				}
+			}
+			else // no color offset
+			{
+				if (this.__simpleColor)
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_float32Array();
+							writeColorSimple_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex2_float32Array();
+							writeColorSimple_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex3_float32Array();
+							writeColorSimple_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex4_float32Array();
+							writeColorSimple_float32Array();
+							writeMultiTexturing_float32Array();
+						}
+						else
+						{
+							writeVertex1_float32Array();
+							writeColorSimple_float32Array();
+							
+							writeVertex2_float32Array();
+							writeColorSimple_float32Array();
+							
+							writeVertex3_float32Array();
+							writeColorSimple_float32Array();
+							
+							writeVertex4_float32Array();
+							writeColorSimple_float32Array();
+						}
+					}
+					else
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_float32Array();
+							writeVertex1ColorSimple_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex2_float32Array();
+							writeVertex2ColorSimple_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex3_float32Array();
+							writeVertex3ColorSimple_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex4_float32Array();
+							writeVertex4ColorSimple_float32Array();
+							writeMultiTexturing_float32Array();
+						}
+						else
+						{
+							writeVertex1_float32Array();
+							writeVertex1ColorSimple_float32Array();
+							
+							writeVertex2_float32Array();
+							writeVertex2ColorSimple_float32Array();
+							
+							writeVertex3_float32Array();
+							writeVertex3ColorSimple_float32Array();
+							
+							writeVertex4_float32Array();
+							writeVertex4ColorSimple_float32Array();
+						}
+					}
+				}
+				else // non-simple color
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_float32Array();
+							writeColor_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex2_float32Array();
+							writeColor_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex3_float32Array();
+							writeColor_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex4_float32Array();
+							writeColor_float32Array();
+							writeMultiTexturing_float32Array();
+						}
+						else
+						{
+							writeVertex1_float32Array();
+							writeColor_float32Array();
+							
+							writeVertex2_float32Array();
+							writeColor_float32Array();
+							
+							writeVertex3_float32Array();
+							writeColor_float32Array();
+							
+							writeVertex4_float32Array();
+							writeColor_float32Array();
+						}
+					}
+					else
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_float32Array();
+							writeVertex1Color_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex2_float32Array();
+							writeVertex2Color_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex3_float32Array();
+							writeVertex3Color_float32Array();
+							writeMultiTexturing_float32Array();
+							
+							writeVertex4_float32Array();
+							writeVertex4Color_float32Array();
+							writeMultiTexturing_float32Array();
+						}
+						else
+						{
+							writeVertex1_float32Array();
+							writeVertex1Color_float32Array();
+							
+							writeVertex2_float32Array();
+							writeVertex2Color_float32Array();
+							
+							writeVertex3_float32Array();
+							writeVertex3Color_float32Array();
+							
+							writeVertex4_float32Array();
+							writeVertex4Color_float32Array();
+						}
+					}
+				}
+			}
+		}
+		else if (this.__useColorOffset)
+		{
+			if (this.__simpleColor)
+			{
+				if (this.__uniformColorOffset)
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_float32Array();
+						writeColorOffsetSimple_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex2_float32Array();
+						writeColorOffsetSimple_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex3_float32Array();
+						writeColorOffsetSimple_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex4_float32Array();
+						writeColorOffsetSimple_float32Array();
+						writeMultiTexturing_float32Array();
+					}
+					else
+					{
+						writeVertex1_float32Array();
+						writeColorOffsetSimple_float32Array();
+						
+						writeVertex2_float32Array();
+						writeColorOffsetSimple_float32Array();
+						
+						writeVertex3_float32Array();
+						writeColorOffsetSimple_float32Array();
+						
+						writeVertex4_float32Array();
+						writeColorOffsetSimple_float32Array();
+					}
+				}
+				else
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_float32Array();
+						writeVertex1ColorOffsetSimple_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex2_float32Array();
+						writeVertex2ColorOffsetSimple_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex3_float32Array();
+						writeVertex3ColorOffsetSimple_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex4_float32Array();
+						writeVertex4ColorOffsetSimple_float32Array();
+						writeMultiTexturing_float32Array();
+					}
+					else
+					{
+						writeVertex1_float32Array();
+						writeVertex1ColorOffsetSimple_float32Array();
+						
+						writeVertex2_float32Array();
+						writeVertex2ColorOffsetSimple_float32Array();
+						
+						writeVertex3_float32Array();
+						writeVertex3ColorOffsetSimple_float32Array();
+						
+						writeVertex4_float32Array();
+						writeVertex4ColorOffsetSimple_float32Array();
+					}
+				}
+			}
+			else // non-simple
+			{
+				if (this.__uniformColorOffset)
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_float32Array();
+						writeColorOffset_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex2_float32Array();
+						writeColorOffset_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex3_float32Array();
+						writeColorOffset_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex4_float32Array();
+						writeColorOffset_float32Array();
+						writeMultiTexturing_float32Array();
+					}
+					else
+					{
+						writeVertex1_float32Array();
+						writeColorOffset_float32Array();
+						
+						writeVertex2_float32Array();
+						writeColorOffset_float32Array();
+						
+						writeVertex3_float32Array();
+						writeColorOffset_float32Array();
+						
+						writeVertex4_float32Array();
+						writeColorOffset_float32Array();
+					}
+				}
+				else
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_float32Array();
+						writeVertex1ColorOffset_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex2_float32Array();
+						writeVertex2ColorOffset_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex3_float32Array();
+						writeVertex3ColorOffset_float32Array();
+						writeMultiTexturing_float32Array();
+						
+						writeVertex4_float32Array();
+						writeVertex4ColorOffset_float32Array();
+						writeMultiTexturing_float32Array();
+					}
+					else
+					{
+						writeVertex1_float32Array();
+						writeVertex1ColorOffset_float32Array();
+						
+						writeVertex2_float32Array();
+						writeVertex2ColorOffset_float32Array();
+						
+						writeVertex3_float32Array();
+						writeVertex3ColorOffset_float32Array();
+						
+						writeVertex4_float32Array();
+						writeVertex4ColorOffset_float32Array();
+					}
+				}
+			}
+		}
+		else // no color / color offset
+		{
+			if (this.__multiTexturing)
+			{
+				writeVertex1_float32Array();
+				writeMultiTexturing_float32Array();
+				
+				writeVertex2_float32Array();
+				writeMultiTexturing_float32Array();
+				
+				writeVertex3_float32Array();
+				writeMultiTexturing_float32Array();
+				
+				writeVertex4_float32Array();
+				writeMultiTexturing_float32Array();
+			}
+			else
+			{
+				writeVertex1_float32Array();
+				
+				writeVertex2_float32Array();
+				
+				writeVertex3_float32Array();
+				
+				writeVertex4_float32Array();
+			}
+		}
+		
+		++this.__position;
+	}
+	
+	inline private function writeVertex1_float32Array():Void
+	{
+		// TOP LEFT
+		// u1 v1
+		this.__floatData[this.__position] = this.__x + this.__x1;
+		this.__floatData[++this.__position] = this.__y + this.__y1;
+		this.__floatData[++this.__position] = this.__u1;
+		this.__floatData[++this.__position] = this.__v1;
+	}
+	
+	inline private function writeVertex2_float32Array():Void
+	{
+		// TOP RIGHT
+		// u2 v1
+		this.__floatData[++this.__position] = this.__x + this.__x2;
+		this.__floatData[++this.__position] = this.__y + this.__y2;
+		this.__floatData[++this.__position] = this.__u2;
+		this.__floatData[++this.__position] = this.__v1;
+	}
+	
+	inline private function writeVertex3_float32Array():Void
+	{
+		// BOTTOM LEFT
+		// u1 v2
+		this.__floatData[++this.__position] = this.__x + this.__x3;
+		this.__floatData[++this.__position] = this.__y + this.__y3;
+		this.__floatData[++this.__position] = this.__u1;
+		this.__floatData[++this.__position] = this.__v2;
+	}
+	
+	inline private function writeVertex4_float32Array():Void
+	{
+		// BOTTOM RIGHT
+		// u2 v2
+		this.__floatData[++this.__position] = this.__x + this.__x4;
+		this.__floatData[++this.__position] = this.__y + this.__y4;
+		this.__floatData[++this.__position] = this.__u2;
+		this.__floatData[++this.__position] = this.__v2;
+	}
+	
+	inline private function writeColor_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__red;
+		this.__floatData[++this.__position] = this.__green;
+		this.__floatData[++this.__position] = this.__blue;
+		this.__floatData[++this.__position] = this.__alpha;
+	}
+	
+	inline private function writeColorSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__color;
+	}
+	
+	inline private function writeVertex1Color_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColor.red1;
+		this.__floatData[++this.__position] = this.__vertexColor.green1;
+		this.__floatData[++this.__position] = this.__vertexColor.blue1;
+		this.__floatData[++this.__position] = this.__vertexColor.alpha1;
+	}
+	
+	inline private function writeVertex2Color_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColor.red2;
+		this.__floatData[++this.__position] = this.__vertexColor.green2;
+		this.__floatData[++this.__position] = this.__vertexColor.blue2;
+		this.__floatData[++this.__position] = this.__vertexColor.alpha2;
+	}
+	
+	inline private function writeVertex3Color_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColor.red3;
+		this.__floatData[++this.__position] = this.__vertexColor.green3;
+		this.__floatData[++this.__position] = this.__vertexColor.blue3;
+		this.__floatData[++this.__position] = this.__vertexColor.alpha3;
+	}
+	
+	inline private function writeVertex4Color_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColor.red4;
+		this.__floatData[++this.__position] = this.__vertexColor.green4;
+		this.__floatData[++this.__position] = this.__vertexColor.blue4;
+		this.__floatData[++this.__position] = this.__vertexColor.alpha4;
+	}
+	
+	inline private function writeVertex1ColorSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColor.color1;
+	}
+	
+	inline private function writeVertex2ColorSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColor.color2;
+	}
+	
+	inline private function writeVertex3ColorSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColor.color3;
+	}
+	
+	inline private function writeVertex4ColorSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColor.color4;
+	}
+	
+	inline private function writeColorOffset_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__redOffset;
+		this.__floatData[++this.__position] = this.__greenOffset;
+		this.__floatData[++this.__position] = this.__blueOffset;
+		this.__floatData[++this.__position] = this.__alphaOffset;
+	}
+	
+	inline private function writeColorOffsetSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__colorOffset;
+	}
+	
+	inline private function writeVertex1ColorOffset_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColorOffset.red1;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.green1;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.blue1;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.alpha1;
+	}
+	
+	inline private function writeVertex2ColorOffset_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColorOffset.red2;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.green2;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.blue2;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.alpha2;
+	}
+	
+	inline private function writeVertex3ColorOffset_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColorOffset.red3;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.green3;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.blue3;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.alpha3;
+	}
+	
+	inline private function writeVertex4ColorOffset_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColorOffset.red4;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.green4;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.blue4;
+		this.__floatData[++this.__position] = this.__vertexColorOffset.alpha4;
+	}
+	
+	inline private function writeVertex1ColorOffsetSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColorOffset.color1;
+	}
+	
+	inline private function writeVertex2ColorOffsetSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColorOffset.color2;
+	}
+	
+	inline private function writeVertex3ColorOffsetSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColorOffset.color3;
+	}
+	
+	inline private function writeVertex4ColorOffsetSimple_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__vertexColorOffset.color4;
+	}
+	
+	inline private function writeMultiTexturing_float32Array():Void
+	{
+		this.__floatData[++this.__position] = this.__textureIndex;
+	}
+	#end
+	
+	inline private function writeImageVector():Void
+	{
+		setupImage();
+		
+		if (this.__useColor)
+		{
+			if (this.__useColorOffset)
+			{
+				if (this.__simpleColor)
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_vector();
+								writeColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex2_vector();
+								writeColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex3_vector();
+								writeColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex4_vector();
+								writeColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+							}
+							else
+							{
+								writeVertex1_vector();
+								writeColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								
+								writeVertex2_vector();
+								writeColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								
+								writeVertex3_vector();
+								writeColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								
+								writeVertex4_vector();
+								writeColorSimple_vector();
+								writeColorOffsetSimple_vector();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_vector();
+								writeColorSimple_vector();
+								writeVertex1ColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex2_vector();
+								writeColorSimple_vector();
+								writeVertex2ColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex3_vector();
+								writeColorSimple_vector();
+								writeVertex3ColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex4_vector();
+								writeColorSimple_vector();
+								writeVertex4ColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+							}
+							else
+							{
+								writeVertex1_vector();
+								writeColorSimple_vector();
+								writeVertex1ColorOffsetSimple_vector();
+								
+								writeVertex2_vector();
+								writeColorSimple_vector();
+								writeVertex2ColorOffsetSimple_vector();
+								
+								writeVertex3_vector();
+								writeColorSimple_vector();
+								writeVertex3ColorOffsetSimple_vector();
+								
+								writeVertex4_vector();
+								writeColorSimple_vector();
+								writeVertex4ColorOffsetSimple_vector();
+							}
+						}
+					}
+					else
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_vector();
+								writeVertex1ColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex2_vector();
+								writeVertex2ColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex3_vector();
+								writeVertex3ColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex4_vector();
+								writeVertex4ColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+							}
+							else
+							{
+								writeVertex1_vector();
+								writeVertex1ColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								
+								writeVertex2_vector();
+								writeVertex2ColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								
+								writeVertex3_vector();
+								writeVertex3ColorSimple_vector();
+								writeColorOffsetSimple_vector();
+								
+								writeVertex4_vector();
+								writeVertex4ColorSimple_vector();
+								writeColorOffsetSimple_vector();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_vector();
+								writeVertex1ColorSimple_vector();
+								writeVertex1ColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex2_vector();
+								writeVertex2ColorSimple_vector();
+								writeVertex2ColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex3_vector();
+								writeVertex3ColorSimple_vector();
+								writeVertex3ColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex4_vector();
+								writeVertex4ColorSimple_vector();
+								writeVertex4ColorOffsetSimple_vector();
+								writeMultiTexturing_vector();
+							}
+							else
+							{
+								writeVertex1_vector();
+								writeVertex1ColorSimple_vector();
+								writeVertex1ColorOffsetSimple_vector();
+								
+								writeVertex2_vector();
+								writeVertex2ColorSimple_vector();
+								writeVertex2ColorOffsetSimple_vector();
+								
+								writeVertex3_vector();
+								writeVertex3ColorSimple_vector();
+								writeVertex3ColorOffsetSimple_vector();
+								
+								writeVertex4_vector();
+								writeVertex4ColorSimple_vector();
+								writeVertex4ColorOffsetSimple_vector();
+							}
+						}
+					}
+				}
+				else // non-simple color
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_vector();
+								writeColor_vector();
+								writeColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex2_vector();
+								writeColor_vector();
+								writeColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex3_vector();
+								writeColor_vector();
+								writeColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex4_vector();
+								writeColor_vector();
+								writeColorOffset_vector();
+								writeMultiTexturing_vector();
+							}
+							else
+							{
+								writeVertex1_vector();
+								writeColor_vector();
+								writeColorOffset_vector();
+								
+								writeVertex2_vector();
+								writeColor_vector();
+								writeColorOffset_vector();
+								
+								writeVertex3_vector();
+								writeColor_vector();
+								writeColorOffset_vector();
+								
+								writeVertex4_vector();
+								writeColor_vector();
+								writeColorOffset_vector();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_vector();
+								writeColor_vector();
+								writeVertex1ColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex2_vector();
+								writeColor_vector();
+								writeVertex2ColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex3_vector();
+								writeColor_vector();
+								writeVertex3ColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex4_vector();
+								writeColor_vector();
+								writeVertex4ColorOffset_vector();
+								writeMultiTexturing_vector();
+							}
+							else
+							{
+								writeVertex1_vector();
+								writeColor_vector();
+								writeVertex1ColorOffset_vector();
+								
+								writeVertex2_vector();
+								writeColor_vector();
+								writeVertex2ColorOffset_vector();
+								
+								writeVertex3_vector();
+								writeColor_vector();
+								writeVertex3ColorOffset_vector();
+								
+								writeVertex4_vector();
+								writeColor_vector();
+								writeVertex4ColorOffset_vector();
+							}
+						}
+					}
+					else // non-uniform color
+					{
+						if (this.__uniformColorOffset)
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_vector();
+								writeVertex1Color_vector();
+								writeColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex2_vector();
+								writeVertex2Color_vector();
+								writeColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex3_vector();
+								writeVertex3Color_vector();
+								writeColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex4_vector();
+								writeVertex4Color_vector();
+								writeColorOffset_vector();
+								writeMultiTexturing_vector();
+							}
+							else
+							{
+								writeVertex1_vector();
+								writeVertex1Color_vector();
+								writeColorOffset_vector();
+								
+								writeVertex2_vector();
+								writeVertex2Color_vector();
+								writeColorOffset_vector();
+								
+								writeVertex3_vector();
+								writeVertex3Color_vector();
+								writeColorOffset_vector();
+								
+								writeVertex4_vector();
+								writeVertex4Color_vector();
+								writeColorOffset_vector();
+							}
+						}
+						else
+						{
+							if (this.__multiTexturing)
+							{
+								writeVertex1_vector();
+								writeVertex1Color_vector();
+								writeVertex1ColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex2_vector();
+								writeVertex2Color_vector();
+								writeVertex2ColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex3_vector();
+								writeVertex3Color_vector();
+								writeVertex3ColorOffset_vector();
+								writeMultiTexturing_vector();
+								
+								writeVertex4_vector();
+								writeVertex4Color_vector();
+								writeVertex4ColorOffset_vector();
+								writeMultiTexturing_vector();
+							}
+							else
+							{
+								writeVertex1_vector();
+								writeVertex1Color_vector();
+								writeVertex1ColorOffset_vector();
+								
+								writeVertex2_vector();
+								writeVertex2Color_vector();
+								writeVertex2ColorOffset_vector();
+								
+								writeVertex3_vector();
+								writeVertex3Color_vector();
+								writeVertex3ColorOffset_vector();
+								
+								writeVertex4_vector();
+								writeVertex4Color_vector();
+								writeVertex4ColorOffset_vector();
+							}
+						}
+					}
+				}
+			}
+			else // no color offset
+			{
+				if (this.__simpleColor)
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_vector();
+							writeColorSimple_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex2_vector();
+							writeColorSimple_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex3_vector();
+							writeColorSimple_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex4_vector();
+							writeColorSimple_vector();
+							writeMultiTexturing_vector();
+						}
+						else
+						{
+							writeVertex1_vector();
+							writeColorSimple_vector();
+							
+							writeVertex2_vector();
+							writeColorSimple_vector();
+							
+							writeVertex3_vector();
+							writeColorSimple_vector();
+							
+							writeVertex4_vector();
+							writeColorSimple_vector();
+						}
+					}
+					else
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_vector();
+							writeVertex1ColorSimple_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex2_vector();
+							writeVertex2ColorSimple_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex3_vector();
+							writeVertex3ColorSimple_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex4_vector();
+							writeVertex4ColorSimple_vector();
+							writeMultiTexturing_vector();
+						}
+						else
+						{
+							writeVertex1_vector();
+							writeVertex1ColorSimple_vector();
+							
+							writeVertex2_vector();
+							writeVertex2ColorSimple_vector();
+							
+							writeVertex3_vector();
+							writeVertex3ColorSimple_vector();
+							
+							writeVertex4_vector();
+							writeVertex4ColorSimple_vector();
+						}
+					}
+				}
+				else // non-simple color
+				{
+					if (this.__uniformColor)
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_vector();
+							writeColor_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex2_vector();
+							writeColor_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex3_vector();
+							writeColor_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex4_vector();
+							writeColor_vector();
+							writeMultiTexturing_vector();
+						}
+						else
+						{
+							writeVertex1_vector();
+							writeColor_vector();
+							
+							writeVertex2_vector();
+							writeColor_vector();
+							
+							writeVertex3_vector();
+							writeColor_vector();
+							
+							writeVertex4_vector();
+							writeColor_vector();
+						}
+					}
+					else
+					{
+						if (this.__multiTexturing)
+						{
+							writeVertex1_vector();
+							writeVertex1Color_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex2_vector();
+							writeVertex2Color_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex3_vector();
+							writeVertex3Color_vector();
+							writeMultiTexturing_vector();
+							
+							writeVertex4_vector();
+							writeVertex4Color_vector();
+							writeMultiTexturing_vector();
+						}
+						else
+						{
+							writeVertex1_vector();
+							writeVertex1Color_vector();
+							
+							writeVertex2_vector();
+							writeVertex2Color_vector();
+							
+							writeVertex3_vector();
+							writeVertex3Color_vector();
+							
+							writeVertex4_vector();
+							writeVertex4Color_vector();
+						}
+					}
+				}
+			}
+		}
+		else if (this.__useColorOffset)
+		{
+			if (this.__simpleColor)
+			{
+				if (this.__uniformColorOffset)
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_vector();
+						writeColorOffsetSimple_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex2_vector();
+						writeColorOffsetSimple_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex3_vector();
+						writeColorOffsetSimple_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex4_vector();
+						writeColorOffsetSimple_vector();
+						writeMultiTexturing_vector();
+					}
+					else
+					{
+						writeVertex1_vector();
+						writeColorOffsetSimple_vector();
+						
+						writeVertex2_vector();
+						writeColorOffsetSimple_vector();
+						
+						writeVertex3_vector();
+						writeColorOffsetSimple_vector();
+						
+						writeVertex4_vector();
+						writeColorOffsetSimple_vector();
+					}
+				}
+				else
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_vector();
+						writeVertex1ColorOffsetSimple_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex2_vector();
+						writeVertex2ColorOffsetSimple_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex3_vector();
+						writeVertex3ColorOffsetSimple_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex4_vector();
+						writeVertex4ColorOffsetSimple_vector();
+						writeMultiTexturing_vector();
+					}
+					else
+					{
+						writeVertex1_vector();
+						writeVertex1ColorOffsetSimple_vector();
+						
+						writeVertex2_vector();
+						writeVertex2ColorOffsetSimple_vector();
+						
+						writeVertex3_vector();
+						writeVertex3ColorOffsetSimple_vector();
+						
+						writeVertex4_vector();
+						writeVertex4ColorOffsetSimple_vector();
+					}
+				}
+			}
+			else // non-simple
+			{
+				if (this.__uniformColorOffset)
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_vector();
+						writeColorOffset_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex2_vector();
+						writeColorOffset_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex3_vector();
+						writeColorOffset_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex4_vector();
+						writeColorOffset_vector();
+						writeMultiTexturing_vector();
+					}
+					else
+					{
+						writeVertex1_vector();
+						writeColorOffset_vector();
+						
+						writeVertex2_vector();
+						writeColorOffset_vector();
+						
+						writeVertex3_vector();
+						writeColorOffset_vector();
+						
+						writeVertex4_vector();
+						writeColorOffset_vector();
+					}
+				}
+				else
+				{
+					if (this.__multiTexturing)
+					{
+						writeVertex1_vector();
+						writeVertex1ColorOffset_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex2_vector();
+						writeVertex2ColorOffset_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex3_vector();
+						writeVertex3ColorOffset_vector();
+						writeMultiTexturing_vector();
+						
+						writeVertex4_vector();
+						writeVertex4ColorOffset_vector();
+						writeMultiTexturing_vector();
+					}
+					else
+					{
+						writeVertex1_vector();
+						writeVertex1ColorOffset_vector();
+						
+						writeVertex2_vector();
+						writeVertex2ColorOffset_vector();
+						
+						writeVertex3_vector();
+						writeVertex3ColorOffset_vector();
+						
+						writeVertex4_vector();
+						writeVertex4ColorOffset_vector();
+					}
+				}
+			}
+		}
+		else // no color / color offset
+		{
+			if (this.__multiTexturing)
+			{
+				writeVertex1_vector();
+				writeMultiTexturing_vector();
+				
+				writeVertex2_vector();
+				writeMultiTexturing_vector();
+				
+				writeVertex3_vector();
+				writeMultiTexturing_vector();
+				
+				writeVertex4_vector();
+				writeMultiTexturing_vector();
+			}
+			else
+			{
+				writeVertex1_vector();
+				
+				writeVertex2_vector();
+				
+				writeVertex3_vector();
+				
+				writeVertex4_vector();
+			}
+		}
+		
+		++this.__position;
+	}
+	
+	inline private function writeVertex1_vector():Void
+	{
+		// TOP LEFT
+		// u1 v1
+		this.__vectorData[this.__position] = this.__x + this.__x1;
+		this.__vectorData[++this.__position] = this.__y + this.__y1;
+		this.__vectorData[++this.__position] = this.__u1;
+		this.__vectorData[++this.__position] = this.__v1;
+	}
+	
+	inline private function writeVertex2_vector():Void
+	{
+		// TOP RIGHT
+		// u2 v1
+		this.__vectorData[++this.__position] = this.__x + this.__x2;
+		this.__vectorData[++this.__position] = this.__y + this.__y2;
+		this.__vectorData[++this.__position] = this.__u2;
+		this.__vectorData[++this.__position] = this.__v1;
+	}
+	
+	inline private function writeVertex3_vector():Void
+	{
+		// BOTTOM LEFT
+		// u1 v2
+		this.__vectorData[++this.__position] = this.__x + this.__x3;
+		this.__vectorData[++this.__position] = this.__y + this.__y3;
+		this.__vectorData[++this.__position] = this.__u1;
+		this.__vectorData[++this.__position] = this.__v2;
+	}
+	
+	inline private function writeVertex4_vector():Void
+	{
+		// BOTTOM RIGHT
+		// u2 v2
+		this.__vectorData[++this.__position] = this.__x + this.__x4;
+		this.__vectorData[++this.__position] = this.__y + this.__y4;
+		this.__vectorData[++this.__position] = this.__u2;
+		this.__vectorData[++this.__position] = this.__v2;
+	}
+	
+	inline private function writeColor_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__red;
+		this.__vectorData[++this.__position] = this.__green;
+		this.__vectorData[++this.__position] = this.__blue;
+		this.__vectorData[++this.__position] = this.__alpha;
+	}
+	
+	inline private function writeColorSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__color;
+	}
+	
+	inline private function writeVertex1Color_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColor.red1;
+		this.__vectorData[++this.__position] = this.__vertexColor.green1;
+		this.__vectorData[++this.__position] = this.__vertexColor.blue1;
+		this.__vectorData[++this.__position] = this.__vertexColor.alpha1;
+	}
+	
+	inline private function writeVertex2Color_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColor.red2;
+		this.__vectorData[++this.__position] = this.__vertexColor.green2;
+		this.__vectorData[++this.__position] = this.__vertexColor.blue2;
+		this.__vectorData[++this.__position] = this.__vertexColor.alpha2;
+	}
+	
+	inline private function writeVertex3Color_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColor.red3;
+		this.__vectorData[++this.__position] = this.__vertexColor.green3;
+		this.__vectorData[++this.__position] = this.__vertexColor.blue3;
+		this.__vectorData[++this.__position] = this.__vertexColor.alpha3;
+	}
+	
+	inline private function writeVertex4Color_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColor.red4;
+		this.__vectorData[++this.__position] = this.__vertexColor.green4;
+		this.__vectorData[++this.__position] = this.__vertexColor.blue4;
+		this.__vectorData[++this.__position] = this.__vertexColor.alpha4;
+	}
+	
+	inline private function writeVertex1ColorSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColor.color1;
+	}
+	
+	inline private function writeVertex2ColorSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColor.color2;
+	}
+	
+	inline private function writeVertex3ColorSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColor.color3;
+	}
+	
+	inline private function writeVertex4ColorSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColor.color4;
+	}
+	
+	inline private function writeColorOffset_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__redOffset;
+		this.__vectorData[++this.__position] = this.__greenOffset;
+		this.__vectorData[++this.__position] = this.__blueOffset;
+		this.__vectorData[++this.__position] = this.__alphaOffset;
+	}
+	
+	inline private function writeColorOffsetSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__colorOffset;
+	}
+	
+	inline private function writeVertex1ColorOffset_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.red1;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.green1;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.blue1;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.alpha1;
+	}
+	
+	inline private function writeVertex2ColorOffset_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.red2;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.green2;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.blue2;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.alpha2;
+	}
+	
+	inline private function writeVertex3ColorOffset_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.red3;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.green3;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.blue3;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.alpha3;
+	}
+	
+	inline private function writeVertex4ColorOffset_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.red4;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.green4;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.blue4;
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.alpha4;
+	}
+	
+	inline private function writeVertex1ColorOffsetSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.color1;
+	}
+	
+	inline private function writeVertex2ColorOffsetSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.color2;
+	}
+	
+	inline private function writeVertex3ColorOffsetSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.color3;
+	}
+	
+	inline private function writeVertex4ColorOffsetSimple_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__vertexColorOffset.color4;
+	}
+	
+	inline private function writeMultiTexturing_vector():Void
+	{
+		this.__vectorData[++this.__position] = this.__textureIndex;
+	}
+	
+	inline private function setupImage():Void
 	{
 		this.__x = this.__image.x + this.__image.offsetX + this.__renderOffsetX;
 		this.__y = this.__image.y + this.__image.offsetY + this.__renderOffsetY;
+		
+		this.__frame = this.__image.frame;
 		
 		if (this.__image._transformChanged)
 		{
@@ -566,12 +3740,27 @@ abstract class ContainerBase extends DisplayBase
 		
 		if (this.__multiTexturing) this.__textureIndex = this.__image.textureIndexReal;
 		
-		this.__u1 = this.__image._u1;
-		this.__u2 = this.__image._u2;
-		this.__v1 = this.__image._v1;
-		this.__v2 = this.__image._v2;
+		if (this.__image._invertX)
+		{
+			this.__u1 = this.__frame.u2;
+			this.__u2 = this.__frame.u1;
+		}
+		else
+		{
+			this.__u1 = this.__frame.u1;
+			this.__u2 = this.__frame.u2;
+		}
 		
-		updateColor();
+		if (this.__image._invertY)
+		{
+			this.__v1 = this.__frame.v2;
+			this.__v2 = this.__frame.v1;
+		}
+		else
+		{
+			this.__v1 = this.__frame.v1;
+			this.__v2 = this.__frame.v2;
+		}
 		
 		if (this.__storeBounds)
 		{
@@ -585,985 +3774,29 @@ abstract class ContainerBase extends DisplayBase
 			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y4;
 		}
 		
-		// TOP LEFT
-		// u1 v1
-		Memory.setFloat(this.__position, this.__x + this.__x1);
-		Memory.setFloat(this.__position += 4, this.__y + this.__y1);
-		Memory.setFloat(this.__position += 4, this.__u1);
-		Memory.setFloat(this.__position += 4, this.__v1);
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__color);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__red);
-					Memory.setFloat(this.__position += 4, this.__green);
-					Memory.setFloat(this.__position += 4, this.__blue);
-					Memory.setFloat(this.__position += 4, this.__alpha);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__vertexColor.color1);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__vertexColor.red1);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.green1);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.blue1);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.alpha1);
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__colorOffset);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__redOffset);
-					Memory.setFloat(this.__position += 4, this.__greenOffset);
-					Memory.setFloat(this.__position += 4, this.__blueOffset);
-					Memory.setFloat(this.__position += 4, this.__alphaOffset);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__vertexColorOffset.color1);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.red1);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.green1);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.blue1);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.alpha1);
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			Memory.setFloat(this.__position += 4, this.__textureIndex);
-		}
-		
-		// TOP RIGHT
-		// u2 v1
-		Memory.setFloat(this.__position += 4, this.__x + this.__x2);
-		Memory.setFloat(this.__position += 4, this.__y + this.__y2);
-		Memory.setFloat(this.__position += 4, this.__u2);
-		Memory.setFloat(this.__position += 4, this.__v1);
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__color);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__red);
-					Memory.setFloat(this.__position += 4, this.__green);
-					Memory.setFloat(this.__position += 4, this.__blue);
-					Memory.setFloat(this.__position += 4, this.__alpha);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__vertexColor.color2);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__vertexColor.red2);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.green2);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.blue2);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.alpha2);
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__colorOffset);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__redOffset);
-					Memory.setFloat(this.__position += 4, this.__greenOffset);
-					Memory.setFloat(this.__position += 4, this.__blueOffset);
-					Memory.setFloat(this.__position += 4, this.__alphaOffset);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__vertexColorOffset.color2);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.red2);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.green2);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.blue2);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.alpha2);
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			Memory.setFloat(this.__position += 4, this.__textureIndex);
-		}
-		
-		// BOTTOM LEFT
-		// u1 v2
-		Memory.setFloat(this.__position += 4, this.__x + this.__x3);
-		Memory.setFloat(this.__position += 4, this.__y + this.__y3);
-		Memory.setFloat(this.__position += 4, this.__u1);
-		Memory.setFloat(this.__position += 4, this.__v2);
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__color);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__red);
-					Memory.setFloat(this.__position += 4, this.__green);
-					Memory.setFloat(this.__position += 4, this.__blue);
-					Memory.setFloat(this.__position += 4, this.__alpha);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__vertexColor.color3);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__vertexColor.red3);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.green3);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.blue3);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.alpha3);
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__colorOffset);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__redOffset);
-					Memory.setFloat(this.__position += 4, this.__greenOffset);
-					Memory.setFloat(this.__position += 4, this.__blueOffset);
-					Memory.setFloat(this.__position += 4, this.__alphaOffset);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__vertexColorOffset.color3);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.red3);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.green3);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.blue3);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.alpha3);
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			Memory.setFloat(this.__position += 4, this.__textureIndex);
-		}
-		
-		// BOTTOM RIGHT
-		// u2 v2
-		Memory.setFloat(this.__position += 4, this.__x + this.__x4);
-		Memory.setFloat(this.__position += 4, this.__y + this.__y4);
-		Memory.setFloat(this.__position += 4, this.__u2);
-		Memory.setFloat(this.__position += 4, this.__v2);
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__color);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__red);
-					Memory.setFloat(this.__position += 4, this.__green);
-					Memory.setFloat(this.__position += 4, this.__blue);
-					Memory.setFloat(this.__position += 4, this.__alpha);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__vertexColor.color4);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__vertexColor.red4);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.green4);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.blue4);
-					Memory.setFloat(this.__position += 4, this.__vertexColor.alpha4);
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__colorOffset);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__redOffset);
-					Memory.setFloat(this.__position += 4, this.__greenOffset);
-					Memory.setFloat(this.__position += 4, this.__blueOffset);
-					Memory.setFloat(this.__position += 4, this.__alphaOffset);
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					Memory.setI32(this.__position += 4, this.__vertexColorOffset.color4);
-				}
-				else
-				{
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.red4);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.green4);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.blue4);
-					Memory.setFloat(this.__position += 4, this.__vertexColorOffset.alpha4);
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			Memory.setFloat(this.__position += 4, this.__textureIndex);
-		}
-		this.__position += 4;
-	}
-	#end
-	
-	#if !flash
-	inline private function writeImageFloat32Array():Void
-	{
-		this.__x = this.__image.x + this.__image.offsetX + this.__renderOffsetX;
-		this.__y = this.__image.y + this.__image.offsetY + this.__renderOffsetY;
-		
-		if (this.__image._transformChanged)
-		{
-			updateTransform();
-		}
-		else
-		{
-			this.__x1 = this.__image._x1;
-			this.__y1 = this.__image._y1;
-			this.__x2 = this.__image._x2;
-			this.__y2 = this.__image._y2;
-			this.__x3 = this.__image._x3;
-			this.__y3 = this.__image._y3;
-			this.__x4 = this.__image._x4;
-			this.__y4 = this.__image._y4;
-		}
-		
-		this.__u1 = this.__image._u1;
-		this.__u2 = this.__image._u2;
-		this.__v1 = this.__image._v1;
-		this.__v2 = this.__image._v2;
-		
 		updateColor();
-		
-		if (this.__storeBounds)
-		{
-			this.__boundsData[++this.__boundsIndex] = this.__x + this.__x1;
-			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y1;
-			this.__boundsData[++this.__boundsIndex] = this.__x + this.__x2;
-			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y2;
-			this.__boundsData[++this.__boundsIndex] = this.__x + this.__x3;
-			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y3;
-			this.__boundsData[++this.__boundsIndex] = this.__x + this.__x4;
-			this.__boundsData[++this.__boundsIndex] = this.__y + this.__y4;
-		}
-		
-		// TOP LEFT
-		// u1 v1
-		this.__floatData[this.__position] = this.__x + this.__x1;
-		this.__floatData[++this.__position] = this.__y + this.__y1;
-		this.__floatData[++this.__position] = this.__u1;
-		this.__floatData[++this.__position] = this.__v1;
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__color;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__red;
-					this.__floatData[++this.__position] = this.__green;
-					this.__floatData[++this.__position] = this.__blue;
-					this.__floatData[++this.__position] = this.__alpha;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__vertexColor.color1;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__vertexColor.red1;
-					this.__floatData[++this.__position] = this.__vertexColor.green1;
-					this.__floatData[++this.__position] = this.__vertexColor.blue1;
-					this.__floatData[++this.__position] = this.__vertexColor.alpha1;
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__colorOffset;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__redOffset;
-					this.__floatData[++this.__position] = this.__greenOffset;
-					this.__floatData[++this.__position] = this.__blueOffset;
-					this.__floatData[++this.__position] = this.__alphaOffset;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__vertexColorOffset.color1;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__vertexColorOffset.red1;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.green1;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.blue1;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.alpha1;
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__floatData[++this.__position] = this.__image.textureIndexReal;
-		}
-		
-		// TOP RIGHT
-		// u2 v1
-		this.__floatData[++this.__position] = this.__x + this.__x2;
-		this.__floatData[++this.__position] = this.__y + this.__y2;
-		this.__floatData[++this.__position] = this.__u2;
-		this.__floatData[++this.__position] = this.__v1;
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__color;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__red;
-					this.__floatData[++this.__position] = this.__green;
-					this.__floatData[++this.__position] = this.__blue;
-					this.__floatData[++this.__position] = this.__alpha;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__vertexColor.color2;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__vertexColor.red2;
-					this.__floatData[++this.__position] = this.__vertexColor.green2;
-					this.__floatData[++this.__position] = this.__vertexColor.blue2;
-					this.__floatData[++this.__position] = this.__vertexColor.alpha2;
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__colorOffset;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__redOffset;
-					this.__floatData[++this.__position] = this.__greenOffset;
-					this.__floatData[++this.__position] = this.__blueOffset;
-					this.__floatData[++this.__position] = this.__alphaOffset;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__vertexColorOffset.color2;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__vertexColorOffset.red2;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.green2;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.blue2;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.alpha2;
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__floatData[++this.__position] = this.__image.textureIndexReal;
-		}
-		
-		// BOTTOM LEFT
-		// u1 v2
-		this.__floatData[++this.__position] = this.__x + this.__x3;
-		this.__floatData[++this.__position] = this.__y + this.__y3;
-		this.__floatData[++this.__position] = this.__u1;
-		this.__floatData[++this.__position] = this.__v2;
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__color;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__red;
-					this.__floatData[++this.__position] = this.__green;
-					this.__floatData[++this.__position] = this.__blue;
-					this.__floatData[++this.__position] = this.__alpha;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__vertexColor.color3;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__vertexColor.red3;
-					this.__floatData[++this.__position] = this.__vertexColor.green3;
-					this.__floatData[++this.__position] = this.__vertexColor.blue3;
-					this.__floatData[++this.__position] = this.__vertexColor.alpha3;
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__colorOffset;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__redOffset;
-					this.__floatData[++this.__position] = this.__greenOffset;
-					this.__floatData[++this.__position] = this.__blueOffset;
-					this.__floatData[++this.__position] = this.__alphaOffset;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__vertexColorOffset.color3;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__vertexColorOffset.red3;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.green3;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.blue3;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.alpha3;
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__floatData[++this.__position] = this.__image.textureIndexReal;
-		}
-		
-		// BOTTOM RIGHT
-		// u2 v2
-		this.__floatData[++this.__position] = this.__x + this.__x4;
-		this.__floatData[++this.__position] = this.__y + this.__y4;
-		this.__floatData[++this.__position] = this.__u2;
-		this.__floatData[++this.__position] = this.__v2;
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__color;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__red;
-					this.__floatData[++this.__position] = this.__green;
-					this.__floatData[++this.__position] = this.__blue;
-					this.__floatData[++this.__position] = this.__alpha;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__vertexColor.color4;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__vertexColor.red4;
-					this.__floatData[++this.__position] = this.__vertexColor.green4;
-					this.__floatData[++this.__position] = this.__vertexColor.blue4;
-					this.__floatData[++this.__position] = this.__vertexColor.alpha4;
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__colorOffset;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__redOffset;
-					this.__floatData[++this.__position] = this.__greenOffset;
-					this.__floatData[++this.__position] = this.__blueOffset;
-					this.__floatData[++this.__position] = this.__alphaOffset;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__floatData[++this.__position] = this.__vertexColorOffset.color4;
-				}
-				else
-				{
-					this.__floatData[++this.__position] = this.__vertexColorOffset.red4;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.green4;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.blue4;
-					this.__floatData[++this.__position] = this.__vertexColorOffset.alpha4;
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__floatData[++this.__position] = this.__image.textureIndexReal;
-		}
-		++this.__position;
-	}
-	#end
-	
-	inline private function writeImageVector():Void
-	{
-		this.__x = this.__image.x + this.__image.offsetX + this.__renderOffsetX;
-		this.__y = this.__image.y + this.__image.offsetY + this.__renderOffsetY;
-		
-		if (this.__image._transformChanged)
-		{
-			updateTransform();
-		}
-		else
-		{
-			this.__x1 = this.__image._x1;
-			this.__y1 = this.__image._y1;
-			this.__x2 = this.__image._x2;
-			this.__y2 = this.__image._y2;
-			this.__x3 = this.__image._x3;
-			this.__y3 = this.__image._y3;
-			this.__x4 = this.__image._x4;
-			this.__y4 = this.__image._y4;
-		}
-		
-		this.__u1 = this.__image._u1;
-		this.__u2 = this.__image._u2;
-		this.__v1 = this.__image._v1;
-		this.__v2 = this.__image._v2;
-		
-		updateColor();
-		
-		if (this.__storeBounds)
-		{
-			this.__vectorData[++this.__boundsIndex] = this.__x + this.__x1;
-			this.__vectorData[++this.__boundsIndex] = this.__y + this.__y1;
-			this.__vectorData[++this.__boundsIndex] = this.__x + this.__x2;
-			this.__vectorData[++this.__boundsIndex] = this.__y + this.__y2;
-			this.__vectorData[++this.__boundsIndex] = this.__x + this.__x3;
-			this.__vectorData[++this.__boundsIndex] = this.__y + this.__y3;
-			this.__vectorData[++this.__boundsIndex] = this.__x + this.__x4;
-			this.__vectorData[++this.__boundsIndex] = this.__y + this.__y4;
-		}
-		
-		// TOP LEFT
-		// u1 v1
-		this.__vectorData[this.__position] = this.__x + this.__x1;
-		this.__vectorData[++this.__position] = this.__y + this.__y1;
-		this.__vectorData[++this.__position] = this.__u1;
-		this.__vectorData[++this.__position] = this.__v1;
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__color;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__red;
-					this.__vectorData[++this.__position] = this.__green;
-					this.__vectorData[++this.__position] = this.__blue;
-					this.__vectorData[++this.__position] = this.__alpha;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__vertexColor.color1;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__vertexColor.red1;
-					this.__vectorData[++this.__position] = this.__vertexColor.green1;
-					this.__vectorData[++this.__position] = this.__vertexColor.blue1;
-					this.__vectorData[++this.__position] = this.__vertexColor.alpha1;
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__colorOffset;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__redOffset;
-					this.__vectorData[++this.__position] = this.__greenOffset;
-					this.__vectorData[++this.__position] = this.__blueOffset;
-					this.__vectorData[++this.__position] = this.__alphaOffset;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.color1;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.red1;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.green1;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.blue1;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.alpha1;
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__vectorData[++this.__position] = this.__image.textureIndexReal;
-		}
-		
-		// TOP RIGHT
-		// u2 v1
-		this.__vectorData[++this.__position] = this.__x + this.__x2;
-		this.__vectorData[++this.__position] = this.__y + this.__y2;
-		this.__vectorData[++this.__position] = this.__u2;
-		this.__vectorData[++this.__position] = this.__v1;
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__color;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__red;
-					this.__vectorData[++this.__position] = this.__green;
-					this.__vectorData[++this.__position] = this.__blue;
-					this.__vectorData[++this.__position] = this.__alpha;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__vertexColor.color2;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__vertexColor.red2;
-					this.__vectorData[++this.__position] = this.__vertexColor.green2;
-					this.__vectorData[++this.__position] = this.__vertexColor.blue2;
-					this.__vectorData[++this.__position] = this.__vertexColor.alpha2;
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__colorOffset;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__redOffset;
-					this.__vectorData[++this.__position] = this.__greenOffset;
-					this.__vectorData[++this.__position] = this.__blueOffset;
-					this.__vectorData[++this.__position] = this.__alphaOffset;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.color2;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.red2;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.green2;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.blue2;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.alpha2;
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__vectorData[++this.__position] = this.__image.textureIndexReal;
-		}
-		
-		// BOTTOM LEFT
-		// u1 v2
-		this.__vectorData[++this.__position] = this.__x + this.__x3;
-		this.__vectorData[++this.__position] = this.__y + this.__y3;
-		this.__vectorData[++this.__position] = this.__u1;
-		this.__vectorData[++this.__position] = this.__v2;
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__color;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__red;
-					this.__vectorData[++this.__position] = this.__green;
-					this.__vectorData[++this.__position] = this.__blue;
-					this.__vectorData[++this.__position] = this.__alpha;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__vertexColor.color3;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__vertexColor.red3;
-					this.__vectorData[++this.__position] = this.__vertexColor.green3;
-					this.__vectorData[++this.__position] = this.__vertexColor.blue3;
-					this.__vectorData[++this.__position] = this.__vertexColor.alpha3;
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__colorOffset;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__redOffset;
-					this.__vectorData[++this.__position] = this.__greenOffset;
-					this.__vectorData[++this.__position] = this.__blueOffset;
-					this.__vectorData[++this.__position] = this.__alphaOffset;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.color3;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.red3;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.green3;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.blue3;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.alpha3;
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__vectorData[++this.__position] = this.__image.textureIndexReal;
-		}
-		
-		// BOTTOM RIGHT
-		// u2 v2
-		this.__vectorData[++this.__position] = this.__x + this.__x4;
-		this.__vectorData[++this.__position] = this.__y + this.__y4;
-		this.__vectorData[++this.__position] = this.__u2;
-		this.__vectorData[++this.__position] = this.__v2;
-		if (this.__useColor)
-		{
-			if (this.__uniformColor)
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__color;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__red;
-					this.__vectorData[++this.__position] = this.__green;
-					this.__vectorData[++this.__position] = this.__blue;
-					this.__vectorData[++this.__position] = this.__alpha;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__vertexColor.color4;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__vertexColor.red4;
-					this.__vectorData[++this.__position] = this.__vertexColor.green4;
-					this.__vectorData[++this.__position] = this.__vertexColor.blue4;
-					this.__vectorData[++this.__position] = this.__vertexColor.alpha4;
-				}
-			}
-		}
-		if (this.__useColorOffset)
-		{
-			if (this.__uniformColorOffset)
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__colorOffset;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__redOffset;
-					this.__vectorData[++this.__position] = this.__greenOffset;
-					this.__vectorData[++this.__position] = this.__blueOffset;
-					this.__vectorData[++this.__position] = this.__alphaOffset;
-				}
-			}
-			else
-			{
-				if (this.__simpleColor)
-				{
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.color4;
-				}
-				else
-				{
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.red4;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.green4;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.blue4;
-					this.__vectorData[++this.__position] = this.__vertexColorOffset.alpha4;
-				}
-			}
-		}
-		if (this.__multiTexturing)
-		{
-			this.__vectorData[++this.__position] = this.__image.textureIndexReal;
-		}
-		++this.__position;
 	}
 	
 	inline private function updateTransform():Void
 	{
 		if (this.__image.hasVertexPosition)
 		{
-			this.__image.applyVertexData();
+			this.__vertexPosition = this.__image.vertexPosition;
+			this.__x1 = this.__image._x1 = this.__vertexPosition.x1 * this.__image.scaleX;
+			this.__x2 = this.__image._x2 = this.__vertexPosition.x2 * this.__image.scaleX;
+			this.__x3 = this.__image._x3 = this.__vertexPosition.x3 * this.__image.scaleX;
+			this.__x4 = this.__image._x4 = this.__vertexPosition.x4 * this.__image.scaleX;
+			this.__y1 = this.__image._y1 = this.__vertexPosition.y1 * this.__image.scaleY;
+			this.__y2 = this.__image._y2 = this.__vertexPosition.y2 * this.__image.scaleY;
+			this.__y3 = this.__image._y3 = this.__vertexPosition.y3 * this.__image.scaleY;
+			this.__y4 = this.__image._y4 = this.__vertexPosition.y4 * this.__image.scaleY;
+			this.__image._transformChanged = false;
 		}
 		else
 		{
 			this.__rotationChanged = this.__image._rotationChanged;
 			this.__skewXChanged = this.__image._skewXChanged;
 			this.__skewYChanged = this.__image._skewYChanged;
-			
-			// temp
-			this.__frame = this.__image._frame;
 			
 			if (this.__rotationChanged)
 			{
@@ -1608,21 +3841,19 @@ abstract class ContainerBase extends DisplayBase
 			{
 				if (this.__image._invertX)
 				{
-					this.__image._leftOffset = this.__frame.rightWidth * this.__image._scaleX;
-					this.__leftOffset = -this.__image._leftOffset;
+					this.__leftOffset = this.__image._leftOffset = -this.__frame.rightWidth * this.__image._scaleX;
 					this.__rightOffset = this.__image._rightOffset = this.__frame.leftWidth * this.__image._scaleX;
 				}
 				else
 				{
-					this.__image._leftOffset = this.__frame.leftWidth * this.__image._scaleX;
-					this.__leftOffset = -this.__image._leftOffset;
+					this.__leftOffset = this.__image._leftOffset = -this.__frame.leftWidth * this.__image._scaleX;
 					this.__rightOffset = this.__image._rightOffset = this.__frame.rightWidth * this.__image._scaleX;
 				}
 				this.__image._sizeXChanged = false;
 			}
 			else
 			{
-				this.__leftOffset = -this.__image._leftOffset;
+				this.__leftOffset = this.__image._leftOffset;
 				this.__rightOffset = this.__image._rightOffset;
 			}
 			
@@ -1630,21 +3861,19 @@ abstract class ContainerBase extends DisplayBase
 			{
 				if (this.__image._invertY)
 				{
-					this.__image._topOffset = this.__frame.bottomHeight * this.__image._scaleY;
-					this.__topOffset = -this.__image._topOffset;
+					this.__topOffset = this.__image._topOffset = -this.__frame.bottomHeight * this.__image._scaleY;
 					this.__bottomOffset = this.__image._bottomOffset = this.__frame.topHeight * this.__image._scaleY;
 				}
 				else
 				{
-					this.__image._topOffset = this.__frame.topHeight * this.__image._scaleY;
-					this.__topOffset = -this.__image._topOffset;
+					this.__topOffset = this.__image._topOffset = -this.__frame.topHeight * this.__image._scaleY;
 					this.__bottomOffset = this.__image._bottomOffset = this.__frame.bottomHeight * this.__image._scaleY;
 				}
 				this.__image._sizeYChanged = false;
 			}
 			else
 			{
-				this.__topOffset = -this.__image._topOffset;
+				this.__topOffset = this.__image._topOffset;
 				this.__bottomOffset = this.__image._bottomOffset;
 			}
 			
@@ -2557,6 +4786,7 @@ abstract class ContainerBase extends DisplayBase
 	private var __rotationChanged:Bool;
 	private var __skewXChanged:Bool;
 	private var __skewYChanged:Bool;
+	private var __vertexPosition:VertexPositionData;
 	
 	private var __uniformColor:Bool;
 	private var __uniformColorOffset:Bool;
@@ -2578,7 +4808,6 @@ abstract class ContainerBase extends DisplayBase
 	private var __position:Int;
 	private var __quadsWritten:Int;
 	private var __numQuads:Int;
-	//private var __quadCount:Int;
 	private var __quadOffset:Int;
 	private var __totalQuads:Int;
 	private var __pma:Bool;
