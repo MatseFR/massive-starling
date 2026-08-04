@@ -156,50 +156,6 @@ class EventClip extends Clip
 		super.play(animation, frameIndex, numLoops, completeCallback);
 	}
 	
-	//override public function advanceTime(time:Float):Void
-	//{
-		//this._playIndex = this._frameIndex;
-		//this.frameTime += time * this.frameDelta;
-		//while (this.frameTime > this.frameTimingCurrent)
-		//{
-			//if (this._playIndex < this.lastFrameIndex)
-			//{
-				//++this._playIndex;
-				//this.__tempFrame = this._frames[this._playIndex];
-				//this.frameTimingCurrent = this.__tempFrame.timing;
-				////if (this.__tempFrame.event != null) dispatchEventWith(this.__tempFrame.event, false, this.__tempFrame.eventParams);
-			//}
-			//else
-			//{
-				//if (this.loop && (this.numLoops == 0 || this.loopCount < this.numLoops))
-				//{
-					//this._playIndex = this.animation.loopFrame;
-					//++this.loopCount;
-					////this.frameTime -= this.frameTimingCurrent;
-					//this.frameTime -= this.animation.loopDuration;
-					//this.frameTimingCurrent = this._frames[this._playIndex].timing;
-				//}
-				//else
-				//{
-					//// animation complete
-					//this._animationComplete = true;
-					////dispatchEventWith(MassiveEvent.ANIMATION_COMPLETE);
-					//if (this.animation.nextAnimationID != null)
-					//{
-						////playWithID(this.animation.nextAnimationID);
-					//}
-					//else
-					//{
-						//nextFromQueue();
-					//}
-					//if (this._animationComplete) this.animate = false;
-					////return;
-				//}
-			//}
-		//}
-		//this.frameIndex = this._playIndex;
-	//}
-	
 	inline public function addEventListener(type:String, listener:Function):Void
 	{
 		this._eventDispatcher.addEventListener(type, listener);
