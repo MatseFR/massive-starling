@@ -84,7 +84,7 @@ class AnimationCollection
 	#if flash
 	public function removeList(animations:Vector<Animation>):Void
 	#else
-	public function removeList(animations:Vector<Animation>):Void
+	public function removeList(animations:Array<Animation>):Void
 	#end
 	{
 		var count:Int = animations.length;
