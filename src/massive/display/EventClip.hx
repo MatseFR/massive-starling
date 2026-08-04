@@ -4,12 +4,6 @@ import massive.animation.Animation;
 #if flash
 import openfl.Vector;
 #end
-import massive.animation.AnimationFrame;
-import massive.animation.QueuedAnimation;
-import massive.data.Frame;
-import massive.data.VertexColorData;
-import massive.data.VertexPositionData;
-import massive.display.Img;
 import starling.events.Event;
 import starling.events.EventDispatcher;
 
