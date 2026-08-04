@@ -2,7 +2,6 @@ package massive.display.base;
 import massive.data.Frame;
 import massive.data.VertexColorData;
 import massive.data.VertexPositionData;
-import massive.display.Clip;
 import massive.display.render.RenderData;
 #if flash
 import openfl.Memory;
@@ -2381,7 +2380,6 @@ abstract class ContainerBase extends DisplayBase
 	private var __data:DisplayBase;
 	private var __container:MixedContainer;
 	private var __image:Img;
-	private var __clip:Clip;
 	
 	private var __byteData:ByteArray;
 	#if flash
