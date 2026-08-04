@@ -1,8 +1,6 @@
 package massive.util;
 import massive.animation.Animation;
 import massive.animation.AnimationFrame;
-import massive.animation.BasicAnimation;
-import massive.animation.BasicAnimationFrame;
 import massive.data.Frame;
 import openfl.Vector;
 
@@ -28,26 +26,6 @@ class AnimUtils
 		{
 			frameTime += timeStep;
 			anim.addFrame(AnimationFrame.fromPool(frames[i], frameTime));
-		}
-		anim.ready();
-		return anim;
-	}
-	
-	#if flash
-	static public function createBasicAnimation(frames:Vector<Frame>, frameRate:Float = 60):BasicAnimation
-	#else
-	static public function createBasicAnimation(frames:Array<Frame>, frameRate:Float = 60):BasicAnimation
-	#end
-	{
-		var anim:BasicAnimation = BasicAnimation.fromPool();
-		var timeStep:Float = 1.0 / frameRate;
-		var frameTime:Float = 0.0;
-		var count:Int = frames.length;
-		
-		for (i in 0...count)
-		{
-			frameTime += timeStep;
-			anim.addFrame(BasicAnimationFrame.fromPool(frames[i], frameTime));
 		}
 		anim.ready();
 		return anim;
