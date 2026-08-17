@@ -8,13 +8,18 @@ class VertexColorData
 {
 	static private var _POOL:Array<VertexColorData> = new Array<VertexColorData>();
 	
-	static public function fromPool():VertexColorData
+	static public function fromPool(red:Float = 1.0, green:Float = 1.0, blue:Float = 1.0, alpha:Float = 1.0):VertexColorData
 	{
-		if (_POOL.length != 0) return _POOL.pop();
-		return new VertexColorData();
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(red, green, blue, alpha);
+		return new VertexColorData(red, green, blue, alpha);
 	}
 	
-	public var changed(default, null):Bool;
+	/**
+	   When this is set to true, all objects it is assigned to will recalculate their color or color offset values every frame
+	   @default	false
+	**/
+	public var isChanging:Bool;
+	public var isInPool(default, null):Bool;
 	
 	public var color(get, set):Int;
 	public var color1(get, set):Int;
@@ -23,28 +28,28 @@ class VertexColorData
 	public var color4(get, set):Int;
 	
 	public var red(get, set):Float;
-	public var red1(get, set):Float;
-	public var red2(get, set):Float;
-	public var red3(get, set):Float;
-	public var red4(get, set):Float;
+	public var red1:Float;
+	public var red2:Float;
+	public var red3:Float;
+	public var red4:Float;
 	
 	public var green(get, set):Float;
-	public var green1(get, set):Float;
-	public var green2(get, set):Float;
-	public var green3(get, set):Float;
-	public var green4(get, set):Float;
+	public var green1:Float;
+	public var green2:Float;
+	public var green3:Float;
+	public var green4:Float;
 	
 	public var blue(get, set):Float;
-	public var blue1(get, set):Float;
-	public var blue2(get, set):Float;
-	public var blue3(get, set):Float;
-	public var blue4(get, set):Float;
+	public var blue1:Float;
+	public var blue2:Float;
+	public var blue3:Float;
+	public var blue4:Float;
 	
 	public var alpha(get, set):Float;
-	public var alpha1(get, set):Float;
-	public var alpha2(get, set):Float;
-	public var alpha3(get, set):Float;
-	public var alpha4(get, set):Float;
+	public var alpha1:Float;
+	public var alpha2:Float;
+	public var alpha3:Float;
+	public var alpha4:Float;
 	
 	private function get_color():Int
 	{
@@ -63,272 +68,148 @@ class VertexColorData
 	
 	private function get_color1():Int
 	{
-		var r:Float = this._red1 > 1.0 ? 1.0 : this._red1 < 0.0 ? 0.0 : this._red1;
-		var g:Float = this._green1 > 1.0 ? 1.0 : this._green1 < 0.0 ? 0.0 : this._green1;
-		var b:Float = this._blue1 > 1.0 ? 1.0 : this._blue1 < 0.0 ? 0.0 : this._blue1;
+		var r:Float = this.red1 > 1.0 ? 1.0 : this.red1 < 0.0 ? 0.0 : this.red1;
+		var g:Float = this.green1 > 1.0 ? 1.0 : this.green1 < 0.0 ? 0.0 : this.green1;
+		var b:Float = this.blue1 > 1.0 ? 1.0 : this.blue1 < 0.0 ? 0.0 : this.blue1;
 		return Std.int(r * 255) << 16 | Std.int(g * 255) << 8 | Std.int(b * 255);
 	}
 	private function set_color1(value:Int):Int
 	{
-		this._red1 = (Std.int(value >> 16) & 0xFF) / 255.0;
-        this._green1 = (Std.int(value >> 8) & 0xFF) / 255.0;
-        this._blue1 = (value & 0xFF) / 255.0;
-		this.changed = true;
+		this.red1 = (Std.int(value >> 16) & 0xFF) / 255.0;
+        this.green1 = (Std.int(value >> 8) & 0xFF) / 255.0;
+        this.blue1 = (value & 0xFF) / 255.0;
 		return value;
 	}
 	
 	private function get_color2():Int
 	{
-		var r:Float = this._red2 > 1.0 ? 1.0 : this._red2 < 0.0 ? 0.0 : this._red2;
-		var g:Float = this._green2 > 1.0 ? 1.0 : this._green2 < 0.0 ? 0.0 : this._green2;
-		var b:Float = this._blue2 > 1.0 ? 1.0 : this._blue2 < 0.0 ? 0.0 : this._blue2;
+		var r:Float = this.red2 > 1.0 ? 1.0 : this.red2 < 0.0 ? 0.0 : this.red2;
+		var g:Float = this.green2 > 1.0 ? 1.0 : this.green2 < 0.0 ? 0.0 : this.green2;
+		var b:Float = this.blue2 > 1.0 ? 1.0 : this.blue2 < 0.0 ? 0.0 : this.blue2;
 		return Std.int(r * 255) << 16 | Std.int(g * 255) << 8 | Std.int(b * 255);
 	}
 	private function set_color2(value:Int):Int
 	{
-		this._red2 = (Std.int(value >> 16) & 0xFF) / 255.0;
-        this._green2 = (Std.int(value >> 8) & 0xFF) / 255.0;
-        this._blue2 = (value & 0xFF) / 255.0;
-		this.changed = true;
+		this.red2 = (Std.int(value >> 16) & 0xFF) / 255.0;
+        this.green2 = (Std.int(value >> 8) & 0xFF) / 255.0;
+        this.blue2 = (value & 0xFF) / 255.0;
 		return value;
 	}
 	
 	private function get_color3():Int
 	{
-		var r:Float = this._red3 > 1.0 ? 1.0 : this._red3 < 0.0 ? 0.0 : this._red3;
-		var g:Float = this._green3 > 1.0 ? 1.0 : this._green3 < 0.0 ? 0.0 : this._green3;
-		var b:Float = this._blue3 > 1.0 ? 1.0 : this._blue3 < 0.0 ? 0.0 : this._blue3;
+		var r:Float = this.red3 > 1.0 ? 1.0 : this.red3 < 0.0 ? 0.0 : this.red3;
+		var g:Float = this.green3 > 1.0 ? 1.0 : this.green3 < 0.0 ? 0.0 : this.green3;
+		var b:Float = this.blue3 > 1.0 ? 1.0 : this.blue3 < 0.0 ? 0.0 : this.blue3;
 		return Std.int(r * 255) << 16 | Std.int(g * 255) << 8 | Std.int(b * 255);
 	}
 	private function set_color3(value:Int):Int
 	{
-		this._red3 = (Std.int(value >> 16) & 0xFF) / 255.0;
-        this._green3 = (Std.int(value >> 8) & 0xFF) / 255.0;
-        this._blue3 = (value & 0xFF) / 255.0;
-		this.changed = true;
+		this.red3 = (Std.int(value >> 16) & 0xFF) / 255.0;
+        this.green3 = (Std.int(value >> 8) & 0xFF) / 255.0;
+        this.blue3 = (value & 0xFF) / 255.0;
 		return value;
 	}
 	
 	private function get_color4():Int
 	{
-		var r:Float = this._red4 > 1.0 ? 1.0 : this._red4 < 0.0 ? 0.0 : this._red4;
-		var g:Float = this._green4 > 1.0 ? 1.0 : this._green4 < 0.0 ? 0.0 : this._green4;
-		var b:Float = this._blue4 > 1.0 ? 1.0 : this._blue4 < 0.0 ? 0.0 : this._blue4;
+		var r:Float = this.red4 > 1.0 ? 1.0 : this.red4 < 0.0 ? 0.0 : this.red4;
+		var g:Float = this.green4 > 1.0 ? 1.0 : this.green4 < 0.0 ? 0.0 : this.green4;
+		var b:Float = this.blue4 > 1.0 ? 1.0 : this.blue4 < 0.0 ? 0.0 : this.blue4;
 		return Std.int(r * 255) << 16 | Std.int(g * 255) << 8 | Std.int(b * 255);
 	}
 	private function set_color4(value:Int):Int
 	{
-		this._red4 = (Std.int(value >> 16) & 0xFF) / 255.0;
-        this._green4 = (Std.int(value >> 8) & 0xFF) / 255.0;
-        this._blue4 = (value & 0xFF) / 255.0;
-		this.changed = true;
+		this.red4 = (Std.int(value >> 16) & 0xFF) / 255.0;
+        this.green4 = (Std.int(value >> 8) & 0xFF) / 255.0;
+        this.blue4 = (value & 0xFF) / 255.0;
 		return value;
 	}
 	
-	private function get_red():Float { return this._red1; }
+	private function get_red():Float { return this.red1; }
 	private function set_red(value:Float):Float
 	{
-		this.changed = true;
-		return this._red1 = this._red2 = this._red3 = this._red4 = value;
+		return this.red1 = this.red2 = this.red3 = this.red4 = value;
 	}
 	
-	private var _red1:Float = 1.0;
-	inline private function get_red1():Float { return this._red1; }
-	inline private function set_red1(value:Float):Float
-	{
-		this.changed = true;
-		return this._red1 = value;
-	}
-	
-	private var _red2:Float = 1.0;
-	inline private function get_red2():Float { return this._red2; }
-	inline private function set_red2(value:Float):Float
-	{
-		this.changed = true;
-		return this._red2 = value;
-	}
-	
-	private var _red3:Float = 1.0;
-	inline private function get_red3():Float { return this._red3; }
-	inline private function set_red3(value:Float):Float
-	{
-		this.changed = true;
-		return this._red3 = value;
-	}
-	
-	private var _red4:Float = 1.0;
-	inline private function get_red4():Float { return this._red4; }
-	inline private function set_red4(value:Float):Float
-	{
-		this.changed = true;
-		return this._red4 = value;
-	}
-	
-	private function get_green():Float { return this._green1; }
+	private function get_green():Float { return this.green1; }
 	private function set_green(value:Float):Float
 	{
-		this.changed = true;
-		return this._green1 = this._green2 = this._green3 = this._green4 = value;
+		return this.green1 = this.green2 = this.green3 = this.green4 = value;
 	}
 	
-	private var _green1:Float = 1.0;
-	inline private function get_green1():Float { return this._green1; }
-	inline private function set_green1(value:Float):Float
-	{
-		this.changed = true;
-		return this._green1 = value;
-	}
-	
-	private var _green2:Float = 1.0;
-	inline private function get_green2():Float { return this._green2; }
-	inline private function set_green2(value:Float):Float
-	{
-		this.changed = true;
-		return this._green2 = value;
-	}
-	
-	private var _green3:Float = 1.0;
-	inline private function get_green3():Float { return this._green3; }
-	inline private function set_green3(value:Float):Float
-	{
-		this.changed = true;
-		return this._green3 = value;
-	}
-	
-	private var _green4:Float = 1.0;
-	inline private function get_green4():Float { return this._green4; }
-	inline private function set_green4(value:Float):Float
-	{
-		this.changed = true;
-		return this._green4 = value;
-	}
-	
-	private function get_blue():Float { return this._blue1; }
+	private function get_blue():Float { return this.blue1; }
 	private function set_blue(value:Float):Float
 	{
-		this.changed = true;
-		return this._blue1 = this._blue2 = this._blue3 = this._blue4 = value;
+		return this.blue1 = this.blue2 = this.blue3 = this.blue4 = value;
 	}
 	
-	private var _blue1:Float = 1.0;
-	inline private function get_blue1():Float { return this._blue1; }
-	inline private function set_blue1(value:Float):Float
-	{
-		this.changed = true;
-		return this._blue1 = value;
-	}
-	
-	private var _blue2:Float = 1.0;
-	inline private function get_blue2():Float { return this._blue2; }
-	inline private function set_blue2(value:Float):Float
-	{
-		this.changed = true;
-		return this._blue2 = value;
-	}
-	
-	private var _blue3:Float = 1.0;
-	inline private function get_blue3():Float { return this._blue3; }
-	inline private function set_blue3(value:Float):Float
-	{
-		this.changed = true;
-		return this._blue3 = value;
-	}
-	
-	private var _blue4:Float = 1.0;
-	inline private function get_blue4():Float { return this._blue4; }
-	inline private function set_blue4(value:Float):Float
-	{
-		this.changed = true;
-		return this._blue4 = value;
-	}
-	
-	inline private function get_alpha():Float { return this._alpha1; }
+	inline private function get_alpha():Float { return this.alpha1; }
 	inline private function set_alpha(value:Float):Float
 	{
-		this.changed = true;
-		return this._alpha1 = this._alpha2 = this._alpha3 = this._alpha4 = value;
+		return this.alpha1 = this.alpha2 = this.alpha3 = this.alpha4 = value;
 	}
 	
-	private var _alpha1:Float = 1.0;
-	inline private function get_alpha1():Float { return this._alpha1; }
-	inline private function set_alpha1(value:Float):Float
+	public function new(red:Float = 1.0, green:Float = 1.0, blue:Float = 1.0, alpha:Float = 1.0) 
 	{
-		this.changed = true;
-		return this._alpha1 = value;
-	}
-	
-	private var _alpha2:Float = 1.0;
-	inline private function get_alpha2():Float { return this._alpha2; }
-	inline private function set_alpha2(value:Float):Float
-	{
-		this.changed = true;
-		return this._alpha2 = value;
-	}
-	
-	private var _alpha3:Float = 1.0;
-	inline private function get_alpha3():Float { return this._alpha3; }
-	inline private function set_alpha3(value:Float):Float
-	{
-		this.changed = true;
-		return this._alpha3 = value;
-	}
-	
-	private var _alpha4:Float = 1.0;
-	inline private function get_alpha4():Float { return this._alpha4; }
-	inline private function set_alpha4(value:Float):Float
-	{
-		this.changed = true;
-		return this._alpha4 = value;
-	}
-	
-	private var _color1Final:Int = 0xffffffff;
-	private var _color2Final:Int = 0xffffffff;
-	private var _color3Final:Int = 0xffffffff;
-	private var _color4Final:Int = 0xffffffff;
-	
-	private var _red1Final:Float = 1.0;
-	private var _red2Final:Float = 1.0;
-	private var _red3Final:Float = 1.0;
-	private var _red4Final:Float = 1.0;
-	
-	private var _green1Final:Float = 1.0;
-	private var _green2Final:Float = 1.0;
-	private var _green3Final:Float = 1.0;
-	private var _green4Final:Float = 1.0;
-	
-	private var _blue1Final:Float = 1.0;
-	private var _blue2Final:Float = 1.0;
-	private var _blue3Final:Float = 1.0;
-	private var _blue4Final:Float = 1.0;
-	
-	private var _alpha1Final:Float = 1.0;
-	private var _alpha2Final:Float = 1.0;
-	private var _alpha3Final:Float = 1.0;
-	private var _alpha4Final:Float = 1.0;
-	
-	public function new() 
-	{
-		
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = alpha;
 	}
 	
 	public function clear():Void
 	{
-		this._red1 = this._red2 = this._red3 = this._red4 = 1.0;
-		this._green1 = this._green2 = this._green3 = this._green4 = 1.0;
-		this._blue1 = this._blue2 = this._blue3 = this._blue4 = 1.0;
-		this._alpha1 = this._alpha2 = this._alpha3 = this._alpha4 = 1.0;
-		
-		this._color1Final = this._color2Final = this._color3Final = this._color4Final = 0xffffffff;
-		this._red1Final = this._red2Final = this._red3Final = this._red4Final = 1.0;
-		this._green1Final = this._green2Final = this._green3Final = this._green4Final = 1.0;
-		this._blue1Final = this._blue2Final = this._blue3Final = this._blue4Final = 1.0;
-		this._alpha1Final = this._alpha2Final = this._alpha3Final = this._alpha4Final = 1.0;
+		this.isChanging = false;
+		this.red = 1.0;
+		this.green = 1.0;
+		this.blue = 1.0;
+		this.alpha = 1.0;
 	}
 	
 	public function pool():Void
 	{
+		if (this.isInPool) return;
 		clear();
 		_POOL[_POOL.length] = this;
+		this.isInPool = true;
+	}
+	
+	private function setFromPool(red:Float, green:Float, blue:Float, alpha:Float):VertexColorData
+	{
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = alpha;
+		this.isInPool = false;
+		return this;
+	}
+	
+	public function clone(toVertexColor:VertexColorData = null):VertexColorData
+	{
+		if (toVertexColor == null) toVertexColor = VertexColorData.fromPool();
+		
+		toVertexColor.red1 = this.red1;
+		toVertexColor.red2 = this.red2;
+		toVertexColor.red3 = this.red3;
+		toVertexColor.red4 = this.red4;
+		
+		toVertexColor.green1 = this.green1;
+		toVertexColor.green2 = this.green2;
+		toVertexColor.green3 = this.green3;
+		toVertexColor.green4 = this.green4;
+		
+		toVertexColor.blue1 = this.blue1;
+		toVertexColor.blue2 = this.blue2;
+		toVertexColor.blue3 = this.blue3;
+		toVertexColor.blue4 = this.blue4;
+		
+		toVertexColor.alpha1 = this.alpha1;
+		toVertexColor.alpha2 = this.alpha2;
+		toVertexColor.alpha3 = this.alpha3;
+		toVertexColor.alpha4 = this.alpha4;
+		
+		return toVertexColor;
 	}
 	
 }
