@@ -326,6 +326,56 @@ abstract class QuadBase extends DisplayBase
 	private var _colorChanged:Bool;
 	private var _colorOffsetChanged:Bool;
 	
+	private var _color1Final:Int = 0xffffffff;
+	private var _color2Final:Int = 0xffffffff;
+	private var _color3Final:Int = 0xffffffff;
+	private var _color4Final:Int = 0xffffffff;
+	
+	private var _red1Final:Float = 1.0;
+	private var _red2Final:Float = 1.0;
+	private var _red3Final:Float = 1.0;
+	private var _red4Final:Float = 1.0;
+	
+	private var _green1Final:Float = 1.0;
+	private var _green2Final:Float = 1.0;
+	private var _green3Final:Float = 1.0;
+	private var _green4Final:Float = 1.0;
+	
+	private var _blue1Final:Float = 1.0;
+	private var _blue2Final:Float = 1.0;
+	private var _blue3Final:Float = 1.0;
+	private var _blue4Final:Float = 1.0;
+	
+	private var _alpha1Final:Float = 1.0;
+	private var _alpha2Final:Float = 1.0;
+	private var _alpha3Final:Float = 1.0;
+	private var _alpha4Final:Float = 1.0;
+	
+	private var _colorOffset1Final:Int = 0x00000000;
+	private var _colorOffset2Final:Int = 0x00000000;
+	private var _colorOffset3Final:Int = 0x00000000;
+	private var _colorOffset4Final:Int = 0x00000000;
+	
+	private var _redOffset1Final:Float = 0.0;
+	private var _redOffset2Final:Float = 0.0;
+	private var _redOffset3Final:Float = 0.0;
+	private var _redOffset4Final:Float = 0.0;
+	
+	private var _greenOffset1Final:Float = 0.0;
+	private var _greenOffset2Final:Float = 0.0;
+	private var _greenOffset3Final:Float = 0.0;
+	private var _greenOffset4Final:Float = 0.0;
+	
+	private var _blueOffset1Final:Float = 0.0;
+	private var _blueOffset2Final:Float = 0.0;
+	private var _blueOffset3Final:Float = 0.0;
+	private var _blueOffset4Final:Float = 0.0;
+	
+	private var _alphaOffset1Final:Float = 0.0;
+	private var _alphaOffset2Final:Float = 0.0;
+	private var _alphaOffset3Final:Float = 0.0;
+	private var _alphaOffset4Final:Float = 0.0;
+	
 	public function new() 
 	{
 		super();
