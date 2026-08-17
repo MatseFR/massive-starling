@@ -169,14 +169,27 @@ class Clip extends Img
 		this._vertexColors = this.animation._vertexColors;
 		this._vertexColorOffsets = this.animation._vertexColorOffsets;
 		this.lastFrameIndex = this.animation.lastFrameIndex;
-		this.loop = this.animation.loop;
-		this.numLoops = this.animation.numLoops;
-		this.frameIndex = frameIndex;
-		this.frameTime = this._frameIndex == 0 ? 0.0 : this._timings[this._frameIndex - 1];
+		if (numLoops == -1)
+		{
+			this.loop = this.animation.loop;
+			this.numLoops = this.animation.numLoops;
+		}
+		else
+		{
+			this.loop = true;
+			this.numLoops = numLoops;
+		}
+		
+		if (this.__useVertexPositionData) this.vertexPosition = null;
+		if (this.__useVertexColorData) this.vertexColor = null;
+		if (this.__useVertexColorOffsetData) this.vertexColorOffset = null;
 		
 		this.__useVertexPositionData = this.animation.hasVertexPosition;
 		this.__useVertexColorData = this.animation.hasVertexColor;
 		this.__useVertexColorOffsetData = this.animation.hasVertexColorOffset;
+		
+		this.frameIndex = frameIndex;
+		this.frameTime = this._frameIndex == 0 ? 0.0 : this._timings[this._frameIndex - 1];
 		
 		this.animate = true;
 	}
@@ -213,7 +226,8 @@ class Clip extends Img
 	
 	public function playNextFromQueue():Void
 	{
-		var anim:QueuedAnimation = this._animationQueue[++this._animationQueueIndex];
+		if (++this._animationQueueIndex >= this._animationQueue.length) this._animationQueueIndex = 0;
+		var anim:QueuedAnimation = this._animationQueue[this._animationQueueIndex];
 		if (anim.removeOnPlay)
 		{
 			#if flash
