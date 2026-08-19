@@ -182,21 +182,7 @@ abstract class ContainerBase extends DisplayBase
 		this.__x = this.__image.x + this.__image.offsetX + this.__renderOffsetX;
 		this.__y = this.__image.y + this.__image.offsetY + this.__renderOffsetY;
 		
-		if (this.__image._transformChanged)
-		{
-			updateTransform();
-		}
-		else
-		{
-			this.__x1 = this.__image._x1;
-			this.__y1 = this.__image._y1;
-			this.__x2 = this.__image._x2;
-			this.__y2 = this.__image._y2;
-			this.__x3 = this.__image._x3;
-			this.__y3 = this.__image._y3;
-			this.__x4 = this.__image._x4;
-			this.__y4 = this.__image._y4;
-		}
+		updateTransform();
 		
 		this.__boundsData[++this.__position] = this.__x + this.__x1;
 		this.__boundsData[++this.__position] = this.__y + this.__y1;
@@ -1365,21 +1351,7 @@ abstract class ContainerBase extends DisplayBase
 		
 		this.__frame = this.__image.frame;
 		
-		if (this.__image._transformChanged)
-		{
-			updateTransform();
-		}
-		else
-		{
-			this.__x1 = this.__image._x1;
-			this.__y1 = this.__image._y1;
-			this.__x2 = this.__image._x2;
-			this.__y2 = this.__image._y2;
-			this.__x3 = this.__image._x3;
-			this.__y3 = this.__image._y3;
-			this.__x4 = this.__image._x4;
-			this.__y4 = this.__image._y4;
-		}
+		updateTransform();
 		
 		if (this.__multiTexturing) this.__textureIndex = this.__image.textureIndexReal;
 		
@@ -1425,56 +1397,70 @@ abstract class ContainerBase extends DisplayBase
 		if (this.__image.hasVertexPosition)
 		{
 			this.__vertexPosition = this.__image.vertexPosition;
-			if (this.__image.invertX)
+			if (this.__image._transformChanged || this.__vertexPosition.isChanging)
 			{
-				if (this.__image.invertY)
+				if (this.__image.invertX)
 				{
-					this.__x1 = this.__image._x1 = this.__vertexPosition.x1_invertXY * this.__image.scaleX;
-					this.__x2 = this.__image._x2 = this.__vertexPosition.x2_invertXY * this.__image.scaleX;
-					this.__x3 = this.__image._x3 = this.__vertexPosition.x3_invertXY * this.__image.scaleX;
-					this.__x4 = this.__image._x4 = this.__vertexPosition.x4_invertXY * this.__image.scaleX;
-					this.__y1 = this.__image._y1 = this.__vertexPosition.y1_invertXY * this.__image.scaleY;
-					this.__y2 = this.__image._y2 = this.__vertexPosition.y2_invertXY * this.__image.scaleY;
-					this.__y3 = this.__image._y3 = this.__vertexPosition.y3_invertXY * this.__image.scaleY;
-					this.__y4 = this.__image._y4 = this.__vertexPosition.y4_invertXY * this.__image.scaleY;
+					if (this.__image.invertY)
+					{
+						this.__x1 = this.__image._x1 = this.__vertexPosition.x1_invertXY * this.__image.scaleX;
+						this.__x2 = this.__image._x2 = this.__vertexPosition.x2_invertXY * this.__image.scaleX;
+						this.__x3 = this.__image._x3 = this.__vertexPosition.x3_invertXY * this.__image.scaleX;
+						this.__x4 = this.__image._x4 = this.__vertexPosition.x4_invertXY * this.__image.scaleX;
+						this.__y1 = this.__image._y1 = this.__vertexPosition.y1_invertXY * this.__image.scaleY;
+						this.__y2 = this.__image._y2 = this.__vertexPosition.y2_invertXY * this.__image.scaleY;
+						this.__y3 = this.__image._y3 = this.__vertexPosition.y3_invertXY * this.__image.scaleY;
+						this.__y4 = this.__image._y4 = this.__vertexPosition.y4_invertXY * this.__image.scaleY;
+					}
+					else
+					{
+						this.__x1 = this.__image._x1 = this.__vertexPosition.x1_invertX * this.__image.scaleX;
+						this.__x2 = this.__image._x2 = this.__vertexPosition.x2_invertX * this.__image.scaleX;
+						this.__x3 = this.__image._x3 = this.__vertexPosition.x3_invertX * this.__image.scaleX;
+						this.__x4 = this.__image._x4 = this.__vertexPosition.x4_invertX * this.__image.scaleX;
+						this.__y1 = this.__image._y1 = this.__vertexPosition.y1_invertX * this.__image.scaleY;
+						this.__y2 = this.__image._y2 = this.__vertexPosition.y2_invertX * this.__image.scaleY;
+						this.__y3 = this.__image._y3 = this.__vertexPosition.y3_invertX * this.__image.scaleY;
+						this.__y4 = this.__image._y4 = this.__vertexPosition.y4_invertX * this.__image.scaleY;
+					}
+				}
+				else if (this.__image.invertY)
+				{
+					this.__x1 = this.__image._x1 = this.__vertexPosition.x1_invertY * this.__image.scaleX;
+					this.__x2 = this.__image._x2 = this.__vertexPosition.x2_invertY * this.__image.scaleX;
+					this.__x3 = this.__image._x3 = this.__vertexPosition.x3_invertY * this.__image.scaleX;
+					this.__x4 = this.__image._x4 = this.__vertexPosition.x4_invertY * this.__image.scaleX;
+					this.__y1 = this.__image._y1 = this.__vertexPosition.y1_invertY * this.__image.scaleY;
+					this.__y2 = this.__image._y2 = this.__vertexPosition.y2_invertY * this.__image.scaleY;
+					this.__y3 = this.__image._y3 = this.__vertexPosition.y3_invertY * this.__image.scaleY;
+					this.__y4 = this.__image._y4 = this.__vertexPosition.y4_invertY * this.__image.scaleY;
 				}
 				else
 				{
-					this.__x1 = this.__image._x1 = this.__vertexPosition.x1_invertX * this.__image.scaleX;
-					this.__x2 = this.__image._x2 = this.__vertexPosition.x2_invertX * this.__image.scaleX;
-					this.__x3 = this.__image._x3 = this.__vertexPosition.x3_invertX * this.__image.scaleX;
-					this.__x4 = this.__image._x4 = this.__vertexPosition.x4_invertX * this.__image.scaleX;
-					this.__y1 = this.__image._y1 = this.__vertexPosition.y1_invertX * this.__image.scaleY;
-					this.__y2 = this.__image._y2 = this.__vertexPosition.y2_invertX * this.__image.scaleY;
-					this.__y3 = this.__image._y3 = this.__vertexPosition.y3_invertX * this.__image.scaleY;
-					this.__y4 = this.__image._y4 = this.__vertexPosition.y4_invertX * this.__image.scaleY;
+					this.__x1 = this.__image._x1 = this.__vertexPosition.x1 * this.__image.scaleX;
+					this.__x2 = this.__image._x2 = this.__vertexPosition.x2 * this.__image.scaleX;
+					this.__x3 = this.__image._x3 = this.__vertexPosition.x3 * this.__image.scaleX;
+					this.__x4 = this.__image._x4 = this.__vertexPosition.x4 * this.__image.scaleX;
+					this.__y1 = this.__image._y1 = this.__vertexPosition.y1 * this.__image.scaleY;
+					this.__y2 = this.__image._y2 = this.__vertexPosition.y2 * this.__image.scaleY;
+					this.__y3 = this.__image._y3 = this.__vertexPosition.y3 * this.__image.scaleY;
+					this.__y4 = this.__image._y4 = this.__vertexPosition.y4 * this.__image.scaleY;
 				}
-			}
-			else if (this.__image.invertY)
-			{
-				this.__x1 = this.__image._x1 = this.__vertexPosition.x1_invertY * this.__image.scaleX;
-				this.__x2 = this.__image._x2 = this.__vertexPosition.x2_invertY * this.__image.scaleX;
-				this.__x3 = this.__image._x3 = this.__vertexPosition.x3_invertY * this.__image.scaleX;
-				this.__x4 = this.__image._x4 = this.__vertexPosition.x4_invertY * this.__image.scaleX;
-				this.__y1 = this.__image._y1 = this.__vertexPosition.y1_invertY * this.__image.scaleY;
-				this.__y2 = this.__image._y2 = this.__vertexPosition.y2_invertY * this.__image.scaleY;
-				this.__y3 = this.__image._y3 = this.__vertexPosition.y3_invertY * this.__image.scaleY;
-				this.__y4 = this.__image._y4 = this.__vertexPosition.y4_invertY * this.__image.scaleY;
+				this.__image._transformChanged = false;
 			}
 			else
 			{
-				this.__x1 = this.__image._x1 = this.__vertexPosition.x1 * this.__image.scaleX;
-				this.__x2 = this.__image._x2 = this.__vertexPosition.x2 * this.__image.scaleX;
-				this.__x3 = this.__image._x3 = this.__vertexPosition.x3 * this.__image.scaleX;
-				this.__x4 = this.__image._x4 = this.__vertexPosition.x4 * this.__image.scaleX;
-				this.__y1 = this.__image._y1 = this.__vertexPosition.y1 * this.__image.scaleY;
-				this.__y2 = this.__image._y2 = this.__vertexPosition.y2 * this.__image.scaleY;
-				this.__y3 = this.__image._y3 = this.__vertexPosition.y3 * this.__image.scaleY;
-				this.__y4 = this.__image._y4 = this.__vertexPosition.y4 * this.__image.scaleY;
+				this.__x1 = this.__image._x1;
+				this.__y1 = this.__image._y1;
+				this.__x2 = this.__image._x2;
+				this.__y2 = this.__image._y2;
+				this.__x3 = this.__image._x3;
+				this.__y3 = this.__image._y3;
+				this.__x4 = this.__image._x4;
+				this.__y4 = this.__image._y4;
 			}
-			this.__image._transformChanged = false;
 		}
-		else
+		else if (this.__image._transformChanged)
 		{
 			this.__rotationChanged = this.__image._rotationChanged;
 			this.__skewXChanged = this.__image._skewXChanged;
@@ -1584,6 +1570,17 @@ abstract class ContainerBase extends DisplayBase
 			this.__y3 = this.__image._y3 = this.__leftOffset * this.__b + this.__bottomOffset * this.__d;
 			this.__x4 = this.__image._x4 = this.__rightOffset * this.__a + this.__bottomOffset * this.__c;
 			this.__y4 = this.__image._y4 = this.__rightOffset * this.__b + this.__bottomOffset * this.__d;
+		}
+		else
+		{
+			this.__x1 = this.__image._x1;
+			this.__y1 = this.__image._y1;
+			this.__x2 = this.__image._x2;
+			this.__y2 = this.__image._y2;
+			this.__x3 = this.__image._x3;
+			this.__y3 = this.__image._y3;
+			this.__x4 = this.__image._x4;
+			this.__y4 = this.__image._y4;
 		}
 	}
 	
