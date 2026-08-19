@@ -80,6 +80,11 @@ class VertexPositionData
 	public var canInvertX:Bool;
 	public var canInvertY:Bool;
 	
+	/**
+	   When this is set to true, all objects it is assigned to will recalculate their vertex position values every frame
+	   @default	false
+	**/
+	public var isChanging:Bool;
 	public var isInPool(default, null):Bool;
 	
 	public var pivotX:Float;
@@ -145,6 +150,7 @@ class VertexPositionData
 	
 	public function clear():Void
 	{
+		this.isChanging = false;
 		this.pivotX = this.pivotY = this.x1 = this.x2 = this.x3 = this.x4 = this.y1 = this.y2 = this.y3 = this.y4 = 0.0;
 	}
 	
