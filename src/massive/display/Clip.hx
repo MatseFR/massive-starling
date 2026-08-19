@@ -57,6 +57,10 @@ class Clip extends Img
 	**/
 	public var frameIndex(get, set):Int;
 	/**
+	   Same as frameIndex but it skips vertex position/color/color offset
+	**/
+	public var frameIndexBasic(get, set):Int;
+	/**
 	   Time elapsed on current animation, if any
 	**/
 	public var frameTime:Float = 0.0;
@@ -93,6 +97,15 @@ class Clip extends Img
 		if (this.__useVertexPositionData) this.vertexPosition = this._vertexPositions[value];
 		if (this.__useVertexColorData) this.vertexColor = this._vertexColors[value];
 		if (this.__useVertexColorOffsetData) this.vertexColorOffset = this._vertexColorOffsets[value];
+		return this._frameIndex = value;
+	}
+	
+	private inline function get_frameIndexBasic():Int { return this._frameIndex; }
+	private inline function set_frameIndexBasic(value:Int):Int
+	{
+		if (this._frameIndex == value) return value;
+		this.frame = this._frames[value];
+		this.frameTimingCurrent = this._timings[value];
 		return this._frameIndex = value;
 	}
 	
