@@ -6,14 +6,9 @@ import hexagon.definition.HexDefinition;
 import hexagon.grid.HexGrid;
 import hexagon.path.HexPathFinder;
 import massive.data.Frame;
-import massive.display.DisplayContainer;
 import massive.display.Img;
+import massive.display.ImgContainer;
 import massive.display.MassiveDisplay;
-#if flash
-import openfl.Vector;
-#end
-import massive.display.base.DisplayBase;
-import massive.display.render.RenderMode;
 import openfl.events.MouseEvent;
 import openfl.geom.Point;
 import openfl.ui.Keyboard;
@@ -28,6 +23,9 @@ import starling.events.TouchPhase;
 import starling.textures.Texture;
 import starling.textures.TextureSmoothing;
 import starling.utils.Pool;
+#if flash
+import openfl.Vector;
+#end
 
 /**
  * ...
@@ -46,10 +44,10 @@ class CameraScene extends Scene implements IAnimatable
 	private var _camera:HexCamera;
 	private var _cameraDebug:CameraDebugUI;
 	private var _display:MassiveDisplay;
-	private var _hexLayer:DisplayContainer;
-	private var _costLayer:DisplayContainer;
-	private var _selectionLayer:DisplayContainer;
-	private var _rolloverLayer:DisplayContainer;
+	private var _hexLayer:ImgContainer;
+	private var _costLayer:ImgContainer;
+	private var _selectionLayer:ImgContainer;
+	private var _rolloverLayer:ImgContainer;
 	private var _touchQuad:Quad;
 	
 	private var _rolloverHex:Hex;
@@ -61,11 +59,11 @@ class CameraScene extends Scene implements IAnimatable
 	
 	private var _hexList:Array<Hex> = new Array<Hex>();
 	#if flash
-	private var _hexDataList:Vector<DisplayBase> = new Vector<DisplayBase>();
-	private var _costDataList:Vector<DisplayBase> = new Vector<DisplayBase>();
+	private var _hexDataList:Vector<Img> = new Vector<Img>();
+	private var _costDataList:Vector<Img> = new Vector<Img>();
 	#else
-	private var _hexDataList:Array<DisplayBase> = new Array<DisplayBase>();
-	private var _costDataList:Array<DisplayBase> = new Array<DisplayBase>();
+	private var _hexDataList:Array<Img> = new Array<Img>();
+	private var _costDataList:Array<Img> = new Array<Img>();
 	#end
 	
 	private var _keyPressed:Map<UInt, Bool> = new Map<UInt, Bool>();
@@ -108,17 +106,17 @@ class CameraScene extends Scene implements IAnimatable
 		this._display.textureSmoothing = TextureSmoothing.TRILINEAR;
 		addChild(this._display);
 		
-		this._hexLayer = new DisplayContainer(this._hexDataList);
+		this._hexLayer = new ImgContainer(this._hexDataList);
 		this._display.addLayer(this._hexLayer);
 		
-		this._costLayer = new DisplayContainer(this._costDataList);
+		this._costLayer = new ImgContainer(this._costDataList);
 		this._costLayer.visible = false;
 		this._display.addLayer(this._costLayer);
 		
-		this._selectionLayer = new DisplayContainer();
+		this._selectionLayer = new ImgContainer();
 		this._display.addLayer(this._selectionLayer);
 		
-		this._rolloverLayer = new DisplayContainer();
+		this._rolloverLayer = new ImgContainer();
 		this._display.addLayer(this._rolloverLayer);
 		
 		this._rolloverImage = new Img(this.selectionFrame);
