@@ -21,6 +21,7 @@ class AnimationFrame
 	public var event:String;
 	public var eventParams:Dynamic;
 	public var frame:Frame;
+	public var isInPool(default, null):Bool;
 	public var timing:Float;
 	public var vertexPosition:VertexPositionData;
 	public var vertexColor:VertexColorData;
@@ -38,21 +39,30 @@ class AnimationFrame
 		this.vertexColorOffset = vertexColorOffset;
 	}
 	
-	public function clear():Void
+	public function clear(poolFrame:Bool = true, poolVertexData:Bool = true):Void
 	{
 		this.event = null;
 		this.eventParams = null;
+		if (poolFrame && this.frame != null) this.frame.pool();
 		this.frame = null;
 		this.timing = 0.0;
+		if (poolVertexData)
+		{
+			if (this.vertexPosition != null) this.vertexPosition.pool();
+			if (this.vertexColor != null) this.vertexColor.pool();
+			if (this.vertexColorOffset != null) this.vertexColorOffset.pool();
+		}
 		this.vertexPosition = null;
 		this.vertexColor = null;
 		this.vertexColorOffset = null;
 	}
 	
-	public function pool():Void
+	public function pool(poolFrame:Bool = true, poolVertexData:Bool = true):Void
 	{
-		clear();
+		if (this.isInPool) return;
+		clear(poolFrame, poolVertexData);
 		_POOL[_POOL.length] = this;
+		this.isInPool = true;
 	}
 	
 	private function setFromPool(frame:Frame, timing:Float = 0.0, event:String = null, eventParams:Dynamic = null, 
@@ -65,6 +75,8 @@ class AnimationFrame
 		this.vertexPosition = vertexPosition;
 		this.vertexColor = vertexColor;
 		this.vertexColorOffset = vertexColorOffset;
+		
+		this.isInPool = false;
 		return this;
 	}
 	

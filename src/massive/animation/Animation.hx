@@ -69,17 +69,28 @@ class Animation
 		
 	}
 	
-	public function clear():Void
+	/**
+	   
+	   @param	poolAnimationFrames
+	   @param	poolFrames	no effect if poolAnimationFrames == false
+	   @param	poolVertexData	no effect if poolAnimationFrames == false
+	**/
+	public function clear(poolAnimationFrames:Bool = true, poolFrames:Bool = true, poolVertexData:Bool = true):Void
 	{
-		for (i in 0...this.numFrames)
+		if (poolAnimationFrames)
 		{
-			this.animationFrames[i].pool();
+			this.numFrames = this.animationFrames.length;
+			for (i in 0...this.numFrames)
+			{
+				this.animationFrames[i].pool(poolFrames, poolVertexData);
+			}
 		}
 		#if flash
 		this.animationFrames.length = 0;
 		#else
 		this.animationFrames.resize(0);
 		#end
+		this.numFrames = 0;
 		
 		this.duration = this.loopDuration = 0.0;
 		this.id = this.nextAnimationID = null;
@@ -105,9 +116,9 @@ class Animation
 		this._timings.resize(0);
 	}
 	
-	public function pool():Void
+	public function pool(poolAnimationFrames:Bool = true, poolFrames:Bool = true, poolVertexData:Bool = true):Void
 	{
-		clear();
+		clear(poolAnimationFrames, poolFrames, poolVertexData);
 		_POOL[_POOL.length] = this;
 	}
 	

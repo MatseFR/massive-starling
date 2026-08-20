@@ -6,12 +6,21 @@ import starling.textures.Texture;
 import starling.utils.Align;
 
 /**
- * Stores the info needed by an ImageData to display a texture (typically a SubTexture from a TextureAtlas)
+ * Stores the info needed by an Img instance to display a texture (typically a SubTexture from a TextureAtlas)
  * Use the static helper function to create those
  * @author Matse
  */
 class Frame 
 {
+	static private var _POOL:Array<Frame> = new Array<Frame>();
+	
+	static public function fromPool(nativeTextureWidth:Float, nativeTextureHeight:Float, x:Float, y:Float,
+									width:Float, height:Float, rotated:Bool):Frame
+	{
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(nativeTextureWidth, nativeTextureHeight, x, y, width, height, rotated);
+		return new Frame(nativeTextureWidth, nativeTextureHeight, x, y, width, height, rotated);
+	}
+	
 	/**
 	 * 
 	 * @param	texture
@@ -24,12 +33,12 @@ class Frame
 		if (Std.isOfType(texture, SubTexture))
 		{
 			var subTexture:SubTexture = cast texture;
-			frame = new Frame(texture.root.nativeWidth, texture.root.nativeHeight, subTexture.region.x,
+			frame = fromPool(texture.root.nativeWidth, texture.root.nativeHeight, subTexture.region.x,
 				subTexture.region.y, subTexture.region.width, subTexture.region.height, subTexture.rotated);
 		}
 		else
 		{
-			frame = new Frame(texture.width, texture.height, 0, 0, texture.width, texture.height, false);
+			frame = fromPool(texture.width, texture.height, 0, 0, texture.width, texture.height, false);
 		}
 		
 		return frame;
@@ -206,6 +215,10 @@ class Frame
 	}
 	
 	/**
+	   
+	**/
+	public var isInPool(default, null):Bool;
+	/**
 	   Left texture coordinate
 	**/
 	public var u1:Float;
@@ -286,6 +299,13 @@ class Frame
 		this.setPivot(0, 0);
 	}
 	
+	public function pool():Void
+	{
+		if (this.isInPool) return;
+		_POOL[_POOL.length] = this;
+		this.isInPool = true;
+	}
+	
 	/**
 	   Sets pivotX and pivotY based on specified Align values and calls pivotUpdate
 	   @param	horizontalAlign
@@ -328,6 +348,25 @@ class Frame
 		this.rightWidth = this.width - this.pivotX;
 		this.topHeight = this.pivotY;
 		this.bottomHeight = this.height - this.pivotY;
+	}
+	
+	private function setFromPool(nativeTextureWidth:Float, nativeTextureHeight:Float, x:Float, y:Float,
+								 width:Float, height:Float, rotated:Bool):Frame
+	{
+		this.u1 = x / nativeTextureWidth;
+		this.v1 = y / nativeTextureHeight;
+		this.u2 = (x + width) / nativeTextureWidth;
+		this.v2 = (y + height) / nativeTextureHeight;
+		
+		this.width = width;
+		this.height = height;
+		
+		this.rotated = rotated;
+		
+		this.setPivot(0, 0);
+		
+		this.isInPool = false;
+		return this;
 	}
 	
 }
