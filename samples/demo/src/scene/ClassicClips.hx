@@ -1,155 +1,60 @@
 package scene;
 import massive.util.MathUtils;
 import openfl.Vector;
-import starling.animation.IAnimatable;
-import starling.core.Starling;
+import scene.starling.IClassicImage;
 import starling.display.MovieClip;
-import starling.display.Sprite3D;
-import starling.events.Event;
-import starling.filters.BlurFilter;
 import starling.textures.Texture;
-import starling.utils.Color;
 
 /**
  * ...
  * @author Matse
  */
-class ClassicClips extends Scene implements IAnimatable
+class ClassicClips extends ClassicSceneBase
 {
 	public var frameRateBase:Int = 6;
 	public var frameRateVariance:Int = 30;
-	public var multiTextureStyle:Bool;
-	public var numClips:Int = 1000;
-	public var textures:Array<Vector<Texture>>;
-	public var clipScale:Float = 1;
-	public var useBlurFilter:Bool;
-	public var useRandomAlpha:Bool;
-	public var useRandomColor:Bool;
-	public var useRandomRotation:Bool;
-	public var useSprite3D:Bool;
 	
-	private var _clips:#if flash Vector<MovingClip> #else Array<MovingClip> #end;
-	private var _velocityBase:Float = 30;
-	private var _velocityRange:Float = 150;
+	#if flash
+	private var _clips:Vector<MovingClip> = new Vector<MovingClip>();
+	#else
+	private var _clips:Array<MovingClip> = new Array<MovingClip>();
+	#end
 	
-	private var _sprite3D:Sprite3D;
 
 	public function new() 
 	{
 		super();
-		addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 	}
 	
-	private function addedToStageHandler(evt:Event):Void
+	private function init():Void
 	{
-		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
-		
 		var numTextures:Int = this.textures.length;
-		var stageWidth:Float = this.stage.stageWidth;
-		var stageHeight:Float = this.stage.stageHeight;
 		
-		updateBounds();
-		
-		if (this.useSprite3D)
-		{
-			this._sprite3D = new Sprite3D();
-			this._sprite3D.pivotX = this.stage.stageWidth / 2;
-			this._sprite3D.pivotY = this.stage.stageHeight / 2;
-			this._sprite3D.x = this._sprite3D.pivotX;
-			this._sprite3D.y = this._sprite3D.pivotY;
-			addChild(this._sprite3D);
-		}
-		
-		#if flash
-		this._clips = new Vector<MovingClip>();
-		#else
-		this._clips = new Array<MovingClip>();
-		#end
 		var clip:MovingClip;
 		var speedVariance:Float;
 		var variant:Int;
-		var velocity:Float;
 		
-		for (i in 0...this.numClips)
+		for (i in 0...this.numObjects)
 		{
 			variant = Std.random(numTextures);
 			
 			speedVariance = MathUtils.random();
 			clip = new MovingClip(this.textures[variant], this.frameRateBase + Std.int(this.frameRateVariance * speedVariance));
 			clip.currentFrame = Std.random(this.textures[variant].length);
-			clip.touchable = false;
-			clip.alignPivot();
-			if (this.useRandomAlpha) clip.alpha = MathUtils.random();
-			if (this.useRandomColor) clip.color = Color.rgb(Std.random(256), Std.random(256), Std.random(256));
-			clip.x = MathUtils.random() * stageWidth;
-			clip.y = MathUtils.random() * stageHeight;
-			clip.scaleX = clip.scaleY = this.clipScale;
-			if (this.useRandomRotation)	clip.rotation = MathUtils.random() * MathUtils.PI2;
 			
-			velocity = this._velocityBase + speedVariance * this._velocityRange;
-			clip.velocityX = Math.cos(clip.rotation) * velocity;
-			clip.velocityY = Math.sin(clip.rotation) * velocity;
-			
-			if (clip.velocityX < 0.0) clip.scaleY *= -1.0;
-			
+			initImage(clip, speedVariance);
 			this._clips[i] = clip;
-			if (this.useSprite3D)
-			{
-				this._sprite3D.addChild(clip);
-			}
-			else
-			{
-				addChild(clip);
-			}
-		}
-		
-		if (this.useBlurFilter)
-		{
-			this.filter = new BlurFilter();
-		}
-		
-		Starling.currentJuggler.add(this);
-	}
-	
-	override public function updateBounds():Void 
-	{
-		super.updateBounds();
-		
-		if (this._sprite3D != null)
-		{
-			this._sprite3D.pivotX = this.stage.stageWidth / 2;
-			this._sprite3D.pivotY = this.stage.stageHeight / 2;
-			this._sprite3D.x = this._sprite3D.pivotX;
-			this._sprite3D.y = this._sprite3D.pivotY;
-		}
-		
-		if (!this.useRandomRotation && this._clips != null)
-		{
-			var stageHeight:Float = this.stage.stageHeight;
-			
-			for (i in 0...this.numClips)
-			{
-				this._clips[i].y = MathUtils.random() * stageHeight;
-			}
 		}
 	}
 	
-	override public function dispose():Void 
+	override public function advanceTime(time:Float):Void
 	{
-		Starling.currentJuggler.remove(this);
+		super.advanceTime(time);
 		
-		super.dispose();
-	}
-	
-	public function advanceTime(time:Float):Void
-	{
-		if (this.useSprite3D)
-		{
-			this._sprite3D.rotationY += 0.01;
-		}
+		if (!this._animation && !this._movement) return;
 		
 		var clip:MovingClip;
-		for (i in 0...this.numClips)
+		for (i in 0...this.numObjects)
 		{
 			clip = this._clips[i];
 			if (this._movement)
@@ -181,7 +86,7 @@ class ClassicClips extends Scene implements IAnimatable
 	
 }
 
-class MovingClip extends MovieClip
+class MovingClip extends MovieClip implements IClassicImage
 {
 	public var velocityX:Float;
 	public var velocityY:Float;

@@ -1,6 +1,7 @@
 package scene;
-import massive.display.Clip;
-import scene.massive.MovingClip;
+import massive.display.EventClip;
+import scene.massive.MovingEventClip;
+import starling.core.Starling;
 #if flash
 import openfl.Vector;
 #end
@@ -9,16 +10,16 @@ import openfl.Vector;
  * ...
  * @author Matse
  */
-class MassiveClips extends MassiveClipsBase 
+class MassiveEventClips extends MassiveClipsBase 
 {
 	#if flash
-	private var _clips:Vector<Clip> = new Vector<Clip>();
-	private var _clipList:Vector<MovingClip> = new Vector<MovingClip>();
+	private var _clips:Vector<EventClip> = new Vector<EventClip>();
+	private var _clipList:Vector<MovingEventClip> = new Vector<MovingEventClip>();
 	#else
-	private var _clips:Array<Clip> = new Array<Clip>();
-	private var _clipList:Array<MovingClip> = new Array<MovingClip>();
+	private var _clips:Array<EventClip> = new Array<EventClip>();
+	private var _clipList:Array<MovingEventClip> = new Array<MovingEventClip>();
 	#end
-
+	
 	public function new() 
 	{
 		super();
@@ -28,16 +29,16 @@ class MassiveClips extends MassiveClipsBase
 	{
 		super.init();
 		
-		var clip:MovingClip;
+		var clip:MovingEventClip;
 		
 		if (this._imgLayer != null)
 		{
 			for (i in 0...this.numObjects)
 			{
-				clip = new MovingClip();
+				clip = new MovingEventClip();
 				initClip(clip);
-				this._clips[this._clips.length] = clip;
-				this._clipList[this._clipList.length] = clip;
+				this._clips[i] = clip;
+				this._clipList[i] = clip;
 				this._imgLayer.addChild(clip);
 			}
 		}
@@ -45,22 +46,15 @@ class MassiveClips extends MassiveClipsBase
 		{
 			for (i in 0...this.numObjects)
 			{
-				clip = new MovingClip();
+				clip = new MovingEventClip();
 				initClip(clip);
-				this._clips[this._clips.length] = clip;
-				this._clipList[this._clipList.length] = clip;
+				this._clips[i] = clip;
+				this._clipList[i] = clip;
 				this._mixedLayer.addChild(clip);
 			}
 		}
 		
-		if (this.clipType == ClipType.CLIP_BASIC)
-		{
-			this._animator.addBasicClipList(this._clips);
-		}
-		else
-		{
-			this._animator.addClipList(this._clips);
-		}
+		this._animator.addEventClipList(this._clips);
 	}
 	
 	override public function advanceTime(time:Float):Void 
@@ -69,7 +63,7 @@ class MassiveClips extends MassiveClipsBase
 		
 		if (this._movement)
 		{
-			var clip:MovingClip;
+			var clip:MovingEventClip;
 			for (i in 0...this.numObjects)
 			{
 				clip = this._clipList[i];

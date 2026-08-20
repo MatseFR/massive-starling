@@ -1,13 +1,14 @@
-package scene.object;
+package scene.massive;
 
-import massive.display.BasicClip;
+import massive.display.Clip;
 
 /**
  * ...
  * @author Matse
  */
-class MovingBasicClip extends BasicClip implements IMassiveClip
+class MovingClip extends Clip implements IMassiveClip
 {
+	public var speedVariance:Float;
 	public var velocityX:Float;
 	public var velocityY:Float;
 
