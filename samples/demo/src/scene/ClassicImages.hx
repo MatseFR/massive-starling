@@ -1,6 +1,8 @@
 package scene;
-import flash.Vector;
 import massive.util.MathUtils;
+#if flash
+import openfl.Vector;
+#end
 import scene.starling.IClassicImage;
 import starling.display.Image;
 import starling.textures.Texture;
@@ -14,7 +16,7 @@ class ClassicImages extends ClassicSceneBase
 	#if flash
 	private var _images:Vector<MovingImage> = new Vector<MovingImage>();
 	#else
-	private var _images:Array<MovingImage> = new Vector<MovingImage>();
+	private var _images:Array<MovingImage> = new Array<MovingImage>();
 	#end
 	
 	public function new() 
