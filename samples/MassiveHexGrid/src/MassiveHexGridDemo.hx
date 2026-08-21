@@ -12,9 +12,7 @@ import hexagon.definition.HexDefinitionPointy;
 import hexagon.grid.HexGrid;
 import massive.data.Frame;
 import massive.display.Img;
-#if flash
 import openfl.Vector;
-#end
 import openfl.geom.Point;
 import openfl.system.Capabilities;
 import openfl.utils.Assets;
