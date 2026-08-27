@@ -1,4 +1,5 @@
 package massive.display.base;
+import haxe.Constraints.Function;
 import massive.data.Frame;
 import massive.data.VertexColorData;
 import massive.data.VertexPositionData;
@@ -11,6 +12,8 @@ import openfl.utils.ByteArray;
 #if !flash
 import openfl.utils._internal.Float32Array;
 #end
+import starling.events.Event;
+import starling.events.EventDispatcher;
 
 /**
  * ...
@@ -29,17 +32,43 @@ abstract class ContainerBase extends DisplayBase
 	   How many quads this container should write data for when requested.
 	**/
 	public var numDatas:Int = 0;
-	/**
-	   Tells whether this container should animate textures or not.
-	   If you are displaying non-animated images, consider setting this to false for better performance
-	   @default true
-	**/
-	public var textureAnimation:Bool = true;
+	
+	private var _eventDispatcher:EventDispatcher = new EventDispatcher();
 	
 	public function new()
 	{
 		super();
 		this.isContainer = true;
+	}
+	
+	inline public function addEventListener(type:String, listener:Function):Void
+	{
+		this._eventDispatcher.addEventListener(type, listener);
+	}
+	
+	inline public function removeEventListener(type:String, listener:Function):Void
+	{
+		this._eventDispatcher.removeEventListener(type, listener);
+	}
+	
+	inline public function removeEventListeners(type:String = null):Void
+	{
+		this._eventDispatcher.removeEventListeners(type);
+	}
+	
+	inline public function dispatchEvent(event:Event):Void
+	{
+		this._eventDispatcher.dispatchEvent(event);
+	}
+	
+	inline public function dispatchEventWith(type:String, bubbles:Bool = false, data:Dynamic = null):Void
+	{
+		this._eventDispatcher.dispatchEventWith(type, bubbles, data);
+	}
+	
+	inline public function hasEventListener(type:String, listener:Dynamic = null):Bool
+	{
+		return this._eventDispatcher.hasEventListener(type, listener);
 	}
 	
 	inline private function prepareDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
@@ -1619,9 +1648,9 @@ abstract class ContainerBase extends DisplayBase
 					{
 						if (this.__pma)
 						{
-							if (this.__image.invertX)
+							if (this.__image.invertX && this.__vertexColor.canInvertX)
 							{
-								if (this.__image.invertY)
+								if (this.__image.invertY && this.__vertexColor.canInvertY)
 								{
 									this.__alpha = this.__vertexColor.alpha4;
 									this.__red = this.__vertexColor.red4;
@@ -1682,7 +1711,7 @@ abstract class ContainerBase extends DisplayBase
 									this.__image._color4Final = getColorPMA();
 								}
 							}
-							else if (this.__image.invertY)
+							else if (this.__image.invertY && this.__vertexColor.canInvertY)
 							{
 								this.__alpha = this.__vertexColor.alpha3;
 								this.__red = this.__vertexColor.red3;
@@ -1745,9 +1774,9 @@ abstract class ContainerBase extends DisplayBase
 						}
 						else // no pma
 						{
-							if (this.__image.invertX)
+							if (this.__image.invertX && this.__vertexColor.canInvertX)
 							{
-								if (this.__image.invertY)
+								if (this.__image.invertY && this.__vertexColor.canInvertY)
 								{
 									this.__alpha = this.__vertexColor.alpha4;
 									this.__red = this.__vertexColor.red4;
@@ -1808,7 +1837,7 @@ abstract class ContainerBase extends DisplayBase
 									this.__image._color4Final = getColor();
 								}
 							}
-							else if (this.__image.invertY)
+							else if (this.__image.invertY && this.__vertexColor.canInvertY)
 							{
 								this.__alpha = this.__vertexColor.alpha3;
 								this.__red = this.__vertexColor.red3;
@@ -1874,9 +1903,9 @@ abstract class ContainerBase extends DisplayBase
 					{
 						if (this.__pma)
 						{
-							if (this.__image.invertX)
+							if (this.__image.invertX && this.__vertexColor.canInvertX)
 							{
-								if (this.__image.invertY)
+								if (this.__image.invertY && this.__vertexColor.canInvertY)
 								{
 									this.__alpha = this.__vertexColor.alpha4;
 									this.__image._red1Final = this.__vertexColor.red4 * this.__alpha;
@@ -1929,7 +1958,7 @@ abstract class ContainerBase extends DisplayBase
 									this.__image._alpha4Final = this.__alpha;
 								}
 							}
-							else if (this.__image.invertY)
+							else if (this.__image.invertY && this.__vertexColor.canInvertY)
 							{
 								this.__alpha = this.__vertexColor.alpha3;
 								this.__image._red1Final = this.__vertexColor.red3 * this.__alpha;
@@ -1984,9 +2013,9 @@ abstract class ContainerBase extends DisplayBase
 						}
 						else // no pma
 						{
-							if (this.__image.invertX)
+							if (this.__image.invertX && this.__vertexColor.canInvertX)
 							{
-								if (this.__image.invertY)
+								if (this.__image.invertY && this.__vertexColor.canInvertY)
 								{
 									this.__image._red1Final = this.__vertexColor.red4;
 									this.__image._green1Final = this.__vertexColor.green4;
@@ -2031,7 +2060,7 @@ abstract class ContainerBase extends DisplayBase
 									this.__image._alpha4Final = this.__vertexColor.alpha3;
 								}
 							}
-							else if (this.__image.invertY)
+							else if (this.__image.invertY && this.__vertexColor.canInvertY)
 							{
 								this.__image._red1Final = this.__vertexColor.red3;
 								this.__image._green1Final = this.__vertexColor.green3;
