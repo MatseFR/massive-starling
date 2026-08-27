@@ -1,6 +1,7 @@
 package massive.data;
 import openfl.Vector;
 import openfl.errors.ArgumentError;
+import starling.textures.ConcreteTexture;
 import starling.textures.SubTexture;
 import starling.textures.Texture;
 import starling.utils.Align;
@@ -14,11 +15,11 @@ class Frame
 {
 	static private var _POOL:Array<Frame> = new Array<Frame>();
 	
-	static public function fromPool(nativeTextureWidth:Float, nativeTextureHeight:Float, x:Float, y:Float,
+	static public function fromPool(rootTexture:ConcreteTexture, x:Float, y:Float,
 									width:Float, height:Float, rotated:Bool):Frame
 	{
-		if (_POOL.length != 0) return _POOL.pop().setFromPool(nativeTextureWidth, nativeTextureHeight, x, y, width, height, rotated);
-		return new Frame(nativeTextureWidth, nativeTextureHeight, x, y, width, height, rotated);
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(rootTexture, x, y, width, height, rotated);
+		return new Frame(rootTexture, x, y, width, height, rotated);
 	}
 	
 	/**
@@ -33,12 +34,12 @@ class Frame
 		if (Std.isOfType(texture, SubTexture))
 		{
 			var subTexture:SubTexture = cast texture;
-			frame = fromPool(texture.root.nativeWidth, texture.root.nativeHeight, subTexture.region.x,
-				subTexture.region.y, subTexture.region.width, subTexture.region.height, subTexture.rotated);
+			frame = fromPool(texture.root, subTexture.region.x, subTexture.region.y,
+							 subTexture.region.width, subTexture.region.height, subTexture.rotated);
 		}
 		else
 		{
-			frame = fromPool(texture.width, texture.height, 0, 0, texture.width, texture.height, false);
+			frame = fromPool(texture.root, 0, 0, texture.width, texture.height, false);
 		}
 		
 		return frame;
@@ -239,6 +240,10 @@ class Frame
 	**/
 	public var rotated:Bool;
 	/**
+	   
+	**/
+	public var rootTexture:ConcreteTexture;
+	/**
 	   Width of the texture in pixels
 	**/
 	public var width:Float;
@@ -275,21 +280,20 @@ class Frame
 	
 	/**
 	 * Constructor
-	 * @param	nativeTextureWidth
-	 * @param	nativeTextureHeight
+	 * @param	rootTexture
 	 * @param	x
 	 * @param	y
 	 * @param	width
 	 * @param	height
 	 * @param	rotated
 	 */
-	public function new(nativeTextureWidth:Float, nativeTextureHeight:Float, x:Float, y:Float,
+	public function new(rootTexture:ConcreteTexture, x:Float, y:Float,
 						width:Float, height:Float, rotated:Bool) 
 	{
-		this.u1 = x / nativeTextureWidth;
-		this.v1 = y / nativeTextureHeight;
-		this.u2 = (x + width) / nativeTextureWidth;
-		this.v2 = (y + height) / nativeTextureHeight;
+		this.u1 = x / rootTexture.nativeWidth;
+		this.v1 = y / rootTexture.nativeHeight;
+		this.u2 = (x + width) / rootTexture.nativeWidth;
+		this.v2 = (y + height) / rootTexture.nativeHeight;
 		
 		this.width = width;
 		this.height = height;
@@ -350,13 +354,13 @@ class Frame
 		this.bottomHeight = this.height - this.pivotY;
 	}
 	
-	private function setFromPool(nativeTextureWidth:Float, nativeTextureHeight:Float, x:Float, y:Float,
+	private function setFromPool(rootTexture:ConcreteTexture, x:Float, y:Float,
 								 width:Float, height:Float, rotated:Bool):Frame
 	{
-		this.u1 = x / nativeTextureWidth;
-		this.v1 = y / nativeTextureHeight;
-		this.u2 = (x + width) / nativeTextureWidth;
-		this.v2 = (y + height) / nativeTextureHeight;
+		this.u1 = x / rootTexture.nativeWidth;
+		this.v1 = y / rootTexture.nativeHeight;
+		this.u2 = (x + width) / rootTexture.nativeWidth;
+		this.v2 = (y + height) / rootTexture.nativeHeight;
 		
 		this.width = width;
 		this.height = height;
