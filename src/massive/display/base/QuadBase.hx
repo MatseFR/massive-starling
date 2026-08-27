@@ -56,18 +56,6 @@ abstract class QuadBase extends DisplayBase
 	**/
 	public var skewY(get, set):Float;
 	/**
-	   
-	**/
-	public var vertexColor(get, set):VertexColorData;
-	/**
-	   
-	**/
-	public var vertexColorOffset(get, set):VertexColorData;
-	/**
-	   
-	**/
-	public var vertexPosition(get, set):VertexPositionData;
-	/**
 	   Int color for all vertices
 	   @default 0xffffff
 	**/
@@ -116,6 +104,18 @@ abstract class QuadBase extends DisplayBase
 	   @default	0
 	**/
 	public var alphaOffset(get, set):Float;
+	/**
+	   
+	**/
+	public var vertexColor(get, set):VertexColorData;
+	/**
+	   
+	**/
+	public var vertexColorOffset(get, set):VertexColorData;
+	/**
+	   
+	**/
+	public var vertexPosition(get, set):VertexPositionData;
 	
 	private var _rotation:Float = 0.0;
 	inline private function get_rotation():Float { return this._rotation; }
@@ -160,40 +160,6 @@ abstract class QuadBase extends DisplayBase
 		if (this._skewY == value) return value;
 		this._transformChanged = this._skewYChanged = true;
 		return this._skewY = value;
-	}
-	
-	private var _vertexColor:VertexColorData;
-	inline private function get_vertexColor():VertexColorData { return this._vertexColor; }
-	inline private function set_vertexColor(value:VertexColorData):VertexColorData
-	{
-		if (this._vertexColor == value) return value;
-		this.hasVertexColor = value != null;
-		this._colorChanged = true;
-		return this._vertexColor = value;
-	}
-	
-	private var _vertexColorOffset:VertexColorData;
-	inline private function get_vertexColorOffset():VertexColorData { return this._vertexColorOffset; }
-	inline private function set_vertexColorOffset(value:VertexColorData):VertexColorData
-	{
-		if (this._vertexColorOffset == value) return value;
-		this.hasVertexColorOffset = value != null;
-		this._colorOffsetChanged = true;
-		return this._vertexColorOffset = value;
-	}
-	
-	private var _vertexPosition:VertexPositionData;
-	inline private function get_vertexPosition():VertexPositionData { return this._vertexPosition; }
-	inline private function set_vertexPosition(value:VertexPositionData):VertexPositionData
-	{
-		if (this._vertexPosition == value) return value;
-		this.hasVertexPosition = value != null;
-		this._transformChanged = true;
-		if (!this.hasVertexPosition)
-		{
-			this._sizeXChanged = this._sizeYChanged = true;
-		}
-		return this._vertexPosition = value;
 	}
 	
 	private function get_color():Int
@@ -288,6 +254,40 @@ abstract class QuadBase extends DisplayBase
 	{
 		this._colorOffsetChanged = true;
 		return this._alphaOffset = value;
+	}
+	
+	private var _vertexColor:VertexColorData;
+	inline private function get_vertexColor():VertexColorData { return this._vertexColor; }
+	inline private function set_vertexColor(value:VertexColorData):VertexColorData
+	{
+		if (this._vertexColor == value) return value;
+		this.hasVertexColor = value != null;
+		this._colorChanged = true;
+		return this._vertexColor = value;
+	}
+	
+	private var _vertexColorOffset:VertexColorData;
+	inline private function get_vertexColorOffset():VertexColorData { return this._vertexColorOffset; }
+	inline private function set_vertexColorOffset(value:VertexColorData):VertexColorData
+	{
+		if (this._vertexColorOffset == value) return value;
+		this.hasVertexColorOffset = value != null;
+		this._colorOffsetChanged = true;
+		return this._vertexColorOffset = value;
+	}
+	
+	private var _vertexPosition:VertexPositionData;
+	inline private function get_vertexPosition():VertexPositionData { return this._vertexPosition; }
+	inline private function set_vertexPosition(value:VertexPositionData):VertexPositionData
+	{
+		if (this._vertexPosition == value) return value;
+		this.hasVertexPosition = value != null;
+		this._transformChanged = true;
+		if (!this.hasVertexPosition)
+		{
+			this._sizeXChanged = this._sizeYChanged = true;
+		}
+		return this._vertexPosition = value;
 	}
 	
 	private var _cosRotation:Float = 1.0;
