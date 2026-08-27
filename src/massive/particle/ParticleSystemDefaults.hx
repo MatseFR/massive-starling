@@ -11,7 +11,7 @@ class ParticleSystemDefaults
 	
 	static public function create(?options:ParticleSystemOptions):ParticleSystem
 	{
-		var ps:ParticleSystem = new ParticleSystem(options);
+		var ps:ParticleSystem = ParticleSystem.fromPool(options);
 		#if flash
 		ps.particlesFromPoolFunction = Particle.fromPoolVector;
 		ps.particlesToPoolFunction = Particle.toPoolVector;
