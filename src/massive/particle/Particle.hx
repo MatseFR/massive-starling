@@ -1,5 +1,4 @@
 package massive.particle;
-
 import massive.display.Clip;
 #if flash
 import openfl.Vector;
@@ -82,6 +81,8 @@ class Particle extends Clip
 		}
 	}
 	#end
+	
+	public var particleAnimation:ParticleAnimation;
 	
 	public var timeCurrent:Float;
 	public var timeTotal:Float;
@@ -265,6 +266,13 @@ class Particle extends Clip
 	public function new() 
 	{
 		super();
+	}
+	
+	override public function clear():Void 
+	{
+		this.particleAnimation = null;
+		
+		super.clear();
 	}
 	
 	override public function pool():Void 
