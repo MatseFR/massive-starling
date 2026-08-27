@@ -1,6 +1,5 @@
 package massive.display;
 import massive.display.base.ContainerBase;
-import massive.util.MathUtils;
 import openfl.Vector;
 import massive.display.render.RenderData;
 import openfl.utils.ByteArray;
@@ -128,6 +127,9 @@ class ImgContainer extends ContainerBase
 		#end
 	}
 	
+	/**
+	   @inheritDoc
+	**/
 	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
 		if (this._datas == null) return;
@@ -261,7 +263,7 @@ class ImgContainer extends ContainerBase
 		for (i in 0...this.numDatas)
 		{
 			this.__image = this._datas[i];
-			if (!this.__data.visible) continue;
+			if (!this.__image.visible) continue;
 			
 			writeImageBounds();
 		}
