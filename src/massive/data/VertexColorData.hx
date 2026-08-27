@@ -8,11 +8,14 @@ class VertexColorData
 {
 	static private var _POOL:Array<VertexColorData> = new Array<VertexColorData>();
 	
-	static public function fromPool(red:Float = 1.0, green:Float = 1.0, blue:Float = 1.0, alpha:Float = 1.0):VertexColorData
+	static public function fromPool(red:Float = 1.0, green:Float = 1.0, blue:Float = 1.0, alpha:Float = 1.0, canInvertX:Bool = true, canInvertY:Bool = true):VertexColorData
 	{
-		if (_POOL.length != 0) return _POOL.pop().setFromPool(red, green, blue, alpha);
-		return new VertexColorData(red, green, blue, alpha);
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(red, green, blue, alpha, canInvertX, canInvertY);
+		return new VertexColorData(red, green, blue, alpha, canInvertX, canInvertY);
 	}
+	
+	public var canInvertX:Bool;
+	public var canInvertY:Bool;
 	
 	/**
 	   When this is set to true, all objects it is assigned to will recalculate their color or color offset values every frame
@@ -150,21 +153,21 @@ class VertexColorData
 		return this.alpha1 = this.alpha2 = this.alpha3 = this.alpha4 = value;
 	}
 	
-	public function new(red:Float = 1.0, green:Float = 1.0, blue:Float = 1.0, alpha:Float = 1.0) 
+	public function new(red:Float = 1.0, green:Float = 1.0, blue:Float = 1.0, alpha:Float = 1.0, canInvertX:Bool = true, canInvertY:Bool = true) 
 	{
 		this.red = red;
 		this.green = green;
 		this.blue = blue;
 		this.alpha = alpha;
+		this.canInvertX = canInvertX;
+		this.canInvertY = canInvertY;
 	}
 	
 	public function clear():Void
 	{
 		this.isChanging = false;
-		this.red = 1.0;
-		this.green = 1.0;
-		this.blue = 1.0;
-		this.alpha = 1.0;
+		this.red = this.green = this.blue = this.alpha = 1.0;
+		this.canInvertX  = this.canInvertY = true;
 	}
 	
 	public function pool():Void
@@ -175,12 +178,14 @@ class VertexColorData
 		this.isInPool = true;
 	}
 	
-	private function setFromPool(red:Float, green:Float, blue:Float, alpha:Float):VertexColorData
+	private function setFromPool(red:Float, green:Float, blue:Float, alpha:Float, canInvertX:Bool, canInvertY:Bool):VertexColorData
 	{
 		this.red = red;
 		this.green = green;
 		this.blue = blue;
 		this.alpha = alpha;
+		this.canInvertX = canInvertX;
+		this.canInvertY = canInvertY;
 		this.isInPool = false;
 		return this;
 	}
@@ -188,6 +193,9 @@ class VertexColorData
 	public function clone(toVertexColor:VertexColorData = null):VertexColorData
 	{
 		if (toVertexColor == null) toVertexColor = VertexColorData.fromPool();
+		
+		toVertexColor.canInvertX = this.canInvertX;
+		toVertexColor.canInvertY = this.canInvertY;
 		
 		toVertexColor.red1 = this.red1;
 		toVertexColor.red2 = this.red2;
