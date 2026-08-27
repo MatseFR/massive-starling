@@ -16,6 +16,7 @@ import massive.display.render.RenderMode;
 import massive.particle.ParticleSystem;
 import massive.particle.ParticleSystemDefaults;
 import massive.particle.ParticleSystemOptions;
+import massive.util.AnimUtils;
 import openfl.Assets;
 import openfl.Vector;
 import openfl.ui.Keyboard;
@@ -60,6 +61,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 	private var _massiveCollection:ExposedCollection;
 	private var _ps:ParticleSystem;
 	private var _psCollection:ExposedCollection;
+	private var _animator:Animator;
 	
 	// file menu
 	private var _fileMenuCollection:ArrayCollection<MenuItem>;
@@ -216,7 +218,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		
 		atlas = this._assetManager.getTextureAtlas("animated_fx");
 		textures = atlas.getTextures("0_");
-		animation = Animator.createAnimation(Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER), 12);
+		animation = AnimUtils.createAnimation(Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER), 12);
 		registerTextureAnimation("animated_fx", atlas.texture, animation);
 		
 		texture = this._assetManager.getTexture("blob");
@@ -454,15 +456,26 @@ class ParticleEditor extends ValEditorSimpleStarling
 		ValEditor.edit(this._massive, this._massiveCollection, this.editView.getEditContainer("MassiveDisplay"));
 		//\MassiveDisplay collection
 		
-		// create particle system
-		this._ps = ParticleSystemDefaults.create();
-		// add to massive display
-		this._massive.addLayer(this._ps);
+		// create animator
+		this._animator = new Animator();
+		// add animator to juggler
+		Starling.currentJuggler.add(this._animator);
 		
+		createParticleSystem();
 		// edit particle system and get collection
 		this._psCollection = ValEditor.edit(this._ps, null, this.editView.getEditContainer("ParticleSystem"));
 		
 		applyPreset("love cloud");
+	}
+	
+	private function createParticleSystem(?options:ParticleSystemOptions):Void
+	{
+		// create particle system
+		this._ps = ParticleSystemDefaults.create(options);
+		// add to massive display
+		this._massive.addLayer(this._ps);
+		// set particle system's animator
+		this._ps.animator = this._animator;
 	}
 	
 	private function registerPreset(id:String, config:ParticleConfig):Void
@@ -475,12 +488,13 @@ class ParticleEditor extends ValEditorSimpleStarling
 	private function applyPreset(id:String):Void
 	{
 		this._ps.stop(true);
+		this._ps.clearFrames();
 		
 		var config:ParticleConfig = this._presetConfigs.get(id);
 		this._massive.blendMode = config.blendMode;
 		this._massive.colorOffsetMode = config.colorOffsetMode;
 		this._massive.setTextures(config.textures);
-		this._ps.clearFrames();
+		
 		if (config.hasAnimation) this._ps.addParticleAnimations(config.animations);
 		if (config.hasFrame) this._ps.addParticleFrames(config.frames);
 		this._ps.readSystemOptions(config.options);
@@ -488,6 +502,7 @@ class ParticleEditor extends ValEditorSimpleStarling
 		if (this._autoCenter) centerParticles();
 		this._massiveCollection.read();
 		this._psCollection.read();
+		
 		this._ps.start();
 		
 		ValEditor.actionStack.clearActions();
