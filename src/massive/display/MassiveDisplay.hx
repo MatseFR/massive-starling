@@ -769,6 +769,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _float32Data:Float32Array;
 	#end
 	
+	private var _textureIndexMap:Map<Texture, Int> = new Map<Texture, Int>();
+	
 	private var _isUserProgram:Bool;
 	
 	private var _positionVertexOffset:Int = -1;
@@ -927,13 +929,12 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	override public function dispose():Void 
 	{
 		disposeBuffers();
-		//if (!this._isUserProgram && this._isMultiTexturingProgram && this._program != null)
-		//{
-			//this._program.dispose();
-		//}
+		
 		this._program = null;
 		removeAllLayers(true, false);
 		this._textures = null;
+		this._textureIndexMap.clear();
+		this._textureIndexMap = null;
 		
 		super.dispose();
 	}
@@ -941,13 +942,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function clear(disposeLayers:Bool = true, poolDatas:Bool = true):Void
 	{
 		disposeBuffers();
-		//if (!this._isUserProgram && this._isMultiTexturingProgram && this._program != null)
-		//{
-			//this._program.dispose();
-		//}
+		
 		this._program = null;
 		removeAllLayers(disposeLayers, poolDatas);
 		this._textures.resize(0);
+		this._textureIndexMap.clear();
 		
 		this._autoHandleJuggler = true;
 		this._autoUpdateBounds = false;
@@ -1059,6 +1058,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		return this._textures[index];
 	}
 	
+	public function getTextureIndex(texture:Texture):Int
+	{
+		return this._textureIndexMap.get(texture);
+	}
+	
 	private function getTextureKey(texture:Texture):Int
 	{
 		var key:Int = texture.premultipliedAlpha ? 1 : 0;
@@ -1076,6 +1080,15 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			//key |= 0 << 2;
 		//}
 		return key;
+	}
+	
+	private function rebuildTextureMap():Void
+	{
+		this._textureIndexMap.clear();
+		for (i in 0...this._numTextures)
+		{
+			this._textureIndexMap.set(this._textures[i], i);
+		}
 	}
 	
 	public function removeTexture(texture:Texture, update:Bool = true):Void
@@ -1953,6 +1966,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._multiTexturing = this._numTextures > 1;
 		this._renderData.multiTexturing = this._multiTexturing;
 		this._textureProgramKey = this._textureKeys.join("");
+		
+		rebuildTextureMap();
 		
 		this.pma = this._numTextures == 0 ? true : this._textures[0].premultipliedAlpha;
 		this._renderData.pma = this.pma;
