@@ -4,6 +4,7 @@ import massive.display.Clip;
 import massive.display.EventClip;
 import massive.event.MassiveEventType;
 import massive.particle.Particle;
+import massive.particle.ParticleSystem;
 import starling.animation.IAnimatable;
 #if flash
 import openfl.Vector;
@@ -28,7 +29,10 @@ class Animator implements IAnimatable
 	private var _clips:Vector<Clip>;
 	private var _eventClipLists:Vector<Vector<EventClip>>;
 	private var _eventClips:Vector<EventClip>;
+	private var _basicParticleLists:Vector<Vector<Particle>>;
 	private var _particleLists:Vector<Vector<Particle>>;
+	private var _particleSystemList:Vector<Vector<ParticleSystem>>;
+	private var _particleSystems:Vector<ParticleSystem>;
 	#else
 	private var _basicClipLists:Array<Array<Clip>>;
 	private var _basicClips:Array<Clip>;
@@ -36,7 +40,10 @@ class Animator implements IAnimatable
 	private var _clips:Array<Clip>;
 	private var _eventClipLists:Array<Array<EventClip>>;
 	private var _eventClips:Array<EventClip>;
+	private var _basicParticleLists:Array<Array<Particle>>;
 	private var _particleLists:Array<Array<Particle>>;
+	private var _particleSystemList:Array<Array<ParticleSystem>>;
+	private var _particleSystems:Array<ParticleSystem>;
 	#end
 	
 	public function new()
@@ -48,7 +55,10 @@ class Animator implements IAnimatable
 		this._clips = new Vector<Clip>();
 		this._eventClipLists = new Vector<Vector<EventClip>>();
 		this._eventClips = new Vector<EventClip>();
+		this._basicParticleLists = new Vector<Vector<Particle>>();
 		this._particleLists = new Vector<Vector<Particle>>();
+		this._particleSystemList = new Vector<Vector<ParticleSystem>>();
+		this._particleSystems = new Vector<ParticleSystem>();
 		#else
 		this._basicClipLists = new Array<Array<Clip>>();
 		this._basicClips = new Array<Clip>();
@@ -56,7 +66,10 @@ class Animator implements IAnimatable
 		this._clips = new Array<Clip>();
 		this._eventClipLists = new Array<Array<EventClip>>();
 		this._eventClips = new Array<EventClip>();
+		this._basicParticleLists = new  Array<Array<Particle>>();
 		this._particleLists = new Array<Array<Particle>>();
+		this._particleSystemList = new Array<Array<ParticleSystem>>();
+		this._particleSystems = new Array<ParticleSystem>();
 		#end
 	}
 	
@@ -69,7 +82,10 @@ class Animator implements IAnimatable
 		this._clips.length = 0;
 		this._eventClipLists.length = 0;
 		this._eventClips.length = 0;
+		this._basicParticleLists.length = 0;
 		this._particleLists.length = 0;
+		this._particleSystemList.length = 0;
+		this._particleSystems.length = 0;
 		#else
 		this._basicClipLists.resize(0);
 		this._basicClips.resize(0);
@@ -77,7 +93,10 @@ class Animator implements IAnimatable
 		this._clips.resize(0);
 		this._eventClipLists.resize(0);
 		this._eventClips.resize(0);
+		this._basicParticleLists.resize(0);
 		this._particleLists.resize(0);
+		this._particleSystemList.resize(0);
+		this._particleSystems.resize(0);
 		#end
 	}
 	
@@ -249,6 +268,38 @@ class Animator implements IAnimatable
 	}
 	//\Event clips
 	
+	// Particles
+	#if flash
+	public function addBasicParticleList(particles:Vector<Particle>):Void
+	#else
+	public function addBasicParticleList(particles:Array<Particle>):Void
+	#end
+	{
+		this._basicParticleLists[this._basicParticleLists.length] = particles;
+	}
+	
+	#if flash
+	public function hasBasicParticleList(particles:Vector<Particle>):Bool
+	#else
+	public function hasBasicParticleList(particles:Array<Particle>):Bool
+	#end
+	{
+		return this._basicParticleLists.indexOf(particles) != -1;
+	}
+	
+	#if flash
+	public function removeBasicParticleList(particles:Vector<Particle>):Void
+	#else
+	public function removeBasicParticleList(particles:Array<Particle>):Void
+	#end
+	{
+		#if flash
+		this._basicParticleLists.removeAt(this._basicParticleLists.indexOf(particles));
+		#else
+		this._basicParticleLists.splice(this._basicParticleLists.indexOf(particles), 1);
+		#end
+	}
+	
 	#if flash
 	public function addParticleList(particles:Vector<Particle>):Void
 	#else
@@ -279,6 +330,57 @@ class Animator implements IAnimatable
 		this._particleLists.splice(this._particleLists.indexOf(particles), 1);
 		#end
 	}
+	//\Particles
+	
+	public function addParticleSystem(system:ParticleSystem):Void
+	{
+		this._particleSystems[this._particleSystems.length] = system;
+	}
+	
+	public function hasParticleSystem(system:ParticleSystem):Bool
+	{
+		return this._particleSystems.indexOf(system) != -1;
+	}
+	
+	public function removeParticleSystem(system:ParticleSystem):Void
+	{
+		#if flash
+		this._particleSystems.removeAt(this._particleSystems.indexOf(system));
+		#else
+		this._particleSystems.splice(this._particleSystems.indexOf(system), 1);
+		#end
+	}
+	
+	#if flash
+	public function addParticleSystemList(systems:Vector<ParticleSystem>):Void
+	#else
+	public function addParticleSystemList(systems:Array<ParticleSystem>):Void
+	#end
+	{
+		this._particleSystemList[this._particleSystemList.length] = systems;
+	}
+	
+	#if flash
+	public function hasParticleSystemList(systems:Vector<ParticleSystem>):Bool
+	#else
+	public function hasParticleSystemList(systems:Array<ParticleSystem>):Bool
+	#end
+	{
+		return this._particleSystemList.indexOf(systems) != -1;
+	}
+	
+	#if flash
+	public function removeParticleSystemList(systems:Vector<ParticleSystem>):Void
+	#else
+	public function removeParticleSystemList(systems:Array<ParticleSystem>):Void
+	#end
+	{
+		#if flash
+		this._particleSystemList.removeAt(this._particleSystemList.indexOf(systems));
+		#else
+		this._particleSystemList.splice(this._particleSystemList.indexOf(systems), 1);
+		#end
+	}
 	
 	public function advanceTime(time:Float):Void
 	{
@@ -307,11 +409,37 @@ class Animator implements IAnimatable
 			animateEventClips(this._eventClipLists[i], time);
 		}
 		
-		//count = this._particleLists.length;
-		//for (i in 0...count)
-		//{
-			//
-		//}
+		if (this._particleSystems.length != 0) advanceParticleSystems(this._particleSystems, time);
+		count = this._particleSystemList.length;
+		for (i in 0...count)
+		{
+			advanceParticleSystems(this._particleSystemList[i], time);
+		}
+		
+		count = this._basicParticleLists.length;
+		for (i in 0...count)
+		{
+			animateBasicParticles(this._basicParticleLists[i], time);
+		}
+		
+		count = this._particleLists.length;
+		for (i in 0...count)
+		{
+			animateParticles(this._particleLists[i], time);
+		}
+	}
+	
+	#if flash
+	inline private function advanceParticleSystems(systems:Vector<ParticleSystem>, time:Float):Void
+	#else
+	inline private function advanceParticleSystems(systems:Array<ParticleSystem>, time:Float):Void
+	#end
+	{
+		var count:Int = systems.length;
+		for (i in 0...count)
+		{
+			systems[i].advanceTime(time);
+		}
 	}
 	
 	@:access(massive.display.Clip)
@@ -487,35 +615,99 @@ class Animator implements IAnimatable
 		}
 	}
 	
-	//@:access(massive.display.Particle)
-	//#if flash
-	//public function animateParticles(clips:Vector<P>, time:Float):Void
-	//#else
-	//public function animateParticles(clips:Array<P>, time:Float):Void
-	//#end
-	//{
-		//var clip:P;
-		//var count:Int = clips.length;
-		//for (i in 0...count)
-		//{
-			//clip = clips[i];
-			//if (!clip.animate) continue;
-			//
-			//clip.frameTime += time * clip.frameDelta;
-			//if (clip.frameTime >= clip.frameTimingCurrent)
-			//{
-				//if (clip._frameIndex < clip.lastFrameIndex)
-				//{
-					//++clip.frameIndex;
-				//}
-				//else if (clip.loop && (clip.numLoops == 0 || clip.loopCount < clip.numLoops))
-				//{
-					//clip.frameIndex = clip.animation.loopFrame;
-					//clip.frameTime -= clip.animation.loopDuration;
-					//++clip.loopCount;
-				//}
-			//}
-		//}
-	//}
+	@:access(massive.particle.Particle)
+	#if flash
+	inline private function animateBasicParticles(particles:Vector<Particle>, time:Float):Void
+	#else
+	inline private function animateBasicParticles(particles:Array<Particle>, time:Float):Void
+	#end
+	{
+		var particle:Particle;
+		var count:Int = particles.length;
+		for (i in 0...count)
+		{
+			particle = particles[i];
+			if (!particle.animate) continue;
+			
+			particle.frameTime += time * particle.frameDelta;
+			if (particle.frameTime >= particle.frameTimingCurrent)
+			{
+				if (particle._frameIndex < particle.lastFrameIndex)
+				{
+					++particle.frameIndexBasic;
+				}
+				else if (particle.loop && (particle.numLoops == 0 || particle.loopCount < particle.numLoops))
+				{
+					particle.frameIndex = particle.animation.loopFrame;
+					particle.frameTime -= particle.animation.loopDuration;
+					++particle.loopCount;
+				}
+				else
+				{
+					particle.animationComplete = true;
+					if (particle.animation.nextAnimationID != null)
+					{
+						particle.playWithID(particle.animation.nextAnimationID);
+					}
+					else if (particle._animationQueue.length != 0)
+					{
+						particle.playNextFromQueue();
+					}
+				}
+			}
+		}
+	}
+	
+	@:access(massive.particle.Particle)
+	#if flash
+	inline private function animateParticles(particles:Vector<Particle>, time:Float):Void
+	#else
+	inline private function animateParticles(particles:Array<Particle>, time:Float):Void
+	#end
+	{
+		var particle:Particle;
+		var frameIndex:Int;
+		var count:Int = particles.length;
+		for (i in 0...count)
+		{
+			particle = particles[i];
+			if (!particle.animate) continue;
+			
+			particle.frameTime += time * particle.frameDelta;
+			if (particle.frameTime >= particle.frameTimingCurrent)
+			{
+				frameIndex = particle._frameIndex;
+				while (true)
+				{
+					if (frameIndex < particle.lastFrameIndex)
+					{
+						++frameIndex;
+						particle.frameTimingCurrent = particle._timings[frameIndex];
+					}
+					else if (particle.loop && (particle.numLoops == 0 || particle.loopCount < particle.numLoops))
+					{
+						frameIndex = particle.animation.loopFrame;
+						++particle.loopCount;
+						particle.frameTime -= particle.animation.loopDuration;
+						particle.frameTimingCurrent = particle._timings[frameIndex];
+					}
+					else
+					{
+						particle.animationComplete = true;
+						if (particle.animation.nextAnimationID != null)
+						{
+							particle.playWithID(particle.animation.nextAnimationID);
+						}
+						else if (particle._animationQueue.length != 0)
+						{
+							particle.playNextFromQueue();
+						}
+					}
+					if (particle.frameTime < particle.frameTimingCurrent) break;
+				}
+				particle.frameIndex = frameIndex;
+			}
+		}
+	}
 	
 }
