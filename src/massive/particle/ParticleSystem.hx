@@ -2,10 +2,9 @@ package massive.particle;
 
 import massive.animation.Animation;
 import massive.animation.Animator;
-import massive.display.base.DisplayBase;
-import massive.display.MixedContainer;
 import massive.data.Frame;
-//import massive.display.ImageLayer;
+import massive.display.base.ContainerBase;
+import massive.display.render.RenderData;
 import massive.util.MassiveTint;
 import massive.util.MathUtils;
 #if flash
@@ -13,6 +12,10 @@ import openfl.Vector;
 #end
 import openfl.errors.Error;
 import openfl.geom.Rectangle;
+import openfl.utils.ByteArray;
+#if !flash
+import openfl.utils._internal.Float32Array;
+#end
 import starling.events.Event;
 
 /**
@@ -20,8 +23,16 @@ import starling.events.Event;
  * @author Matse
  */
 //@:generic
-class ParticleSystem extends MixedContainer
+class ParticleSystem extends ContainerBase
 {
+	static private var _POOL:Array<ParticleSystem> = new Array<ParticleSystem>();
+	
+	static public function fromPool(options:ParticleSystemOptions = null):ParticleSystem
+	{
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(options);
+		return new ParticleSystem(options);
+	}
+	
 	public var autoClearOnComplete:Bool = ParticleSystemDefaults.AUTO_CLEAR_ON_COMPLETE;
 	public var randomSeed:Int = ParticleSystemDefaults.RANDOM_SEED;
 	
@@ -1018,6 +1029,78 @@ class ParticleSystem extends MixedContainer
 	// ANIMATION
 	//##################################################
 	/**
+	   Tells whether the system should animate or not
+	**/
+	public var animate:Bool = true;
+	
+	/**
+	   If set with an Animator instance, the system will automatically register itself and its particles
+	**/
+	public var animator(get, set):Animator;
+	private var _animator:Animator;
+	private function get_animator():Animator { return this._animator; }
+	private function set_animator(value:Animator):Animator
+	{
+		if (this._animator == value) return value;
+		if (this._animator != null)
+		{
+			this._animator.removeParticleSystem(this);
+			if (this._basicAnimation)
+			{
+				this._animator.removeBasicParticleList(this._particles);
+			}
+			else
+			{
+				this._animator.removeParticleList(this._particles);
+			}
+		}
+		this._animator = value;
+		if (this._animator != null)
+		{
+			this._animator.addParticleSystem(this);
+			if (this._basicAnimation)
+			{
+				this._animator.addBasicParticleList(this._particles);
+			}
+			else
+			{
+				this._animator.addParticleList(this._particles);
+			}
+		}
+		return this._animator;
+	}
+	
+	/**
+	   Tells whether the system's particles should use basic animation
+	   Please note that this is only useful if you also set the `animator` property :
+	   if you manually add the system and its particles to an Animator then 
+	   it's up to you to add the particles as basic or not.
+	   @default	true
+	**/
+	public var basicAnimation(get, set):Bool;
+	private var _basicAnimation:Bool = true;
+	private function get_basicAnimation():Bool { return this._basicAnimation; }
+	private function set_basicAnimation(value:Bool):Bool
+	{
+		if (this._basicAnimation == value) return value;
+		this._basicAnimation = value;
+		if (this._animator != null)
+		{
+			if (this._basicAnimation)
+			{
+				this._animator.removeParticleList(this._particles);
+				this._animator.addBasicParticleList(this._particles);
+			}
+			else
+			{
+				this._animator.removeBasicParticleList(this._particles);
+				this._animator.addParticleList(this._particles);
+			}
+		}
+		return this._basicAnimation;
+	}
+	
+	/**
 	   
 	   @default	1.0
 	**/
@@ -1036,12 +1119,6 @@ class ParticleSystem extends MixedContainer
 	   @default	0.0
 	**/
 	public var frameDeltaVariance:Float = 0.0;
-	
-	/**
-	   Tells  whether the initial frame should be chosen randomly
-	   @default false
-	**/
-	public var randomStartFrame:Bool = false;
 	//##################################################
 	//\ANIMATION
 	//##################################################
@@ -2708,9 +2785,9 @@ class ParticleSystem extends MixedContainer
 	   @default null
 	**/
 	#if flash
-	public var customFunction:Vector<DisplayBase>->Int->Void;
+	public var customFunction:Vector<Particle>->Int->Void;
 	#else
-	public var customFunction:Array<DisplayBase>->Int->Void;
+	public var customFunction:Array<Particle>->Int->Void;
 	#end
 	
 	/**
@@ -2730,23 +2807,21 @@ class ParticleSystem extends MixedContainer
 	/**
 	   @default null
 	**/
-	public var sortFunction(get, set):DisplayBase->DisplayBase->Int;
-	private var _sortFunction:DisplayBase->DisplayBase->Int;
-	private function get_sortFunction():DisplayBase->DisplayBase->Int { return this._sortFunction; }
-	private function set_sortFunction(value:DisplayBase->DisplayBase->Int):DisplayBase->DisplayBase->Int
+	public var sortFunction(get, set):Particle->Particle->Int;
+	private var _sortFunction:Particle->Particle->Int;
+	private function get_sortFunction():Particle->Particle->Int { return this._sortFunction; }
+	private function set_sortFunction(value:Particle->Particle->Int):Particle->Particle->Int
 	{
 		this._regularSorting = value == null;
 		return this._sortFunction = value;
 	}
 	
 	private var _completed:Bool = true;
-	private var _frameTime:Float = 0.0;
+	private var _frameTime:Float;// = 0.0;
 	#if flash
-	private var _particles:Vector<DisplayBase>;
-	private var _particlePool:Vector<Particle> = new Vector<Particle>();
+	private var _particles:Vector<Particle>;
 	#else
-	private var _particles:Array<DisplayBase>;
-	private var _particlePool:Array<Particle> = new Array<Particle>();
+	private var _particles:Array<Particle>;
 	#end
 	private var _particleTotal:Int;
 	private var _regularSorting:Bool = true;
@@ -2777,6 +2852,12 @@ class ParticleSystem extends MixedContainer
 	{
 		super();
 		
+		#if flash
+		this._particles = new Vector<Particle>();
+		#else
+		this._particles = new Array<Particle>();
+		#end
+		
 		this.colorStart = new MassiveTint(1.0, 1.0, 1.0, 1.0, colorChange);
 		this.colorStartVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, colorChange);
 		this.colorEnd = new MassiveTint(1.0, 1.0, 1.0, 1.0, colorChange);
@@ -2793,21 +2874,344 @@ class ParticleSystem extends MixedContainer
 		this.colorOffsetOscillation = new MassiveTint(0.0, 0.0, 0.0, 0.0, oscillationColorOffsetChange);
 		this.colorOffsetOscillationVariance = new MassiveTint(0.0, 0.0, 0.0, 0.0, oscillationColorOffsetChange);
 		
-		this.animate = true;
 		this.autoHandleNumDatas = false;
-		this._particles = this._datas;
-		
-		init();
 		
 		if (options != null)
 		{
 			readSystemOptions(options);
 		}
+		else
+		{
+			init();
+		}
 	}
 	
-	public function clear():Void
+	public function clear(reset:Bool = false):Void
 	{
+		clearFrames();
 		
+		this._completed = true;
+		this._isPlaying = false;
+		this._emissionEnabled = false;
+		this._numParticles = 0;
+		
+		this.autoClearOnComplete = ParticleSystemDefaults.AUTO_CLEAR_ON_COMPLETE;
+		this.randomSeed = ParticleSystemDefaults.RANDOM_SEED;
+		
+		this.particlesFromPoolFunction = null;
+		this.particlesToPoolFunction = null;
+		
+		if (reset)
+		{
+			// EMITTER
+			this.emitterType = EmitterType.GRAVITY;
+			this.emitterMode = EmitterMode.STREAM;
+			
+			this._maxNumParticles = 1000;
+			
+			this.particleAmount = 0;
+			
+			this.numBursts = 1;
+			this.burstDuration = 0.0;
+			this.burstInterval = 1.0;
+			this.burstIntervalVariance = 0.0;
+			
+			this._autoSetEmissionRate = true;
+			this.emissionRate = 1000.0;
+			this.emissionRatio = 1.0;
+			
+			this.emitterX = 0.0;
+			this.emitterY = 0.0;
+			this.emitterXVariance = 0.0;
+			this.emitterYVariance = 0.0;
+			
+			this.emitterRadiusMax = 0.0;
+			this.emitterRadiusMaxVariance = 0.0;
+			this.emitterRadiusMin = 0.0;
+			this.emitterRadiusMinVariance = 0.0;
+			this.emitterRadiusOverridesParticleAngle = false;
+			this.emitterRadiusParticleAngleOffset = 0.0;
+			this.emitterRadiusParticleAngleOffsetVariance = 0.0;
+			
+			this.emitAngle = 0.0;
+			this.emitAngleVariance = Math.PI;
+			
+			this.emitAngleAlignedRotation = false;
+			this.emitAngleAlignedRotationOffset = 0.0;
+			
+			this._emissionTimePredefined = MathUtils.FLOAT_MAX;
+			
+			this.useDisplayRect = false;
+			this.displayRect.setEmpty();
+			//\EMITTER
+			
+			// PARTICLE
+			this.useAnimationLifeSpan = false;
+			this.lifeSpan = 1.0;
+			this.lifeSpanVariance = 0.0;
+			
+			this.fadeInTime = 0.0;
+			this.fadeOutTime = 0.0;
+			
+			this.randomInvertX = false;
+			this.randomInvertY = false;
+			
+			this.sizeXStart = 20.0;
+			this.sizeXStartVariance = 0.0;
+			this.sizeYStart = 20.0;
+			this.sizeYStartVariance = 0.0;
+			this.sizeXEndRelativeToStart = false;
+			
+			this.sizeXEnd = 20.0;
+			this.sizeXEndVariance = 0.0;
+			this.sizeYEnd = 20.0;
+			this.sizeYEndVariance = 0.0;
+			this.sizeYEndRelativeToStart = false;
+			
+			this.rotationStart = 0.0;
+			this.rotationStartVariance = 0.0;
+			this.rotationEnd = 0.0;
+			this.rotationEndVariance = 0.0;
+			this.rotationEndRelativeToStart = false;
+			
+			this.skewXStart = 0.0;
+			this.skewXStartVariance = 0.0;
+			this.skewXEnd = 0.0;
+			this.skewXEndVariance = 0.0;
+			this.skewXEndRelativeToStart = false;
+			
+			this.skewYStart = 0.0;
+			this.skewYStartVariance = 0.0;
+			this.skewYEnd = 0.0;
+			this.skewYEndVariance = 0.0;
+			this.skewYEndRelativeToStart = false;
+			//\PARTICLE
+			
+			// VELOCITY
+			this.velocityXInheritRatio = 0.0;
+			this.velocityXInheritRatioVariance = 0.0;
+			this.velocityYInheritRatio = 0.0;
+			this.velocityYInheritRatioVariance = 0.0;
+			
+			this.linkRotationToVelocity = false;
+			this.velocityRotationOffset = 0.0;
+			
+			this.velocityRotationFactor = 0.0;
+			
+			this.velocityScaleFactorX = 0.0;
+			this.velocityScaleFactorY = 0.0;
+			
+			this.velocitySkewFactorX = 0.0;
+			this.velocitySkewFactorY = 0.0;
+			//\VELOCITY
+			
+			// ANIMATION
+			this.animate = true;
+			this.animator = null;
+			this.basicAnimation = true;
+			this.frameDelta = 1.0;
+			this.frameDeltaVariance = 0.0;
+			//\ANIMATION
+			
+			// GRAVITY
+			this.speed = 100.0;
+			this.speedVariance = 20.0;
+			this.adjustLifeSpanToSpeed = false;
+			
+			this.gravityX = 0.0;
+			this.gravityY = 0.0;
+			
+			this.radialAcceleration = 0.0;
+			this.radialAccelerationVariance = 0.0;
+			
+			this.tangentialAcceleration = 0.0;
+			this.tangentialAccelerationVariance = 0.0;
+			
+			this.drag = 0.0;
+			this.dragVariance = 0.0;
+			
+			this.repellentForce = 0.0;
+			//\GRAVITY
+			
+			// RADIAL
+			this.radiusMax = 300.0;
+			this.radiusMaxVariance = 0.0;
+			
+			this.radiusMin = 0.0;
+			this.radiusMinVariance = 0.0;
+			
+			this.rotatePerSecond = 0.0;
+			this.rotatePerSecondVariance = 0.0;
+			
+			this.alignRadialRotation = false;
+			this.alignRadialRotationOffset = 0.0;
+			this.alignRadialRotationOffsetVariance = 0.0;
+			//\RADIAL
+			
+			// COLOR
+			this.colorStart.setTo(1.0, 1.0, 1.0, 1.0);
+			this.colorStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			
+			this.colorEnd.setTo(1.0, 1.0, 1.0, 1.0);
+			this.colorEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			
+			this.colorEndRelativeToStart = false;
+			this.colorEndIsMultiplier = false;
+			//\COLOR
+			
+			// COLOR OFFSET
+			this.colorOffsetStart.setTo(0.0, 0.0, 0.0, 0.0);
+			this.colorOffsetStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			
+			this.colorOffsetEnd.setTo(0.0, 0.0, 0.0, 0.0);
+			this.colorOffsetEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			
+			this.colorOffsetEndRelativeToStart = false;
+			this.colorOffsetEndIsMultiplier = false;
+			//\COLOR OFFSET
+			
+			// OSCILLATION
+			this.oscillationGlobalFrequency = 1.0;
+			this.oscillationUnifiedFrequencyVariance = 0.0;
+			
+			// position
+			this.positionOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.positionOscillationGroupStartStep = 0.0;
+			this.positionOscillationOneWay = false;
+			this.positionOscillationAngle = 0.0;
+			this.positionOscillationAngleVariance = 0.0;
+			this.positionOscillationAngleRelativeTo = AngleRelativeTo.ROTATION;
+			this.positionOscillationRadius = 0.0;
+			this.positionOscillationRadiusVariance = 0.0;
+			this.positionOscillationFrequency = 1.0;
+			this.positionOscillationUnifiedFrequencyVariance = false;
+			this.positionOscillationFrequencyVariance = 0.0;
+			this.positionOscillationFrequencyInverted = false;
+			this.positionOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			
+			// position2
+			this.position2OscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.position2OscillationGroupStartStep = 0.0;
+			this.position2OscillationOneWay = false;
+			this.position2OscillationAngle = 0.0;
+			this.position2OscillationAngleVariance = 0.0;
+			this.position2OscillationAngleRelativeTo = AngleRelativeTo.ROTATION;
+			this.position2OscillationRadius = 0.0;
+			this.position2OscillationRadiusVariance = 0.0;
+			this.position2OscillationFrequency = 1.0;
+			this.position2OscillationUnifiedFrequencyVariance = false;
+			this.position2OscillationFrequencyVariance = 0.0;
+			this.position2OscillationFrequencyInverted = false;
+			this.position2OscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			
+			// rotation
+			this.rotationOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.rotationOscillationGroupStartStep = 0.0;
+			this.rotationOscillationOneWay = false;
+			this.rotationOscillationAngle = 0.0;
+			this.rotationOscillationAngleVariance = 0.0;
+			this.rotationOscillationFrequency = 1.0;
+			this.rotationOscillationUnifiedFrequencyVariance = false;
+			this.rotationOscillationFrequencyVariance = 0.0;
+			this.rotationOscillationFrequencyInverted = false;
+			this.rotationOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			
+			// scaleX
+			this.scaleXOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.scaleXOscillationGroupStartStep = 0.0;
+			this.scaleXOscillationOneWay = false;
+			this.scaleXOscillation = 0.0;
+			this.scaleXOscillationVariance = 0.0;
+			this.scaleXOscillationFrequency = 1.0;
+			this.scaleXOscillationUnifiedFrequencyVariance = false;
+			this.scaleXOscillationFrequencyVariance = 0.0;
+			this.scaleXOscillationFrequencyInverted = false;
+			this.scaleXOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			
+			// scaleY
+			this.scaleYOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.scaleYOscillationGroupStartStep = 0.0;
+			this.scaleYOscillationOneWay = false;
+			this.scaleYOscillation = 0.0;
+			this.scaleYOscillationVariance = 0.0;
+			this.scaleYOscillationFrequency = 1.0;
+			this.scaleYOscillationUnifiedFrequencyVariance = false;
+			this.scaleYOscillationFrequencyVariance = 0.0;
+			this.scaleYOscillationFrequencyInverted = false;
+			this.scaleYOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			
+			// skewX
+			this.skewXOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.skewXOscillationGroupStartStep = 0.0;
+			this.skewXOscillationOneWay = false;
+			this.skewXOscillation = 0.0;
+			this.skewXOscillationVariance = 0.0;
+			this.skewXOscillationFrequency = 1.0;
+			this.skewXOscillationUnifiedFrequencyVariance = false;
+			this.skewXOscillationFrequencyVariance = 0.0;
+			this.skewXOscillationFrequencyInverted = false;
+			this.skewXOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			
+			// slewY
+			this.skewYOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.skewYOscillationGroupStartStep = 0.0;
+			this.skewYOscillationOneWay = false;
+			this.skewYOscillation = 0.0;
+			this.skewYOscillationVariance = 0.0;
+			this.skewYOscillationFrequency = 1.0;
+			this.skewYOscillationUnifiedFrequencyVariance = false;
+			this.skewYOscillationFrequencyVariance = 0.0;
+			this.skewYOscillationFrequencyInverted = false;
+			this.skewYOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			
+			// color
+			this.colorOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.colorOscillationGroupStartStep = 0.0;
+			this.colorOscillationOneWay = false;
+			this.colorOscillation.setTo(0.0, 0.0, 0.0, 0.0);
+			this.colorOscillationVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			this.colorOscillationFrequency = 1.0;
+			this.colorOscillationUnifiedFrequencyVariance = false;
+			this.colorOscillationFrequencyVariance = 0.0;
+			this.colorOscillationFrequencyInverted = false;
+			this.colorOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			
+			// color offset
+			this.colorOffsetOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+			this.colorOffsetOscillationGroupStartStep = 0.0;
+			this.colorOffsetOscillationOneWay = false;
+			this.colorOffsetOscillation.setTo(0.0, 0.0, 0.0, 0.0);
+			this.colorOffsetOscillationVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			this.colorOffsetOscillationFrequency = 1.0;
+			this.colorOffsetOscillationUnifiedFrequencyVariance = false;
+			this.colorOffsetOscillationFrequencyVariance = 0.0;
+			this.colorOffsetOscillationFrequencyInverted = false;
+			this.colorOffsetOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+			//\OSCILLATION
+		}
+		
+		this.customFunction = null;
+		this.sortFunction = null;
+		this.forceSortFlag = false;
+	}
+	
+	public function pool(reset:Bool = false):Void
+	{
+		clear(reset);
+		_POOL[_POOL.length] = this;
+	}
+	
+	private function setFromPool(options:ParticleSystemOptions = null):ParticleSystem
+	{
+		if (options != null)
+		{
+			readSystemOptions(options);
+		}
+		else
+		{
+			init();
+		}
+		return this;
 	}
 	
 	private function init():Void
@@ -2815,9 +3219,9 @@ class ParticleSystem extends MixedContainer
 		this._emissionRate = this._maxNumParticles / this._lifeSpan;
 	}
 	
-	public function addAnimation(animation:Animation, weight:Float = 1.0, textureIndex:Int = 0, refreshParticles:Bool = false):Void
+	public function addAnimation(animation:Animation, weight:Float = 1.0, textureIndex:Int = 0, refreshParticles:Bool = false, randomStartFrameMin:Int = -1, randomStartFrameMax:Int = -1, randomLoopMin:Int = -1, randomLoopMax:Int = -1):Void
 	{
-		var particleAnimation:ParticleAnimation = ParticleAnimation.fromPool(animation, weight, textureIndex);
+		var particleAnimation:ParticleAnimation = ParticleAnimation.fromPool(animation, weight, textureIndex, randomStartFrameMin, randomStartFrameMax, randomLoopMin, randomLoopMax);
 		this._animationsToPool[this._animationsToPool.length] = particleAnimation;
 		addParticleAnimation(particleAnimation, refreshParticles);
 	}
@@ -2949,52 +3353,11 @@ class ParticleSystem extends MixedContainer
 		return (((this.randomSeed = (this.randomSeed * 16807) & 0x7FFFFFFF) / 0x40000000) - 1.0);
 	}
 	
-	private var __angle:Float;
-	private var __angleCos:Float;
-	private var __angleSin:Float;
-	private var __colorAlphaStart:Float;
-	private var __colorAlphaEnd:Float;
-	private var __colorBlueStart:Float;
-	private var __colorBlueEnd:Float;
-	private var __colorGreenStart:Float;
-	private var __colorGreenEnd:Float;
-	private var __colorRedStart:Float;
-	private var __colorRedEnd:Float;
-	private var __redOffsetStart:Float;
-	private var __redOffsetEnd:Float;
-	private var __greenOffsetStart:Float;
-	private var __greenOffsetEnd:Float;
-	private var __blueOffsetStart:Float;
-	private var __blueOffsetEnd:Float;
-	private var __alphaOffsetStart:Float;
-	private var __alphaOffsetEnd:Float;
-	private var __firstFrameWidth:Float;
-	private var __lifeSpan:Float;
-	private var __nonFadeTime:Float;
-	private var __oscillationUnifiedFrequencyStart:Float;
-	private var __oscillationUnifiedFrequencyVariance:Float;
-	private var __radius:Float;
-	private var __radiusMax:Float;
-	private var __radiusMin:Float;
-	private var __random:Float;
-	private var __ratio:Float;
-	private var __rotationStart:Float;
-	private var __rotationEnd:Float;
-	private var __sizeXStart:Float;
-	private var __sizeXEnd:Float;
-	private var __sizeYStart:Float;
-	private var __sizeYEnd:Float;
-	private var __skewXStart:Float;
-	private var __skewXEnd:Float;
-	private var __skewYStart:Float;
-	private var __skewYEnd:Float;
-	private var __speed:Float;
-	private var __velocityXInheritRatio:Float;
-	private var __velocityYInheritRatio:Float;
-	
-	private var __deadParticle:Bool;
-	
-	#if !debug inline #end private function initParticle(particle:Particle):Void
+	#if debug
+	private function initParticle(particle:Particle):Void
+	#else
+	inline private function initParticle(particle:Particle):Void
+	#end
 	{
 		#if debug
 		particle.updateCount = 0;
@@ -3189,7 +3552,7 @@ class ParticleSystem extends MixedContainer
 			particle.sizeYStart = this.__sizeYStart = this._sizeYStart;
 		}
 		
-		this.__firstFrameWidth = particle.animation != null ? particle.animation.animationFrames[0].frame.width : particle.frame.width;
+		this.__firstFrameWidth = particle.particleAnimation != null ? particle.particleAnimation.animation.animationFrames[0].frame.width : particle.frame.width;
 		particle.scaleXBase = particle.scaleXStart = this.__sizeXStart / this.__firstFrameWidth;
 		particle.scaleYBase = particle.scaleYStart = this.__sizeYStart / this.__firstFrameWidth;
 		if (this._useSizeX)
@@ -3891,35 +4254,16 @@ class ParticleSystem extends MixedContainer
 			if (this._useRotation) particle.rotationDelta = 0.0;
 		}
 		
-		if (particle.animation != null)
-		{
-			particle.play(particle.animation, this.randomStartFrame ? Math.floor(MathUtils.random() * particle.animation.numFrames) : 0);
-		}
+		if (particle.particleAnimation != null) particle.play(particle.particleAnimation.animation, 
+															  particle.particleAnimation.randomStart ? MathUtils.randomIntRange(particle.particleAnimation.randomStartFrameMin, particle.particleAnimation.randomStartFrameMax) : 0,
+															  particle.particleAnimation.randomLoops ? MathUtils.randomIntRange(particle.particleAnimation.randomLoopMin, particle.particleAnimation.randomLoopMax) : -1);
 	}
 	
-	private var __restTime:Float;
-	private var __distanceX:Float;
-	private var __distanceY:Float;
-	private var __distanceScalar:Float;
-	private var __dragX:Float;
-	private var __dragY:Float;
-	private var __newY:Float;
-	private var __radialX:Float;
-	private var __radialY:Float;
-	private var __refAngle:Float;
-	private var __repellentDistanceX:Float;
-	private var __repellentDistanceY:Float;
-	private var __repellentDistanceScalar:Float;
-	private var __repellentRadialX:Float;
-	private var __repellentRadialY:Float;
-	private var __step:Float;
-	private var __tangentialX:Float;
-	private var __tangentialY:Float;
-	private var __velocityAngle:Float;
-	private var __velocityAngleCalculated:Bool;
-	private var __velocityScalar:Float;
-	
-	#if !debug inline #end private function advanceParticle(particle:Particle, passedTime:Float):Void
+	#if debug
+	private function advanceParticle(particle:Particle, passedTime:Float):Void
+	#else
+	inline private function advanceParticle(particle:Particle, passedTime:Float):Void
+	#end
 	{
 		#if debug
 		particle.updateCount++;
@@ -4770,8 +5114,10 @@ class ParticleSystem extends MixedContainer
 		}
 	}
 	
-	override public function advanceTime(time:Float):Void 
+	public function advanceTime(time:Float):Void 
 	{
+		if (!this.animate) return;
+		
 		var sortFlag:Bool = this.forceSortFlag;
 		
 		if (this._updateEmitter)
@@ -4914,7 +5260,7 @@ class ParticleSystem extends MixedContainer
 		{
 			while (particleIndex < this._numParticles)
 			{
-				particle = cast this._particles[particleIndex];
+				particle = this._particles[particleIndex];
 				if (particle != null)
 				{
 					if (particle.timeCurrent < particle.timeTotal)
@@ -4944,7 +5290,7 @@ class ParticleSystem extends MixedContainer
 				var count:Int = this._particles.length;
 				for (particleIndex in particleIndex...count)
 				{
-					particle = cast this._particles[particleIndex];
+					particle = this._particles[particleIndex];
 					if (particle != null)
 					{
 						this._particles[particleIndex] = null;
@@ -4963,7 +5309,7 @@ class ParticleSystem extends MixedContainer
 		{
 			while (particleIndex < this._numParticles)
 			{
-				particle = cast this._particles[particleIndex];
+				particle = this._particles[particleIndex];
 				
 				if (particle.timeCurrent < particle.timeTotal)
 				{
@@ -4975,7 +5321,7 @@ class ParticleSystem extends MixedContainer
 					particle.visible = false;
 					if (particleIndex != --this._numParticles)
 					{
-						var nextParticle:Particle = cast this._particles[this._numParticles];
+						var nextParticle:Particle = this._particles[this._numParticles];
 						this._particles[this._numParticles] = particle;
 						this._particles[particleIndex] = nextParticle;
 						sortFlag = true;
@@ -5008,8 +5354,7 @@ class ParticleSystem extends MixedContainer
 						
 						while (this._numParticles < maxParticles)
 						{
-							particle = cast this._particles[this._numParticles];
-							initParticle(particle);
+							initParticle(this._particles[this._numParticles]);
 							
 							++this._numParticles;
 							++this._particleTotal;
@@ -5044,8 +5389,7 @@ class ParticleSystem extends MixedContainer
 						
 						while (this._frameTime > 0.0 && this._numParticles < maxParticles)
 						{
-							particle = cast this._particles[this._numParticles];
-							initParticle(particle);
+							initParticle(this._particles[this._numParticles]);
 							
 							++this._numParticles;
 							++this._particleTotal;
@@ -5077,7 +5421,7 @@ class ParticleSystem extends MixedContainer
 				
 				while (this._frameTime > 0.0 && this._numParticles < maxParticles)
 				{
-					particle = cast this._particles[this._numParticles];
+					particle = this._particles[this._numParticles];
 					initParticle(particle);
 					advanceParticle(particle, this._frameTime);
 					
@@ -5104,7 +5448,6 @@ class ParticleSystem extends MixedContainer
 			return;
 		}
 		
-		
 		this.numDatas = this._numParticles;
 		
 		if (this.customFunction != null)
@@ -5116,8 +5459,6 @@ class ParticleSystem extends MixedContainer
 		{
 			this._particles.sort(this.sortFunction);
 		}
-		
-		super.advanceTime(time);
 	}
 	
 	public function updateEmissionRate():Void
@@ -5128,6 +5469,10 @@ class ParticleSystem extends MixedContainer
 		var frame:ParticleFrame;
 		var totalWeight:Float = 0.0;
 		
+		var firstDuration:Float;
+		var firstFrame:Int;
+		var numLoops:Int;
+		
 		if (this._useAnimationLifeSpan)
 		{
 			lifeSpan = 0.0;
@@ -5135,7 +5480,32 @@ class ParticleSystem extends MixedContainer
 			for (i in 0...count)
 			{
 				anim = this._animations[i];
-				lifeSpan += anim.animation.duration * anim.weight;
+				if (anim.randomStart)
+				{
+					firstFrame = anim.randomStartFrameMin + Math.floor((anim.randomStartFrameMax - anim.randomStartFrameMin) / 2);
+					if (firstFrame > 0)
+					{
+						firstDuration = (anim.animation.duration - anim.animation.animationFrames[firstFrame-1].timing);
+					}
+					else
+					{
+						firstDuration = anim.animation.duration;
+					}
+				}
+				else
+				{
+					firstDuration = anim.animation.duration;
+				}
+				if (anim.randomLoops)
+				{
+					numLoops = anim.randomLoopMin + Math.ceil((anim.randomLoopMax - anim.randomLoopMin) / 2);
+				}
+				else
+				{
+					numLoops = anim.animation.numLoops;
+				}
+				
+				lifeSpan += (firstDuration + (anim.animation.loopDuration * numLoops)) * this._frameDelta * anim.weight;
 				totalWeight += anim.weight;
 			}
 			count = this._frames.length;
@@ -5209,6 +5579,8 @@ class ParticleSystem extends MixedContainer
 				duration = MathUtils.FLOAT_MAX;
 			}
 			
+			this._frameTime = 0.0;
+			
 			this._emissionEnabled = true;
 			this._emissionTime = duration;
 			this._emissionInfinite = this._emissionTime == MathUtils.FLOAT_MAX;
@@ -5233,7 +5605,7 @@ class ParticleSystem extends MixedContainer
 		}
 	}
 	
-	public function  stop(clear:Bool = false):Void
+	public function stop(clear:Bool = false):Void
 	{
 		this._emissionEnabled = false;
 		
@@ -5241,7 +5613,7 @@ class ParticleSystem extends MixedContainer
 		{
 			for (i in 0...this._numParticles)
 			{
-				this._particles[i].visible = false;
+				this._particles[i].visible = this._particles[i].animate = false;
 			}
 			this._numParticles = 0;
 			this._isPlaying = false;
@@ -5284,7 +5656,7 @@ class ParticleSystem extends MixedContainer
 		}
 	}
 	
-	@:access(massive.display.Clip)
+	@:access(massive.display.EventClip)
 	private function getParticlesFromPool():Void
 	{
 		if (this._particles.length != 0)
@@ -5294,11 +5666,7 @@ class ParticleSystem extends MixedContainer
 		
 		if (this.particlesFromPoolFunction != null)
 		{
-			particlesFromPoolFunction(this._maxNumParticles, this._particlePool);
-			for (i in 0...this._maxNumParticles)
-			{
-				this._particles[i] = this._particlePool[i];
-			}
+			particlesFromPoolFunction(this._maxNumParticles, this._particles);
 		}
 		else
 		{
@@ -5329,6 +5697,7 @@ class ParticleSystem extends MixedContainer
 			var totalWeight:Float = animationsWeight + framesWeight;
 			for (i in 0...this._maxNumParticles)
 			{
+				particle = this._particles[i];
 				r = MathUtils.random() * totalWeight;
 				if (r < framesWeight)
 				{
@@ -5338,8 +5707,11 @@ class ParticleSystem extends MixedContainer
 						r -= this._frames[j].weight;
 						if (r < 0.0)
 						{
-							particle = this._particlePool[i];
-							if (particle.animation != null) particle.clearAnimation();
+							if (particle.particleAnimation != null)
+							{
+								particle.clearAnimation();
+								particle.particleAnimation = null;
+							}
 							particle.frame = this._frames[j].frame;
 							particle.textureIndex = this._frames[j].textureIndex;
 							break;
@@ -5355,8 +5727,7 @@ class ParticleSystem extends MixedContainer
 						r -= this._animations[j].weight;
 						if (r < 0.0)
 						{
-							particle = this._particlePool[i];
-							particle.animation = this._animations[j].animation;
+							particle.particleAnimation = this._animations[j];
 							particle.textureIndex = this._animations[j].textureIndex;
 							break;
 						}
@@ -5368,14 +5739,14 @@ class ParticleSystem extends MixedContainer
 		{
 			for (i in 0...this._maxNumParticles)
 			{
+				particle = this._particles[i];
 				r = MathUtils.random() * animationsWeight;
 				for (j in 0...animationCount)
 				{
 					r -= this._animations[j].weight;
 					if (r < 0.0)
 					{
-						particle = this._particlePool[i];
-						particle.animation = this._animations[j].animation;
+						particle.particleAnimation = this._animations[j];
 						particle.textureIndex = this._animations[j].textureIndex;
 						break;
 					}
@@ -5386,14 +5757,18 @@ class ParticleSystem extends MixedContainer
 		{
 			for (i in 0...this._maxNumParticles)
 			{
+				particle = this._particles[i];
 				r = MathUtils.random() * framesWeight;
 				for (j in 0...frameCount)
 				{
 					r -= this._frames[j].weight;
 					if (r < 0.0)
 					{
-						particle = this._particlePool[i];
-						if (particle.animation != null) particle.clearAnimation();
+						if (particle.particleAnimation != null)
+						{
+							particle.clearAnimation();
+							particle.particleAnimation = null;
+						}
 						particle.frame = this._frames[j].frame;
 						particle.textureIndex = this._frames[j].textureIndex;
 						break;
@@ -5418,22 +5793,28 @@ class ParticleSystem extends MixedContainer
 		{
 			if (this.particlesToPoolFunction != null)
 			{
-				this.particlesToPoolFunction(this._particlePool);
+				this.particlesToPoolFunction(this._particles);
+				//this.particlesToPoolFunction(this._particlePool);
 			}
 			else
 			{
-				var count:Int = this._particlePool.length;
+				var count:Int = this._particles.length;
 				for (i in 0...count)
 				{
-					this._particlePool[i].pool();
+					this._particles[i].pool();
 				}
+				//var count:Int = this._particlePool.length;
+				//for (i in 0...count)
+				//{
+					//this._particlePool[i].pool();
+				//}
 			}
 			#if flash
 			this._particles.length = 0;
-			this._particlePool.length = 0;
+			//this._particlePool.length = 0;
 			#else
 			this._particles.resize(0);
-			this._particlePool.resize(0);
+			//this._particlePool.resize(0);
 			#end
 		}
 	}
@@ -5545,10 +5926,9 @@ class ParticleSystem extends MixedContainer
 		//\Velocity
 		
 		// Animation
-		this.textureAnimation = options.textureAnimation;
+		this.basicAnimation = options.basicAnimation;
 		this.frameDelta = options.frameDelta;
 		this.frameDeltaVariance = options.frameDeltaVariance;
-		this.randomStartFrame = options.randomStartFrame;
 		//\Animation
 		
 		// Gravity
@@ -5843,10 +6223,9 @@ class ParticleSystem extends MixedContainer
 		//\Velocity
 		
 		// Animation
-		options.textureAnimation = this.textureAnimation;
+		options.basicAnimation = this._basicAnimation;
 		options.frameDelta = this._frameDelta;
 		options.frameDeltaVariance = this.frameDeltaVariance;
-		options.randomStartFrame = this.randomStartFrame;
 		//\Animation
 		
 		// Gravity
@@ -6246,5 +6625,206 @@ class ParticleSystem extends MixedContainer
 													this._scaleXOscillationFrequencyStartUnifiedRandom || this._scaleYOscillationFrequencyStartUnifiedRandom || this._skewXOscillationFrequencyStartUnifiedRandom ||
 													this._skewYOscillationFrequencyStartUnifiedRandom || this._colorOscillationFrequencyStartUnifiedRandom || this._colorOffsetOscillationFrequencyStartUnifiedRandom;
 	}
+	
+	/**
+	   @inheritDoc
+	**/
+	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
+	{
+		if (this._particles == null) return;
+		
+		prepareDataBytes(byteData, maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
+		
+		for (i in 0...this.numDatas)
+		{
+			this.__image = this._particles[i];
+			if (!this.__image.visible) continue;
+			
+			writeImageBytes();
+			
+			if (++this.__quadsWritten == maxQuads)
+			{
+				renderData.numQuads = this.__quadsWritten;
+				renderData.display.drawBytes();
+				this.__quadsWritten = 0;
+			}
+		}
+		
+		finishDataBytes();
+	}
+	
+	#if flash
+	/**
+	   @inheritDoc
+	**/
+	public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:Vector<Float>):Void
+	{
+		if (this._particles == null) return;
+		
+		prepareDataBytesMemory(maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
+		
+		for (i in 0...this.numDatas)
+		{
+			this.__image = this._particles[i];
+			if (!this.__image.visible) continue;
+			
+			writeImageBytesMemory();
+			
+			if (++this.__quadsWritten == maxQuads)
+			{
+				renderData.numQuads = this.__quadsWritten;
+				renderData.display.drawBytesMemory();
+				this.__quadsWritten = 0;
+				this.__position = 0;
+			}
+		}
+		
+		finishDataBytesMemory();
+	}
+	#end
+	
+	#if !flash
+	/**
+	   @inheritDoc
+	**/
+	public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
+	{
+		if (this._particles == null) return;
+		
+		prepareDataFloat32Array(floatData, maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
+		
+		for (i in 0...this.numDatas)
+		{
+			this.__image = this._particles[i];
+			if (!this.__image.visible) continue;
+			
+			writeImageFloat32Array();
+			
+			if (++this.__quadsWritten == maxQuads)
+			{
+				renderData.numQuads = this.__quadsWritten;
+				renderData.display.drawFloat32();
+				this.__quadsWritten = 0;
+				this.__position = 0;
+			}
+		}
+		
+		finishDataFloat32Array();
+	}
+	#end
+	
+	/**
+	   @inheritDoc
+	**/
+	public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
+	{
+		if (this._particles == null) return;
+		
+		prepareDataVector(vectorData, maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
+		
+		for (i in 0...this.numDatas)
+		{
+			this.__image = this._particles[i];
+			if (!this.__image.visible) continue;
+			
+			writeImageVector();
+			
+			if (++this.__quadsWritten == maxQuads)
+			{
+				renderData.numQuads = this.__quadsWritten;
+				renderData.display.drawVector();
+				this.__quadsWritten = 0;
+				this.__position = 0;
+			}
+		}
+		
+		finishDataVector();
+	}
+	
+	public function writeBoundsData(boundsData:#if flash Vector<Float> #else Array<Float> #end, renderOffsetX:Float, renderOffsetY:Float):Void
+	{
+		this.__boundsData = boundsData;
+		this.__position = this.__boundsData.length - 1;
+		
+		this.__renderOffsetX = renderOffsetX + this.x;
+		this.__renderOffsetY = renderOffsetY + this.y;
+		
+		for (i in 0...this.numDatas)
+		{
+			this.__image = this._particles[i];
+			if (!this.__image.visible) continue;
+			
+			writeImageBounds();
+		}
+	}
+	
+	// initParticle helper vars
+	private var __angle:Float;
+	private var __angleCos:Float;
+	private var __angleSin:Float;
+	private var __colorAlphaStart:Float;
+	private var __colorAlphaEnd:Float;
+	private var __colorBlueStart:Float;
+	private var __colorBlueEnd:Float;
+	private var __colorGreenStart:Float;
+	private var __colorGreenEnd:Float;
+	private var __colorRedStart:Float;
+	private var __colorRedEnd:Float;
+	private var __redOffsetStart:Float;
+	private var __redOffsetEnd:Float;
+	private var __greenOffsetStart:Float;
+	private var __greenOffsetEnd:Float;
+	private var __blueOffsetStart:Float;
+	private var __blueOffsetEnd:Float;
+	private var __alphaOffsetStart:Float;
+	private var __alphaOffsetEnd:Float;
+	private var __firstFrameWidth:Float;
+	private var __lifeSpan:Float;
+	private var __nonFadeTime:Float;
+	private var __oscillationUnifiedFrequencyStart:Float;
+	private var __oscillationUnifiedFrequencyVariance:Float;
+	private var __radius:Float;
+	private var __radiusMax:Float;
+	private var __radiusMin:Float;
+	private var __random:Float;
+	private var __ratio:Float;
+	private var __rotationStart:Float;
+	private var __rotationEnd:Float;
+	private var __sizeXStart:Float;
+	private var __sizeXEnd:Float;
+	private var __sizeYStart:Float;
+	private var __sizeYEnd:Float;
+	private var __skewXStart:Float;
+	private var __skewXEnd:Float;
+	private var __skewYStart:Float;
+	private var __skewYEnd:Float;
+	private var __speed:Float;
+	private var __velocityXInheritRatio:Float;
+	private var __velocityYInheritRatio:Float;
+	
+	private var __deadParticle:Bool;
+	
+	// advanceParticle helper vars
+	private var __restTime:Float;
+	private var __distanceX:Float;
+	private var __distanceY:Float;
+	private var __distanceScalar:Float;
+	private var __dragX:Float;
+	private var __dragY:Float;
+	private var __newY:Float;
+	private var __radialX:Float;
+	private var __radialY:Float;
+	private var __refAngle:Float;
+	private var __repellentDistanceX:Float;
+	private var __repellentDistanceY:Float;
+	private var __repellentDistanceScalar:Float;
+	private var __repellentRadialX:Float;
+	private var __repellentRadialY:Float;
+	private var __step:Float;
+	private var __tangentialX:Float;
+	private var __tangentialY:Float;
+	private var __velocityAngle:Float;
+	private var __velocityAngleCalculated:Bool;
+	private var __velocityScalar:Float;
 	
 }
