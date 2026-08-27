@@ -185,6 +185,16 @@ class MathUtils
 		#end
 	}
 	
+	inline static public function randomRange(min:Float, max:Float):Float
+	{
+		return min + random() * (max - min);
+	}
+	
+	inline static public function randomIntRange(min:Int, max:Int):Int
+	{
+		return min + Std.int(random() * (max - min));
+	}
+	
 	inline static public function randomWithSeed(seed:Int):Float
 	{
 		return ((seed * 16807) & 0x7FFFFFFF) / 2147483648;
