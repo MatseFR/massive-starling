@@ -390,10 +390,10 @@ class ParticleSystemOptions
 	// ANIMATION
 	//##################################################
 	/**
-	   Tells whether textures should be animated or not
+	   Tells whether the system's particles should use basic animation
 	   @default true
 	**/
-	public var textureAnimation:Bool = true;
+	public var basicAnimation:Bool = true;
 	/**
 	   texture animation play speed ratio
 	   @default 1
@@ -404,11 +404,6 @@ class ParticleSystemOptions
 	   @default 0
 	**/
 	public var frameDeltaVariance:Float = 0.0;
-	/**
-	   Tells  whether the initial frame should be chosen randomly
-	   @default false
-	**/
-	public var randomStartFrame:Bool = false;
 	//##################################################
 	//\ANIMATION
 	//##################################################
@@ -1046,7 +1041,7 @@ class ParticleSystemOptions
 		this.burstIntervalVariance = 0.0;
 		
 		this.autoSetEmissionRate = true;
-		this.emissionRate = 100.0;
+		this.emissionRate = 1000.0;
 		this.emissionRatio = 1.0;
 		
 		this.emitterX = 0.0;
@@ -1135,10 +1130,9 @@ class ParticleSystemOptions
 		//\VELOCITY
 		
 		// ANIMATION
-		this.textureAnimation = true;
+		this.basicAnimation = true;
 		this.frameDelta = 1.0;
 		this.frameDeltaVariance = 0.0;
-		this.randomStartFrame = false;
 		//\ANIMATION
 		
 		// GRAVITY
@@ -1437,10 +1431,9 @@ class ParticleSystemOptions
 		//\VELOCITY
 		
 		// ANIMATION
-		target.textureAnimation = this.textureAnimation;
+		target.basicAnimation = this.basicAnimation;
 		target.frameDelta = this.frameDelta;
 		target.frameDeltaVariance = this.frameDeltaVariance;
-		target.randomStartFrame = this.randomStartFrame;
 		//\ANIMATION
 		
 		// GRAVITY
@@ -1690,8 +1683,8 @@ class ParticleSystemOptions
 		this.fadeInTime = json.fadeInTime;
 		this.fadeOutTime = json.fadeOutTime;
 		
-		if (json.randomInvertX != null) this.randomInvertX = json.randomInvertX;
-		if (json.randomInvertY != null) this.randomInvertY = json.randomInvertY;
+		this.randomInvertX = json.randomInvertX;
+		this.randomInvertY = json.randomInvertY;
 		
 		this.sizeXStart = json.sizeXStart;
 		this.sizeXStartVariance = json.sizeXStartVariance;
@@ -1743,10 +1736,9 @@ class ParticleSystemOptions
 		//\VELOCITY
 		
 		// ANIMATION
-		this.textureAnimation = json.textureAnimation;
+		this.basicAnimation = json.basicAnimation;
 		this.frameDelta = json.frameDelta;
 		this.frameDeltaVariance = json.frameDeltaVariance;
-		this.randomStartFrame = json.randomStartFrame;
 		//\ANIMATION
 		
 		// GRAVITY
@@ -2045,10 +2037,9 @@ class ParticleSystemOptions
 		//\VELOCITY
 		
 		// ANIMATION
-		json.textureAnimation = this.textureAnimation;
+		json.basicAnimation = this.basicAnimation;
 		json.frameDelta = this.frameDelta;
 		json.frameDeltaVariance = this.frameDeltaVariance;
-		json.randomStartFrame = this.randomStartFrame;
 		//\ANIMATION
 		
 		// GRAVITY
@@ -2327,28 +2318,9 @@ class ParticleSystemOptions
 		getColor(xml.node.startColorVariance, this.colorStartVariance);
 		getColor(xml.node.finishColor, this.colorEnd);
 		getColor(xml.node.finishColorVariance, this.colorEndVariance);
-		//this.blendFuncSource = getBlendFunc(xml.node.blendFuncSource.att.value);
-		//this.blendFuncDestination = getBlendFunc(xml.node.blendFuncDestination.att.value);
 		this.duration = Std.parseFloat(xml.node.duration.att.value);
 		
 		// new introduced properties //
-		if (xml.hasNode.animation)
-		{
-			var anim:Access = xml.node.animation;
-			if (anim.hasNode.isAnimated)
-			{
-				this.textureAnimation = getBoolValue(anim.node.isAnimated.att.value);
-			}
-			//if (anim.hasNode.loops)
-			//{
-				//this.animationLoops = Std.parseInt(anim.node.loops.att.value);
-			//}
-			if (anim.hasNode.randomStartFrames)
-			{
-				this.randomStartFrame = getBoolValue(anim.node.randomStartFrames.att.value);
-			}
-		}
-		
 		if (xml.hasNode.fadeInTime)
 		{
 			this.fadeInTime = Std.parseFloat(xml.node.fadeInTime.att.value);
