@@ -6478,7 +6478,7 @@ class ParticleSystem extends ContainerBase
 		{
 			if (this._colorEndIsMultiplier)
 			{
-				if (this.colorEnd.hasValueDifferentThan(1.0) || this.colorEndVariance.hasValue())
+				if (this._hasColorEndVariance || this.colorEnd.hasValueDifferentThan(1.0))
 				{
 					this._useColor = true;
 				}
@@ -6489,7 +6489,7 @@ class ParticleSystem extends ContainerBase
 			}
 			else
 			{
-				if (this.colorEnd.hasValue() || this.colorEndVariance.hasValue())
+				if (this._hasColorEndVariance || this.colorEnd.hasValue())
 				{
 					this._useColor = true;
 				}
@@ -6501,7 +6501,7 @@ class ParticleSystem extends ContainerBase
 		}
 		else
 		{
-			if (!this.colorStart.isSameAs(this.colorEnd) || this.colorStartVariance.hasValue() || this.colorEndVariance.hasValue())
+			if (!this.colorStart.isSameAs(this.colorEnd) || this._hasColorStartVariance || this._hasColorEndVariance)
 			{
 				this._useColor = true;
 			}
@@ -6527,7 +6527,7 @@ class ParticleSystem extends ContainerBase
 		{
 			if (this._colorOffsetEndIsMultiplier)
 			{
-				if (this.colorOffsetEnd.hasValueDifferentThan(1.0) || this.colorOffsetEndVariance.hasValue())
+				if (this._hasColorOffsetEndVariance || this.colorOffsetEnd.hasValueDifferentThan(1.0))
 				{
 					this._useColorOffset = true;
 				}
@@ -6538,7 +6538,7 @@ class ParticleSystem extends ContainerBase
 			}
 			else
 			{
-				if (this.colorOffsetEnd.hasValue() || this.colorOffsetEndVariance.hasValue())
+				if (this._hasColorOffsetEndVariance || this.colorOffsetEnd.hasValue())
 				{
 					this._useColorOffset = true;
 				}
@@ -6550,7 +6550,7 @@ class ParticleSystem extends ContainerBase
 		}
 		else
 		{
-			if (!this.colorOffsetStart.isSameAs(this.colorOffsetEnd) || this.colorOffsetStartVariance.hasValue() || this.colorOffsetEndVariance.hasValue())
+			if (this._hasColorOffsetStartVariance || this._hasColorOffsetEndVariance || !this.colorOffsetStart.isSameAs(this.colorOffsetEnd))
 			{
 				this._useColorOffset = true;
 			}
