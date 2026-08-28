@@ -7,9 +7,7 @@ import massive.display.base.ContainerBase;
 import massive.display.render.RenderData;
 import massive.util.MassiveTint;
 import massive.util.MathUtils;
-#if flash
 import openfl.Vector;
-#end
 import openfl.errors.Error;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
