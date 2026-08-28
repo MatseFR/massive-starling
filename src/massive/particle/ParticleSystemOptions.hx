@@ -1622,23 +1622,26 @@ class ParticleSystemOptions
 	{
 		// EMITTER
 		this.emitterType = json.emitterType;
-		if (json.emitterMode != null)
-		{
-			this.emitterMode = json.emitterMode;
-		}
-		else
-		{
-			this.emitterMode = EmitterMode.STREAM;
-		}
+		this.emitterMode = json.emitterMode;
 		
 		this.maxNumParticles = json.maxNumParticles;
 		
 		this.particleAmount = json.particleAmount;
 		
-		this.numBursts = json.numBursts;
-		this.burstDuration = json.burstDuration;
-		this.burstInterval = json.burstInterval;
-		this.burstIntervalVariance = json.burstIntervalVariance;
+		if (json.numBursts != null)
+		{
+			this.numBursts = json.numBursts;
+			this.burstDuration = json.burstDuration;
+			this.burstInterval = json.burstInterval;
+			this.burstIntervalVariance = json.burstIntervalVariance;
+		}
+		else
+		{
+			this.numBursts = 1;
+			this.burstDuration = 0.0;
+			this.burstInterval = 1.0;
+			this.burstIntervalVariance = 0.0;
+		}
 		
 		this.autoSetEmissionRate = json.autoSetEmissionRate;
 		this.emissionRate = json.emissionRate;
@@ -1649,13 +1652,26 @@ class ParticleSystemOptions
 		this.emitterXVariance = json.emitterXVariance;
 		this.emitterYVariance = json.emitterYVariance;
 		
-		this.emitterRadiusMax = json.emitterRadiusMax;
-		this.emitterRadiusMaxVariance = json.emitterRadiusMaxVariance;
-		this.emitterRadiusMin = json.emitterRadiusMin;
-		this.emitterRadiusMinVariance = json.emitterRadiusMinVariance;
-		this.emitterRadiusOverridesParticleAngle = json.emitterRadiusOverridesParticleAngle;
-		this.emitterRadiusParticleAngleOffset = json.emitterRadiusParticleAngleOffset;
-		this.emitterRadiusParticleAngleOffsetVariance = json.emitterRadiusParticleAngleOffsetVariance;
+		if (json.emitterRadiusMax != null)
+		{
+			this.emitterRadiusMax = json.emitterRadiusMax;
+			this.emitterRadiusMaxVariance = json.emitterRadiusMaxVariance;
+			this.emitterRadiusMin = json.emitterRadiusMin;
+			this.emitterRadiusMinVariance = json.emitterRadiusMinVariance;
+			this.emitterRadiusOverridesParticleAngle = json.emitterRadiusOverridesParticleAngle;
+			this.emitterRadiusParticleAngleOffset = json.emitterRadiusParticleAngleOffset;
+			this.emitterRadiusParticleAngleOffsetVariance = json.emitterRadiusParticleAngleOffsetVariance;
+		}
+		else
+		{
+			this.emitterRadiusMax = 0.0;
+			this.emitterRadiusMaxVariance = 0.0;
+			this.emitterRadiusMin = 0.0;
+			this.emitterRadiusMinVariance = 0.0;
+			this.emitterRadiusOverridesParticleAngle = false;
+			this.emitterRadiusParticleAngleOffset = 0.0;
+			this.emitterRadiusParticleAngleOffsetVariance = 0.0;
+		}
 		
 		this.emitAngle = json.emitAngle;
 		this.emitAngleVariance = json.emitAngleVariance;
@@ -1698,41 +1714,115 @@ class ParticleSystemOptions
 		this.sizeXEndRelativeToStart = json.sizeXEndRelativeToStart;
 		this.sizeYEndRelativeToStart = json.sizeYEndRelativeToStart;
 		
-		this.rotationStart = json.rotationStart;
-		this.rotationStartVariance = json.rotationStartVariance;
-		this.rotationEnd = json.rotationEnd;
-		this.rotationEndVariance = json.rotationEndVariance;
-		this.rotationEndRelativeToStart = json.rotationEndRelativeToStart;
+		if (json.rotationStart != null)
+		{
+			this.rotationStart = json.rotationStart;
+			this.rotationStartVariance = json.rotationStartVariance;
+			this.rotationEnd = json.rotationEnd;
+			this.rotationEndVariance = json.rotationEndVariance;
+			this.rotationEndRelativeToStart = json.rotationEndRelativeToStart;
+		}
+		else
+		{
+			this.rotationStart = 0.0;
+			this.rotationStartVariance = 0.0;
+			this.rotationEnd = 0.0;
+			this.rotationEndVariance = 0.0;
+			this.rotationEndRelativeToStart = false;
+		}
 		
-		this.skewXStart = json.skewXStart;
-		this.skewXStartVariance = json.skewXStartVariance;
-		this.skewYStart = json.skewYStart;
-		this.skewYStartVariance = json.skewYStartVariance;
+		if (json.skewXStart != null)
+		{
+			this.skewXStart = json.skewXStart;
+			this.skewXStartVariance = json.skewXStartVariance;
+			this.skewXEnd = json.skewXEnd;
+			this.skewXEndVariance = json.skewXEndVariance;
+			this.skewXEndRelativeToStart = json.skewXEndRelativeToStart;
+		}
+		else
+		{
+			this.skewXStart = 0.0;
+			this.skewXStartVariance = 0.0;
+			this.skewXEnd = 0.0;
+			this.skewXEndVariance = 0.0;
+			this.skewXEndRelativeToStart = false;
+		}
 		
-		this.skewXEnd = json.skewXEnd;
-		this.skewXEndVariance = json.skewXEndVariance;
-		this.skewYEnd = json.skewYEnd;
-		this.skewYEndVariance = json.skewYEndVariance;
-		this.skewXEndRelativeToStart = json.skewXEndRelativeToStart;
-		this.skewYEndRelativeToStart = json.skewYEndRelativeToStart;
+		if (json.skewYStart != null)
+		{
+			this.skewYStart = json.skewYStart;
+			this.skewYStartVariance = json.skewYStartVariance;
+			this.skewYEnd = json.skewYEnd;
+			this.skewYEndVariance = json.skewYEndVariance;
+			this.skewYEndRelativeToStart = json.skewYEndRelativeToStart;
+		}
+		else
+		{
+			this.skewYStart = 0.0;
+			this.skewYStartVariance = 0.0;
+			this.skewYEnd = 0.0;
+			this.skewYEndVariance = 0.0;
+			this.skewYEndRelativeToStart = false;
+		}
 		//\PARTICLE
 		
 		// VELOCITY
-		this.velocityXInheritRatio = json.velocityXInheritRatio;
-		this.velocityXInheritRatioVariance = json.velocityXInheritRatioVariance;
-		this.velocityYInheritRatio = json.velocityYInheritRatio;
-		this.velocityYInheritRatioVariance = json.velocityYInheritRatioVariance;
+		if (json.velocityXInheritRatio != null)
+		{
+			this.velocityXInheritRatio = json.velocityXInheritRatio;
+			this.velocityXInheritRatioVariance = json.velocityXInheritRatioVariance;
+			this.velocityYInheritRatio = json.velocityYInheritRatio;
+			this.velocityYInheritRatioVariance = json.velocityYInheritRatioVariance;
+		}
+		else
+		{
+			this.velocityXInheritRatio = 0.0;
+			this.velocityXInheritRatioVariance = 0.0;
+			this.velocityYInheritRatio = 0.0;
+			this.velocityYInheritRatioVariance = 0.0;
+		}
 		
-		this.linkRotationToVelocity = json.linkRotationToVelocity;
-		this.velocityRotationOffset = json.velocityRotationOffset;
+		if (json.linkRotationToVelocity != null)
+		{
+			this.linkRotationToVelocity = json.linkRotationToVelocity;
+			this.velocityRotationOffset = json.velocityRotationOffset;
+		}
+		else
+		{
+			this.linkRotationToVelocity = false;
+			this.velocityRotationOffset = 0.0;
+		}
 		
-		this.velocityRotationFactor = json.velocityRotationFactor;
+		if (json.velocityRotationFactor != null)
+		{
+			this.velocityRotationFactor = json.velocityRotationFactor;
+		}
+		else
+		{
+			this.velocityRotationFactor = 0.0;
+		}
 		
-		this.velocityScaleFactorX = json.velocityScaleFactorX;
-		this.velocityScaleFactorY = json.velocityScaleFactorY;
+		if (json.velocityScaleFactorX != null)
+		{
+			this.velocityScaleFactorX = json.velocityScaleFactorX;
+			this.velocityScaleFactorY = json.velocityScaleFactorY;
+		}
+		else
+		{
+			this.velocityScaleFactorX = 0.0;
+			this.velocityScaleFactorY = 0.0;
+		}
 		
-		this.velocitySkewFactorX = json.velocitySkewFactorX;
-		this.velocitySkewFactorY = json.velocitySkewFactorY;
+		if (json.velocitySkewFactorX != null)
+		{
+			this.velocitySkewFactorX = json.velocitySkewFactorX;
+			this.velocitySkewFactorY = json.velocitySkewFactorY;
+		}
+		else
+		{
+			this.velocitySkewFactorX = 0.0;
+			this.velocitySkewFactorY = 0.0;
+		}
 		//\VELOCITY
 		
 		// ANIMATION
@@ -1742,61 +1832,130 @@ class ParticleSystemOptions
 		//\ANIMATION
 		
 		// GRAVITY
-		this.speed = json.speed;
-		this.speedVariance = json.speedVariance;
-		
-		this.adjustLifeSpanToSpeed = json.adjustLifeSpanToSpeed;
-		
-		this.gravityX = json.gravityX;
-		this.gravityY = json.gravityY;
-		
-		this.radialAcceleration = json.radialAcceleration;
-		this.radialAccelerationVariance = json.radialAccelerationVariance;
-		
-		this.tangentialAcceleration = json.tangentialAcceleration;
-		this.tangentialAccelerationVariance = json.tangentialAccelerationVariance;
-		
-		this.drag = json.drag;
-		this.dragVariance = json.dragVariance;
-		
-		this.repellentForce = json.repellentForce;
+		if (json.speed != null)
+		{
+			this.speed = json.speed;
+			this.speedVariance = json.speedVariance;
+			
+			this.adjustLifeSpanToSpeed = json.adjustLifeSpanToSpeed;
+			
+			this.gravityX = json.gravityX;
+			this.gravityY = json.gravityY;
+			
+			this.radialAcceleration = json.radialAcceleration;
+			this.radialAccelerationVariance = json.radialAccelerationVariance;
+			
+			this.tangentialAcceleration = json.tangentialAcceleration;
+			this.tangentialAccelerationVariance = json.tangentialAccelerationVariance;
+			
+			this.drag = json.drag;
+			this.dragVariance = json.dragVariance;
+			
+			this.repellentForce = json.repellentForce;
+		}
+		else
+		{
+			this.speed = 100.0;
+			this.speedVariance = 20.0;
+			this.adjustLifeSpanToSpeed = false;
+			
+			this.gravityX = 0.0;
+			this.gravityY = 0.0;
+			
+			this.radialAcceleration = 0.0;
+			this.radialAccelerationVariance = 0.0;
+			
+			this.tangentialAcceleration = 0.0;
+			this.tangentialAccelerationVariance = 0.0;
+			
+			this.drag = 0.0;
+			this.dragVariance = 0.0;
+			
+			this.repellentForce = 0.0;
+		}
 		//\GRAVITY
 		
 		// RADIAL
-		this.radiusMax = json.radiusMax;
-		this.radiusMaxVariance = json.radiusMaxVariance;
-		
-		this.radiusMin = json.radiusMin;
-		this.radiusMinVariance = json.radiusMinVariance;
-		
-		this.rotatePerSecond = json.rotatePerSecond;
-		this.rotatePerSecondVariance = json.rotatePerSecondVariance;
-		
-		this.alignRadialRotation = json.alignRadialRotation;
-		this.alignRadialRotationOffset = json.alignRadialRotationOffset;
-		this.alignRadialRotationOffsetVariance = json.alignRadialRotationOffsetVariance;
+		if (json.radiusMax != null)
+		{
+			this.radiusMax = json.radiusMax;
+			this.radiusMaxVariance = json.radiusMaxVariance;
+			
+			this.radiusMin = json.radiusMin;
+			this.radiusMinVariance = json.radiusMinVariance;
+			
+			this.rotatePerSecond = json.rotatePerSecond;
+			this.rotatePerSecondVariance = json.rotatePerSecondVariance;
+			
+			this.alignRadialRotation = json.alignRadialRotation;
+			this.alignRadialRotationOffset = json.alignRadialRotationOffset;
+			this.alignRadialRotationOffsetVariance = json.alignRadialRotationOffsetVariance;
+		}
+		else
+		{
+			this.radiusMax = 300.0;
+			this.radiusMaxVariance = 0.0;
+			
+			this.radiusMin = 0.0;
+			this.radiusMinVariance = 0.0;
+			
+			this.rotatePerSecond = 0.0;
+			this.rotatePerSecondVariance = 0.0;
+			
+			this.alignRadialRotation = false;
+			this.alignRadialRotationOffset = 0.0;
+			this.alignRadialRotationOffsetVariance = 0.0;
+		}
 		//\RADIAL
 		
 		// COLOR
-		colorFromJSON(this.colorStart, json.colorStart);
-		colorFromJSON(this.colorStartVariance, json.colorStartVariance);
-		
-		colorFromJSON(this.colorEnd, json.colorEnd);
-		colorFromJSON(this.colorEndVariance, json.colorEndVariance);
-		
-		this.colorEndRelativeToStart = json.colorEndRelativeToStart;
-		this.colorEndIsMultiplier = json.colorEndIsMultiplier;
+		if (json.colorStart != null)
+		{
+			colorFromJSON(this.colorStart, json.colorStart);
+			colorFromJSON(this.colorStartVariance, json.colorStartVariance);
+			
+			colorFromJSON(this.colorEnd, json.colorEnd);
+			colorFromJSON(this.colorEndVariance, json.colorEndVariance);
+			
+			this.colorEndRelativeToStart = json.colorEndRelativeToStart;
+			this.colorEndIsMultiplier = json.colorEndIsMultiplier;
+		}
+		else
+		{
+			this.colorStart.setTo(1.0, 1.0, 1.0, 1.0);
+			this.colorStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			
+			this.colorEnd.setTo(1.0, 1.0, 1.0, 1.0);
+			this.colorEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			
+			this.colorEndRelativeToStart = false;
+			this.colorEndIsMultiplier = false;
+		}
 		//\COLOR
 		
 		// COLOR OFFSET
-		colorFromJSON(this.colorOffsetStart, json.colorOffsetStart);
-		colorFromJSON(this.colorOffsetStartVariance, json.colorOffsetStartVariance);
-		
-		colorFromJSON(this.colorOffsetEnd, json.colorOffsetEnd);
-		colorFromJSON(this.colorOffsetEndVariance, json.colorOffsetEndVariance);
-		
-		this.colorOffsetEndRelativeToStart = json.colorOffsetEndRelativeToStart;
-		this.colorOffsetEndIsMultiplier = json.colorOffsetEndIsMultiplier;
+		if (json.colorOffsetStart != null)
+		{
+			colorFromJSON(this.colorOffsetStart, json.colorOffsetStart);
+			colorFromJSON(this.colorOffsetStartVariance, json.colorOffsetStartVariance);
+			
+			colorFromJSON(this.colorOffsetEnd, json.colorOffsetEnd);
+			colorFromJSON(this.colorOffsetEndVariance, json.colorOffsetEndVariance);
+			
+			this.colorOffsetEndRelativeToStart = json.colorOffsetEndRelativeToStart;
+			this.colorOffsetEndIsMultiplier = json.colorOffsetEndIsMultiplier;
+		}
+		else
+		{
+			this.colorOffsetStart.setTo(0.0, 0.0, 0.0, 0.0);
+			this.colorOffsetStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			
+			this.colorOffsetEnd.setTo(0.0, 0.0, 0.0, 0.0);
+			this.colorOffsetEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
+			
+			this.colorOffsetEndRelativeToStart = false;
+			this.colorOffsetEndIsMultiplier = false;
+		}
 		//\COLOR OFFSET
 		
 		// OSCILLATION
@@ -2076,9 +2235,10 @@ class ParticleSystemOptions
 	/**
 	   
 	   @param	json
+	   @param	exportAll
 	   @return
 	**/
-	public function toJSON(json:Dynamic = null):Dynamic
+	public function toJSON(json:Dynamic = null, exportAll:Bool = false):Dynamic
 	{
 		if (json == null) json = {};
 		
@@ -2090,10 +2250,13 @@ class ParticleSystemOptions
 		
 		json.particleAmount = this.particleAmount;
 		
-		json.numBursts = this.numBursts;
-		json.burstDuration = this.burstDuration;
-		json.burstInterval = this.burstInterval;
-		json.burstIntervalVariance = this.burstIntervalVariance;
+		if (exportAll || checkBurst())
+		{
+			json.numBursts = this.numBursts;
+			json.burstDuration = this.burstDuration;
+			json.burstInterval = this.burstInterval;
+			json.burstIntervalVariance = this.burstIntervalVariance;
+		}
 		
 		json.autoSetEmissionRate = this.autoSetEmissionRate;
 		json.emissionRate = this.emissionRate;
@@ -2104,13 +2267,16 @@ class ParticleSystemOptions
 		json.emitterXVariance = this.emitterXVariance;
 		json.emitterYVariance = this.emitterYVariance;
 		
-		json.emitterRadiusMax = this.emitterRadiusMax;
-		json.emitterRadiusMaxVariance = this.emitterRadiusMaxVariance;
-		json.emitterRadiusMin = this.emitterRadiusMin;
-		json.emitterRadiusMinVariance = this.emitterRadiusMinVariance;
-		json.emitterRadiusOverridesParticleAngle = this.emitterRadiusOverridesParticleAngle;
-		json.emitterRadiusParticleAngleOffset = this.emitterRadiusParticleAngleOffset;
-		json.emitterRadiusParticleAngleOffsetVariance = this.emitterRadiusParticleAngleOffsetVariance;
+		if (exportAll || checkEmitterRadius())
+		{
+			json.emitterRadiusMax = this.emitterRadiusMax;
+			json.emitterRadiusMaxVariance = this.emitterRadiusMaxVariance;
+			json.emitterRadiusMin = this.emitterRadiusMin;
+			json.emitterRadiusMinVariance = this.emitterRadiusMinVariance;
+			json.emitterRadiusOverridesParticleAngle = this.emitterRadiusOverridesParticleAngle;
+			json.emitterRadiusParticleAngleOffset = this.emitterRadiusParticleAngleOffset;
+			json.emitterRadiusParticleAngleOffsetVariance = this.emitterRadiusParticleAngleOffsetVariance;
+		}
 		
 		json.emitAngle = this.emitAngle;
 		json.emitAngleVariance = this.emitAngleVariance;
@@ -2149,41 +2315,65 @@ class ParticleSystemOptions
 		json.sizeXEndRelativeToStart = this.sizeXEndRelativeToStart;
 		json.sizeYEndRelativeToStart = this.sizeYEndRelativeToStart;
 		
-		json.rotationStart = this.rotationStart;
-		json.rotationStartVariance = this.rotationStartVariance;
-		json.rotationEnd = this.rotationEnd;
-		json.rotationEndVariance = this.rotationEndVariance;
-		json.rotationEndRelativeToStart = this.rotationEndRelativeToStart;
+		if (exportAll || checkRotation())
+		{
+			json.rotationStart = this.rotationStart;
+			json.rotationStartVariance = this.rotationStartVariance;
+			json.rotationEnd = this.rotationEnd;
+			json.rotationEndVariance = this.rotationEndVariance;
+			json.rotationEndRelativeToStart = this.rotationEndRelativeToStart;
+		}
 		
-		json.skewXStart = this.skewXStart;
-		json.skewXStartVariance = this.skewXStartVariance;
-		json.skewYStart = this.skewYStart;
-		json.skewYStartVariance = this.skewYStartVariance;
+		if (exportAll || checkSkewX())
+		{
+			json.skewXStart = this.skewXStart;
+			json.skewXStartVariance = this.skewXStartVariance;
+			json.skewXEnd = this.skewXEnd;
+			json.skewXEndVariance = this.skewXEndVariance;
+			json.skewXEndRelativeToStart = this.skewXEndRelativeToStart;
+		}
 		
-		json.skewXEnd = this.skewXEnd;
-		json.skewXEndVariance = this.skewXEndVariance;
-		json.skewYEnd = this.skewYEnd;
-		json.skewYEndVariance = this.skewYEndVariance;
-		json.skewXEndRelativeToStart = this.skewXEndRelativeToStart;
-		json.skewYEndRelativeToStart = this.skewYEndRelativeToStart;
+		if (exportAll || checkSkewY())
+		{
+			json.skewYStart = this.skewYStart;
+			json.skewYStartVariance = this.skewYStartVariance;
+			json.skewYEnd = this.skewYEnd;
+			json.skewYEndVariance = this.skewYEndVariance;
+			json.skewYEndRelativeToStart = this.skewYEndRelativeToStart;
+		}
 		//\PARTICLE
 		
 		// VELOCITY
-		json.velocityXInheritRatio = this.velocityXInheritRatio;
-		json.velocityXInheritRatioVariance = this.velocityXInheritRatioVariance;
-		json.velocityYInheritRatio = this.velocityYInheritRatio;
-		json.velocityYInheritRatioVariance = this.velocityYInheritRatioVariance;
+		if (exportAll || checkVelocityInheritance())
+		{
+			json.velocityXInheritRatio = this.velocityXInheritRatio;
+			json.velocityXInheritRatioVariance = this.velocityXInheritRatioVariance;
+			json.velocityYInheritRatio = this.velocityYInheritRatio;
+			json.velocityYInheritRatioVariance = this.velocityYInheritRatioVariance;
+		}
 		
-		json.linkRotationToVelocity = this.linkRotationToVelocity;
-		json.velocityRotationOffset = this.velocityRotationOffset;
+		if (exportAll || checkVelocityLinkRotation())
+		{
+			json.linkRotationToVelocity = this.linkRotationToVelocity;
+			json.velocityRotationOffset = this.velocityRotationOffset;
+		}
 		
-		json.velocityRotationFactor = this.velocityRotationFactor;
+		if (exportAll || checkVelocityRotation())
+		{
+			json.velocityRotationFactor = this.velocityRotationFactor;
+		}
 		
-		json.velocityScaleFactorX = this.velocityScaleFactorX;
-		json.velocityScaleFactorY = this.velocityScaleFactorY;
+		if (exportAll || checkVelocityScale())
+		{
+			json.velocityScaleFactorX = this.velocityScaleFactorX;
+			json.velocityScaleFactorY = this.velocityScaleFactorY;
+		}
 		
-		json.velocitySkewFactorX = this.velocitySkewFactorX;
-		json.velocitySkewFactorY = this.velocitySkewFactorY;
+		if (exportAll || checkVelocitySkew())
+		{
+			json.velocitySkewFactorX = this.velocitySkewFactorX;
+			json.velocitySkewFactorY = this.velocitySkewFactorY;
+		}
 		//\VELOCITY
 		
 		// ANIMATION
@@ -2193,60 +2383,72 @@ class ParticleSystemOptions
 		//\ANIMATION
 		
 		// GRAVITY
-		json.speed = this.speed;
-		json.speedVariance = this.speedVariance;
-		json.adjustLifeSpanToSpeed = this.adjustLifeSpanToSpeed;
-		
-		json.gravityX = this.gravityX;
-		json.gravityY = this.gravityY;
-		
-		json.radialAcceleration = this.radialAcceleration;
-		json.radialAccelerationVariance = this.radialAccelerationVariance;
-		
-		json.tangentialAcceleration = this.tangentialAcceleration;
-		json.tangentialAccelerationVariance = this.tangentialAccelerationVariance;
-		
-		json.drag = this.drag;
-		json.dragVariance = this.dragVariance;
-		
-		json.repellentForce = this.repellentForce;
+		if (exportAll || checkGravity())
+		{
+			json.speed = this.speed;
+			json.speedVariance = this.speedVariance;
+			json.adjustLifeSpanToSpeed = this.adjustLifeSpanToSpeed;
+			
+			json.gravityX = this.gravityX;
+			json.gravityY = this.gravityY;
+			
+			json.radialAcceleration = this.radialAcceleration;
+			json.radialAccelerationVariance = this.radialAccelerationVariance;
+			
+			json.tangentialAcceleration = this.tangentialAcceleration;
+			json.tangentialAccelerationVariance = this.tangentialAccelerationVariance;
+			
+			json.drag = this.drag;
+			json.dragVariance = this.dragVariance;
+			
+			json.repellentForce = this.repellentForce;
+		}
 		//\GRAVITY
 		
 		// RADIAL
-		json.radiusMax = this.radiusMax;
-		json.radiusMaxVariance = this.radiusMaxVariance;
-		
-		json.radiusMin = this.radiusMin;
-		json.radiusMinVariance = this.radiusMinVariance;
-		
-		json.rotatePerSecond = this.rotatePerSecond;
-		json.rotatePerSecondVariance = this.rotatePerSecondVariance;
-		
-		json.alignRadialRotation = this.alignRadialRotation;
-		json.alignRadialRotationOffset = this.alignRadialRotationOffset;
-		json.alignRadialRotationOffsetVariance = this.alignRadialRotationOffsetVariance;
+		if (exportAll || checkRadial())
+		{
+			json.radiusMax = this.radiusMax;
+			json.radiusMaxVariance = this.radiusMaxVariance;
+			
+			json.radiusMin = this.radiusMin;
+			json.radiusMinVariance = this.radiusMinVariance;
+			
+			json.rotatePerSecond = this.rotatePerSecond;
+			json.rotatePerSecondVariance = this.rotatePerSecondVariance;
+			
+			json.alignRadialRotation = this.alignRadialRotation;
+			json.alignRadialRotationOffset = this.alignRadialRotationOffset;
+			json.alignRadialRotationOffsetVariance = this.alignRadialRotationOffsetVariance;
+		}
 		//\RADIAL
 		
 		// COLOR
-		json.colorStart = colorToJSON(this.colorStart);
-		json.colorStartVariance = colorToJSON(this.colorStartVariance);
-		
-		json.colorEnd = colorToJSON(this.colorEnd);
-		json.colorEndVariance = colorToJSON(this.colorEndVariance);
-		
-		json.colorEndRelativeToStart = this.colorEndRelativeToStart;
-		json.colorEndIsMultiplier = this.colorEndIsMultiplier;
+		if (exportAll || checkColor())
+		{
+			json.colorStart = colorToJSON(this.colorStart);
+			json.colorStartVariance = colorToJSON(this.colorStartVariance);
+			
+			json.colorEnd = colorToJSON(this.colorEnd);
+			json.colorEndVariance = colorToJSON(this.colorEndVariance);
+			
+			json.colorEndRelativeToStart = this.colorEndRelativeToStart;
+			json.colorEndIsMultiplier = this.colorEndIsMultiplier;
+		}
 		//\COLOR
 		
 		// COLOR OFFSET
-		json.colorOffsetStart = colorToJSON(this.colorOffsetStart);
-		json.colorOffsetStartVariance = colorToJSON(this.colorOffsetStartVariance);
-		
-		json.colorOffsetEnd = colorToJSON(this.colorOffsetEnd);
-		json.colorOffsetEndVariance = colorToJSON(this.colorOffsetEndVariance);
-		
-		json.colorOffsetEndRelativeToStart = this.colorOffsetEndRelativeToStart;
-		json.colorOffsetEndIsMultiplier = this.colorOffsetEndIsMultiplier;
+		if (exportAll || checkColorOffset())
+		{
+			json.colorOffsetStart = colorToJSON(this.colorOffsetStart);
+			json.colorOffsetStartVariance = colorToJSON(this.colorOffsetStartVariance);
+			
+			json.colorOffsetEnd = colorToJSON(this.colorOffsetEnd);
+			json.colorOffsetEndVariance = colorToJSON(this.colorOffsetEndVariance);
+			
+			json.colorOffsetEndRelativeToStart = this.colorOffsetEndRelativeToStart;
+			json.colorOffsetEndIsMultiplier = this.colorOffsetEndIsMultiplier;
+		}
 		//\COLOR OFFSET
 		
 		// OSCILLATION
@@ -2254,7 +2456,7 @@ class ParticleSystemOptions
 		json.oscillationUnifiedFrequencyVariance = this.oscillationUnifiedFrequencyVariance;
 		
 		// position
-		if (checkOscillationPosition())
+		if (exportAll || checkOscillationPosition())
 		{
 			json.positionOscillationFrequencyMode = this.positionOscillationFrequencyMode;
 			json.positionOscillationGroupStartStep = this.positionOscillationGroupStartStep;
@@ -2272,7 +2474,7 @@ class ParticleSystemOptions
 		}
 		
 		// position2
-		if (checkOscillationPosition2())
+		if (exportAll || checkOscillationPosition2())
 		{
 			json.position2OscillationFrequencyMode = this.position2OscillationFrequencyMode;
 			json.position2OscillationGroupStartStep = this.position2OscillationGroupStartStep;
@@ -2290,7 +2492,7 @@ class ParticleSystemOptions
 		}
 		
 		// rotation
-		if (checkOscillationRotation())
+		if (exportAll || checkOscillationRotation())
 		{
 			json.rotationOscillationFrequencyMode = this.rotationOscillationFrequencyMode;
 			json.rotationOscillationGroupStartStep = this.rotationOscillationGroupStartStep;
@@ -2305,7 +2507,7 @@ class ParticleSystemOptions
 		}
 		
 		// scaleX
-		if (checkOscillationScaleX())
+		if (exportAll || checkOscillationScaleX())
 		{
 			json.scaleXOscillationFrequencyMode = this.scaleXOscillationFrequencyMode;
 			json.scaleXOscillationGroupStartStep = this.scaleXOscillationGroupStartStep;
@@ -2320,7 +2522,7 @@ class ParticleSystemOptions
 		}
 		
 		// scaleY
-		if (checkOscillationScaleY())
+		if (exportAll || checkOscillationScaleY())
 		{
 			json.scaleYOscillationFrequencyMode = this.scaleYOscillationFrequencyMode;
 			json.scaleYOscillationGroupStartStep = this.scaleYOscillationGroupStartStep;
@@ -2335,7 +2537,7 @@ class ParticleSystemOptions
 		}
 		
 		// skewX
-		if (checkOscillationSkewX())
+		if (exportAll || checkOscillationSkewX())
 		{
 			json.skewXOscillationFrequencyMode = this.skewXOscillationFrequencyMode;
 			json.skewXOscillationGroupStartStep = this.skewXOscillationGroupStartStep;
@@ -2350,7 +2552,7 @@ class ParticleSystemOptions
 		}
 		
 		// skewY
-		if (checkOscillationSkewY())
+		if (exportAll || checkOscillationSkewY())
 		{
 			json.skewYOscillationFrequencyMode = this.skewYOscillationFrequencyMode;
 			json.skewYOscillationGroupStartStep = this.skewYOscillationGroupStartStep;
@@ -2365,7 +2567,7 @@ class ParticleSystemOptions
 		}
 		
 		// color
-		if (checkOscillationColor())
+		if (exportAll || checkOscillationColor())
 		{
 			json.colorOscillationFrequencyMode = this.colorOscillationFrequencyMode;
 			json.colorOscillationGroupStartStep = this.colorOscillationGroupStartStep;
@@ -2380,7 +2582,7 @@ class ParticleSystemOptions
 		}
 		
 		// color offset
-		if (checkOscillationColorOffset())
+		if (exportAll || checkOscillationColorOffset())
 		{
 			json.colorOffsetOscillationFrequencyMode = this.colorOffsetOscillationFrequencyMode;
 			json.colorOffsetOscillationGroupStartStep = this.colorOffsetOscillationGroupStartStep;
@@ -2617,6 +2819,31 @@ class ParticleSystemOptions
 		}
 	}
 	
+	private function checkBurst():Bool
+	{
+		return this.emitterMode == EmitterMode.BURST;
+	}
+	
+	private function checkColor():Bool
+	{
+		return this.colorEndRelativeToStart || this.colorEndIsMultiplier || !this.colorStart.isSameAs(this.colorEnd) || this.colorStartVariance.hasValue() || this.colorEndVariance.hasValue();
+	}
+	
+	private function checkColorOffset():Bool
+	{
+		return this.colorOffsetEndRelativeToStart || this.colorOffsetEndIsMultiplier || !this.colorOffsetStart.isSameAs(this.colorOffsetEnd) || this.colorOffsetStartVariance.hasValue() || this.colorOffsetEndVariance.hasValue();
+	}
+	
+	private function checkEmitterRadius():Bool
+	{
+		return this.emitterRadiusMax != 0.0 || this.emitterRadiusMaxVariance != 0.0 || this.emitterRadiusMin != 0.0 || this.emitterRadiusMinVariance != 0.0;
+	}
+	
+	private function checkGravity():Bool
+	{
+		return this.emitterType == EmitterType.GRAVITY;
+	}
+	
 	private function checkOscillationColor():Bool
 	{
 		return this.colorOscillation.hasValue() || this.colorOscillationVariance.hasValue();
@@ -2661,4 +2888,51 @@ class ParticleSystemOptions
 	{
 		return this.skewYOscillation != 0.0 || this.skewYOscillationVariance != 0.0;
 	}
+	
+	private function checkRadial():Bool
+	{
+		return this.emitterType == EmitterType.RADIAL;
+	}
+	
+	private function checkRotation():Bool
+	{
+		return this.rotationEndRelativeToStart || this.rotationEnd != this.rotationStart || this.rotationStartVariance != 0.0 || this.rotationEndVariance != 0.0;
+	}
+	
+	private function checkSkewX():Bool
+	{
+		return this.skewXEndRelativeToStart || this.skewXStart != this.skewXEnd || this.skewXStartVariance != 0.0 || this.skewXEndVariance != 0.0;
+	}
+	
+	private function checkSkewY():Bool
+	{
+		return this.skewYEndRelativeToStart || this.skewYStart != this.skewYEnd || this.skewYStartVariance != 0.0 || this.skewYEndVariance != 0.0;
+	}
+	
+	private function checkVelocityInheritance():Bool
+	{
+		return this.velocityXInheritRatio != 0.0 || this.velocityXInheritRatioVariance != 0.0 ||
+			   this.velocityYInheritRatio != 0.0 || this.velocityYInheritRatioVariance != 0.0;
+	}
+	
+	private function checkVelocityLinkRotation():Bool
+	{
+		return this.linkRotationToVelocity;
+	}
+	
+	private function checkVelocityRotation():Bool
+	{
+		return this.velocityRotationFactor != 0.0;
+	}
+	
+	private function checkVelocityScale():Bool
+	{
+		return this.velocityScaleFactorX != 0.0 || this.velocityScaleFactorY != 0.0;
+	}
+	
+	private function checkVelocitySkew():Bool
+	{
+		return this.velocitySkewFactorX != 0.0 || this.velocitySkewFactorY != 0.0;
+	}
+	
 }
