@@ -14,7 +14,6 @@ import openfl.Vector;
  * Animates clips
  * @author Matse
  */
-//class Animator<B:BasicClip = BasicClip, C:Clip = Clip, P:Particle = Particle> implements IAnimatable
 class Animator implements IAnimatable
 {
 	/**
