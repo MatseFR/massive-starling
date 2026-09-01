@@ -38,34 +38,63 @@ Massive is meant to be as easy as possible to work with, startup Starling like y
 // but later updates might rely on this for non-multitexturing stuff so it's safer to do it anyway
 MassiveDisplay.init();
 
+// after calling init you can immediately check how many textures you can use simultaneously in a single MassiveDisplay instance
+// Typically you should be able to use up to 16 textures
+var maxTextures:Int = MassiveDisplay.maxNumTextures;
+
 // create a Massive DisplayObject
 var massive:MassiveDisplay = new MassiveDisplay();
-// by default a MassiveDisplay instance will use the maximum buffer size, which is MassiveConstants.MAX_QUADS (16383)
-// if you know you're gonna use less than that you can set the buffer size for better performance
-massive.maxQuads = 5000; // display up to 5000 quads
+// by default a MassiveDisplay instance will have maxQuads set to MassiveConstants.MAX_QUADS (16383)
+// you can set maxQuads to any number, but there will be a draw call every 16383 quads
+// if you have more quads than the maxQuads value it will still work but the MassiveDisplay will have
+// to reuse a VertexBuffer that was already used on the current frame and it will reduce performance significantly
+// Basically maxQuads lets the MassiveDisplay object create the required amount of VertexBuffer for best performance
+massive.maxQuads = 50000; // display up to 50000 quads
+// we set the default texture
 massive.texture = assetManager.getTextureAtlas("my-atlas").texture;
 addChild(massive);
 
-// we need a layer in order to display something
-var layer:ImageLayer = new ImageLayer();
-massive.addLayer(layer);
+// note that we could add more textures !
 
-// we need to create Frame instances to display Massive's equivalent of Image
+// we need a container in order to display something, here we use a MixedContainer which can have containers and quads
+var container:MixedContainer = new MixedContainer();
+massive.addLayer(container);
+
+// let's also create an ImgContainer, which is a bit faster than MixedContainer at rendering quads
+var imgContainer:ImgContainer = new ImgContainer();
+// add it to the MixedContainer (we could also add it to the MassiveDisplay as a layer)
+container.addChild(imgContainer);
+
+// now let's add an Img object, which is simply a textured quad
+// with Massive you don't set textures on quads, but Frame objects
+// the Frame class offers several static functions to create frames easily
+// here we just create a frame with a centered pivot point
+var texture:Texture = assetManager.getTexture("my-atlas-texture");
+var frame:Frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
+// you can pass the Frame object in the constructor or set img.frame
+var img:Img = new Img(frame);
+
+// we add the textured quad to the ImgContainer
+imgContainer.addChild(img);
+
+// now let's add a few Clip objects to demonstrate texture animation in Massive
+// first we need to create Frame objects from the textures
 var textures = assetManager.getTextures("my-atlas-animation");
-var frames = Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER); // the Frame class offers various helper functions
-// we also need timings to associate with those frames
-var timings = Animator.generateTimings(frames);
-
-// we're ready to display our animated "image"
-var img:ImageData = new ImageData();
-img.setFrames(frames, timings);
-img.x = 200;
-img.y = 100;
-layer.addImage(img);
+var frames = Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER);
+// now we can create an Animation object using AnimUtils
+var animation = AnimUtils.createAnimation(frames);
+// create Clip objects, the same Animation can be shared amongst as many Clips as you want
+var clip:Clip;
+for (i in 0...1000)
+{
+  clip = new Clip();
+  clip.play(animation);
+  imgContainer.addChild(clip);
+}
 
 // note that we don't use multitexturing here : MassiveDisplay only has one texture
 // with multitexturing, unless we want our image to use the first texture we would
-// have to set the image's textureIndex
+// have to set the Img and Clips textureIndex
 ```
 You can also look at the [samples](https://github.com/MatseFR/massive-starling/tree/main/samples) source code for starters
 
@@ -73,5 +102,5 @@ You can also look at the [samples](https://github.com/MatseFR/massive-starling/t
 ### Why is Massive so fast ?
 There are several reasons to this :
 - every object in a MassiveDisplay is batchable with the others, no need to check anything
-- Massive display objects are simple : they only have x y position, x y offset, x y scaling, rotation, red/green/blue/alpha and visible properties. Those are public and changing their values doesn't trigger any additionnal code like setting vertex data etc They also aren't touchable, can't have individual blend modes or filters
+- Massive display objects are simple : they only have x y position, x y offset, x y scaling, x y skewing, rotation, red/green/blue/alpha color + color offsets and visible properties. Those are public and changing their values doesn't trigger any additionnal code like setting vertex data etc They also aren't touchable, can't have individual blend modes or filters
 - ByteArray is slow + on non-flash targets it needs to be copied before being sent to OpenGL. In Massive the ByteArray renderMode is only there to show that you shouldn't use ByteArray for that kind of stuff :)
