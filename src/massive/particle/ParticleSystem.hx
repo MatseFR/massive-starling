@@ -2894,6 +2894,7 @@ class ParticleSystem extends ContainerBase
 		this.particlesFromPoolFunction = null;
 		this.particlesToPoolFunction = null;
 		
+		this.emitterObject = null;
 		this.customFunction = null;
 		this.sortFunction = null;
 		this.forceSortFlag = false;
