@@ -1027,11 +1027,6 @@ class ParticleSystem extends ContainerBase
 	// ANIMATION
 	//##################################################
 	/**
-	   Tells whether the system should animate or not
-	**/
-	public var animate:Bool = true;
-	
-	/**
 	   If set with an Animator instance, the system will automatically register itself and its particles
 	**/
 	public var animator(get, set):Animator;
@@ -2880,11 +2875,11 @@ class ParticleSystem extends ContainerBase
 		}
 		else
 		{
-			init();
+			updateEmissionRate();
 		}
 	}
 	
-	public function clear(reset:Bool = false):Void
+	override public function clear():Void
 	{
 		clearFrames();
 		
@@ -2899,303 +2894,17 @@ class ParticleSystem extends ContainerBase
 		this.particlesFromPoolFunction = null;
 		this.particlesToPoolFunction = null;
 		
-		if (reset)
-		{
-			// EMITTER
-			this.emitterType = EmitterType.GRAVITY;
-			this.emitterMode = EmitterMode.STREAM;
-			
-			this._maxNumParticles = 1000;
-			
-			this.particleAmount = 0;
-			
-			this.numBursts = 1;
-			this.burstDuration = 0.0;
-			this.burstInterval = 1.0;
-			this.burstIntervalVariance = 0.0;
-			
-			this._autoSetEmissionRate = true;
-			this.emissionRate = 1000.0;
-			this.emissionRatio = 1.0;
-			
-			this.emitterX = 0.0;
-			this.emitterY = 0.0;
-			this.emitterXVariance = 0.0;
-			this.emitterYVariance = 0.0;
-			
-			this.emitterRadiusMax = 0.0;
-			this.emitterRadiusMaxVariance = 0.0;
-			this.emitterRadiusMin = 0.0;
-			this.emitterRadiusMinVariance = 0.0;
-			this.emitterRadiusOverridesParticleAngle = false;
-			this.emitterRadiusParticleAngleOffset = 0.0;
-			this.emitterRadiusParticleAngleOffsetVariance = 0.0;
-			
-			this.emitAngle = 0.0;
-			this.emitAngleVariance = Math.PI;
-			
-			this.emitAngleAlignedRotation = false;
-			this.emitAngleAlignedRotationOffset = 0.0;
-			
-			this._emissionTimePredefined = MathUtils.FLOAT_MAX;
-			
-			this.useDisplayRect = false;
-			this.displayRect.setEmpty();
-			//\EMITTER
-			
-			// PARTICLE
-			this.useAnimationLifeSpan = false;
-			this.lifeSpan = 1.0;
-			this.lifeSpanVariance = 0.0;
-			
-			this.fadeInTime = 0.0;
-			this.fadeOutTime = 0.0;
-			
-			this.randomInvertX = false;
-			this.randomInvertY = false;
-			
-			this.sizeXStart = 20.0;
-			this.sizeXStartVariance = 0.0;
-			this.sizeYStart = 20.0;
-			this.sizeYStartVariance = 0.0;
-			this.sizeXEndRelativeToStart = false;
-			
-			this.sizeXEnd = 20.0;
-			this.sizeXEndVariance = 0.0;
-			this.sizeYEnd = 20.0;
-			this.sizeYEndVariance = 0.0;
-			this.sizeYEndRelativeToStart = false;
-			
-			this.rotationStart = 0.0;
-			this.rotationStartVariance = 0.0;
-			this.rotationEnd = 0.0;
-			this.rotationEndVariance = 0.0;
-			this.rotationEndRelativeToStart = false;
-			
-			this.skewXStart = 0.0;
-			this.skewXStartVariance = 0.0;
-			this.skewXEnd = 0.0;
-			this.skewXEndVariance = 0.0;
-			this.skewXEndRelativeToStart = false;
-			
-			this.skewYStart = 0.0;
-			this.skewYStartVariance = 0.0;
-			this.skewYEnd = 0.0;
-			this.skewYEndVariance = 0.0;
-			this.skewYEndRelativeToStart = false;
-			//\PARTICLE
-			
-			// VELOCITY
-			this.velocityXInheritRatio = 0.0;
-			this.velocityXInheritRatioVariance = 0.0;
-			this.velocityYInheritRatio = 0.0;
-			this.velocityYInheritRatioVariance = 0.0;
-			
-			this.linkRotationToVelocity = false;
-			this.velocityRotationOffset = 0.0;
-			
-			this.velocityRotationFactor = 0.0;
-			
-			this.velocityScaleFactorX = 0.0;
-			this.velocityScaleFactorY = 0.0;
-			
-			this.velocitySkewFactorX = 0.0;
-			this.velocitySkewFactorY = 0.0;
-			//\VELOCITY
-			
-			// ANIMATION
-			this.animate = true;
-			this.animator = null;
-			this.basicAnimation = true;
-			this.frameDelta = 1.0;
-			this.frameDeltaVariance = 0.0;
-			//\ANIMATION
-			
-			// GRAVITY
-			this.speed = 100.0;
-			this.speedVariance = 20.0;
-			this.adjustLifeSpanToSpeed = false;
-			
-			this.gravityX = 0.0;
-			this.gravityY = 0.0;
-			
-			this.radialAcceleration = 0.0;
-			this.radialAccelerationVariance = 0.0;
-			
-			this.tangentialAcceleration = 0.0;
-			this.tangentialAccelerationVariance = 0.0;
-			
-			this.drag = 0.0;
-			this.dragVariance = 0.0;
-			
-			this.repellentForce = 0.0;
-			//\GRAVITY
-			
-			// RADIAL
-			this.radiusMax = 300.0;
-			this.radiusMaxVariance = 0.0;
-			
-			this.radiusMin = 0.0;
-			this.radiusMinVariance = 0.0;
-			
-			this.rotatePerSecond = 0.0;
-			this.rotatePerSecondVariance = 0.0;
-			
-			this.alignRadialRotation = false;
-			this.alignRadialRotationOffset = 0.0;
-			this.alignRadialRotationOffsetVariance = 0.0;
-			//\RADIAL
-			
-			// COLOR
-			this.colorStart.setTo(1.0, 1.0, 1.0, 1.0);
-			this.colorStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
-			
-			this.colorEnd.setTo(1.0, 1.0, 1.0, 1.0);
-			this.colorEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
-			
-			this.colorEndRelativeToStart = false;
-			this.colorEndIsMultiplier = false;
-			//\COLOR
-			
-			// COLOR OFFSET
-			this.colorOffsetStart.setTo(0.0, 0.0, 0.0, 0.0);
-			this.colorOffsetStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
-			
-			this.colorOffsetEnd.setTo(0.0, 0.0, 0.0, 0.0);
-			this.colorOffsetEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
-			
-			this.colorOffsetEndRelativeToStart = false;
-			this.colorOffsetEndIsMultiplier = false;
-			//\COLOR OFFSET
-			
-			// OSCILLATION
-			this.oscillationGlobalFrequency = 1.0;
-			this.oscillationUnifiedFrequencyVariance = 0.0;
-			
-			// position
-			this.positionOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.positionOscillationGroupStartStep = 0.0;
-			this.positionOscillationOneWay = false;
-			this.positionOscillationAngle = 0.0;
-			this.positionOscillationAngleVariance = 0.0;
-			this.positionOscillationAngleRelativeTo = AngleRelativeTo.ROTATION;
-			this.positionOscillationRadius = 0.0;
-			this.positionOscillationRadiusVariance = 0.0;
-			this.positionOscillationFrequency = 1.0;
-			this.positionOscillationUnifiedFrequencyVariance = false;
-			this.positionOscillationFrequencyVariance = 0.0;
-			this.positionOscillationFrequencyInverted = false;
-			this.positionOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			
-			// position2
-			this.position2OscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.position2OscillationGroupStartStep = 0.0;
-			this.position2OscillationOneWay = false;
-			this.position2OscillationAngle = 0.0;
-			this.position2OscillationAngleVariance = 0.0;
-			this.position2OscillationAngleRelativeTo = AngleRelativeTo.ROTATION;
-			this.position2OscillationRadius = 0.0;
-			this.position2OscillationRadiusVariance = 0.0;
-			this.position2OscillationFrequency = 1.0;
-			this.position2OscillationUnifiedFrequencyVariance = false;
-			this.position2OscillationFrequencyVariance = 0.0;
-			this.position2OscillationFrequencyInverted = false;
-			this.position2OscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			
-			// rotation
-			this.rotationOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.rotationOscillationGroupStartStep = 0.0;
-			this.rotationOscillationOneWay = false;
-			this.rotationOscillationAngle = 0.0;
-			this.rotationOscillationAngleVariance = 0.0;
-			this.rotationOscillationFrequency = 1.0;
-			this.rotationOscillationUnifiedFrequencyVariance = false;
-			this.rotationOscillationFrequencyVariance = 0.0;
-			this.rotationOscillationFrequencyInverted = false;
-			this.rotationOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			
-			// scaleX
-			this.scaleXOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.scaleXOscillationGroupStartStep = 0.0;
-			this.scaleXOscillationOneWay = false;
-			this.scaleXOscillation = 0.0;
-			this.scaleXOscillationVariance = 0.0;
-			this.scaleXOscillationFrequency = 1.0;
-			this.scaleXOscillationUnifiedFrequencyVariance = false;
-			this.scaleXOscillationFrequencyVariance = 0.0;
-			this.scaleXOscillationFrequencyInverted = false;
-			this.scaleXOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			
-			// scaleY
-			this.scaleYOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.scaleYOscillationGroupStartStep = 0.0;
-			this.scaleYOscillationOneWay = false;
-			this.scaleYOscillation = 0.0;
-			this.scaleYOscillationVariance = 0.0;
-			this.scaleYOscillationFrequency = 1.0;
-			this.scaleYOscillationUnifiedFrequencyVariance = false;
-			this.scaleYOscillationFrequencyVariance = 0.0;
-			this.scaleYOscillationFrequencyInverted = false;
-			this.scaleYOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			
-			// skewX
-			this.skewXOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.skewXOscillationGroupStartStep = 0.0;
-			this.skewXOscillationOneWay = false;
-			this.skewXOscillation = 0.0;
-			this.skewXOscillationVariance = 0.0;
-			this.skewXOscillationFrequency = 1.0;
-			this.skewXOscillationUnifiedFrequencyVariance = false;
-			this.skewXOscillationFrequencyVariance = 0.0;
-			this.skewXOscillationFrequencyInverted = false;
-			this.skewXOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			
-			// slewY
-			this.skewYOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.skewYOscillationGroupStartStep = 0.0;
-			this.skewYOscillationOneWay = false;
-			this.skewYOscillation = 0.0;
-			this.skewYOscillationVariance = 0.0;
-			this.skewYOscillationFrequency = 1.0;
-			this.skewYOscillationUnifiedFrequencyVariance = false;
-			this.skewYOscillationFrequencyVariance = 0.0;
-			this.skewYOscillationFrequencyInverted = false;
-			this.skewYOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			
-			// color
-			this.colorOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.colorOscillationGroupStartStep = 0.0;
-			this.colorOscillationOneWay = false;
-			this.colorOscillation.setTo(0.0, 0.0, 0.0, 0.0);
-			this.colorOscillationVariance.setTo(0.0, 0.0, 0.0, 0.0);
-			this.colorOscillationFrequency = 1.0;
-			this.colorOscillationUnifiedFrequencyVariance = false;
-			this.colorOscillationFrequencyVariance = 0.0;
-			this.colorOscillationFrequencyInverted = false;
-			this.colorOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			
-			// color offset
-			this.colorOffsetOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
-			this.colorOffsetOscillationGroupStartStep = 0.0;
-			this.colorOffsetOscillationOneWay = false;
-			this.colorOffsetOscillation.setTo(0.0, 0.0, 0.0, 0.0);
-			this.colorOffsetOscillationVariance.setTo(0.0, 0.0, 0.0, 0.0);
-			this.colorOffsetOscillationFrequency = 1.0;
-			this.colorOffsetOscillationUnifiedFrequencyVariance = false;
-			this.colorOffsetOscillationFrequencyVariance = 0.0;
-			this.colorOffsetOscillationFrequencyInverted = false;
-			this.colorOffsetOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
-			//\OSCILLATION
-		}
-		
 		this.customFunction = null;
 		this.sortFunction = null;
 		this.forceSortFlag = false;
+		
+		super.clear();
 	}
 	
-	public function pool(reset:Bool = false):Void
+	public function pool(defaultSettings:Bool = false):Void
 	{
-		clear(reset);
+		if (defaultSettings) resetSettings();
+		clear();
 		_POOL[_POOL.length] = this;
 	}
 	
@@ -3207,14 +2916,302 @@ class ParticleSystem extends ContainerBase
 		}
 		else
 		{
-			init();
+			updateEmissionRate();
 		}
 		return this;
 	}
 	
-	private function init():Void
+	public function resetSettings():Void
 	{
-		this._emissionRate = this._maxNumParticles / this._lifeSpan;
+		// EMITTER
+		this.emitterType = EmitterType.GRAVITY;
+		this.emitterMode = EmitterMode.STREAM;
+		
+		this._maxNumParticles = 1000;
+		
+		this.particleAmount = 0;
+		
+		this.numBursts = 1;
+		this.burstDuration = 0.0;
+		this.burstInterval = 1.0;
+		this.burstIntervalVariance = 0.0;
+		
+		this._autoSetEmissionRate = true;
+		this.emissionRate = 1000.0;
+		this.emissionRatio = 1.0;
+		
+		this.emitterX = 0.0;
+		this.emitterY = 0.0;
+		this.emitterXVariance = 0.0;
+		this.emitterYVariance = 0.0;
+		
+		this.emitterRadiusMax = 0.0;
+		this.emitterRadiusMaxVariance = 0.0;
+		this.emitterRadiusMin = 0.0;
+		this.emitterRadiusMinVariance = 0.0;
+		this.emitterRadiusOverridesParticleAngle = false;
+		this.emitterRadiusParticleAngleOffset = 0.0;
+		this.emitterRadiusParticleAngleOffsetVariance = 0.0;
+		
+		this.emitAngle = 0.0;
+		this.emitAngleVariance = Math.PI;
+		
+		this.emitAngleAlignedRotation = false;
+		this.emitAngleAlignedRotationOffset = 0.0;
+		
+		this._emissionTimePredefined = MathUtils.FLOAT_MAX;
+		
+		this.useDisplayRect = false;
+		this.displayRect.setEmpty();
+		//\EMITTER
+		
+		// PARTICLE
+		this.useAnimationLifeSpan = false;
+		this.lifeSpan = 1.0;
+		this.lifeSpanVariance = 0.0;
+		
+		this.fadeInTime = 0.0;
+		this.fadeOutTime = 0.0;
+		
+		this.randomInvertX = false;
+		this.randomInvertY = false;
+		
+		this.sizeXStart = 20.0;
+		this.sizeXStartVariance = 0.0;
+		this.sizeYStart = 20.0;
+		this.sizeYStartVariance = 0.0;
+		this.sizeXEndRelativeToStart = false;
+		
+		this.sizeXEnd = 20.0;
+		this.sizeXEndVariance = 0.0;
+		this.sizeYEnd = 20.0;
+		this.sizeYEndVariance = 0.0;
+		this.sizeYEndRelativeToStart = false;
+		
+		this.rotationStart = 0.0;
+		this.rotationStartVariance = 0.0;
+		this.rotationEnd = 0.0;
+		this.rotationEndVariance = 0.0;
+		this.rotationEndRelativeToStart = false;
+		
+		this.skewXStart = 0.0;
+		this.skewXStartVariance = 0.0;
+		this.skewXEnd = 0.0;
+		this.skewXEndVariance = 0.0;
+		this.skewXEndRelativeToStart = false;
+		
+		this.skewYStart = 0.0;
+		this.skewYStartVariance = 0.0;
+		this.skewYEnd = 0.0;
+		this.skewYEndVariance = 0.0;
+		this.skewYEndRelativeToStart = false;
+		//\PARTICLE
+		
+		// VELOCITY
+		this.velocityXInheritRatio = 0.0;
+		this.velocityXInheritRatioVariance = 0.0;
+		this.velocityYInheritRatio = 0.0;
+		this.velocityYInheritRatioVariance = 0.0;
+		
+		this.linkRotationToVelocity = false;
+		this.velocityRotationOffset = 0.0;
+		
+		this.velocityRotationFactor = 0.0;
+		
+		this.velocityScaleFactorX = 0.0;
+		this.velocityScaleFactorY = 0.0;
+		
+		this.velocitySkewFactorX = 0.0;
+		this.velocitySkewFactorY = 0.0;
+		//\VELOCITY
+		
+		// ANIMATION
+		//this.animate = true;
+		this.animator = null;
+		this.basicAnimation = true;
+		this.frameDelta = 1.0;
+		this.frameDeltaVariance = 0.0;
+		//\ANIMATION
+		
+		// GRAVITY
+		this.speed = 100.0;
+		this.speedVariance = 20.0;
+		this.adjustLifeSpanToSpeed = false;
+		
+		this.gravityX = 0.0;
+		this.gravityY = 0.0;
+		
+		this.radialAcceleration = 0.0;
+		this.radialAccelerationVariance = 0.0;
+		
+		this.tangentialAcceleration = 0.0;
+		this.tangentialAccelerationVariance = 0.0;
+		
+		this.drag = 0.0;
+		this.dragVariance = 0.0;
+		
+		this.repellentForce = 0.0;
+		//\GRAVITY
+		
+		// RADIAL
+		this.radiusMax = 300.0;
+		this.radiusMaxVariance = 0.0;
+		
+		this.radiusMin = 0.0;
+		this.radiusMinVariance = 0.0;
+		
+		this.rotatePerSecond = 0.0;
+		this.rotatePerSecondVariance = 0.0;
+		
+		this.alignRadialRotation = false;
+		this.alignRadialRotationOffset = 0.0;
+		this.alignRadialRotationOffsetVariance = 0.0;
+		//\RADIAL
+		
+		// COLOR
+		this.colorStart.setTo(1.0, 1.0, 1.0, 1.0);
+		this.colorStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		
+		this.colorEnd.setTo(1.0, 1.0, 1.0, 1.0);
+		this.colorEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		
+		this.colorEndRelativeToStart = false;
+		this.colorEndIsMultiplier = false;
+		//\COLOR
+		
+		// COLOR OFFSET
+		this.colorOffsetStart.setTo(0.0, 0.0, 0.0, 0.0);
+		this.colorOffsetStartVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		
+		this.colorOffsetEnd.setTo(0.0, 0.0, 0.0, 0.0);
+		this.colorOffsetEndVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		
+		this.colorOffsetEndRelativeToStart = false;
+		this.colorOffsetEndIsMultiplier = false;
+		//\COLOR OFFSET
+		
+		// OSCILLATION
+		this.oscillationGlobalFrequency = 1.0;
+		this.oscillationUnifiedFrequencyVariance = 0.0;
+		
+		// position
+		this.positionOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.positionOscillationGroupStartStep = 0.0;
+		this.positionOscillationOneWay = false;
+		this.positionOscillationAngle = 0.0;
+		this.positionOscillationAngleVariance = 0.0;
+		this.positionOscillationAngleRelativeTo = AngleRelativeTo.ROTATION;
+		this.positionOscillationRadius = 0.0;
+		this.positionOscillationRadiusVariance = 0.0;
+		this.positionOscillationFrequency = 1.0;
+		this.positionOscillationUnifiedFrequencyVariance = false;
+		this.positionOscillationFrequencyVariance = 0.0;
+		this.positionOscillationFrequencyInverted = false;
+		this.positionOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// position2
+		this.position2OscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.position2OscillationGroupStartStep = 0.0;
+		this.position2OscillationOneWay = false;
+		this.position2OscillationAngle = 0.0;
+		this.position2OscillationAngleVariance = 0.0;
+		this.position2OscillationAngleRelativeTo = AngleRelativeTo.ROTATION;
+		this.position2OscillationRadius = 0.0;
+		this.position2OscillationRadiusVariance = 0.0;
+		this.position2OscillationFrequency = 1.0;
+		this.position2OscillationUnifiedFrequencyVariance = false;
+		this.position2OscillationFrequencyVariance = 0.0;
+		this.position2OscillationFrequencyInverted = false;
+		this.position2OscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// rotation
+		this.rotationOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.rotationOscillationGroupStartStep = 0.0;
+		this.rotationOscillationOneWay = false;
+		this.rotationOscillationAngle = 0.0;
+		this.rotationOscillationAngleVariance = 0.0;
+		this.rotationOscillationFrequency = 1.0;
+		this.rotationOscillationUnifiedFrequencyVariance = false;
+		this.rotationOscillationFrequencyVariance = 0.0;
+		this.rotationOscillationFrequencyInverted = false;
+		this.rotationOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// scaleX
+		this.scaleXOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.scaleXOscillationGroupStartStep = 0.0;
+		this.scaleXOscillationOneWay = false;
+		this.scaleXOscillation = 0.0;
+		this.scaleXOscillationVariance = 0.0;
+		this.scaleXOscillationFrequency = 1.0;
+		this.scaleXOscillationUnifiedFrequencyVariance = false;
+		this.scaleXOscillationFrequencyVariance = 0.0;
+		this.scaleXOscillationFrequencyInverted = false;
+		this.scaleXOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// scaleY
+		this.scaleYOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.scaleYOscillationGroupStartStep = 0.0;
+		this.scaleYOscillationOneWay = false;
+		this.scaleYOscillation = 0.0;
+		this.scaleYOscillationVariance = 0.0;
+		this.scaleYOscillationFrequency = 1.0;
+		this.scaleYOscillationUnifiedFrequencyVariance = false;
+		this.scaleYOscillationFrequencyVariance = 0.0;
+		this.scaleYOscillationFrequencyInverted = false;
+		this.scaleYOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// skewX
+		this.skewXOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.skewXOscillationGroupStartStep = 0.0;
+		this.skewXOscillationOneWay = false;
+		this.skewXOscillation = 0.0;
+		this.skewXOscillationVariance = 0.0;
+		this.skewXOscillationFrequency = 1.0;
+		this.skewXOscillationUnifiedFrequencyVariance = false;
+		this.skewXOscillationFrequencyVariance = 0.0;
+		this.skewXOscillationFrequencyInverted = false;
+		this.skewXOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// slewY
+		this.skewYOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.skewYOscillationGroupStartStep = 0.0;
+		this.skewYOscillationOneWay = false;
+		this.skewYOscillation = 0.0;
+		this.skewYOscillationVariance = 0.0;
+		this.skewYOscillationFrequency = 1.0;
+		this.skewYOscillationUnifiedFrequencyVariance = false;
+		this.skewYOscillationFrequencyVariance = 0.0;
+		this.skewYOscillationFrequencyInverted = false;
+		this.skewYOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// color
+		this.colorOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.colorOscillationGroupStartStep = 0.0;
+		this.colorOscillationOneWay = false;
+		this.colorOscillation.setTo(0.0, 0.0, 0.0, 0.0);
+		this.colorOscillationVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		this.colorOscillationFrequency = 1.0;
+		this.colorOscillationUnifiedFrequencyVariance = false;
+		this.colorOscillationFrequencyVariance = 0.0;
+		this.colorOscillationFrequencyInverted = false;
+		this.colorOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		
+		// color offset
+		this.colorOffsetOscillationFrequencyMode = OscillationFrequencyMode.SINGLE;
+		this.colorOffsetOscillationGroupStartStep = 0.0;
+		this.colorOffsetOscillationOneWay = false;
+		this.colorOffsetOscillation.setTo(0.0, 0.0, 0.0, 0.0);
+		this.colorOffsetOscillationVariance.setTo(0.0, 0.0, 0.0, 0.0);
+		this.colorOffsetOscillationFrequency = 1.0;
+		this.colorOffsetOscillationUnifiedFrequencyVariance = false;
+		this.colorOffsetOscillationFrequencyVariance = 0.0;
+		this.colorOffsetOscillationFrequencyInverted = false;
+		this.colorOffsetOscillationFrequencyStart = OscillationFrequencyStart.ZERO;
+		//\OSCILLATION
+		
+		this.customFunction = null;
+		this.sortFunction = null;
+		this.forceSortFlag = false;
 	}
 	
 	public function addAnimation(animation:Animation, weight:Float = 1.0, textureIndex:Int = 0, refreshParticles:Bool = false, randomStartFrameMin:Int = -1, randomStartFrameMax:Int = -1, randomLoopMin:Int = -1, randomLoopMax:Int = -1):Void
@@ -5114,7 +5111,7 @@ class ParticleSystem extends ContainerBase
 	
 	public function advanceTime(time:Float):Void 
 	{
-		if (!this.animate) return;
+		if (!this._isPlaying) return;
 		
 		var sortFlag:Bool = this.forceSortFlag;
 		
@@ -5619,12 +5616,17 @@ class ParticleSystem extends ContainerBase
 		}
 	}
 	
+	public function pause():Void
+	{
+		this._isPlaying = false;
+	}
+	
 	public function resume():Void
 	{
 		this._isPlaying = true;
 	}
 	
-	public function reset():Void
+	private function reset():Void
 	{
 		if (this._isModeStream && this._autoSetEmissionRate) 
 		{
