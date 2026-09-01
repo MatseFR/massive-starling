@@ -32,6 +32,49 @@ abstract class ContainerBase extends DisplayBase
 	   How many quads this container should write data for when requested.
 	**/
 	public var numDatas:Int = 0;
+	public var color(get, set):Int;
+	public var colorOffset(get, set):Int;
+	public var red:Float = 1.0;
+	public var redOffset:Float = 0.0;
+	public var green:Float = 1.0;
+	public var greenOffset:Float = 0.0;
+	public var blue:Float = 1.0;
+	public var blueOffset:Float = 0.0;
+	public var alpha:Float = 1.0;
+	public var alphaOffset:Float = 0.0;
+	
+	private function get_color():Int
+	{
+		var r:Float = this.red > 1.0 ? 1.0 : this.red < 0.0 ? 0.0 : this.red;
+		var g:Float = this.green > 1.0 ? 1.0 : this.green < 0.0 ? 0.0 : this.green;
+		var b:Float = this.blue > 1.0 ? 1.0 : this.blue < 0.0 ? 0.0 : this.blue;
+		return Std.int(r * 255) << 16 | Std.int(g * 255) << 8 | Std.int(b * 255);
+	}
+	private function set_color(value:Int):Int
+	{
+		this.red = (Std.int(value >> 16) & 0xFF) / 255.0;
+        this.green = (Std.int(value >> 8) & 0xFF) / 255.0;
+        this.blue = (value & 0xFF) / 255.0;
+		return value;
+	}
+	
+	private function get_colorOffset():Int
+	{
+		var r:Float = this.redOffset > 1.0 ? 1.0 : this.redOffset < 0.0 ? 0.0 : this.redOffset;
+		var g:Float = this.greenOffset > 1.0 ? 1.0 : this.greenOffset < 0.0 ? 0.0 : this.greenOffset;
+		var b:Float = this.blueOffset > 1.0 ? 1.0 : this.blueOffset < 0.0 ? 0.0 : this.blueOffset;
+		return Std.int(r * 255) << 16 | Std.int(g * 255) << 8 | Std.int(b * 255);
+	}
+	private function set_colorOffset(value:Int):Int
+	{
+		this.redOffset = (Std.int(value >> 16) & 0xFF) / 255.0;
+        this.greenOffset = (Std.int(value >> 8) & 0xFF) / 255.0;
+        this.blueOffset = (value & 0xFF) / 255.0;
+		return value;
+	}
+	
+	private var _colorChanged:Bool;
+	private var _colorOffsetChanged:Bool;
 	
 	private var _eventDispatcher:EventDispatcher = new EventDispatcher();
 	
@@ -39,6 +82,12 @@ abstract class ContainerBase extends DisplayBase
 	{
 		super();
 		this.isContainer = true;
+	}
+	
+	public function clear():Void
+	{
+		this.__redBasePrevious = this.__greenBasePrevious = this.__blueBasePrevious = this.__alphaBasePrevious = 1.0;
+		this.__redOffsetBasePrevious = this.__greenOffsetBasePrevious = this.__blueOffsetBasePrevious = this.__alphaBasePrevious = 0.0;
 	}
 	
 	inline public function addEventListener(type:String, listener:Function):Void
@@ -71,18 +120,16 @@ abstract class ContainerBase extends DisplayBase
 		return this._eventDispatcher.hasEventListener(type, listener);
 	}
 	
-	inline private function prepareDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
+	inline private function prepareCommon(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
-		this.__byteData = byteData;
 		this.__maxQuads = maxQuads;
 		this.__renderData = renderData;
 		
 		this.__multiTexturing = renderData.multiTexturing;
 		this.__pma = renderData.pma;
 		this.__useColor = renderData.useColor;
-		this.__useDisplayColor = renderData.useDisplayColor;
+		//this.__useDisplayColor = renderData.useDisplayColor;
 		this.__useColorOffset = renderData.useColorOffset;
-		this.__pmaForColorOffset = false;// this.__pma && !this.__useColor && !this.__useDisplayColor;
 		this.__simpleColor = renderData.useSimpleColor;
 		this.__boundsData = boundsData;
 		this.__storeBounds = boundsData != null;
@@ -92,40 +139,86 @@ abstract class ContainerBase extends DisplayBase
 		
 		this.__renderOffsetX = renderOffsetX + this.x;
 		this.__renderOffsetY = renderOffsetY + this.y;
+		
+		if (this.__useColor)
+		{
+			this.__redBase = renderData.red *= this.red;
+			this.__greenBase = renderData.green *= this.green;
+			this.__blueBase = renderData.blue *= this.blue;
+			this.__alphaBase = renderData.alpha *= this.alpha;
+			this._colorChanged = this.__redBase != this.__redBasePrevious || this.__greenBase != this.__greenBasePrevious || 
+								 this.__blueBase != this.__blueBasePrevious || this.__alphaBase != this.__alphaBasePrevious;
+			if (this._colorChanged)
+			{
+				this.__redBasePrevious = this.__redBase;
+				this.__greenBasePrevious = this.__greenBase;
+				this.__blueBasePrevious = this.__blueBase;
+				this.__alphaBasePrevious = this.__alphaBase;
+			}
+		}
+		
+		if (this.__useColorOffset)
+		{
+			this.__redOffsetBase = renderData.redOffset += this.redOffset;
+			this.__greenOffsetBase = renderData.greenOffset += this.greenOffset;
+			this.__blueOffsetBase = renderData.blueOffset += this.blueOffset;
+			this.__alphaOffsetBase = renderData.alphaOffset += this.alphaOffset;
+			this._colorOffsetChanged = this.__redOffsetBase != this.__redOffsetBasePrevious || this.__greenOffsetBase != this.__greenOffsetBasePrevious || 
+									   this.__blueOffsetBase != this.__blueOffsetBasePrevious || this.__alphaOffsetBase != this.__alphaOffsetBasePrevious;
+			if (this._colorOffsetChanged)
+			{
+				this.__redOffsetBasePrevious = this.__redOffsetBase;
+				this.__greenOffsetBasePrevious = this.__greenOffsetBase;
+				this.__blueOffsetBasePrevious = this.__blueOffsetBase;
+				this.__alphaOffsetBasePrevious = this.__alphaOffsetBase;
+			}
+		}
+	}
+	
+	inline private function finishCommon():Void
+	{
+		this.__renderData.numQuads = this.__quadsWritten;
+		
+		if (this.__useColor)
+		{
+			this.__renderData.red /= this.red;
+			this.__renderData.green /= this.green;
+			this.__renderData.blue /= this.blue;
+			this.__renderData.alpha /= this.alpha;
+		}
+		
+		if (this.__useColorOffset)
+		{
+			this.__renderData.redOffset -= this.redOffset;
+			this.__renderData.greenOffset -= this.greenOffset;
+			this.__renderData.blueOffset -= this.blueOffset;
+			this.__renderData.alphaOffset -= this.alphaOffset;
+		}
+	}
+	
+	inline private function prepareDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
+	{
+		this.__byteData = byteData;
+		
+		prepareCommon(maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
 	}
 	
 	inline private function finishDataBytes():Void
 	{
-		this.__renderData.numQuads = this.__quadsWritten;
+		finishCommon();
 	}
 	
 	#if flash
 	inline private function prepareDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:Vector<Float>):Void
 	{
-		this.__maxQuads = maxQuads;
-		this.__renderData = renderData;
-		
-		this.__multiTexturing = renderData.multiTexturing;
-		this.__pma = renderData.pma;
-		this.__useColor = renderData.useColor;
-		this.__useDisplayColor = renderData.useDisplayColor;
-		this.__useColorOffset = renderData.useColorOffset;
-		this.__pmaForColorOffset = false;// this.__pma && !this.__useColor && !this.__useDisplayColor;
-		this.__simpleColor = renderData.useSimpleColor;
-		this.__boundsData = boundsData;
-		this.__storeBounds = boundsData != null;
-		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
-		
-		this.__quadsWritten = renderData.numQuads;
 		this.__position = renderData.position;
 		
-		this.__renderOffsetX = renderOffsetX + this.x;
-		this.__renderOffsetY = renderOffsetY + this.y;
+		prepareCommon(maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
 	}
 	
 	inline private function finishDataBytesMemory():Void
 	{
-		this.__renderData.numQuads = this.__quadsWritten;
+		finishCommon();
 		this.__renderData.position = this.__position;
 	}
 	#end
@@ -134,30 +227,14 @@ abstract class ContainerBase extends DisplayBase
 	inline private function prepareDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
 		this.__floatData = floatData;
-		this.__maxQuads = maxQuads;
-		this.__renderData = renderData;
-		
-		this.__multiTexturing = renderData.multiTexturing;
-		this.__pma = renderData.pma;
-		this.__useColor = renderData.useColor;
-		this.__useDisplayColor = renderData.useDisplayColor;
-		this.__useColorOffset = renderData.useColorOffset;
-		this.__pmaForColorOffset = false;// this.__pma && !this.__useColor && !this.__useDisplayColor;
-		this.__simpleColor = renderData.useSimpleColor;
-		this.__boundsData = boundsData;
-		this.__storeBounds = boundsData != null;
-		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
-		
-		this.__quadsWritten = renderData.numQuads;
 		this.__position = renderData.position;
 		
-		this.__renderOffsetX = renderOffsetX + this.x;
-		this.__renderOffsetY = renderOffsetY + this.y;
+		prepareCommon(maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
 	}
 	
 	inline private function finishDataFloat32Array():Void
 	{
-		this.__renderData.numQuads = this.__quadsWritten;
+		finishCommon();
 		this.__renderData.position = this.__position;
 	}
 	#end
@@ -165,30 +242,14 @@ abstract class ContainerBase extends DisplayBase
 	inline private function prepareDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
 		this.__vectorData = vectorData;
-		this.__maxQuads = maxQuads;
-		this.__renderData = renderData;
-		
-		this.__multiTexturing = renderData.multiTexturing;
-		this.__pma = renderData.pma;
-		this.__useColor = renderData.useColor;
-		this.__useDisplayColor = renderData.useDisplayColor;
-		this.__useColorOffset = renderData.useColorOffset;
-		this.__pmaForColorOffset = false;// this.__pma && !this.__useColor && !this.__useDisplayColor;
-		this.__simpleColor = renderData.useSimpleColor;
-		this.__boundsData = boundsData;
-		this.__storeBounds = boundsData != null;
-		this.__boundsIndex = this.__storeBounds ? boundsData.length - 1 : -1;
-		
-		this.__quadsWritten = renderData.numQuads;
 		this.__position = renderData.position;
 		
-		this.__renderOffsetX = renderOffsetX + this.x;
-		this.__renderOffsetY = renderOffsetY + this.y;
+		prepareCommon(maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
 	}
 	
 	inline private function finishDataVector():Void
 	{
-		this.__renderData.numQuads = this.__quadsWritten;
+		finishCommon();
 		this.__renderData.position = this.__position;
 	}
 	
@@ -1638,7 +1699,7 @@ abstract class ContainerBase extends DisplayBase
 			if (this.__image.hasVertexColor)
 			{
 				this.__uniformColor = false;
-				if (this.__image._colorChanged || this.__image.vertexColor.isChanging)
+				if (this._colorChanged || this.__image._colorChanged || this.__image.vertexColor.isChanging)
 				{
 					this.__image._colorChanged = false;
 					
@@ -1652,122 +1713,122 @@ abstract class ContainerBase extends DisplayBase
 							{
 								if (this.__image.invertY && this.__vertexColor.canInvertY)
 								{
-									this.__alpha = this.__vertexColor.alpha4;
-									this.__red = this.__vertexColor.red4;
-									this.__green = this.__vertexColor.green4;
-									this.__blue = this.__vertexColor.blue4;
+									this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+									this.__red = this.__vertexColor.red4 * this.__redBase;
+									this.__green = this.__vertexColor.green4 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue4 * this.__blueBase;
 									normalizeColor();
 									this.__image._color1Final = getColorPMA();
 									
-									this.__alpha = this.__vertexColor.alpha3;
-									this.__red = this.__vertexColor.red3;
-									this.__green = this.__vertexColor.green3;
-									this.__blue = this.__vertexColor.blue3;
+									this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+									this.__red = this.__vertexColor.red3 * this.__redBase;
+									this.__green = this.__vertexColor.green3 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue3 * this.__blueBase;
 									normalizeColor();
 									this.__image._color2Final = getColorPMA();
 									
-									this.__alpha = this.__vertexColor.alpha2;
-									this.__red = this.__vertexColor.red2;
-									this.__green = this.__vertexColor.green2;
-									this.__blue = this.__vertexColor.blue2;
+									this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+									this.__red = this.__vertexColor.red2 * this.__redBase;
+									this.__green = this.__vertexColor.green2 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue2 * this.__blueBase;
 									normalizeColor();
 									this.__image._color3Final = getColorPMA();
 									
-									this.__alpha = this.__vertexColor.alpha1;
-									this.__red = this.__vertexColor.red1;
-									this.__green = this.__vertexColor.green1;
-									this.__blue = this.__vertexColor.blue1;
+									this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+									this.__red = this.__vertexColor.red1 * this.__redBase;
+									this.__green = this.__vertexColor.green1 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 									normalizeColor();
 									this.__image._color4Final = getColorPMA();
 								}
 								else
 								{
-									this.__alpha = this.__vertexColor.alpha2;
-									this.__red = this.__vertexColor.red2;
-									this.__green = this.__vertexColor.green2;
-									this.__blue = this.__vertexColor.blue2;
+									this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+									this.__red = this.__vertexColor.red2 * this.__redBase;
+									this.__green = this.__vertexColor.green2 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue2 * this.__blueBase;
 									normalizeColor();
 									this.__image._color1Final = getColorPMA();
 									
-									this.__alpha = this.__vertexColor.alpha1;
-									this.__red = this.__vertexColor.red1;
-									this.__green = this.__vertexColor.green1;
-									this.__blue = this.__vertexColor.blue1;
+									this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+									this.__red = this.__vertexColor.red1 * this.__redBase;
+									this.__green = this.__vertexColor.green1 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 									normalizeColor();
 									this.__image._color2Final = getColorPMA();
 									
-									this.__alpha = this.__vertexColor.alpha4;
-									this.__red = this.__vertexColor.red4;
-									this.__green = this.__vertexColor.green4;
-									this.__blue = this.__vertexColor.blue4;
+									this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+									this.__red = this.__vertexColor.red4 * this.__redBase;
+									this.__green = this.__vertexColor.green4 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue4 * this.__blueBase;
 									normalizeColor();
 									this.__image._color3Final = getColorPMA();
 									
-									this.__alpha = this.__vertexColor.alpha3;
-									this.__red = this.__vertexColor.red3;
-									this.__green = this.__vertexColor.green3;
-									this.__blue = this.__vertexColor.blue3;
+									this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+									this.__red = this.__vertexColor.red3 * this.__redBase;
+									this.__green = this.__vertexColor.green3 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue3 * this.__blueBase;
 									normalizeColor();
 									this.__image._color4Final = getColorPMA();
 								}
 							}
 							else if (this.__image.invertY && this.__vertexColor.canInvertY)
 							{
-								this.__alpha = this.__vertexColor.alpha3;
-								this.__red = this.__vertexColor.red3;
-								this.__green = this.__vertexColor.green3;
-								this.__blue = this.__vertexColor.blue3;
+								this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+								this.__red = this.__vertexColor.red3 * this.__redBase;
+								this.__green = this.__vertexColor.green3 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue3 * this.__blueBase;
 								normalizeColor();
 								this.__image._color1Final = getColorPMA();
 								
-								this.__alpha = this.__vertexColor.alpha4;
-								this.__red = this.__vertexColor.red4;
-								this.__green = this.__vertexColor.green4;
-								this.__blue = this.__vertexColor.blue4;
+								this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+								this.__red = this.__vertexColor.red4 * this.__redBase;
+								this.__green = this.__vertexColor.green4 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue4 * this.__blueBase;
 								normalizeColor();
 								this.__image._color2Final = getColorPMA();
 								
-								this.__alpha = this.__vertexColor.alpha1;
-								this.__red = this.__vertexColor.red1;
-								this.__green = this.__vertexColor.green1;
-								this.__blue = this.__vertexColor.blue1;
+								this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+								this.__red = this.__vertexColor.red1 * this.__redBase;
+								this.__green = this.__vertexColor.green1 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 								normalizeColor();
 								this.__image._color3Final = getColorPMA();
 								
-								this.__alpha = this.__vertexColor.alpha2;
-								this.__red = this.__vertexColor.red2;
-								this.__green = this.__vertexColor.green2;
-								this.__blue = this.__vertexColor.blue2;
+								this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+								this.__red = this.__vertexColor.red2 * this.__redBase;
+								this.__green = this.__vertexColor.green2 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue2 * this.__blueBase;
 								normalizeColor();
 								this.__image._color4Final = getColorPMA();
 							}
 							else
 							{
-								this.__alpha = this.__vertexColor.alpha1;
-								this.__red = this.__vertexColor.red1;
-								this.__green = this.__vertexColor.green1;
-								this.__blue = this.__vertexColor.blue1;
+								this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+								this.__red = this.__vertexColor.red1 * this.__redBase;
+								this.__green = this.__vertexColor.green1 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 								normalizeColor();
 								this.__image._color1Final = getColorPMA();
 								
-								this.__alpha = this.__vertexColor.alpha2;
-								this.__red = this.__vertexColor.red2;
-								this.__green = this.__vertexColor.green2;
-								this.__blue = this.__vertexColor.blue2;
+								this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+								this.__red = this.__vertexColor.red2 * this.__redBase;
+								this.__green = this.__vertexColor.green2 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue2 * this.__blueBase;
 								normalizeColor();
 								this.__image._color2Final = getColorPMA();
 								
-								this.__alpha = this.__vertexColor.alpha3;
-								this.__red = this.__vertexColor.red3;
-								this.__green = this.__vertexColor.green3;
-								this.__blue = this.__vertexColor.blue3;
+								this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+								this.__red = this.__vertexColor.red3 * this.__redBase;
+								this.__green = this.__vertexColor.green3 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue3 * this.__blueBase;
 								normalizeColor();
 								this.__image._color3Final = getColorPMA();
 								
-								this.__alpha = this.__vertexColor.alpha1;
-								this.__red = this.__vertexColor.red1;
-								this.__green = this.__vertexColor.green1;
-								this.__blue = this.__vertexColor.blue1;
+								this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+								this.__red = this.__vertexColor.red1 * this.__redBase;
+								this.__green = this.__vertexColor.green1 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 								normalizeColor();
 								this.__image._color1Final = getColorPMA();
 							}
@@ -1778,122 +1839,122 @@ abstract class ContainerBase extends DisplayBase
 							{
 								if (this.__image.invertY && this.__vertexColor.canInvertY)
 								{
-									this.__alpha = this.__vertexColor.alpha4;
-									this.__red = this.__vertexColor.red4;
-									this.__green = this.__vertexColor.green4;
-									this.__blue = this.__vertexColor.blue4;
+									this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+									this.__red = this.__vertexColor.red4 * this.__redBase;
+									this.__green = this.__vertexColor.green4 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue4 * this.__blueBase;
 									normalizeColor();
 									this.__image._color1Final = getColor();
 									
-									this.__alpha = this.__vertexColor.alpha3;
-									this.__red = this.__vertexColor.red3;
-									this.__green = this.__vertexColor.green3;
-									this.__blue = this.__vertexColor.blue3;
+									this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+									this.__red = this.__vertexColor.red3 * this.__redBase;
+									this.__green = this.__vertexColor.green3 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue3 * this.__blueBase;
 									normalizeColor();
 									this.__image._color2Final = getColor();
 									
-									this.__alpha = this.__vertexColor.alpha2;
-									this.__red = this.__vertexColor.red2;
-									this.__green = this.__vertexColor.green2;
-									this.__blue = this.__vertexColor.blue2;
+									this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+									this.__red = this.__vertexColor.red2 * this.__redBase;
+									this.__green = this.__vertexColor.green2 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue2 * this.__blueBase;
 									normalizeColor();
 									this.__image._color3Final = getColor();
 									
-									this.__alpha = this.__vertexColor.alpha1;
-									this.__red = this.__vertexColor.red1;
-									this.__green = this.__vertexColor.green1;
-									this.__blue = this.__vertexColor.blue1;
+									this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+									this.__red = this.__vertexColor.red1 * this.__redBase;
+									this.__green = this.__vertexColor.green1 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 									normalizeColor();
 									this.__image._color4Final = getColor();
 								}
 								else
 								{
-									this.__alpha = this.__vertexColor.alpha2;
-									this.__red = this.__vertexColor.red2;
-									this.__green = this.__vertexColor.green2;
-									this.__blue = this.__vertexColor.blue2;
+									this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+									this.__red = this.__vertexColor.red2 * this.__redBase;
+									this.__green = this.__vertexColor.green2 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue2 * this.__blueBase;
 									normalizeColor();
 									this.__image._color1Final = getColor();
 									
-									this.__alpha = this.__vertexColor.alpha1;
-									this.__red = this.__vertexColor.red1;
-									this.__green = this.__vertexColor.green1;
-									this.__blue = this.__vertexColor.blue1;
+									this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+									this.__red = this.__vertexColor.red1 * this.__redBase;
+									this.__green = this.__vertexColor.green1 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 									normalizeColor();
 									this.__image._color2Final = getColor();
 									
-									this.__alpha = this.__vertexColor.alpha4;
-									this.__red = this.__vertexColor.red4;
-									this.__green = this.__vertexColor.green4;
-									this.__blue = this.__vertexColor.blue4;
+									this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+									this.__red = this.__vertexColor.red4 * this.__redBase;
+									this.__green = this.__vertexColor.green4 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue4 * this.__blueBase;
 									normalizeColor();
 									this.__image._color3Final = getColor();
 									
-									this.__alpha = this.__vertexColor.alpha3;
-									this.__red = this.__vertexColor.red3;
-									this.__green = this.__vertexColor.green3;
-									this.__blue = this.__vertexColor.blue3;
+									this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+									this.__red = this.__vertexColor.red3 * this.__redBase;
+									this.__green = this.__vertexColor.green3 * this.__greenBase;
+									this.__blue = this.__vertexColor.blue3 * this.__blueBase;
 									normalizeColor();
 									this.__image._color4Final = getColor();
 								}
 							}
 							else if (this.__image.invertY && this.__vertexColor.canInvertY)
 							{
-								this.__alpha = this.__vertexColor.alpha3;
-								this.__red = this.__vertexColor.red3;
-								this.__green = this.__vertexColor.green3;
-								this.__blue = this.__vertexColor.blue3;
+								this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+								this.__red = this.__vertexColor.red3 * this.__redBase;
+								this.__green = this.__vertexColor.green3 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue3 * this.__blueBase;
 								normalizeColor();
 								this.__image._color1Final = getColor();
 								
-								this.__alpha = this.__vertexColor.alpha4;
-								this.__red = this.__vertexColor.red4;
-								this.__green = this.__vertexColor.green4;
-								this.__blue = this.__vertexColor.blue4;
+								this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+								this.__red = this.__vertexColor.red4 * this.__redBase;
+								this.__green = this.__vertexColor.green4 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue4 * this.__blueBase;
 								normalizeColor();
 								this.__image._color2Final = getColor();
 								
-								this.__alpha = this.__vertexColor.alpha1;
-								this.__red = this.__vertexColor.red1;
-								this.__green = this.__vertexColor.green1;
-								this.__blue = this.__vertexColor.blue1;
+								this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+								this.__red = this.__vertexColor.red1 * this.__redBase;
+								this.__green = this.__vertexColor.green1 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 								normalizeColor();
 								this.__image._color3Final = getColor();
 								
-								this.__alpha = this.__vertexColor.alpha2;
-								this.__red = this.__vertexColor.red2;
-								this.__green = this.__vertexColor.green2;
-								this.__blue = this.__vertexColor.blue2;
+								this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+								this.__red = this.__vertexColor.red2 * this.__redBase;
+								this.__green = this.__vertexColor.green2 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue2 * this.__blueBase;
 								normalizeColor();
 								this.__image._color4Final = getColor();
 							}
 							else
 							{
-								this.__alpha = this.__vertexColor.alpha1;
-								this.__red = this.__vertexColor.red1;
-								this.__green = this.__vertexColor.green1;
-								this.__blue = this.__vertexColor.blue1;
+								this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+								this.__red = this.__vertexColor.red1 * this.__redBase;
+								this.__green = this.__vertexColor.green1 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 								normalizeColor();
 								this.__image._color1Final = getColor();
 								
-								this.__alpha = this.__vertexColor.alpha2;
-								this.__red = this.__vertexColor.red2;
-								this.__green = this.__vertexColor.green2;
-								this.__blue = this.__vertexColor.blue2;
+								this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+								this.__red = this.__vertexColor.red2 * this.__redBase;
+								this.__green = this.__vertexColor.green2 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue2 * this.__blueBase;
 								normalizeColor();
 								this.__image._color2Final = getColor();
 								
-								this.__alpha = this.__vertexColor.alpha3;
-								this.__red = this.__vertexColor.red3;
-								this.__green = this.__vertexColor.green3;
-								this.__blue = this.__vertexColor.blue3;
+								this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+								this.__red = this.__vertexColor.red3 * this.__redBase;
+								this.__green = this.__vertexColor.green3 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue3 * this.__blueBase;
 								normalizeColor();
 								this.__image._color3Final = getColor();
 								
-								this.__alpha = this.__vertexColor.alpha1;
-								this.__red = this.__vertexColor.red1;
-								this.__green = this.__vertexColor.green1;
-								this.__blue = this.__vertexColor.blue1;
+								this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+								this.__red = this.__vertexColor.red1 * this.__redBase;
+								this.__green = this.__vertexColor.green1 * this.__greenBase;
+								this.__blue = this.__vertexColor.blue1 * this.__blueBase;
 								normalizeColor();
 								this.__image._color1Final = getColor();
 							}
@@ -1907,107 +1968,107 @@ abstract class ContainerBase extends DisplayBase
 							{
 								if (this.__image.invertY && this.__vertexColor.canInvertY)
 								{
-									this.__alpha = this.__vertexColor.alpha4;
-									this.__image._red1Final = this.__vertexColor.red4 * this.__alpha;
-									this.__image._green1Final = this.__vertexColor.green4 * this.__alpha;
-									this.__image._blue1Final = this.__vertexColor.blue4 * this.__alpha;
+									this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+									this.__image._red1Final = this.__vertexColor.red4 * this.__redBase * this.__alpha;
+									this.__image._green1Final = this.__vertexColor.green4 * this.__greenBase * this.__alpha;
+									this.__image._blue1Final = this.__vertexColor.blue4 * this.__blueBase * this.__alpha;
 									this.__image._alpha1Final = this.__alpha;
 									
-									this.__alpha = this.__vertexColor.alpha3;
-									this.__image._red2Final = this.__vertexColor.red3 * this.__alpha;
-									this.__image._green2Final = this.__vertexColor.green3 * this.__alpha;
-									this.__image._blue2Final = this.__vertexColor.blue3 * this.__alpha;
+									this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+									this.__image._red2Final = this.__vertexColor.red3 * this.__redBase * this.__alpha;
+									this.__image._green2Final = this.__vertexColor.green3 * this.__greenBase * this.__alpha;
+									this.__image._blue2Final = this.__vertexColor.blue3 * this.__blueBase * this.__alpha;
 									this.__image._alpha2Final = this.__alpha;
 									
-									this.__alpha = this.__vertexColor.alpha2;
-									this.__image._red3Final = this.__vertexColor.red2 * this.__alpha;
-									this.__image._green3Final = this.__vertexColor.green2 * this.__alpha;
-									this.__image._blue3Final = this.__vertexColor.blue2 * this.__alpha;
+									this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+									this.__image._red3Final = this.__vertexColor.red2 * this.__redBase * this.__alpha;
+									this.__image._green3Final = this.__vertexColor.green2 * this.__greenBase * this.__alpha;
+									this.__image._blue3Final = this.__vertexColor.blue2 * this.__blueBase * this.__alpha;
 									this.__image._alpha3Final = this.__alpha;
 									
-									this.__alpha = this.__vertexColor.alpha1;
-									this.__image._red4Final = this.__vertexColor.red1 * this.__alpha;
-									this.__image._green4Final = this.__vertexColor.green1 * this.__alpha;
-									this.__image._blue4Final = this.__vertexColor.blue1 * this.__alpha;
+									this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+									this.__image._red4Final = this.__vertexColor.red1 * this.__redBase * this.__alpha;
+									this.__image._green4Final = this.__vertexColor.green1 * this.__greenBase * this.__alpha;
+									this.__image._blue4Final = this.__vertexColor.blue1 * this.__blueBase * this.__alpha;
 									this.__image._alpha4Final = this.__alpha;
 								}
 								else
 								{
-									this.__alpha = this.__vertexColor.alpha2;
-									this.__image._red1Final = this.__vertexColor.red2 * this.__alpha;
-									this.__image._green1Final = this.__vertexColor.green2 * this.__alpha;
-									this.__image._blue1Final = this.__vertexColor.blue2 * this.__alpha;
+									this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+									this.__image._red1Final = this.__vertexColor.red2 * this.__redBase * this.__alpha;
+									this.__image._green1Final = this.__vertexColor.green2 * this.__greenBase * this.__alpha;
+									this.__image._blue1Final = this.__vertexColor.blue2 * this.__blueBase * this.__alpha;
 									this.__image._alpha1Final = this.__alpha;
 									
-									this.__alpha = this.__vertexColor.alpha1;
-									this.__image._red2Final = this.__vertexColor.red1 * this.__alpha;
-									this.__image._green2Final = this.__vertexColor.green1 * this.__alpha;
-									this.__image._blue2Final = this.__vertexColor.blue1 * this.__alpha;
+									this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+									this.__image._red2Final = this.__vertexColor.red1 * this.__redBase * this.__alpha;
+									this.__image._green2Final = this.__vertexColor.green1 * this.__greenBase * this.__alpha;
+									this.__image._blue2Final = this.__vertexColor.blue1 * this.__blueBase * this.__alpha;
 									this.__image._alpha2Final = this.__alpha;
 									
-									this.__alpha = this.__vertexColor.alpha4;
-									this.__image._red3Final = this.__vertexColor.red4 * this.__alpha;
-									this.__image._green3Final = this.__vertexColor.green4 * this.__alpha;
-									this.__image._blue3Final = this.__vertexColor.blue4 * this.__alpha;
+									this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+									this.__image._red3Final = this.__vertexColor.red4 * this.__redBase * this.__alpha;
+									this.__image._green3Final = this.__vertexColor.green4 * this.__greenBase * this.__alpha;
+									this.__image._blue3Final = this.__vertexColor.blue4 * this.__blueBase * this.__alpha;
 									this.__image._alpha3Final = this.__alpha;
 									
-									this.__alpha = this.__vertexColor.alpha3;
-									this.__image._red4Final = this.__vertexColor.red3 * this.__alpha;
-									this.__image._green4Final = this.__vertexColor.green3 * this.__alpha;
-									this.__image._blue4Final = this.__vertexColor.blue3 * this.__alpha;
+									this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+									this.__image._red4Final = this.__vertexColor.red3 * this.__redBase * this.__alpha;
+									this.__image._green4Final = this.__vertexColor.green3 * this.__greenBase * this.__alpha;
+									this.__image._blue4Final = this.__vertexColor.blue3 * this.__blueBase * this.__alpha;
 									this.__image._alpha4Final = this.__alpha;
 								}
 							}
 							else if (this.__image.invertY && this.__vertexColor.canInvertY)
 							{
-								this.__alpha = this.__vertexColor.alpha3;
-								this.__image._red1Final = this.__vertexColor.red3 * this.__alpha;
-								this.__image._green1Final = this.__vertexColor.green3 * this.__alpha;
-								this.__image._blue1Final = this.__vertexColor.blue3 * this.__alpha;
+								this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+								this.__image._red1Final = this.__vertexColor.red3 * this.__redBase * this.__alpha;
+								this.__image._green1Final = this.__vertexColor.green3 * this.__greenBase * this.__alpha;
+								this.__image._blue1Final = this.__vertexColor.blue3 * this.__blueBase * this.__alpha;
 								this.__image._alpha1Final = this.__alpha;
 								
-								this.__alpha = this.__vertexColor.alpha4;
-								this.__image._red2Final = this.__vertexColor.red4 * this.__alpha;
-								this.__image._green2Final = this.__vertexColor.green4 * this.__alpha;
-								this.__image._blue2Final = this.__vertexColor.blue4 * this.__alpha;
+								this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+								this.__image._red2Final = this.__vertexColor.red4 * this.__redBase * this.__alpha;
+								this.__image._green2Final = this.__vertexColor.green4 * this.__greenBase * this.__alpha;
+								this.__image._blue2Final = this.__vertexColor.blue4 * this.__blueBase * this.__alpha;
 								this.__image._alpha2Final = this.__alpha;
 								
-								this.__alpha = this.__vertexColor.alpha1;
-								this.__image._red3Final = this.__vertexColor.red1 * this.__alpha;
-								this.__image._green3Final = this.__vertexColor.green1 * this.__alpha;
-								this.__image._blue3Final = this.__vertexColor.blue1 * this.__alpha;
+								this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+								this.__image._red3Final = this.__vertexColor.red1 * this.__redBase * this.__alpha;
+								this.__image._green3Final = this.__vertexColor.green1 * this.__greenBase * this.__alpha;
+								this.__image._blue3Final = this.__vertexColor.blue1 * this.__blueBase * this.__alpha;
 								this.__image._alpha3Final = this.__alpha;
 								
-								this.__alpha = this.__vertexColor.alpha2;
-								this.__image._red4Final = this.__vertexColor.red2 * this.__alpha;
-								this.__image._green4Final = this.__vertexColor.green2 * this.__alpha;
-								this.__image._blue4Final = this.__vertexColor.blue2 * this.__alpha;
+								this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+								this.__image._red4Final = this.__vertexColor.red2 * this.__redBase * this.__alpha;
+								this.__image._green4Final = this.__vertexColor.green2 * this.__greenBase * this.__alpha;
+								this.__image._blue4Final = this.__vertexColor.blue2 * this.__blueBase * this.__alpha;
 								this.__image._alpha4Final = this.__alpha;
 							}
 							else
 							{
-								this.__alpha = this.__vertexColor.alpha1;
-								this.__image._red1Final = this.__vertexColor.red1 * this.__alpha;
-								this.__image._green1Final = this.__vertexColor.green1 * this.__alpha;
-								this.__image._blue1Final = this.__vertexColor.blue1 * this.__alpha;
+								this.__alpha = this.__vertexColor.alpha1 * this.__alphaBase;
+								this.__image._red1Final = this.__vertexColor.red1 * this.__redBase * this.__alpha;
+								this.__image._green1Final = this.__vertexColor.green1 * this.__greenBase * this.__alpha;
+								this.__image._blue1Final = this.__vertexColor.blue1 * this.__blueBase * this.__alpha;
 								this.__image._alpha1Final = this.__alpha;
 								
-								this.__alpha = this.__vertexColor.alpha2;
-								this.__image._red2Final = this.__vertexColor.red2 * this.__alpha;
-								this.__image._green2Final = this.__vertexColor.green2 * this.__alpha;
-								this.__image._blue2Final = this.__vertexColor.blue2 * this.__alpha;
+								this.__alpha = this.__vertexColor.alpha2 * this.__alphaBase;
+								this.__image._red2Final = this.__vertexColor.red2 * this.__redBase * this.__alpha;
+								this.__image._green2Final = this.__vertexColor.green2 * this.__greenBase * this.__alpha;
+								this.__image._blue2Final = this.__vertexColor.blue2 * this.__blueBase * this.__alpha;
 								this.__image._alpha2Final = this.__alpha;
 								
-								this.__alpha = this.__vertexColor.alpha3;
-								this.__image._red3Final = this.__vertexColor.red3 * this.__alpha;
-								this.__image._green3Final = this.__vertexColor.green3 * this.__alpha;
-								this.__image._blue3Final = this.__vertexColor.blue3 * this.__alpha;
+								this.__alpha = this.__vertexColor.alpha3 * this.__alphaBase;
+								this.__image._red3Final = this.__vertexColor.red3 * this.__redBase * this.__alpha;
+								this.__image._green3Final = this.__vertexColor.green3 * this.__greenBase * this.__alpha;
+								this.__image._blue3Final = this.__vertexColor.blue3 * this.__blueBase * this.__alpha;
 								this.__image._alpha3Final = this.__alpha;
 								
-								this.__alpha = this.__vertexColor.alpha4;
-								this.__image._red4Final = this.__vertexColor.red4 * this.__alpha;
-								this.__image._green4Final = this.__vertexColor.green4 * this.__alpha;
-								this.__image._blue4Final = this.__vertexColor.blue4 * this.__alpha;
+								this.__alpha = this.__vertexColor.alpha4 * this.__alphaBase;
+								this.__image._red4Final = this.__vertexColor.red4 * this.__redBase * this.__alpha;
+								this.__image._green4Final = this.__vertexColor.green4 * this.__greenBase * this.__alpha;
+								this.__image._blue4Final = this.__vertexColor.blue4 * this.__blueBase * this.__alpha;
 								this.__image._alpha4Final = this.__alpha;
 							}
 						}
@@ -2017,92 +2078,92 @@ abstract class ContainerBase extends DisplayBase
 							{
 								if (this.__image.invertY && this.__vertexColor.canInvertY)
 								{
-									this.__image._red1Final = this.__vertexColor.red4;
-									this.__image._green1Final = this.__vertexColor.green4;
-									this.__image._blue1Final = this.__vertexColor.blue4;
-									this.__image._alpha1Final = this.__vertexColor.alpha4;
+									this.__image._red1Final = this.__vertexColor.red4 * this.__redBase;
+									this.__image._green1Final = this.__vertexColor.green4 * this.__greenBase;
+									this.__image._blue1Final = this.__vertexColor.blue4 * this.__blueBase;
+									this.__image._alpha1Final = this.__vertexColor.alpha4 * this.__alphaBase;
 									
-									this.__image._red2Final = this.__vertexColor.red3;
-									this.__image._green2Final = this.__vertexColor.green3;
-									this.__image._blue2Final = this.__vertexColor.blue3;
-									this.__image._alpha2Final = this.__vertexColor.alpha3;
+									this.__image._red2Final = this.__vertexColor.red3 * this.__redBase;
+									this.__image._green2Final = this.__vertexColor.green3 * this.__greenBase;
+									this.__image._blue2Final = this.__vertexColor.blue3 * this.__blueBase;
+									this.__image._alpha2Final = this.__vertexColor.alpha3 * this.__alphaBase;
 									
-									this.__image._red3Final = this.__vertexColor.red2;
-									this.__image._green3Final = this.__vertexColor.green2;
-									this.__image._blue3Final = this.__vertexColor.blue2;
-									this.__image._alpha3Final = this.__vertexColor.alpha2;
+									this.__image._red3Final = this.__vertexColor.red2 * this.__redBase;
+									this.__image._green3Final = this.__vertexColor.green2 * this.__greenBase;
+									this.__image._blue3Final = this.__vertexColor.blue2 * this.__blueBase;
+									this.__image._alpha3Final = this.__vertexColor.alpha2 * this.__alphaBase;
 									
-									this.__image._red4Final = this.__vertexColor.red1;
-									this.__image._green4Final = this.__vertexColor.green1;
-									this.__image._blue4Final = this.__vertexColor.blue1;
-									this.__image._alpha4Final = this.__vertexColor.alpha1;
+									this.__image._red4Final = this.__vertexColor.red1 * this.__redBase;
+									this.__image._green4Final = this.__vertexColor.green1 * this.__greenBase;
+									this.__image._blue4Final = this.__vertexColor.blue1 * this.__blueBase;
+									this.__image._alpha4Final = this.__vertexColor.alpha1 * this.__alphaBase;
 								}
 								else
 								{
-									this.__image._red1Final = this.__vertexColor.red2;
-									this.__image._green1Final = this.__vertexColor.green2;
-									this.__image._blue1Final = this.__vertexColor.blue2;
-									this.__image._alpha1Final = this.__vertexColor.alpha2;
+									this.__image._red1Final = this.__vertexColor.red2 * this.__redBase;
+									this.__image._green1Final = this.__vertexColor.green2 * this.__greenBase;
+									this.__image._blue1Final = this.__vertexColor.blue2 * this.__blueBase;
+									this.__image._alpha1Final = this.__vertexColor.alpha2 * this.__alphaBase;
 									
-									this.__image._red2Final = this.__vertexColor.red1;
-									this.__image._green2Final = this.__vertexColor.green1;
-									this.__image._blue2Final = this.__vertexColor.blue1;
-									this.__image._alpha2Final = this.__vertexColor.alpha1;
+									this.__image._red2Final = this.__vertexColor.red1 * this.__redBase;
+									this.__image._green2Final = this.__vertexColor.green1 * this.__greenBase;
+									this.__image._blue2Final = this.__vertexColor.blue1 * this.__blueBase;
+									this.__image._alpha2Final = this.__vertexColor.alpha1 * this.__alphaBase;
 									
-									this.__image._red3Final = this.__vertexColor.red4;
-									this.__image._green3Final = this.__vertexColor.green4;
-									this.__image._blue3Final = this.__vertexColor.blue4;
-									this.__image._alpha3Final = this.__vertexColor.alpha4;
+									this.__image._red3Final = this.__vertexColor.red4 * this.__redBase;
+									this.__image._green3Final = this.__vertexColor.green4 * this.__greenBase;
+									this.__image._blue3Final = this.__vertexColor.blue4 * this.__blueBase;
+									this.__image._alpha3Final = this.__vertexColor.alpha4 * this.__alphaBase;
 									
-									this.__image._red4Final = this.__vertexColor.red3;
-									this.__image._green4Final = this.__vertexColor.green3;
-									this.__image._blue4Final = this.__vertexColor.blue3;
-									this.__image._alpha4Final = this.__vertexColor.alpha3;
+									this.__image._red4Final = this.__vertexColor.red3 * this.__redBase;
+									this.__image._green4Final = this.__vertexColor.green3 * this.__greenBase;
+									this.__image._blue4Final = this.__vertexColor.blue3 * this.__blueBase;
+									this.__image._alpha4Final = this.__vertexColor.alpha3 * this.__alphaBase;
 								}
 							}
 							else if (this.__image.invertY && this.__vertexColor.canInvertY)
 							{
-								this.__image._red1Final = this.__vertexColor.red3;
-								this.__image._green1Final = this.__vertexColor.green3;
-								this.__image._blue1Final = this.__vertexColor.blue3;
-								this.__image._alpha1Final = this.__vertexColor.alpha3;
+								this.__image._red1Final = this.__vertexColor.red3 * this.__redBase;
+								this.__image._green1Final = this.__vertexColor.green3 * this.__greenBase;
+								this.__image._blue1Final = this.__vertexColor.blue3 * this.__blueBase;
+								this.__image._alpha1Final = this.__vertexColor.alpha3 * this.__alphaBase;
 								
-								this.__image._red2Final = this.__vertexColor.red4;
-								this.__image._green2Final = this.__vertexColor.green4;
-								this.__image._blue2Final = this.__vertexColor.blue4;
-								this.__image._alpha2Final = this.__vertexColor.alpha4;
+								this.__image._red2Final = this.__vertexColor.red4 * this.__redBase;
+								this.__image._green2Final = this.__vertexColor.green4 * this.__greenBase;
+								this.__image._blue2Final = this.__vertexColor.blue4 * this.__blueBase;
+								this.__image._alpha2Final = this.__vertexColor.alpha4 * this.__alphaBase;
 								
-								this.__image._red3Final = this.__vertexColor.red1;
-								this.__image._green3Final = this.__vertexColor.green1;
-								this.__image._blue3Final = this.__vertexColor.blue1;
-								this.__image._alpha3Final = this.__vertexColor.alpha1;
+								this.__image._red3Final = this.__vertexColor.red1 * this.__redBase;
+								this.__image._green3Final = this.__vertexColor.green1 * this.__greenBase;
+								this.__image._blue3Final = this.__vertexColor.blue1 * this.__blueBase;
+								this.__image._alpha3Final = this.__vertexColor.alpha1 * this.__alphaBase;
 								
-								this.__image._red4Final = this.__vertexColor.red2;
-								this.__image._green4Final = this.__vertexColor.green2;
-								this.__image._blue4Final = this.__vertexColor.blue2;
-								this.__image._alpha4Final = this.__vertexColor.alpha2;
+								this.__image._red4Final = this.__vertexColor.red2 * this.__redBase;
+								this.__image._green4Final = this.__vertexColor.green2 * this.__greenBase;
+								this.__image._blue4Final = this.__vertexColor.blue2 * this.__blueBase;
+								this.__image._alpha4Final = this.__vertexColor.alpha2 * this.__alphaBase;
 							}
 							else
 							{
-								this.__image._red1Final = this.__vertexColor.red1;
-								this.__image._green1Final = this.__vertexColor.green1;
-								this.__image._blue1Final = this.__vertexColor.blue1;
-								this.__image._alpha1Final = this.__vertexColor.alpha1;
+								this.__image._red1Final = this.__vertexColor.red1 * this.__redBase;
+								this.__image._green1Final = this.__vertexColor.green1 * this.__greenBase;
+								this.__image._blue1Final = this.__vertexColor.blue1 * this.__blueBase;
+								this.__image._alpha1Final = this.__vertexColor.alpha1 * this.__alphaBase;
 								
-								this.__image._red2Final = this.__vertexColor.red2;
-								this.__image._green2Final = this.__vertexColor.green2;
-								this.__image._blue2Final = this.__vertexColor.blue2;
-								this.__image._alpha2Final = this.__vertexColor.alpha2;
+								this.__image._red2Final = this.__vertexColor.red2 * this.__redBase;
+								this.__image._green2Final = this.__vertexColor.green2 * this.__greenBase;
+								this.__image._blue2Final = this.__vertexColor.blue2 * this.__blueBase;
+								this.__image._alpha2Final = this.__vertexColor.alpha2 * this.__alphaBase;
 								
-								this.__image._red3Final = this.__vertexColor.red3;
-								this.__image._green3Final = this.__vertexColor.green3;
-								this.__image._blue3Final = this.__vertexColor.blue3;
-								this.__image._alpha3Final = this.__vertexColor.alpha3;
+								this.__image._red3Final = this.__vertexColor.red3 * this.__redBase;
+								this.__image._green3Final = this.__vertexColor.green3 * this.__greenBase;
+								this.__image._blue3Final = this.__vertexColor.blue3 * this.__blueBase;
+								this.__image._alpha3Final = this.__vertexColor.alpha3 * this.__alphaBase;
 								
-								this.__image._red4Final = this.__vertexColor.red4;
-								this.__image._green4Final = this.__vertexColor.green4;
-								this.__image._blue4Final = this.__vertexColor.blue4;
-								this.__image._alpha4Final = this.__vertexColor.alpha4;
+								this.__image._red4Final = this.__vertexColor.red4 * this.__redBase;
+								this.__image._green4Final = this.__vertexColor.green4 * this.__greenBase;
+								this.__image._blue4Final = this.__vertexColor.blue4 * this.__blueBase;
+								this.__image._alpha4Final = this.__vertexColor.alpha4 * this.__alphaBase;
 							}
 						}
 					}
@@ -2113,27 +2174,27 @@ abstract class ContainerBase extends DisplayBase
 				this.__uniformColor = true;
 				if (this.__simpleColor)
 				{
-					this.__alpha = this.__image.alpha;
-					this.__red = this.__image.red;
-					this.__green = this.__image.green;
-					this.__blue = this.__image.blue;
+					this.__alpha = this.__image.alpha * this.__alphaBase;
+					this.__red = this.__image.red * this.__redBase;
+					this.__green = this.__image.green * this.__greenBase;
+					this.__blue = this.__image.blue * this.__blueBase;
 					normalizeColor();
 					this.__color = this.__pma ? getColorPMA() : getColor();
 				}
 				else
 				{
-					this.__alpha = this.__image.alpha;
+					this.__alpha = this.__image.alpha * this.__alphaBase;
 					if (this.__pma)
 					{
-						this.__red = this.__image.red * this.__alpha;
-						this.__green = this.__image.green * this.__alpha;
-						this.__blue = this.__image.blue * this.__alpha;
+						this.__red = this.__image.red * this.__redBase * this.__alpha;
+						this.__green = this.__image.green * this.__greenBase * this.__alpha;
+						this.__blue = this.__image.blue * this.__blueBase * this.__alpha;
 					}
 					else
 					{
-						this.__red = this.__image.red;
-						this.__green = this.__image.green;
-						this.__blue = this.__image.blue;
+						this.__red = this.__image.red * this.__redBase;
+						this.__green = this.__image.green * this.__greenBase;
+						this.__blue = this.__image.blue * this.__blueBase;
 					}
 				}
 			}
@@ -2144,7 +2205,7 @@ abstract class ContainerBase extends DisplayBase
 			if (this.__image.hasVertexColorOffset)
 			{
 				this.__uniformColorOffset = false;
-				if (this.__image._colorOffsetChanged || this.__image.vertexColorOffset.isChanging)
+				if (this._colorOffsetChanged || this.__image._colorOffsetChanged || this.__image.vertexColorOffset.isChanging)
 				{
 					this.__image._colorOffsetChanged = false;
 					
@@ -2156,122 +2217,122 @@ abstract class ContainerBase extends DisplayBase
 						{
 							if (this.__image.invertY)
 							{
-								this.__alpha = this.__vertexColorOffset.alpha4;
-								this.__red = this.__vertexColorOffset.red4;
-								this.__green = this.__vertexColorOffset.green4;
-								this.__blue = this.__vertexColorOffset.blue4;
+								this.__alpha = this.__vertexColorOffset.alpha4 + this.__alphaOffsetBase;
+								this.__red = this.__vertexColorOffset.red4 + this.__redOffsetBase;
+								this.__green = this.__vertexColorOffset.green4 + this.__greenOffsetBase;
+								this.__blue = this.__vertexColorOffset.blue4 + this.__blueOffsetBase;
 								normalizeColor();
 								this.__image._colorOffset1Final = getColor();
 								
-								this.__alpha = this.__vertexColorOffset.alpha3;
-								this.__red = this.__vertexColorOffset.red3;
-								this.__green = this.__vertexColorOffset.green3;
-								this.__blue = this.__vertexColorOffset.blue3;
+								this.__alpha = this.__vertexColorOffset.alpha3 + this.__alphaOffsetBase;
+								this.__red = this.__vertexColorOffset.red3 + this.__redOffsetBase;
+								this.__green = this.__vertexColorOffset.green3 + this.__greenOffsetBase;
+								this.__blue = this.__vertexColorOffset.blue3 + this.__blueOffsetBase;
 								normalizeColor();
 								this.__image._colorOffset2Final = getColor();
 								
-								this.__alpha = this.__vertexColorOffset.alpha2;
-								this.__red = this.__vertexColorOffset.red2;
-								this.__green = this.__vertexColorOffset.green2;
-								this.__blue = this.__vertexColorOffset.blue2;
+								this.__alpha = this.__vertexColorOffset.alpha2 + this.__alphaOffsetBase;
+								this.__red = this.__vertexColorOffset.red2 + this.__redOffsetBase;
+								this.__green = this.__vertexColorOffset.green2 + this.__greenOffsetBase;
+								this.__blue = this.__vertexColorOffset.blue2 + this.__blueOffsetBase;
 								normalizeColor();
 								this.__image._colorOffset3Final = getColor();
 								
-								this.__alpha = this.__vertexColorOffset.alpha1;
-								this.__red = this.__vertexColorOffset.red1;
-								this.__green = this.__vertexColorOffset.green1;
-								this.__blue = this.__vertexColorOffset.blue1;
+								this.__alpha = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
+								this.__red = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+								this.__green = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+								this.__blue = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
 								normalizeColor();
 								this.__image._colorOffset4Final = getColor();
 							}
 							else
 							{
-								this.__alpha = this.__vertexColorOffset.alpha2;
-								this.__red = this.__vertexColorOffset.red2;
-								this.__green = this.__vertexColorOffset.green2;
-								this.__blue = this.__vertexColorOffset.blue2;
+								this.__alpha = this.__vertexColorOffset.alpha2 + this.__alphaOffsetBase;
+								this.__red = this.__vertexColorOffset.red2 + this.__redOffsetBase;
+								this.__green = this.__vertexColorOffset.green2 + this.__greenOffsetBase;
+								this.__blue = this.__vertexColorOffset.blue2 + this.__blueOffsetBase;
 								normalizeColor();
 								this.__image._colorOffset1Final = getColor();
 								
-								this.__alpha = this.__vertexColorOffset.alpha1;
-								this.__red = this.__vertexColorOffset.red1;
-								this.__green = this.__vertexColorOffset.green1;
-								this.__blue = this.__vertexColorOffset.blue1;
+								this.__alpha = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
+								this.__red = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+								this.__green = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+								this.__blue = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
 								normalizeColor();
 								this.__image._colorOffset2Final = getColor();
 								
-								this.__alpha = this.__vertexColorOffset.alpha4;
-								this.__red = this.__vertexColorOffset.red4;
-								this.__green = this.__vertexColorOffset.green4;
-								this.__blue = this.__vertexColorOffset.blue4;
+								this.__alpha = this.__vertexColorOffset.alpha4 + this.__alphaOffsetBase;
+								this.__red = this.__vertexColorOffset.red4 + this.__redOffsetBase;
+								this.__green = this.__vertexColorOffset.green4 + this.__greenOffsetBase;
+								this.__blue = this.__vertexColorOffset.blue4 + this.__blueOffsetBase;
 								normalizeColor();
 								this.__image._colorOffset3Final = getColor();
 								
-								this.__alpha = this.__vertexColorOffset.alpha3;
-								this.__red = this.__vertexColorOffset.red3;
-								this.__green = this.__vertexColorOffset.green3;
-								this.__blue = this.__vertexColorOffset.blue3;
+								this.__alpha = this.__vertexColorOffset.alpha3 + this.__alphaOffsetBase;
+								this.__red = this.__vertexColorOffset.red3 + this.__redOffsetBase;
+								this.__green = this.__vertexColorOffset.green3 + this.__greenOffsetBase;
+								this.__blue = this.__vertexColorOffset.blue3 + this.__blueOffsetBase;
 								normalizeColor();
 								this.__image._colorOffset4Final = getColor();
 							}
 						}
 						else if (this.__image.invertY)
 						{
-							this.__alpha = this.__vertexColorOffset.alpha3;
-							this.__red = this.__vertexColorOffset.red3;
-							this.__green = this.__vertexColorOffset.green3;
-							this.__blue = this.__vertexColorOffset.blue3;
+							this.__alpha = this.__vertexColorOffset.alpha3 + this.__alphaOffsetBase;
+							this.__red = this.__vertexColorOffset.red3 + this.__redOffsetBase;
+							this.__green = this.__vertexColorOffset.green3 + this.__greenOffsetBase;
+							this.__blue = this.__vertexColorOffset.blue3 + this.__blueOffsetBase;
 							normalizeColor();
 							this.__image._colorOffset1Final = getColor();
 							
-							this.__alpha = this.__vertexColorOffset.alpha4;
-							this.__red = this.__vertexColorOffset.red4;
-							this.__green = this.__vertexColorOffset.green4;
-							this.__blue = this.__vertexColorOffset.blue4;
+							this.__alpha = this.__vertexColorOffset.alpha4 + this.__alphaOffsetBase;
+							this.__red = this.__vertexColorOffset.red4 + this.__redOffsetBase;
+							this.__green = this.__vertexColorOffset.green4 + this.__greenOffsetBase;
+							this.__blue = this.__vertexColorOffset.blue4 + this.__blueOffsetBase;
 							normalizeColor();
 							this.__image._colorOffset2Final = getColor();
 							
-							this.__alpha = this.__vertexColorOffset.alpha1;
-							this.__red = this.__vertexColorOffset.red1;
-							this.__green = this.__vertexColorOffset.green1;
-							this.__blue = this.__vertexColorOffset.blue1;
+							this.__alpha = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
+							this.__red = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+							this.__green = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+							this.__blue = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
 							normalizeColor();
 							this.__image._colorOffset3Final = getColor();
 							
-							this.__alpha = this.__vertexColorOffset.alpha2;
-							this.__red = this.__vertexColorOffset.red2;
-							this.__green = this.__vertexColorOffset.green2;
-							this.__blue = this.__vertexColorOffset.blue2;
+							this.__alpha = this.__vertexColorOffset.alpha2 + this.__alphaOffsetBase;
+							this.__red = this.__vertexColorOffset.red2 + this.__redOffsetBase;
+							this.__green = this.__vertexColorOffset.green2 + this.__greenOffsetBase;
+							this.__blue = this.__vertexColorOffset.blue2 + this.__blueOffsetBase;
 							normalizeColor();
 							this.__image._colorOffset4Final = getColor();
 						}
 						else
 						{
-							this.__alpha = this.__vertexColorOffset.alpha1;
-							this.__red = this.__vertexColorOffset.red1;
-							this.__green = this.__vertexColorOffset.green1;
-							this.__blue = this.__vertexColorOffset.blue1;
+							this.__alpha = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
+							this.__red = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+							this.__green = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+							this.__blue = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
 							normalizeColor();
 							this.__image._colorOffset1Final = getColor();
 							
-							this.__alpha = this.__vertexColorOffset.alpha2;
-							this.__red = this.__vertexColorOffset.red2;
-							this.__green = this.__vertexColorOffset.green2;
-							this.__blue = this.__vertexColorOffset.blue2;
+							this.__alpha = this.__vertexColorOffset.alpha2 + this.__alphaOffsetBase;
+							this.__red = this.__vertexColorOffset.red2 + this.__redOffsetBase;
+							this.__green = this.__vertexColorOffset.green2 + this.__greenOffsetBase;
+							this.__blue = this.__vertexColorOffset.blue2 + this.__blueOffsetBase;
 							normalizeColor();
 							this.__image._colorOffset2Final = getColor();
 							
-							this.__alpha = this.__vertexColorOffset.alpha3;
-							this.__red = this.__vertexColorOffset.red3;
-							this.__green = this.__vertexColorOffset.green3;
-							this.__blue = this.__vertexColorOffset.blue3;
+							this.__alpha = this.__vertexColorOffset.alpha3 + this.__alphaOffsetBase;
+							this.__red = this.__vertexColorOffset.red3 + this.__redOffsetBase;
+							this.__green = this.__vertexColorOffset.green3 + this.__greenOffsetBase;
+							this.__blue = this.__vertexColorOffset.blue3 + this.__blueOffsetBase;
 							normalizeColor();
 							this.__image._colorOffset3Final = getColor();
 							
-							this.__alpha = this.__vertexColorOffset.alpha1;
-							this.__red = this.__vertexColorOffset.red1;
-							this.__green = this.__vertexColorOffset.green1;
-							this.__blue = this.__vertexColorOffset.blue1;
+							this.__alpha = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
+							this.__red = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+							this.__green = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+							this.__blue = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
 							normalizeColor();
 							this.__image._colorOffset1Final = getColor();
 						}
@@ -2282,92 +2343,92 @@ abstract class ContainerBase extends DisplayBase
 						{
 							if (this.__image.invertY)
 							{
-								this.__image._redOffset1Final = this.__vertexColorOffset.red4;
-								this.__image._greenOffset1Final = this.__vertexColorOffset.green4;
-								this.__image._blueOffset1Final = this.__vertexColorOffset.blue4;
-								this.__image._alphaOffset1Final = this.__vertexColorOffset.alpha4;
+								this.__image._redOffset1Final = this.__vertexColorOffset.red4 + this.__redOffsetBase;
+								this.__image._greenOffset1Final = this.__vertexColorOffset.green4 + this.__greenOffsetBase;
+								this.__image._blueOffset1Final = this.__vertexColorOffset.blue4 + this.__blueOffsetBase;
+								this.__image._alphaOffset1Final = this.__vertexColorOffset.alpha4 + this.__alphaOffsetBase;
 								
-								this.__image._redOffset2Final = this.__vertexColorOffset.red3;
-								this.__image._greenOffset2Final = this.__vertexColorOffset.green3;
-								this.__image._blueOffset2Final = this.__vertexColorOffset.blue3;
-								this.__image._alphaOffset2Final = this.__vertexColorOffset.alpha3;
+								this.__image._redOffset2Final = this.__vertexColorOffset.red3 + this.__redOffsetBase;
+								this.__image._greenOffset2Final = this.__vertexColorOffset.green3 + this.__greenOffsetBase;
+								this.__image._blueOffset2Final = this.__vertexColorOffset.blue3 + this.__blueOffsetBase;
+								this.__image._alphaOffset2Final = this.__vertexColorOffset.alpha3 + this.__alphaOffsetBase;
 								
-								this.__image._redOffset3Final = this.__vertexColorOffset.red2;
-								this.__image._greenOffset3Final = this.__vertexColorOffset.green2;
-								this.__image._blueOffset3Final = this.__vertexColorOffset.blue2;
-								this.__image._alphaOffset3Final = this.__vertexColorOffset.alpha2;
+								this.__image._redOffset3Final = this.__vertexColorOffset.red2 + this.__redOffsetBase;
+								this.__image._greenOffset3Final = this.__vertexColorOffset.green2 + this.__greenOffsetBase;
+								this.__image._blueOffset3Final = this.__vertexColorOffset.blue2 + this.__blueOffsetBase;
+								this.__image._alphaOffset3Final = this.__vertexColorOffset.alpha2 + this.__alphaOffsetBase;
 								
-								this.__image._redOffset4Final = this.__vertexColorOffset.red1;
-								this.__image._greenOffset4Final = this.__vertexColorOffset.green1;
-								this.__image._blueOffset4Final = this.__vertexColorOffset.blue1;
-								this.__image._alphaOffset4Final = this.__vertexColorOffset.alpha1;
+								this.__image._redOffset4Final = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+								this.__image._greenOffset4Final = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+								this.__image._blueOffset4Final = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
+								this.__image._alphaOffset4Final = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
 							}
 							else
 							{
-								this.__image._redOffset1Final = this.__vertexColorOffset.red2;
-								this.__image._greenOffset1Final = this.__vertexColorOffset.green2;
-								this.__image._blueOffset1Final = this.__vertexColorOffset.blue2;
-								this.__image._alphaOffset1Final = this.__vertexColorOffset.alpha2;
+								this.__image._redOffset1Final = this.__vertexColorOffset.red2 + this.__redOffsetBase;
+								this.__image._greenOffset1Final = this.__vertexColorOffset.green2 + this.__greenOffsetBase;
+								this.__image._blueOffset1Final = this.__vertexColorOffset.blue2 + this.__blueOffsetBase;
+								this.__image._alphaOffset1Final = this.__vertexColorOffset.alpha2 + this.__alphaOffsetBase;
 								
-								this.__image._redOffset2Final = this.__vertexColorOffset.red1;
-								this.__image._greenOffset2Final = this.__vertexColorOffset.green1;
-								this.__image._blueOffset2Final = this.__vertexColorOffset.blue1;
-								this.__image._alphaOffset2Final = this.__vertexColorOffset.alpha1;
+								this.__image._redOffset2Final = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+								this.__image._greenOffset2Final = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+								this.__image._blueOffset2Final = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
+								this.__image._alphaOffset2Final = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
 								
-								this.__image._redOffset3Final = this.__vertexColorOffset.red4;
-								this.__image._greenOffset3Final = this.__vertexColorOffset.green4;
-								this.__image._blueOffset3Final = this.__vertexColorOffset.blue4;
-								this.__image._alphaOffset3Final = this.__vertexColorOffset.alpha4;
+								this.__image._redOffset3Final = this.__vertexColorOffset.red4 + this.__redOffsetBase;
+								this.__image._greenOffset3Final = this.__vertexColorOffset.green4 + this.__greenOffsetBase;
+								this.__image._blueOffset3Final = this.__vertexColorOffset.blue4 + this.__blueOffsetBase;
+								this.__image._alphaOffset3Final = this.__vertexColorOffset.alpha4 + this.__alphaOffsetBase;
 								
-								this.__image._redOffset4Final = this.__vertexColorOffset.red3;
-								this.__image._greenOffset4Final = this.__vertexColorOffset.green3;
-								this.__image._blueOffset4Final = this.__vertexColorOffset.blue3;
-								this.__image._alphaOffset4Final = this.__vertexColorOffset.alpha3;
+								this.__image._redOffset4Final = this.__vertexColorOffset.red3 + this.__redOffsetBase;
+								this.__image._greenOffset4Final = this.__vertexColorOffset.green3 + this.__greenOffsetBase;
+								this.__image._blueOffset4Final = this.__vertexColorOffset.blue3 + this.__blueOffsetBase;
+								this.__image._alphaOffset4Final = this.__vertexColorOffset.alpha3 + this.__alphaOffsetBase;
 							}
 						}
 						else if (this.__image.invertY)
 						{
-							this.__image._redOffset1Final = this.__vertexColorOffset.red3;
-							this.__image._greenOffset1Final = this.__vertexColorOffset.green3;
-							this.__image._blueOffset1Final = this.__vertexColorOffset.blue3;
-							this.__image._alphaOffset1Final = this.__vertexColorOffset.alpha3;
+							this.__image._redOffset1Final = this.__vertexColorOffset.red3 + this.__redOffsetBase;
+							this.__image._greenOffset1Final = this.__vertexColorOffset.green3 + this.__greenOffsetBase;
+							this.__image._blueOffset1Final = this.__vertexColorOffset.blue3 + this.__blueOffsetBase;
+							this.__image._alphaOffset1Final = this.__vertexColorOffset.alpha3 + this.__alphaOffsetBase;
 							
-							this.__image._redOffset2Final = this.__vertexColorOffset.red4;
-							this.__image._greenOffset2Final = this.__vertexColorOffset.green4;
-							this.__image._blueOffset2Final = this.__vertexColorOffset.blue4;
-							this.__image._alphaOffset2Final = this.__vertexColorOffset.alpha4;
+							this.__image._redOffset2Final = this.__vertexColorOffset.red4 + this.__redOffsetBase;
+							this.__image._greenOffset2Final = this.__vertexColorOffset.green4 + this.__greenOffsetBase;
+							this.__image._blueOffset2Final = this.__vertexColorOffset.blue4 + this.__blueOffsetBase;
+							this.__image._alphaOffset2Final = this.__vertexColorOffset.alpha4 + this.__alphaOffsetBase;
 							
-							this.__image._redOffset3Final = this.__vertexColorOffset.red1;
-							this.__image._greenOffset3Final = this.__vertexColorOffset.green1;
-							this.__image._blueOffset3Final = this.__vertexColorOffset.blue1;
-							this.__image._alphaOffset3Final = this.__vertexColorOffset.alpha1;
+							this.__image._redOffset3Final = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+							this.__image._greenOffset3Final = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+							this.__image._blueOffset3Final = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
+							this.__image._alphaOffset3Final = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
 							
-							this.__image._redOffset4Final = this.__vertexColorOffset.red2;
-							this.__image._greenOffset4Final = this.__vertexColorOffset.green2;
-							this.__image._blueOffset4Final = this.__vertexColorOffset.blue2;
-							this.__image._alphaOffset4Final = this.__vertexColorOffset.alpha2;
+							this.__image._redOffset4Final = this.__vertexColorOffset.red2 + this.__redOffsetBase;
+							this.__image._greenOffset4Final = this.__vertexColorOffset.green2 + this.__greenOffsetBase;
+							this.__image._blueOffset4Final = this.__vertexColorOffset.blue2 + this.__blueOffsetBase;
+							this.__image._alphaOffset4Final = this.__vertexColorOffset.alpha2 + this.__alphaOffsetBase;
 						}
 						else
 						{
-							this.__image._redOffset1Final = this.__vertexColorOffset.red1;
-							this.__image._greenOffset1Final = this.__vertexColorOffset.green1;
-							this.__image._blueOffset1Final = this.__vertexColorOffset.blue1;
-							this.__image._alphaOffset1Final = this.__vertexColorOffset.alpha1;
+							this.__image._redOffset1Final = this.__vertexColorOffset.red1 + this.__redOffsetBase;
+							this.__image._greenOffset1Final = this.__vertexColorOffset.green1 + this.__greenOffsetBase;
+							this.__image._blueOffset1Final = this.__vertexColorOffset.blue1 + this.__blueOffsetBase;
+							this.__image._alphaOffset1Final = this.__vertexColorOffset.alpha1 + this.__alphaOffsetBase;
 							
-							this.__image._redOffset2Final = this.__vertexColorOffset.red2;
-							this.__image._greenOffset2Final = this.__vertexColorOffset.green2;
-							this.__image._blueOffset2Final = this.__vertexColorOffset.blue2;
-							this.__image._alphaOffset2Final = this.__vertexColorOffset.alpha2;
+							this.__image._redOffset2Final = this.__vertexColorOffset.red2 + this.__redOffsetBase;
+							this.__image._greenOffset2Final = this.__vertexColorOffset.green2 + this.__greenOffsetBase;
+							this.__image._blueOffset2Final = this.__vertexColorOffset.blue2 + this.__blueOffsetBase;
+							this.__image._alphaOffset2Final = this.__vertexColorOffset.alpha2 + this.__alphaOffsetBase;
 							
-							this.__image._redOffset3Final = this.__vertexColorOffset.red3;
-							this.__image._greenOffset3Final = this.__vertexColorOffset.green3;
-							this.__image._blueOffset3Final = this.__vertexColorOffset.blue3;
-							this.__image._alphaOffset3Final = this.__vertexColorOffset.alpha3;
+							this.__image._redOffset3Final = this.__vertexColorOffset.red3 + this.__redOffsetBase;
+							this.__image._greenOffset3Final = this.__vertexColorOffset.green3 + this.__greenOffsetBase;
+							this.__image._blueOffset3Final = this.__vertexColorOffset.blue3 + this.__blueOffsetBase;
+							this.__image._alphaOffset3Final = this.__vertexColorOffset.alpha3 + this.__alphaOffsetBase;
 							
-							this.__image._redOffset4Final = this.__vertexColorOffset.red4;
-							this.__image._greenOffset4Final = this.__vertexColorOffset.green4;
-							this.__image._blueOffset4Final = this.__vertexColorOffset.blue4;
-							this.__image._alphaOffset4Final = this.__vertexColorOffset.alpha4;
+							this.__image._redOffset4Final = this.__vertexColorOffset.red4 + this.__redOffsetBase;
+							this.__image._greenOffset4Final = this.__vertexColorOffset.green4 + this.__greenOffsetBase;
+							this.__image._blueOffset4Final = this.__vertexColorOffset.blue4 + this.__blueOffsetBase;
+							this.__image._alphaOffset4Final = this.__vertexColorOffset.alpha4 + this.__alphaOffsetBase;
 						}
 					}
 				}
@@ -2377,19 +2438,19 @@ abstract class ContainerBase extends DisplayBase
 				this.__uniformColorOffset = true;
 				if (this.__simpleColor)
 				{
-					this.__alpha = this.__image._alpha;
-					this.__red = this.__image._red;
-					this.__green = this.__image._green;
-					this.__blue = this.__image._blue;
+					this.__alpha = this.__image.alphaOffset + this.__alphaOffsetBase;
+					this.__red = this.__image.redOffset + this.__redOffsetBase;
+					this.__green = this.__image.greenOffset + this.__greenOffsetBase;
+					this.__blue = this.__image.blueOffset + this.__blueOffsetBase;
 					normalizeColor();
 					this.__colorOffset = getColor();
 				}
 				else
 				{
-					this.__alphaOffset = this.__image.alphaOffset;
-					this.__redOffset = this.__image.redOffset;
-					this.__greenOffset = this.__image.greenOffset;
-					this.__blueOffset = this.__image.blueOffset;
+					this.__alphaOffset = this.__image.alphaOffset + this.__alphaOffsetBase;
+					this.__redOffset = this.__image.redOffset + this.__redOffsetBase;
+					this.__greenOffset = this.__image.greenOffset + this.__greenOffsetBase;
+					this.__blueOffset = this.__image.blueOffset + this.__blueOffsetBase;
 				}
 			}
 		}
@@ -2463,17 +2524,30 @@ abstract class ContainerBase extends DisplayBase
 	private var __alphaOffset:Float;
 	private var __colorOffset:Int;
 	
+	private var __redBase:Float;
+	private var __greenBase:Float;
+	private var __blueBase:Float;
+	private var __alphaBase:Float;
+	private var __redBasePrevious:Float = 1.0;
+	private var __greenBasePrevious:Float = 1.0;
+	private var __blueBasePrevious:Float = 1.0;
+	private var __alphaBasePrevious:Float = 1.0;
+	private var __redOffsetBase:Float;
+	private var __greenOffsetBase:Float;
+	private var __blueOffsetBase:Float;
+	private var __alphaOffsetBase:Float;
+	private var __redOffsetBasePrevious:Float = 0.0;
+	private var __greenOffsetBasePrevious:Float = 0.0;
+	private var __blueOffsetBasePrevious:Float = 0.0;
+	private var __alphaOffsetBasePrevious:Float = 0.0;
+	
 	private var __multiTexturing:Bool;
 	private var __textureIndex:Float;
 	private var __position:Int;
 	private var __quadsWritten:Int;
-	private var __numQuads:Int;
-	private var __quadOffset:Int;
-	private var __totalQuads:Int;
 	private var __pma:Bool;
-	private var __pmaForColorOffset:Bool;
 	private var __useColor:Bool;
-	private var __useDisplayColor:Bool;
+	//private var __useDisplayColor:Bool;
 	private var __useColorOffset:Bool;
 	private var __simpleColor:Bool;
 	private var __storeBounds:Bool;
