@@ -83,13 +83,20 @@ var textures = assetManager.getTextures("my-atlas-animation");
 var frames = Frame.fromTextureVectorWithAlign(textures, Align.CENTER, Align.CENTER);
 // now we can create an Animation object using AnimUtils
 var animation = AnimUtils.createAnimation(frames);
+// we're gonna need an Animator object to take care of the clips animations
+var animator = new Animator();
+// add Animator to Starling's juggler
+Starling.currentJuggler.add(animator);
 // create Clip objects, the same Animation can be shared amongst as many Clips as you want
 var clip:Clip;
 for (i in 0...1000)
 {
   clip = new Clip();
   clip.play(animation);
+  // add to imgContainer for display
   imgContainer.addChild(clip);
+  // add to animator for texture animation
+  animator.addClip(clip);
 }
 
 // note that we don't use multitexturing here : MassiveDisplay only has one texture
