@@ -812,7 +812,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	/**
 	   
-	   @param	textureOrTextures	either a Texture or an Array<Texture>
+	   @param	textureOrTextures	either a Texture or an Array<Texture> (Vector<Texture> on flash target)
 	   @param	renderMode
 	   @param	colorMode
 	   @param	maxQuads
