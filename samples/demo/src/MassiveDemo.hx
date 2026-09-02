@@ -64,6 +64,7 @@ class MassiveDemo extends Sprite
 	private var renderModeSprite:Sprite;
 	private var clipTypeSprite:Sprite;
 	private var containerTypeSprite:Sprite;
+	private var numObjectsPerContainerSprite:Sprite;
 	private var vertexAnimationSprite:Sprite;
 	private var maxTextureSprite:Sprite;
 	private var classicSprite:Sprite;
@@ -96,6 +97,7 @@ class MassiveDemo extends Sprite
 	private var movement:Bool = true;
 	private var multiTextureStyle:Bool = false;
 	private var numObjects:Int;
+	private var numObjectsPerContainer:Int = 100;
 	private var objectType:String = ObjectType.CLIP;
 	private var renderMode:String;
 	private var useBlurFilter:Bool = false;
@@ -129,6 +131,7 @@ class MassiveDemo extends Sprite
 	private var colorOffsetAlphaRangeButtons:Array<Button> = new Array<Button>();
 	private var clipTypeButtons:Array<Button> = new Array<Button>();
 	private var containerTypeButtons:Array<Button> = new Array<Button>();
+	private var numObjectsPerContainerButtons:Array<Button> = new Array<Button>();
 	private var renderModeButtons:Array<Button> = new Array<Button>();
 	private var maxTextureButtons:Array<Button> = new Array<Button>();
 	private var classicObjectsButtons:Array<Button> = new Array<Button>();
@@ -139,6 +142,7 @@ class MassiveDemo extends Sprite
 	private var colorOffsetAlphaRanges:Array<Float> = [-1.0, -0.5, 0.0, 0.5, 1.0, 5.0];
 	private var numAtlases:Int = 16;
 	private var objectNums:Array<Int> = [1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000];
+	private var objectPerContainerNums:Array<Int> = [500, 100, 50, 10, 5, 1];
 	private var scales:Array<Float> = [2.0, 1.0, 0.5, 0.2, 0.1];
 	
 	private var maxClipsWithoutMultiTextureStyle:Int = #if flash 2000 #else 8000 #end;
@@ -640,6 +644,31 @@ class MassiveDemo extends Sprite
 		
 		centerSprite(this.containerTypeSprite);
 		
+		// Num objects per container
+		tY += btnHeight + gap;
+		this.numObjectsPerContainerSprite = new Sprite();
+		this.numObjectsPerContainerSprite.y = tY;
+		this.menuSprite.addChild(this.numObjectsPerContainerSprite);
+		tf = createTextField("objects per container");
+		tf.y = (btnHeight - tf.height) / 2;
+		this.numObjectsPerContainerSprite.addChild(tf);
+		tX = tf.width + gap;
+		
+		for (i in 0...this.objectPerContainerNums.length)
+		{
+			btn = createButton(this.numObjectsPerContainer == this.objectPerContainerNums[i] ? this.miniButtonTextureON : this.miniButtonTextureOFF, Std.string(this.objectPerContainerNums[i]), null, this.miniButtonTextureON);
+			btn.enabled = this.containerType == ContainerType.MULTIPLE;
+			btn.x = tX;
+			btn.addEventListener(Event.TRIGGERED, toggleNumObjectsPerContainer);
+			this.numObjectsPerContainerButtons.push(btn);
+			this.numObjectsPerContainerSprite.addChild(btn);
+			
+			tX += btn.width + gap;
+		}
+		
+		this.numObjectsPerContainerSprite.alpha = this.containerType == ContainerType.MULTIPLE ? 1.0 : 0.5;
+		centerSprite(this.numObjectsPerContainerSprite);
+		
 		// Vertex animation
 		tY += btnHeight + gap;
 		this.vertexAnimationSprite = new Sprite();
@@ -1139,6 +1168,23 @@ class MassiveDemo extends Sprite
 		
 		this.containerType = btn.text;
 		btn.upState = this.mediumButtonTextureON;
+		
+		if (this.containerType == ContainerType.MULTIPLE)
+		{
+			this.numObjectsPerContainerSprite.alpha = 1.0;
+			for (i in 0...this.numObjectsPerContainerButtons.length)
+			{
+				this.numObjectsPerContainerButtons[i].enabled = true;
+			}
+		}
+		else
+		{
+			this.numObjectsPerContainerSprite.alpha = 1.0;
+			for (i in 0...this.numObjectsPerContainerButtons.length)
+			{
+				this.numObjectsPerContainerButtons[i].enabled = false;
+			}
+		}
 	}
 	
 	private function toggleDisplayScale(evt:Event):Void
@@ -1205,6 +1251,19 @@ class MassiveDemo extends Sprite
 		
 		updateClassicStarling();
 		updateMeshStyle();
+	}
+	
+	private function toggleNumObjectsPerContainer(evt:Event):Void
+	{
+		var btn:Button = cast evt.target;
+		for (i in 0...this.numObjectsPerContainerButtons.length)
+		{
+			if (this.numObjectsPerContainerButtons[i] == btn) continue;
+			this.numObjectsPerContainerButtons[i].upState = this.miniButtonTextureOFF;
+		}
+		
+		this.numObjectsPerContainer = Std.parseInt(btn.text);
+		btn.upState = this.miniButtonTextureON;
 	}
 	
 	private function toggleObjectType(evt:Event):Void
@@ -1458,6 +1517,7 @@ class MassiveDemo extends Sprite
 		scene.addAtlases(this.atlases);
 		scene.objectScale = this.displayScale;
 		scene.numObjects = this.numObjects;
+		scene.numObjectsPerContainer = this.numObjectsPerContainer;
 		scene.colorMode = this.colorMode;
 		scene.colorRange = this.colorRange;
 		scene.colorAlphaRange = this.colorAlphaRange;

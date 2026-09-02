@@ -30,27 +30,12 @@ class MassiveClips extends MassiveClipsBase
 		
 		var clip:MovingClip;
 		
-		if (this._imgLayer != null)
+		for (i in 0...this.numObjects)
 		{
-			for (i in 0...this.numObjects)
-			{
-				clip = new MovingClip();
-				initClip(clip);
-				this._clips[this._clips.length] = clip;
-				this._clipList[this._clipList.length] = clip;
-				this._imgLayer.addChild(clip);
-			}
-		}
-		else
-		{
-			for (i in 0...this.numObjects)
-			{
-				clip = new MovingClip();
-				initClip(clip);
-				this._clips[this._clips.length] = clip;
-				this._clipList[this._clipList.length] = clip;
-				this._mixedLayer.addChild(clip);
-			}
+			clip = new MovingClip();
+			initClip(clip);
+			this._clips[this._clips.length] = clip;
+			this._clipList[this._clipList.length] = clip;
 		}
 		
 		if (this.clipType == ClipType.CLIP_BASIC)

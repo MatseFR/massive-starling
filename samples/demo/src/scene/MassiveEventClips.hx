@@ -31,27 +31,12 @@ class MassiveEventClips extends MassiveClipsBase
 		
 		var clip:MovingEventClip;
 		
-		if (this._imgLayer != null)
+		for (i in 0...this.numObjects)
 		{
-			for (i in 0...this.numObjects)
-			{
-				clip = new MovingEventClip();
-				initClip(clip);
-				this._clips[i] = clip;
-				this._clipList[i] = clip;
-				this._imgLayer.addChild(clip);
-			}
-		}
-		else
-		{
-			for (i in 0...this.numObjects)
-			{
-				clip = new MovingEventClip();
-				initClip(clip);
-				this._clips[i] = clip;
-				this._clipList[i] = clip;
-				this._mixedLayer.addChild(clip);
-			}
+			clip = new MovingEventClip();
+			initClip(clip);
+			this._clips[i] = clip;
+			this._clipList[i] = clip;
 		}
 		
 		this._animator.addEventClipList(this._clips);

@@ -40,6 +40,7 @@ abstract class MassiveSceneBase extends Scene implements IAnimatable
 	public var colorValueLow:Float = 0.0;
 	public var containerType:String;
 	public var numObjects:Int = 1000;
+	public var numObjectsPerContainer:Int = 100;
 	public var objectScale:Float = 1;
 	public var renderMode:String;
 	public var textures:Array<Vector<Texture>>;
@@ -83,6 +84,9 @@ abstract class MassiveSceneBase extends Scene implements IAnimatable
 	private var _sprite3D:Sprite3D;
 	private var _velocityBase:Float = 30;
 	private var _velocityRange:Float = 150;
+	
+	private var _useMultipleContainers:Bool;
+	private var _containerObjectCount:Int = 0;
 	
 	public function new() 
 	{
@@ -350,6 +354,8 @@ abstract class MassiveSceneBase extends Scene implements IAnimatable
 		{
 			this._mixedLayer = new MixedContainer();
 			this._display.addLayer(this._mixedLayer);
+			
+			this._useMultipleContainers = this.containerType == ContainerType.MULTIPLE;
 		}
 		
 		if (this.useSprite3D)
@@ -451,6 +457,26 @@ abstract class MassiveSceneBase extends Scene implements IAnimatable
 		}
 		
 		this._imageList[this._imageList.length] = cast img;
+		
+		if (this._useMultipleContainers)
+		{
+			if (this._imgLayer == null || this._containerObjectCount == this.numObjectsPerContainer)
+			{
+				this._imgLayer = new ImgContainer();
+				this._mixedLayer.addChild(this._imgLayer);
+				this._containerObjectCount = 0;
+			}
+			this._imgLayer.addChild(cast img);
+			this._containerObjectCount++;
+		}
+		else if (this._mixedLayer != null)
+		{
+			this._mixedLayer.addChild(cast img);
+		}
+		else
+		{
+			this._imgLayer.addChild(cast img);
+		}
 		
 		return variant;
 	}

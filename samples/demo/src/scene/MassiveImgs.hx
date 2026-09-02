@@ -23,25 +23,11 @@ class MassiveImgs extends MassiveSceneBase
 	{
 		var img:MovingImg;
 		
-		if (this._imgLayer != null)
+		for (i in 0...this.numObjects)
 		{
-			for (i in 0...this.numObjects)
-			{
-				img = new MovingImg();
-				initImg(img);
-				this._imgList[i] = img;
-				this._imgLayer.addChild(img);
-			}
-		}
-		else
-		{
-			for (i in 0...this.numObjects)
-			{
-				img = new MovingImg();
-				initImg(img);
-				this._imgList[i] = img;
-				this._mixedLayer.addChild(img);
-			}
+			img = new MovingImg();
+			initImg(img);
+			this._imgList[i] = img;
 		}
 	}
 	
