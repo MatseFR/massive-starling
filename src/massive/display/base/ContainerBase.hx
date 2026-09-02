@@ -2457,7 +2457,7 @@ abstract class ContainerBase extends DisplayBase
 	}
 	
 	private var __data:DisplayBase;
-	private var __container:MixedContainer;
+	private var __container:ContainerBase;
 	private var __image:Img;
 	
 	private var __byteData:ByteArray;
