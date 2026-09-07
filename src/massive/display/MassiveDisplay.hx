@@ -793,6 +793,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _renderData:RenderData;
 	
 	private var _textures:Array<Texture> = new Array<Texture>();
+	private var _textureRepeats:Array<Bool> = new Array<Bool>();
+	private var _textureSmoothings:Array<String> = new Array<String>();
 	private var _textureKeys:Array<String> = new Array<String>();
 	private var _textureProgramKey:String;
 	private var _numTextures:Int = 0;
@@ -1004,44 +1006,56 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		updateBuffers();
 	}
 	
-	public function addTexture(texture:Texture, update:Bool = true):Void
+	public function addTexture(texture:Texture, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	{
+		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		this._textures[this._textures.length] = texture;
 		this._textureKeys[this._textureKeys.length] = Std.string(getTextureKey(texture));
+		this._textureSmoothings[this._textureSmoothings.length] = textureSmoothing;
+		this._textureRepeats[this._textureRepeats.length] = textureRepeat;
 		if (update) updateTextures();
 	}
 	
-	public function addTextureAt(texture:Texture, index:Int, update:Bool = true):Void
+	public function addTextureAt(texture:Texture, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	{
+		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		this._textures.insert(index, texture);
 		this._textureKeys.insert(index, Std.string(getTextureKey(texture)));
+		this._textureSmoothings.insert(index, textureSmoothing);
+		this._textureRepeats.insert(index, textureRepeat);
 		if (update) updateTextures();
 	}
 	
 	#if (flash||SWC)
-	public function addTextures(textures:Vector<Texture>, update:Bool = true):Void
+	public function addTextures(textures:Vector<Texture>, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	#else
-	public function addTextures(textures:Array<Texture>, update:Bool = true):Void
+	public function addTextures(textures:Array<Texture>, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	#end
 	{
+		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		for (i in 0...textures.length)
 		{
 			this._textures[this._textures.length] = textures[i];
 			this._textureKeys[this._textureKeys.length] = Std.string(getTextureKey(textures[i]));
+			this._textureSmoothings[this._textureSmoothings.length] = textureSmoothing;
+			this._textureRepeats[this._textureRepeats.length] = textureRepeat;
 		}
 		if (update) updateTextures();
 	}
 	
 	#if (flash||SWC)
-	public function addTexturesAt(textures:Vector<Texture>, index:Int, update:Bool = true):Void
+	public function addTexturesAt(textures:Vector<Texture>, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	#else
-	public function addTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true):Void
+	public function addTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	#end
 	{
+		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		for (i in 0...textures.length)
 		{
 			this._textures.insert(index + i, textures[i]);
 			this._textureKeys.insert(index + i, Std.string(getTextureKey(textures[i])));
+			this._textureSmoothings.insert(index + i, textureSmoothing);
+			this._textureRepeats.insert(index + i, textureRepeat);
 		}
 		if (update) updateTextures();
 	}
@@ -1050,6 +1064,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		this._textures.resize(0);
 		this._textureKeys.resize(0);
+		this._textureSmoothings.resize(0);
+		this._textureRepeats.resize(0);
 		if (update) updateTextures();
 	}
 	
@@ -1098,6 +1114,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		{
 			this._textures.splice(index, 1);
 			this._textureKeys.splice(index, 1);
+			this._textureSmoothings.splice(index, 1);
+			this._textureRepeats.splice(index, 1);
 			if (update) updateTextures();
 		}
 	}
@@ -1106,6 +1124,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	{
 		this._textures.splice(index, 1);
 		this._textureKeys.splice(index, 1);
+		this._textureSmoothings.splice(index, 1);
+		this._textureRepeats.splice(index, 1);
 		if (update) updateTextures();
 	}
 	
@@ -1119,41 +1139,61 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			{
 				this._textures.splice(index, 1);
 				this._textureKeys.splice(index, 1);
+				this._textureSmoothings.splice(index, 1);
+				this._textureRepeats.splice(index, 1);
 			}
 		}
 		if (update) updateTextures();
 	}
 	
-	public function setTextureAt(texture:Texture, index:Int, update:Bool = true):Void
+	public function setTextureAt(texture:Texture, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	{
+		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		this._textures[index] = texture;
 		this._textureKeys[index] = Std.string(getTextureKey(texture));
+		this._textureSmoothings[index] = textureSmoothing;
+		this._textureRepeats[index] = textureRepeat;
 		if (update) updateTextures();
 	}
 	
 	#if (flash||SWC)
-	public function setTextures(textures:Vector<Texture>, update:Bool = true):Void
+	public function setTextures(textures:Vector<Texture>, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	#else
-	public function setTextures(textures:Array<Texture>, update:Bool = true):Void
+	public function setTextures(textures:Array<Texture>, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	#end
 	{
 		this._textures.resize(0);
 		this._textureKeys.resize(0);
-		addTextures(textures, update);
+		this._textureSmoothings.resize(0);
+		this._textureRepeats.resize(0);
+		addTextures(textures, update, textureSmoothing, textureRepeat);
 	}
 	
 	#if (flash||SWC)
-	public function setTexturesAt(textures:Vector<Texture>, index:Int, update:Bool = true):Void
+	public function setTexturesAt(textures:Vector<Texture>, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	#else
-	public function setTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true):Void
+	public function setTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
 	#end
 	{
+		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		for (i in 0...textures.length)
 		{
 			this._textures[index + i] = textures[i];
 			this._textureKeys[index + i] = Std.string(getTextureKey(textures[i]));
+			this._textureSmoothings[index + i] = textureSmoothing;
+			this._textureRepeats[index + i] = textureRepeat;
 		}
 		if (update) updateTextures();
+	}
+	
+	public function setTextureRepeatAt(index:Int, textureRepeat:Bool):Void
+	{
+		this._textureRepeats[index] = textureRepeat;
+	}
+	
+	public function setTextureSmoothingAt(index:Int, textureSmoothing:String):Void
+	{
+		this._textureSmoothings[index] = textureSmoothing;
 	}
 	
 	/**
@@ -2206,7 +2246,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		for (i in 0...this._numTextures)
 		{
 			this._context.setTextureAt(i, this._textures[i].base);
-			RenderUtil.setSamplerStateAt(i, this._textures[i].mipMapping, this._textureSmoothing, this._textureRepeat);
+			RenderUtil.setSamplerStateAt(i, this._textures[i].mipMapping, this._textureSmoothings[i], this._textureRepeats[i]);
 		}
 		
 		this._context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, this._viewMatrixVertexConstantsIndex, painter.state.mvpMatrix3D, true);
