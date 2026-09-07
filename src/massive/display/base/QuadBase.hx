@@ -36,6 +36,10 @@ abstract class QuadBase extends DisplayBase
 	**/
 	public var rotation(get, set):Float;
 	/**
+	   sets both 'scaleX' and 'scaleY' to the same value
+	**/
+	public var scale(get, set):Float;
+	/**
 	   horizontal scale factor
 	   @default	1
 	**/
@@ -124,6 +128,12 @@ abstract class QuadBase extends DisplayBase
 		if (this._rotation == value) return value;
 		this._transformChanged = this._rotationChanged = true;
 		return this._rotation = value;
+	}
+	
+	inline private function get_scale():Float { return this._scaleX; }
+	inline private function set_scale(value:Float):Float
+	{
+		return this.scaleX = this.scaleY = value;
 	}
 	
 	private var _scaleX:Float = 1.0;
