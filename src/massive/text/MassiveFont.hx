@@ -138,6 +138,10 @@ class MassiveFont
         var fontSize:Float = format.size;
         var autoScale:Bool = false;// = options.autoScale;
 		var intPositions:Bool = true;
+		var letterSpreading:Bool = true;
+		var letterSpreadingMax:Float = 3.0;
+		var letterSpreadingMaxCurrent:Float = letterSpreadingMax;
+		var letterSpreadingMinRatio:Float = 0.05;
         var wordWrap:Bool = wordWrap;//options.wordWrap;
 		
 		var finished:Bool = false;
@@ -159,9 +163,6 @@ class MassiveFont
 		var hAlignJustify:Bool = hAlign == TextAlign.JUSTIFY;
 		var hAlignRight:Bool = hAlign == TextAlign.RIGHT;
 		
-		//var vAlignCenter:Bool;
-		//var vAlignRight:Bool;
-		
 		var lineFull:Bool;
 		var charID:Int;
 		var glyph:Glyph;
@@ -173,9 +174,15 @@ class MassiveFont
 		var cumulatedOffset:Float;
 		var word:Array<GlyphLocation>;
 		
+		var ratio:Float;
+		
 		var intCounter:Float;
 		var intIncrement:Float;
 		var intPositionStep:Float = 1.0;
+		
+		#if debug
+		var maxSpread:Float = 0;
+		#end
 		
 		if (fontSize < 0) fontSize *= -this.size;
 		
@@ -187,6 +194,7 @@ class MassiveFont
 			containerWidth = (width - this.padding * 2) / scale;
 			containerHeight = (height - this.padding * 2) / scale;
 			if (intPositions) intPositionStep = 1.0 / scale;
+			if (letterSpreading) letterSpreadingMaxCurrent = letterSpreadingMax / scale;
 			
 			if (fontSize < containerHeight)
 			{
@@ -311,7 +319,42 @@ class MassiveFont
 								remainingWidth = containerWidth - currentX;
 								spreadWidth = remainingWidth / (_words.length - 1);
 								
+								#if debug
+								//if (spreadWidth > maxSpread) maxSpread = spreadWidth;
+								ratio = spreadWidth / containerWidth;
+								if (ratio > maxSpread) maxSpread = ratio;
+								#end
+								
 								cumulatedOffset = 0;
+								
+								if (letterSpreading)
+								{
+									ratio = spreadWidth / containerWidth;
+									if (ratio >= letterSpreadingMinRatio)
+									{
+										spreadWidth = remainingWidth / (currentLine.length - 1);
+										if (!intPositions || spreadWidth >= intPositionStep)
+										{
+											spreadWidth = Math.min(spreadWidth, letterSpreadingMaxCurrent);
+											if (intPositions)
+											{
+												intIncrement = spreadWidth %  intPositionStep;
+												spreadWidth -= intIncrement;
+											}
+											
+											for (c in 1...currentLine.length)
+											{
+												cumulatedOffset += spreadWidth;
+												currentLine[c].x += cumulatedOffset;
+											}
+											
+											cumulatedOffset = 0;
+											currentX = glyphLocation.x + glyphLocation.glyph.xAdvance;
+											remainingWidth = containerWidth - currentX;
+											spreadWidth = remainingWidth / (_words.length - 1);
+										}
+									}
+								}
 								
 								if (intPositions)
 								{
@@ -446,6 +489,10 @@ class MassiveFont
 				}
 			}
 		}
+		
+		#if debug
+		trace("maxSpread " + maxSpread);
+		#end
 		
 		return finalLocations;
 	}
