@@ -21,10 +21,14 @@ class MassiveFont
     private static inline var CHAR_CARRIAGE_RETURN:Int = 13;
     private static inline var CHAR_SPACE:Int           = 32;
 	
+	private static inline var EPSILON:Float = 0.000001;
+	
+	private static var _imgs:Array<Img> = new Array<Img>();
 	private static var _lines:Array<Array<GlyphLocation>> = new Array<Array<GlyphLocation>>();
 	private static var _words:Array<Array<GlyphLocation>> = new Array<Array<GlyphLocation>>();
 	
 	public var baseline:Float;
+	//public var intPositions:Bool = true;
 	public var lineHeight(default, null):Float;
 	public var name(default, null):String;
 	public var offsetX:Float;
@@ -106,17 +110,22 @@ class MassiveFont
 		var glyphLocations:Array<GlyphLocation> = layoutChars(width, height, text, format, wordWrap);
 		var numChars:Int = glyphLocations.length;
 		var location:GlyphLocation;
+		Img.fromPoolArray(numChars, _imgs);
 		var img:Img;
 		for (i in 0...numChars)
 		{
 			location = glyphLocations[i];
-			img = Img.fromPool(location.glyph.frame);
+			img = _imgs[i];
+			img.frame = location.glyph.frame;
 			img.x = location.x;
 			img.y = location.y;
 			img.scaleX = img.scaleY = location.scale;
 			img.color = format.color;
-			container.addChild(img);
 		}
+		container.addChildren(_imgs);
+		_imgs.resize(0);
+		
+		GlyphLocation.rechargePool();
 	}
 	
 	public function layoutChars(width:Float, height:Float, text:String, format:TextFormat, wordWrap:Bool):Array<GlyphLocation>
@@ -128,6 +137,7 @@ class MassiveFont
         var vAlign:String = format.verticalAlign;
         var fontSize:Float = format.size;
         var autoScale:Bool = false;// = options.autoScale;
+		var intPositions:Bool = true;
         var wordWrap:Bool = wordWrap;//options.wordWrap;
 		
 		var finished:Bool = false;
@@ -145,12 +155,12 @@ class MassiveFont
 		var currentX:Float;
 		var currentY:Float = 0;
 		
-		var hAlignCenter:Bool = format.horizontalAlign == TextAlign.CENTER;
-		var hAlignJustify:Bool = format.horizontalAlign == TextAlign.JUSTIFY;
-		var hAlignRight:Bool = format.horizontalAlign == TextAlign.RIGHT;
+		var hAlignCenter:Bool = hAlign == TextAlign.CENTER;
+		var hAlignJustify:Bool = hAlign == TextAlign.JUSTIFY;
+		var hAlignRight:Bool = hAlign == TextAlign.RIGHT;
 		
-		var vAlignCenter:Bool;
-		var vAlignRight:Bool;
+		//var vAlignCenter:Bool;
+		//var vAlignRight:Bool;
 		
 		var lineFull:Bool;
 		var charID:Int;
@@ -158,9 +168,14 @@ class MassiveFont
 		var numCharsToRemove:Int;
 		
 		var remainingWidth:Float;
+		var remainingSpace:Float;
 		var spreadWidth:Float;
 		var cumulatedOffset:Float;
 		var word:Array<GlyphLocation>;
+		
+		var intCounter:Float;
+		var intIncrement:Float;
+		var intPositionStep:Float = 1.0;
 		
 		if (fontSize < 0) fontSize *= -this.size;
 		
@@ -171,6 +186,7 @@ class MassiveFont
 			scale = fontSize / this.size;
 			containerWidth = (width - this.padding * 2) / scale;
 			containerHeight = (height - this.padding * 2) / scale;
+			if (intPositions) intPositionStep = 1.0 / scale;
 			
 			if (fontSize < containerHeight)
 			{
@@ -237,9 +253,6 @@ class MassiveFont
 								// when autoscaling, we must not split a word in half -> restart
                                 if (autoScale && lastWhiteSpace == -1) break;
 								
-								//numCharsToRemove = lastWhiteSpace == -1 ? 1 : i - lastWhiteSpace;
-								//currentLine.resize(currentLine.length - numCharsToRemove);
-								
 								if (lastWhiteSpace == -1)
 								{
 									numCharsToRemove = 1;
@@ -253,7 +266,6 @@ class MassiveFont
 								else
 								{
 									numCharsToRemove = i - lastWhiteSpace;
-									//currentLine.resize(currentLine.length - (numCharsToRemove + 1));
 									currentLine.resize(currentLine.length - numCharsToRemove);
 									
 									if (currentWord.length > numCharsToRemove + 1)
@@ -267,12 +279,6 @@ class MassiveFont
 								{
 									break;
 								}
-								
-								//if (currentWord.length > numCharsToRemove)
-								//{
-									//currentWord.resize(currentWord.length - numCharsToRemove);
-									//_words[_words.length] = currentWord;
-								//}
 								
 								i -= numCharsToRemove;
 							}
@@ -297,30 +303,57 @@ class MassiveFont
 								//currentLine.resize(currentLine.length - 1);
 							}
 							
+							// JUSTIFY
 							if (hAlignJustify)
 							{
-								//currentX = glyph.xAdvance + spacing;
 								glyphLocation = currentLine[currentLine.length - 1];
 								currentX = glyphLocation.x + glyphLocation.glyph.xAdvance;
 								remainingWidth = containerWidth - currentX;
 								spreadWidth = remainingWidth / (_words.length - 1);
+								
 								cumulatedOffset = 0;
 								
-								for (c in 1..._words.length)
+								if (intPositions)
 								{
-									cumulatedOffset += spreadWidth;
-									word = _words[c];
-									for (d in 0...word.length)
+									remainingSpace = spreadWidth;
+									intIncrement = remainingSpace % intPositionStep;
+									spreadWidth -= intIncrement;
+									intCounter = 0;
+									
+									for (c in 1..._words.length)
 									{
-										word[d].x += cumulatedOffset;
+										intCounter += intIncrement;
+										if (intCounter + EPSILON >= intPositionStep)
+										{
+											intCounter -= intPositionStep;
+											cumulatedOffset += spreadWidth + intPositionStep;
+										}
+										else
+										{
+											cumulatedOffset += spreadWidth;
+										}
+										word = _words[c];
+										for (d in 0...word.length)
+										{
+											word[d].x += cumulatedOffset;
+										}
+									}
+								}
+								else
+								{
+									for (c in 1..._words.length)
+									{
+										cumulatedOffset += spreadWidth;
+										word = _words[c];
+										for (d in 0...word.length)
+										{
+											word[d].x += cumulatedOffset;
+										}
 									}
 								}
 							}
+							//\JUSTIFY
 						}
-						//else
-						//{
-							//_words[_words.length] = currentWord;
-						//}
 					}
 					
 					if (i == numChars - 1)
@@ -331,13 +364,6 @@ class MassiveFont
 					else if (lineFull)
 					{
 						_lines[_lines.length] = currentLine;
-						
-						//if (lastWhiteSpace == i)
-						//{
-							//// TODO : compare .resize() and .pop() speeds
-							//currentLine.pop();
-							////currentLine.resize(currentLine.length - 1);
-						//}
 						
 						if (currentY + this.lineHeight + leading + this.size <= containerHeight)
 						{
@@ -399,11 +425,11 @@ class MassiveFont
 			lastLocation = line[line.length - 1];
 			right = lastLocation.x - lastLocation.glyph.xOffset + lastLocation.glyph.xAdvance;
 			
-			if (hAlign == Align.RIGHT)
+			if (hAlignRight)
 			{
 				xOffset = Std.int(containerWidth - right);
 			}
-			else if (hAlign == Align.CENTER)
+			else if (hAlignCenter)
 			{
 				xOffset = Std.int((containerWidth - right) / 2);
 			}
