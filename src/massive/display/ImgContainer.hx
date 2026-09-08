@@ -14,10 +14,16 @@ import openfl.utils._internal.Float32Array;
 class ImgContainer extends ContainerBase 
 {
 	#if flash
-	private var _datas:Vector<Img>;
+	public var datas(default, null):Vector<Img>;
 	#else
-	private var _datas:Array<Img>;
+	public var datas(default, null):Array<Img>;
 	#end
+	
+	//#if flash
+	//private var _datas:Vector<Img>;
+	//#else
+	//private var _datas:Array<Img>;
+	//#end
 	
 	#if flash
 	public function new(datas:Vector<Img> = null) 
@@ -27,25 +33,25 @@ class ImgContainer extends ContainerBase
 	{
 		super();
 		
-		this._datas = datas;
+		this.datas = datas;
 		#if flash
-		if (this._datas == null) this._datas = new Vector<Img>();
+		if (this.datas == null) this.datas = new Vector<Img>();
 		#else
-		if (this._datas == null) this._datas = new Array<Img>();
+		if (this.datas == null) this.datas = new Array<Img>();
 		#end
 	}
 	
 	public function addChild(child:Img):Void
 	{
-		this._datas[this._datas.length] = child;
+		this.datas[this.datas.length] = child;
 	}
 	
 	public function addChildAt(child:Img, index:Int):Void
 	{
 		#if flash
-		this._datas.insertAt(index, child);
+		this.datas.insertAt(index, child);
 		#else
-		this._datas.insert(index, child);
+		this.datas.insert(index, child);
 		#end
 	}
 	
@@ -54,7 +60,7 @@ class ImgContainer extends ContainerBase
 		var count:Int = children.length;
 		for (i in 0...count)
 		{
-			this._datas[this._datas.length] = children[i];
+			this.datas[this.datas.length] = children[i];
 		}
 	}
 	
@@ -65,34 +71,34 @@ class ImgContainer extends ContainerBase
 		for (i in 0...count)
 		{
 			#if flash
-			this._datas.insertAt(++index, children[i]);
+			this.datas.insertAt(++index, children[i]);
 			#else
-			this._datas.insert(++index, children[i]);
+			this.datas.insert(++index, children[i]);
 			#end
 		}
 	}
 	
 	public function getChildAt(index:Int):Img
 	{
-		return this._datas[index];
+		return this.datas[index];
 	}
 	
 	public function getChildIndex(child:Img):Int
 	{
-		return this._datas.indexOf(child);
+		return this.datas.indexOf(child);
 	}
 	
 	public function removeChild(child:Img):Void
 	{
-		removeChildAt(this._datas.indexOf(child));
+		removeChildAt(this.datas.indexOf(child));
 	}
 	
 	public function removeChildAt(index:Int):Void
 	{
 		#if flash
-		this._datas.removeAt(index);
+		this.datas.removeAt(index);
 		#else
-		this._datas.splice(index, 1);
+		this.datas.splice(index, 1);
 		#end
 	}
 	
@@ -102,9 +108,9 @@ class ImgContainer extends ContainerBase
 		for (i in 0...count)
 		{
 			#if flash
-			this._datas.removeAt(this._datas.indexOf(children[i]));
+			this.datas.removeAt(this.datas.indexOf(children[i]));
 			#else
-			this._datas.splice(this._datas.indexOf(children[i]), 1);
+			this.datas.splice(this.datas.indexOf(children[i]), 1);
 			#end
 		}
 	}
@@ -112,18 +118,18 @@ class ImgContainer extends ContainerBase
 	public function removeChildrenAt(index:Int, len:Int):Void
 	{
 		#if flash
-		this._datas.splice(index, len);
+		this.datas.splice(index, len);
 		#else
-		this._datas.splice(index, len);
+		this.datas.splice(index, len);
 		#end
 	}
 	
 	public function removeAllChildren():Void
 	{
 		#if flash
-		this._datas.length = 0;
+		this.datas.length = 0;
 		#else
-		this._datas.resize(0);
+		this.datas.resize(0);
 		#end
 	}
 	
@@ -132,15 +138,15 @@ class ImgContainer extends ContainerBase
 	**/
 	public function writeDataBytes(byteData:ByteArray, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
-		if (this._datas == null) return;
+		if (this.datas == null) return;
 		
-		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		if (this.autoHandleNumDatas) this.numDatas = this.datas.length;
 		
 		prepareDataBytes(byteData, maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
 		
 		for (i in 0...this.numDatas)
 		{
-			this.__image = this._datas[i];
+			this.__image = this.datas[i];
 			if (!this.__image.visible) continue;
 			
 			writeImageBytes();
@@ -162,15 +168,15 @@ class ImgContainer extends ContainerBase
 	**/
 	public function writeDataBytesMemory(maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:Vector<Float>):Void
 	{
-		if (this._datas == null) return;
+		if (this.datas == null) return;
 		
-		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		if (this.autoHandleNumDatas) this.numDatas = this.datas.length;
 		
 		prepareDataBytesMemory(maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
 		
 		for (i in 0...this.numDatas)
 		{
-			this.__image = this._datas[i];
+			this.__image = this.datas[i];
 			if (!this.__image.visible) continue;
 			
 			writeImageBytesMemory();
@@ -194,15 +200,15 @@ class ImgContainer extends ContainerBase
 	**/
 	public function writeDataFloat32Array(floatData:Float32Array, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
-		if (this._datas == null) return;
+		if (this.datas == null) return;
 		
-		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		if (this.autoHandleNumDatas) this.numDatas = this.datas.length;
 		
 		prepareDataFloat32Array(floatData, maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
 		
 		for (i in 0...this.numDatas)
 		{
-			this.__image = this._datas[i];
+			this.__image = this.datas[i];
 			if (!this.__image.visible) continue;
 			
 			writeImageFloat32Array();
@@ -225,15 +231,15 @@ class ImgContainer extends ContainerBase
 	**/
 	public function writeDataVector(vectorData:Vector<Float>, maxQuads:Int, renderOffsetX:Float, renderOffsetY:Float, renderData:RenderData, ?boundsData:#if flash Vector<Float> #else Array<Float> #end):Void
 	{
-		if (this._datas == null) return;
+		if (this.datas == null) return;
 		
-		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		if (this.autoHandleNumDatas) this.numDatas = this.datas.length;
 		
 		prepareDataVector(vectorData, maxQuads, renderOffsetX, renderOffsetY, renderData, boundsData);
 		
 		for (i in 0...this.numDatas)
 		{
-			this.__image = this._datas[i];
+			this.__image = this.datas[i];
 			if (!this.__image.visible) continue;
 			
 			writeImageVector();
@@ -255,14 +261,14 @@ class ImgContainer extends ContainerBase
 		this.__boundsData = boundsData;
 		this.__position = this.__boundsData.length-1;
 		
-		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
+		if (this.autoHandleNumDatas) this.numDatas = this.datas.length;
 		
 		this.__renderOffsetX = renderOffsetX + this.x;
 		this.__renderOffsetY = renderOffsetY + this.y;
 		
 		for (i in 0...this.numDatas)
 		{
-			this.__image = this._datas[i];
+			this.__image = this.datas[i];
 			if (!this.__image.visible) continue;
 			
 			writeImageBounds();
