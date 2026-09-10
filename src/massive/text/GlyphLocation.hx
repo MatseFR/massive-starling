@@ -53,6 +53,9 @@ class GlyphLocation
 	public var char:String;
 	#end
 	public var index:Int;
+	public var isHyphen:Bool;
+	public var isSpace:Bool;
+	public var isVowel:Bool;
 	public var glyph:Glyph;
 	public var scale:Float;
 	public var x:Float;
@@ -61,11 +64,27 @@ class GlyphLocation
 	public function new(glyph:Glyph) 
 	{
 		this.glyph = glyph;
+		if (this.glyph != null)
+		{
+			this.isSpace = glyph.isSpace;
+			this.isVowel = glyph.isVowel;
+		}
 	}
 	
 	private function setFromPool(glyph:Glyph):GlyphLocation
 	{
 		this.glyph = glyph;
+		this.isHyphen = false;
+		if (this.glyph != null)
+		{
+			this.isSpace = glyph.isSpace;
+			this.isVowel = glyph.isVowel;
+		}
+		else
+		{
+			this.isSpace = false;
+			this.isVowel = false;
+		}
 		return this;
 	}
 	
