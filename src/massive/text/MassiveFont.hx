@@ -15,6 +15,7 @@ import starling.utils.Align;
  */
 class MassiveFont 
 {
+	private static inline var CHAR_MINUS:Int		   = 45;
 	private static inline var CHAR_MISSING:Int         =  0;
     private static inline var CHAR_TAB:Int             =  9;
     private static inline var CHAR_NEWLINE:Int         = 10;
@@ -26,9 +27,9 @@ class MassiveFont
 	private static var _imgs:Array<Img> = new Array<Img>();
 	private static var _lines:Array<Array<GlyphLocation>> = new Array<Array<GlyphLocation>>();
 	private static var _words:Array<Array<GlyphLocation>> = new Array<Array<GlyphLocation>>();
+	//private static var _spaces:Array<GlyphLocation> = new Array<GlyphLocation>(); // CHAR_SPACE & CHAR_TAB
 	
 	public var baseline:Float;
-	//public var intPositions:Bool = true;
 	public var lineHeight(default, null):Float;
 	public var name(default, null):String;
 	public var offsetX:Float;
@@ -38,6 +39,7 @@ class MassiveFont
 	public var texture(default, null):Texture;
 	
 	private var _glyphs:Map<Int, Glyph> = new Map<Int, Glyph>();
+	private var _hyphenGlyph:Glyph;
 
 	public function new(texture:Texture = null, fontData:Dynamic = null) 
 	{
@@ -55,6 +57,47 @@ class MassiveFont
 		
 		addGlyph(CHAR_MISSING, new Glyph(CHAR_MISSING, null, 0, 0, 0));
 		parseFontData(fontData);
+		this._hyphenGlyph = getGlyph(CHAR_MINUS);
+		if (this._hyphenGlyph == null) this._hyphenGlyph = getGlyph(CHAR_MISSING);
+		
+		var glyph:Glyph;
+		glyph = getGlyph(CHAR_SPACE);
+		if (glyph != null) glyph.isSpace = true;
+		
+		glyph = getGlyph(CHAR_TAB);
+		if (glyph != null) glyph.isSpace = true;
+		
+		var vowels:String = "aàâäeéèêëiîïoôöuùûüy";
+		var count:Int = vowels.length;
+		for (i in 0...count)
+		{
+			glyph = getGlyph(vowels.charCodeAt(i));
+			if (glyph != null) glyph.isVowel = true;
+		}
+		
+		var punctuation:String = "\"'()[]{}<>-_+=*$£%,;.:?/\\|!§#@°~ 	";
+		count = punctuation.length;
+		for (i in 0...count)
+		{
+			glyph = getGlyph(punctuation.charCodeAt(i));
+			if (glyph != null)
+			{
+				glyph.isLetter = false;
+				glyph.isPunctuation = true;
+			}
+		}
+		
+		var numbers:String = "0123456789";
+		count = numbers.length;
+		for (i in 0...count)
+		{
+			glyph = getGlyph(numbers.charCodeAt(i));
+			if (glyph != null)
+			{
+				glyph.isLetter = false;
+				glyph.isNumber = true;
+			}
+		}
 	}
 	
 	public function addGlyph(charID:Int, glyph:Glyph):Void
@@ -137,6 +180,11 @@ class MassiveFont
         var vAlign:String = format.verticalAlign;
         var fontSize:Float = format.size;
         var autoScale:Bool = false;// = options.autoScale;
+		var hyphenation:Bool = true;
+		var hyphenationMinLength:Int = 7;
+		var hyphenationMinRatio:Float = 0.1;
+		var hyphenationMinCharsBefore:Int = 2;
+		var hyphenationMinCharsAfter:Int = 2;
 		var intPositions:Bool = true;
 		var letterSpreading:Bool = true;
 		var letterSpreadingMax:Float = 3.0;
@@ -150,7 +198,7 @@ class MassiveFont
 		var containerWidth:Float = 0;
 		var containerHeight:Float = 0;
 		var scale:Float = 1;
-		var i:Int;
+		var i:Int, j:Int;
 		
 		var lastWhiteSpace:Int;
 		var lastCharID:Int;
@@ -160,25 +208,37 @@ class MassiveFont
 		var currentY:Float = 0;
 		
 		var hAlignCenter:Bool = hAlign == TextAlign.CENTER;
-		var hAlignJustify:Bool = hAlign == TextAlign.JUSTIFY;
+		var hAlignJustify:Bool = true;//hAlign == TextAlign.JUSTIFY;
 		var hAlignRight:Bool = hAlign == TextAlign.RIGHT;
 		
 		var lineFull:Bool;
 		var charID:Int;
 		var glyph:Glyph;
 		var numCharsToRemove:Int;
+		var numSpaces:Int;
 		
-		var remainingWidth:Float;
+		var remainingWidth:Float = 0.0;
 		var remainingSpace:Float;
 		var spreadWidth:Float;
 		var cumulatedOffset:Float;
 		var word:Array<GlyphLocation>;
+		var nextCharID:Int;
+		var numCharsBefore:Int;
+		var numCharsAfter:Int;
 		
 		var ratio:Float;
 		
 		var intCounter:Float;
 		var intIncrement:Float;
 		var intPositionStep:Float = 1.0;
+		
+		var hyphenationAllowed:Bool;
+		var hyphenationOccured:Bool;
+		var numLetters:Int;
+		var k:Int;
+		
+		var testLocation:GlyphLocation;
+		var index:Int;
 		
 		#if debug
 		var maxSpread:Float = 0;
@@ -195,6 +255,7 @@ class MassiveFont
 			containerHeight = (height - this.padding * 2) / scale;
 			if (intPositions) intPositionStep = 1.0 / scale;
 			if (letterSpreading) letterSpreadingMaxCurrent = letterSpreadingMax / scale;
+			numSpaces = 0;
 			
 			if (fontSize < containerHeight)
 			{
@@ -234,6 +295,8 @@ class MassiveFont
 								_words[_words.length] = currentWord;
 								currentWord = GlyphLocation.arrayFromPool();
 							}
+							//_spaces[_spaces.length] = glyphLocation;
+							++numSpaces;
 						}
 						
 						if (kerning)
@@ -256,49 +319,146 @@ class MassiveFont
 						
 						if (glyphLocation.x + glyph.width > containerWidth)
 						{
-							if (wordWrap)
+							hyphenationAllowed = hyphenation && !glyph.isSpace;
+							
+							if (wordWrap && hyphenationAllowed)
+							{
+								// we want to know how much space there will be if we put this word on the next line
+								if (lastWhiteSpace != -1)
+								{
+									numCharsToRemove = i - lastWhiteSpace;
+									j = 1;
+									while (true)
+									{
+										index = currentLine.length - (numCharsToRemove + j);
+										if (index < 0)
+										{
+											remainingWidth = containerWidth;
+											break;
+										}
+										testLocation = currentLine[index];
+										if (!testLocation.isSpace)
+										{
+											remainingWidth = containerWidth - (testLocation.x + testLocation.glyph.width);
+											break;
+										}
+										++j;
+									}
+									ratio = remainingWidth / containerWidth;
+									hyphenationAllowed = ratio >= hyphenationMinRatio;
+								}
+							}
+							
+							hyphenationOccured = false;
+							if (hyphenationAllowed)
 							{
 								// when autoscaling, we must not split a word in half -> restart
                                 if (autoScale && lastWhiteSpace == -1) break;
 								
-								if (lastWhiteSpace == -1)
+								numLetters = 0;
+								word = new Array<GlyphLocation>();
+								for (c in 0...currentWord.length-1)
 								{
-									numCharsToRemove = 1;
-									currentLine.resize(currentLine.length - numCharsToRemove);
-									if (currentWord.length > numCharsToRemove)
+									if (currentWord[c].isSpace) continue;
+									word[word.length] = currentWord[c];
+								}
+								numLetters = numCharsBefore = word.length;
+								
+								if (numCharsBefore >= hyphenationMinCharsBefore)
+								{
+									word[word.length] = glyphLocation;
+									numCharsAfter = 1;
+									j = i + 1;
+									while (true)
 									{
-										currentWord.resize(currentWord.length - numCharsToRemove);
-										_words[_words.length] = currentWord;
+										nextCharID = text.charCodeAt(j);
+										if (nextCharID == CHAR_SPACE || nextCharID == CHAR_TAB) break;
+										
+										++numCharsAfter;
+										if (++numLetters >= hyphenationMinLength && numCharsAfter >= hyphenationMinCharsAfter) break;
+										++j;
 									}
+									
+									if (numLetters >= hyphenationMinLength)// && numCharsAfter >= hyphenationMinCharsAfter)
+									{
+										j = i - 1;
+										k = numCharsBefore - 1;
+										while (true)
+										{
+											// check that we can break the word here
+											if ((word[k].isVowel && !word[k + 1].isVowel) || (!word[k].isVowel && !word[k + 1].isVowel))
+											{
+												// check that it fits
+												if (word[k].x + word[k].glyph.xAdvance + this._hyphenGlyph.width <= containerWidth)
+												{
+													numCharsToRemove = numCharsBefore - k;
+													glyphLocation = GlyphLocation.fromPool(this._hyphenGlyph);
+													glyphLocation.isHyphen = true;
+													glyphLocation.x = word[k].x + word[k].glyph.xAdvance + this._hyphenGlyph.xOffset;
+													glyphLocation.y = currentY + this._hyphenGlyph.yOffset;
+													currentLine.resize(currentLine.length - numCharsToRemove);
+													currentLine[currentLine.length] = glyphLocation;
+													currentWord.resize(currentWord.length - numCharsToRemove);
+													currentWord[currentWord.length] = glyphLocation;
+													_words[_words.length] = currentWord;
+													hyphenationOccured = true;
+													i -= numCharsToRemove;
+													break;
+												}
+											}
+											--k;
+											if (k < hyphenationMinCharsBefore) break;
+										}
+									}
+								}
+							}
+							
+							if (!hyphenationOccured)
+							{
+								if (wordWrap)
+								{
+									// when autoscaling, we must not split a word in half -> restart
+									if (autoScale && lastWhiteSpace == -1) break;
+									
+									if (lastWhiteSpace == -1)
+									{
+										numCharsToRemove = 1;
+										currentLine.resize(currentLine.length - numCharsToRemove);
+										if (currentWord.length > numCharsToRemove)
+										{
+											currentWord.resize(currentWord.length - numCharsToRemove);
+											_words[_words.length] = currentWord;
+										}
+									}
+									else
+									{
+										numCharsToRemove = i - lastWhiteSpace;
+										currentLine.resize(currentLine.length - numCharsToRemove);
+										
+										if (currentWord.length > numCharsToRemove + 1)
+										{
+											currentWord.resize(currentWord.length - (numCharsToRemove + 1));
+											_words[_words.length] = currentWord;
+										}
+									}
+									
+									if (currentLine.length == 0)
+									{
+										break;
+									}
+									
+									i -= numCharsToRemove;
 								}
 								else
 								{
-									numCharsToRemove = i - lastWhiteSpace;
-									currentLine.resize(currentLine.length - numCharsToRemove);
+									if (autoScale) break;
+									currentLine.pop();
 									
-									if (currentWord.length > numCharsToRemove + 1)
+									// continue with next line, if there is one
+									while (i < numChars - 1 && text.charCodeAt(i) != CHAR_NEWLINE)
 									{
-										currentWord.resize(currentWord.length - (numCharsToRemove + 1));
-										_words[_words.length] = currentWord;
+										++i;
 									}
-								}
-								
-								if (currentLine.length == 0)
-								{
-									break;
-								}
-								
-								i -= numCharsToRemove;
-							}
-							else
-							{
-								if (autoScale) break;
-                                currentLine.pop();
-								
-								// continue with next line, if there is one
-								while (i < numChars - 1 && text.charCodeAt(i) != CHAR_NEWLINE)
-								{
-									++i;
 								}
 							}
 							
@@ -315,7 +475,8 @@ class MassiveFont
 							if (hAlignJustify)
 							{
 								glyphLocation = currentLine[currentLine.length - 1];
-								currentX = glyphLocation.x + glyphLocation.glyph.xAdvance;
+								//currentX = glyphLocation.x + glyphLocation.glyph.xAdvance;
+								currentX = glyphLocation.x + glyphLocation.glyph.width;
 								remainingWidth = containerWidth - currentX;
 								spreadWidth = remainingWidth / (_words.length - 1);
 								
