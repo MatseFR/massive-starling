@@ -10,6 +10,11 @@ class Glyph
 	public var charID(default, null):Int;
 	public var frame(default, null):Frame;
 	public var height(default, null):Float;
+	public var isLetter:Bool = true;
+	public var isNumber:Bool;
+	public var isPunctuation:Bool;
+	public var isSpace:Bool;
+	public var isVowel:Bool;
 	public var width(default, null):Float;
 	public var xAdvance(default, null):Float;
 	public var xOffset(default, null):Float;
