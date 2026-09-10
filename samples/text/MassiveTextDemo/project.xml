@@ -9,7 +9,7 @@
 	<app main="Main" file="MassiveTextDemo" path="bin" />
 	
 	<window background="#333333" fps="60" />
-	<window width="800" height="600" unless="mobile" />
+	<window width="800" height="720" unless="mobile" />
 	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
 	
 	<!-- classpath, haxe libs -->
