@@ -66,8 +66,12 @@ class GlyphLocation
 		this.glyph = glyph;
 		if (this.glyph != null)
 		{
+			this.isHyphen = glyph.isHyphen;
 			this.isSpace = glyph.isSpace;
 			this.isVowel = glyph.isVowel;
+			#if debug
+			this.char = glyph.char;
+			#end
 		}
 	}
 	
@@ -77,13 +81,21 @@ class GlyphLocation
 		this.isHyphen = false;
 		if (this.glyph != null)
 		{
+			this.isHyphen = glyph.isHyphen;
 			this.isSpace = glyph.isSpace;
 			this.isVowel = glyph.isVowel;
+			#if debug
+			this.char = glyph.char;
+			#end
 		}
 		else
 		{
+			this.isHyphen = false;
 			this.isSpace = false;
 			this.isVowel = false;
+			#if debug
+			this.char = null;
+			#end
 		}
 		return this;
 	}

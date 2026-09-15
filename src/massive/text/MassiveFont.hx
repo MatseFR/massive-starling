@@ -40,6 +40,15 @@ class MassiveFont
 	
 	private var _glyphs:Map<Int, Glyph> = new Map<Int, Glyph>();
 	private var _hyphenGlyph:Glyph;
+	
+	private var _breakableVowels:Map<Int, Bool> = new Map<Int, Bool>();
+	private var _breakableVowelModifiers:Map<Int, Array<Int>> = new Map<Int, Array<Int>>();
+	private var _forbiddenBreaks:Map<Int, Array<Int>> = new Map<Int, Array<Int>>();
+	
+	private var _customForbiddenBreaks:Map<Int, Array<Array<Int>>> = new Map<Int, Array<Array<Int>>>();
+	private var _customBreaksNumCharsMin:Int = 0;
+	private var _customBreaksNumCharsMax:Int = 0;
+	private var _hasCustomBreaks:Bool;
 
 	public function new(texture:Texture = null, fontData:Dynamic = null) 
 	{
@@ -58,7 +67,11 @@ class MassiveFont
 		addGlyph(CHAR_MISSING, new Glyph(CHAR_MISSING, null, 0, 0, 0));
 		parseFontData(fontData);
 		this._hyphenGlyph = getGlyph(CHAR_MINUS);
-		if (this._hyphenGlyph == null) this._hyphenGlyph = getGlyph(CHAR_MISSING);
+		if (this._hyphenGlyph == null)
+		{
+			this._hyphenGlyph = getGlyph(CHAR_MISSING);
+			this._hyphenGlyph.isHyphen = true;
+		}
 		
 		var glyph:Glyph;
 		glyph = getGlyph(CHAR_SPACE);
@@ -75,7 +88,8 @@ class MassiveFont
 			if (glyph != null) glyph.isVowel = true;
 		}
 		
-		var punctuation:String = "\"'()[]{}<>-_+=*$£%,;.:?/\\|!§#@°~ 	";
+		//var punctuation:String = "\"'()[]{}<>-_+=*$£%,;.:?/\\|!§#@°~ 	";
+		var punctuation:String = ",;.:?!\"'()";
 		count = punctuation.length;
 		for (i in 0...count)
 		{
@@ -98,6 +112,246 @@ class MassiveFont
 				glyph.isNumber = true;
 			}
 		}
+		
+		var specialChars:String = "<>_+=*$£%§#@°~";
+		count = specialChars.length;
+		for (i in 0...count)
+		{
+			glyph = getGlyph(specialChars.charCodeAt(i));
+			if (glyph != null)
+			{
+				glyph.isLetter = false;
+				glyph.isSpecial = true;
+			}
+		}
+		
+		addBreakableVowel("y");
+		
+		addBreakableVowelModifier("u", "q");
+		
+		addForbiddenBreak("a", "g");
+		addForbiddenBreak("a", "k");
+		addForbiddenBreak("a", "l"); // de-mor-al-ized ?
+		addForbiddenBreak("a", "m");
+		addForbiddenBreak("a", "n");
+		
+		addForbiddenBreak("c", "a");
+		addForbiddenBreak("c", "e");
+		addForbiddenBreak("c", "i");
+		addForbiddenBreak("c", "o");
+		addForbiddenBreak("c", "u");
+		
+		addForbiddenBreak("d", "u"); // produces
+		
+		addForbiddenBreak("e", "m");
+		//addForbiddenBreak("e", "n");
+		addForbiddenBreak("e", "p");
+		
+		addForbiddenBreak("g", "a");
+		
+		addForbiddenBreak("i", "k");
+		addForbiddenBreak("i", "n");
+		addForbiddenBreak("i", "z");
+		
+		addForbiddenBreak("k", "e");
+		
+		addForbiddenBreak("l", "d");
+		addForbiddenBreak("l", "i");
+		addForbiddenBreak("l", "o"); // belongs
+		
+		addForbiddenBreak("m", "a");
+		addForbiddenBreak("m", "e");
+		addForbiddenBreak("m", "i");
+		addForbiddenBreak("m", "o");
+		addForbiddenBreak("m", "u");
+		
+		addForbiddenBreak("n", "a");
+		addForbiddenBreak("n", "e");
+		addForbiddenBreak("n", "t");
+		
+		addForbiddenBreak("o", "m");
+		addForbiddenBreak("o", "n");
+		
+		addForbiddenBreak("p", "a");
+		addForbiddenBreak("p", "e");
+		addForbiddenBreak("p", "i");
+		addForbiddenBreak("p", "o");
+		addForbiddenBreak("p", "u");
+		addForbiddenBreak("p", "y");
+		
+		addForbiddenBreak("q", "u");
+		
+		addForbiddenBreak("r", "a");
+		addForbiddenBreak("r", "e");
+		
+		addForbiddenBreak("s", "e");
+		addForbiddenBreak("s", "i");
+		addForbiddenBreak("s", "l");
+		//addForbiddenBreak("s", "u");
+		
+		addForbiddenBreak("t", "a");
+		//addForbiddenBreak("t", "e");
+		addForbiddenBreak("t", "h");
+		addForbiddenBreak("t", "i");
+		addForbiddenBreak("t", "o");
+		addForbiddenBreak("t", "u");
+		addForbiddenBreak("t", "y");
+		
+		addForbiddenBreak("u", "a");
+		addForbiddenBreak("u", "e");
+		addForbiddenBreak("u", "i");
+		addForbiddenBreak("u", "m");
+		addForbiddenBreak("u", "n");
+		addForbiddenBreak("u", "o");
+		addForbiddenBreak("u", "r");
+		addForbiddenBreak("u", "s");
+		
+		addForbiddenBreak("v", "a");
+		addForbiddenBreak("v", "e");
+		addForbiddenBreak("v", "i");
+		addForbiddenBreak("v", "o");
+		addForbiddenBreak("v", "u");
+		
+		addForbiddenBreak("z", "a");
+		addForbiddenBreak("z", "e");
+		addForbiddenBreak("z", "i");
+		addForbiddenBreak("z", "o");
+		addForbiddenBreak("z", "u");
+		addForbiddenBreak("z", "y");
+		
+		// 3 letters
+		addCustomForbiddenBreak("sue");
+		addCustomForbiddenBreak("tem");
+		
+		// 4 letters
+		addCustomForbiddenBreak("ance");
+		addCustomForbiddenBreak("fore");
+		addCustomForbiddenBreak("pend");
+		addCustomForbiddenBreak("quen");
+	}
+	
+	public function addBreakableVowel(vowel:String):Void
+	{
+		this._breakableVowels.set(vowel.charCodeAt(0), true);
+	}
+	
+	public function isBreakableVowel(charID:Int):Bool
+	{
+		return this._breakableVowels.exists(charID);
+	}
+	
+	public function addBreakableVowelModifier(vowel:String, charBefore:String):Void
+	{
+		var charID:Int = vowel.charCodeAt(0);
+		var charCodes:Array<Int> = this._breakableVowelModifiers.get(charID);
+		if (charCodes == null)
+		{
+			charCodes = [];
+			this._breakableVowelModifiers.set(charID, charCodes);
+		}
+		charCodes[charCodes.length] = charBefore.charCodeAt(0);
+	}
+	
+	public function isBreakableVowelWithModifier(vowelID:Int, charID:Int):Bool
+	{
+		var charCodes:Array<Int> = this._breakableVowelModifiers.get(vowelID);
+		if (charCodes == null) return false;
+		return charCodes.indexOf(charID) != -1;
+	}
+	
+	public function addForbiddenBreak(charA:String, charB:String):Void
+	{
+		var charID:Int = charA.charCodeAt(0);
+		var charCodes:Array<Int> = this._forbiddenBreaks.get(charID);
+		if (charCodes == null)
+		{
+			charCodes = [];
+			this._forbiddenBreaks.set(charID, charCodes);
+		}
+		charCodes[charCodes.length] = charB.charCodeAt(0);
+	}
+	
+	public function isForbiddenBreak(charID1:Int, charID2:Int):Bool
+	{
+		var charCodes:Array<Int> = this._forbiddenBreaks.get(charID1);
+		if (charCodes == null) return false;
+		return charCodes.indexOf(charID2) != -1;
+	}
+	
+	public function addCustomForbiddenBreak(str:String):Void
+	{
+		var numChars:Int = str.length;
+		var charCodes:Array<Int> = new Array<Int>();
+		for (i in 0...numChars)
+		{
+			charCodes[i] = str.charCodeAt(i);
+		}
+		
+		if (this._customBreaksNumCharsMin == 0 || numChars < this._customBreaksNumCharsMin) this._customBreaksNumCharsMin = numChars;
+		if (this._customBreaksNumCharsMax == 0 || numChars > this._customBreaksNumCharsMax) this._customBreaksNumCharsMax = numChars;
+		
+		var entries:Array<Array<Int>> = this._customForbiddenBreaks.get(charCodes[0]);
+		if (entries == null)
+		{
+			entries = new Array<Array<Int>>();
+			this._customForbiddenBreaks.set(charCodes[0], entries);
+		}
+		entries[entries.length] = charCodes;
+	}
+	
+	public function isCustomForbiddenBreak(chars:Array<GlyphLocation>, fromIndex:Int):Bool
+	{
+		var startIndex:Int;
+		var endIndex:Int;
+		var maxIndex:Int = fromIndex + 1;
+		var charCount:Int = chars.length;
+		var entries:Array<Array<Int>>;
+		var entry:Array<Int>;
+		var numEntries:Int;
+		var count:Int;
+		var testChars:Array<Int> = new Array<Int>();
+		var ok:Bool;
+		
+		for (numChars in this._customBreaksNumCharsMin...this._customBreaksNumCharsMax + 1)
+		{
+			if (numChars > charCount) break;
+			startIndex = fromIndex - (numChars - 1);
+			if (startIndex < 0) startIndex = 0;
+			endIndex = charCount - numChars;
+			if (endIndex > maxIndex) endIndex = maxIndex;
+			
+			for (i in startIndex...endIndex)
+			{
+				entries = this._customForbiddenBreaks.get(chars[i].glyph.charID);
+				if (entries == null) continue;
+				
+				count = i + numChars;
+				for (j in i...count)
+				{
+					testChars[testChars.length] = chars[j].glyph.charID;
+				}
+				
+				numEntries = entries.length;
+				for (j in 0...numEntries)
+				{
+					entry = entries[j];
+					if (entry.length != numChars) continue;
+					
+					ok = true;
+					for (k in 0...numChars)
+					{
+						if (testChars[k] != entry[k])
+						{
+							ok = false;
+							break;
+						}
+					}
+					if (ok) return true;
+				}
+				testChars.resize(0);
+			}
+		}
+		return false;
 	}
 	
 	public function addGlyph(charID:Int, glyph:Glyph):Void
@@ -171,6 +425,110 @@ class MassiveFont
 		GlyphLocation.rechargePool();
 	}
 	
+	private function getBreakIndex(chars:Array<GlyphLocation>, fromIndex:Int, minCharsBefore:Int, minCharsAfter:Int):Int
+	{
+		var numCharsBefore:Int = fromIndex + 1;
+		var numCharsAfter:Int = chars.length - fromIndex;
+		var numVowelsBefore:Int = 0;
+		var numVowelsAfter:Int = 0;
+		var ok:Bool;
+		
+		#if debug
+		var word:String = "";
+		var charCount:Int = chars.length;
+		for (i in 0...charCount)
+		{
+			word += chars[i].char;
+		}
+		trace(word);
+		if (word == "greater")
+		{
+			trace("debug");
+		}
+		#end
+		
+		for (i in 0...fromIndex + 1)
+		{
+			if (chars[i].isVowel) ++numVowelsBefore;
+		}
+		
+		if (numVowelsBefore == 0) return -1;
+		
+		for (i in fromIndex + 1...chars.length)
+		{
+			if (chars[i].isVowel) ++numVowelsAfter;
+		}
+		
+		if (numVowelsBefore + numVowelsAfter < 2) return -1;
+		
+		while (fromIndex >= minCharsBefore - 1)
+		{
+			ok = numCharsAfter >= minCharsAfter;
+			if (ok)
+			{
+				if (chars[fromIndex].glyph == this._hyphenGlyph)
+				{
+					return fromIndex;
+				}
+				else if (numVowelsAfter > 0)
+				{
+					// first part cannot end with twice the same consonant
+					if (numCharsBefore > 1 && !chars[fromIndex - 1].isVowel && chars[fromIndex - 1].glyph.charID == chars[fromIndex].glyph.charID)
+					{
+						ok = false;
+					}
+					
+					// first part cannot end with a vowel if second part starts with a vowel
+					if (ok && numCharsAfter > 0 && chars[fromIndex].isVowel && chars[fromIndex + 1].isVowel && !isBreakableVowel(chars[fromIndex].glyph.charID) && (numCharsBefore == 0 || !isBreakableVowelWithModifier(chars[fromIndex].glyph.charID, chars[fromIndex - 1].glyph.charID)))
+					{
+						ok = false;
+					}
+					
+					if (ok && numCharsBefore > 1 && numCharsAfter > 0)
+					{
+						// if first part ends with 2 consonants, second part must start with a vowel
+						if (!chars[fromIndex].isVowel && !chars[fromIndex - 1].isVowel && !chars[fromIndex + 1].isVowel)
+						{
+							ok = false;
+						}
+					}
+				}
+				else
+				{
+					ok = false;
+				}
+			}
+			
+			if (ok)
+			{
+				// check for unbreakable pair
+				if (!isForbiddenBreak(chars[fromIndex].glyph.charID, chars[fromIndex + 1].glyph.charID))
+				{
+					// check for unbreakable character sequence
+					if (!isCustomForbiddenBreak(chars, fromIndex))
+					{
+						return fromIndex;
+					}
+				}
+			}
+			
+			if (chars[fromIndex].isVowel)
+			{
+				--numVowelsBefore;
+				++numVowelsAfter;
+				if (numVowelsBefore == 0) break;
+			}
+			
+			--fromIndex;
+			--numCharsBefore;
+			if (numCharsBefore < minCharsBefore) break;
+			++numCharsAfter;
+		}
+		return -1;
+	}
+	
+	//private function 
+	
 	public function layoutChars(width:Float, height:Float, text:String, format:TextFormat, wordWrap:Bool):Array<GlyphLocation>
 	{
 		var kerning:Bool = format.kerning;
@@ -223,8 +581,6 @@ class MassiveFont
 		var cumulatedOffset:Float;
 		var word:Array<GlyphLocation>;
 		var nextCharID:Int;
-		var numCharsBefore:Int;
-		var numCharsAfter:Int;
 		
 		var ratio:Float;
 		
@@ -234,9 +590,8 @@ class MassiveFont
 		
 		var hyphenationAllowed:Bool;
 		var hyphenationOccured:Bool;
-		var numLetters:Int;
-		var k:Int;
 		
+		var testGlyph:Glyph;
 		var testLocation:GlyphLocation;
 		var index:Int;
 		
@@ -323,7 +678,7 @@ class MassiveFont
 							
 							if (wordWrap && hyphenationAllowed)
 							{
-								// we want to know how much space there will be if we put this word on the next line
+								// we want to know how much space there will be if we put this entire word on the next line
 								if (lastWhiteSpace != -1)
 								{
 									numCharsToRemove = i - lastWhiteSpace;
@@ -347,6 +702,11 @@ class MassiveFont
 									ratio = remainingWidth / containerWidth;
 									hyphenationAllowed = ratio >= hyphenationMinRatio;
 								}
+								else
+								{
+									// multi-line word (?)
+									hyphenationAllowed = true;
+								}
 							}
 							
 							hyphenationOccured = false;
@@ -355,60 +715,66 @@ class MassiveFont
 								// when autoscaling, we must not split a word in half -> restart
                                 if (autoScale && lastWhiteSpace == -1) break;
 								
-								numLetters = 0;
-								word = new Array<GlyphLocation>();
-								for (c in 0...currentWord.length-1)
+								word = GlyphLocation.arrayFromPool();
+								//for (c in 0...currentWord.length - 1)
+								for (c in 0...currentWord.length)
 								{
-									if (currentWord[c].isSpace) continue;
-									word[word.length] = currentWord[c];
+									testLocation = currentWord[c];
+									if (testLocation.isSpace) continue;
+									word[word.length] = testLocation;
 								}
-								numLetters = numCharsBefore = word.length;
 								
-								if (numCharsBefore >= hyphenationMinCharsBefore)
+								index = -1;
+								j = word.length - 1;
+								while (j >= 0)
 								{
-									word[word.length] = glyphLocation;
-									numCharsAfter = 1;
-									j = i + 1;
-									while (true)
+									testLocation = word[j];
+									if (testLocation.x + testLocation.glyph.xAdvance + this._hyphenGlyph.xOffset + this._hyphenGlyph.width <= containerWidth)
 									{
-										nextCharID = text.charCodeAt(j);
-										if (nextCharID == CHAR_SPACE || nextCharID == CHAR_TAB) break;
-										
-										++numCharsAfter;
-										if (++numLetters >= hyphenationMinLength && numCharsAfter >= hyphenationMinCharsAfter) break;
-										++j;
+										index = j;
+										break;
 									}
-									
-									if (numLetters >= hyphenationMinLength)// && numCharsAfter >= hyphenationMinCharsAfter)
+									--j;
+								}
+								
+								if (index != -1)
+								{
+									j = i + 1;
+									if (j < numChars)
 									{
-										j = i - 1;
-										k = numCharsBefore - 1;
 										while (true)
 										{
-											// check that we can break the word here
-											if ((word[k].isVowel && !word[k + 1].isVowel) || (!word[k].isVowel && !word[k + 1].isVowel))
-											{
-												// check that it fits
-												if (word[k].x + word[k].glyph.xAdvance + this._hyphenGlyph.width <= containerWidth)
-												{
-													numCharsToRemove = numCharsBefore - k;
-													glyphLocation = GlyphLocation.fromPool(this._hyphenGlyph);
-													glyphLocation.isHyphen = true;
-													glyphLocation.x = word[k].x + word[k].glyph.xAdvance + this._hyphenGlyph.xOffset;
-													glyphLocation.y = currentY + this._hyphenGlyph.yOffset;
-													currentLine.resize(currentLine.length - numCharsToRemove);
-													currentLine[currentLine.length] = glyphLocation;
-													currentWord.resize(currentWord.length - numCharsToRemove);
-													currentWord[currentWord.length] = glyphLocation;
-													_words[_words.length] = currentWord;
-													hyphenationOccured = true;
-													i -= numCharsToRemove;
-													break;
-												}
-											}
-											--k;
-											if (k < hyphenationMinCharsBefore) break;
+											nextCharID = text.charCodeAt(j);
+											if (nextCharID == CHAR_SPACE || nextCharID == CHAR_TAB || nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN) break;
+											testGlyph = getGlyph(nextCharID);
+											testLocation = GlyphLocation.fromPool(testGlyph);
+											word[word.length] = testLocation;
+											++j;
+											if (j == numChars) break;
 										}
+									}
+									
+									index = getBreakIndex(word, index, hyphenationMinCharsBefore, hyphenationMinCharsAfter);
+									if (index != -1)
+									{
+										hyphenationOccured = true;
+										testLocation = word[index];
+										numCharsToRemove = i - testLocation.index;
+										i = testLocation.index;
+										currentLine.resize(currentLine.length - numCharsToRemove);
+										currentWord.resize(currentWord.length - numCharsToRemove);
+										//if (testLocation.glyph != this._hyphenGlyph)
+										if (!testLocation.isHyphen)
+										{
+											glyphLocation = GlyphLocation.fromPool(this._hyphenGlyph);
+											glyphLocation.isHyphen = true;
+											glyphLocation.index = i;
+											glyphLocation.x = testLocation.x + testLocation.glyph.xAdvance + this._hyphenGlyph.xOffset;
+											glyphLocation.y = currentY + this._hyphenGlyph.yOffset;
+											currentLine[currentLine.length] = glyphLocation;
+											currentWord[currentWord.length] = glyphLocation;
+										}
+										_words[_words.length] = currentWord;
 									}
 								}
 							}
@@ -578,6 +944,7 @@ class MassiveFont
 							currentY += this.lineHeight + leading;
 							lastWhiteSpace = -1;
 							lastCharID = - 1;
+							numSpaces = 0;
 						}
 						else
 						{

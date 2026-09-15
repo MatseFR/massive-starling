@@ -7,13 +7,18 @@ import massive.data.Frame;
  */
 class Glyph 
 {
+	#if debug
+	public var char(default, null):String;
+	#end
 	public var charID(default, null):Int;
 	public var frame(default, null):Frame;
 	public var height(default, null):Float;
+	public var isHyphen:Bool;
 	public var isLetter:Bool = true;
 	public var isNumber:Bool;
 	public var isPunctuation:Bool;
 	public var isSpace:Bool;
+	public var isSpecial:Bool;
 	public var isVowel:Bool;
 	public var width(default, null):Float;
 	public var xAdvance(default, null):Float;
@@ -25,6 +30,9 @@ class Glyph
 	public function new(charID:Int, frame:Frame, xOffset:Float, yOffset:Float, xAdvance:Float) 
 	{
 		this.charID = charID;
+		#if debug
+		this.char = String.fromCharCode(this.charID);
+		#end
 		this.frame = frame;
 		this.height = frame != null ? frame.height : 0.0;
 		this.width = frame != null ? frame.width : 0.0;
