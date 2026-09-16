@@ -151,6 +151,8 @@ class MassiveFont
 		
 		addForbiddenBreak("i", "k");
 		addForbiddenBreak("i", "n");
+		addForbiddenBreak("i", "r");
+		addForbiddenBreak("i", "s");
 		addForbiddenBreak("i", "z");
 		
 		addForbiddenBreak("k", "e");
@@ -185,8 +187,8 @@ class MassiveFont
 		addForbiddenBreak("r", "e");
 		
 		addForbiddenBreak("s", "e");
-		addForbiddenBreak("s", "i");
-		addForbiddenBreak("s", "l");
+		//addForbiddenBreak("s", "i"); // mis-informed
+		//addForbiddenBreak("s", "l"); // dis-like
 		//addForbiddenBreak("s", "u");
 		
 		addForbiddenBreak("t", "a");
@@ -225,9 +227,13 @@ class MassiveFont
 		
 		// 4 letters
 		addCustomForbiddenBreak("ance");
+		addCustomForbiddenBreak("each");
 		addCustomForbiddenBreak("fore");
+		addCustomForbiddenBreak("like");
 		addCustomForbiddenBreak("pend");
 		addCustomForbiddenBreak("quen");
+		addCustomForbiddenBreak("sire");
+		addCustomForbiddenBreak("void");
 	}
 	
 	public function addBreakableVowel(vowel:String):Void
@@ -317,7 +323,7 @@ class MassiveFont
 			if (numChars > charCount) break;
 			startIndex = fromIndex - (numChars - 1);
 			if (startIndex < 0) startIndex = 0;
-			endIndex = charCount - numChars;
+			endIndex = charCount - (numChars - 1);
 			if (endIndex > maxIndex) endIndex = maxIndex;
 			
 			for (i in startIndex...endIndex)
@@ -441,7 +447,7 @@ class MassiveFont
 			word += chars[i].char;
 		}
 		trace(word);
-		if (word == "greater")
+		if (word == "desire")
 		{
 			trace("debug");
 		}
@@ -747,6 +753,7 @@ class MassiveFont
 											nextCharID = text.charCodeAt(j);
 											if (nextCharID == CHAR_SPACE || nextCharID == CHAR_TAB || nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN) break;
 											testGlyph = getGlyph(nextCharID);
+											if (testGlyph.isPunctuation) break;
 											testLocation = GlyphLocation.fromPool(testGlyph);
 											word[word.length] = testLocation;
 											++j;
