@@ -45,10 +45,10 @@ class MassiveFont
 	private var _breakableVowelModifiers:Map<Int, Array<Int>> = new Map<Int, Array<Int>>();
 	private var _forbiddenBreaks:Map<Int, Array<Int>> = new Map<Int, Array<Int>>();
 	
-	private var _customForbiddenBreaks:Map<Int, Array<Array<Int>>> = new Map<Int, Array<Array<Int>>>();
-	private var _customBreaksNumCharsMin:Int = 0;
-	private var _customBreaksNumCharsMax:Int = 0;
-	private var _hasCustomBreaks:Bool;
+	private var _unbreakableStrings:Map<Int, Array<Array<Int>>> = new Map<Int, Array<Array<Int>>>();
+	private var _minUnbreakableChars:Int = 0;
+	private var _maxUnbreakableChars:Int = 0;
+	private var _hasUnbreakableStrings:Bool;
 
 	public function new(texture:Texture = null, fontData:Dynamic = null) 
 	{
@@ -137,7 +137,9 @@ class MassiveFont
 		
 		addForbiddenBreak("c", "a");
 		addForbiddenBreak("c", "e");
+		addForbiddenBreak("c", "h");
 		addForbiddenBreak("c", "i");
+		addForbiddenBreak("c", "k");
 		addForbiddenBreak("c", "o");
 		addForbiddenBreak("c", "u");
 		
@@ -146,8 +148,15 @@ class MassiveFont
 		addForbiddenBreak("e", "m");
 		//addForbiddenBreak("e", "n");
 		addForbiddenBreak("e", "p");
+		addForbiddenBreak("e", "r");
 		
 		addForbiddenBreak("g", "a");
+		
+		addForbiddenBreak("f", "a");
+		addForbiddenBreak("f", "e");
+		addForbiddenBreak("f", "i");
+		addForbiddenBreak("f", "o");
+		addForbiddenBreak("f", "u");
 		
 		addForbiddenBreak("i", "k");
 		addForbiddenBreak("i", "n");
@@ -155,9 +164,12 @@ class MassiveFont
 		addForbiddenBreak("i", "s");
 		addForbiddenBreak("i", "z");
 		
+		addForbiddenBreak("j", "e");
+		
 		addForbiddenBreak("k", "e");
 		
 		addForbiddenBreak("l", "d");
+		addForbiddenBreak("l", "e");
 		addForbiddenBreak("l", "i");
 		addForbiddenBreak("l", "o"); // belongs
 		
@@ -176,7 +188,9 @@ class MassiveFont
 		
 		addForbiddenBreak("p", "a");
 		addForbiddenBreak("p", "e");
+		addForbiddenBreak("p", "h");
 		addForbiddenBreak("p", "i");
+		
 		addForbiddenBreak("p", "o");
 		addForbiddenBreak("p", "u");
 		addForbiddenBreak("p", "y");
@@ -187,6 +201,7 @@ class MassiveFont
 		addForbiddenBreak("r", "e");
 		
 		addForbiddenBreak("s", "e");
+		addForbiddenBreak("s", "h");
 		//addForbiddenBreak("s", "i"); // mis-informed
 		//addForbiddenBreak("s", "l"); // dis-like
 		//addForbiddenBreak("s", "u");
@@ -222,18 +237,23 @@ class MassiveFont
 		addForbiddenBreak("z", "y");
 		
 		// 3 letters
-		addCustomForbiddenBreak("sue");
-		addCustomForbiddenBreak("tem");
+		addUnbreakableString("der");
+		addUnbreakableString("ing");
+		addUnbreakableString("sue");
+		addUnbreakableString("tem");
 		
 		// 4 letters
-		addCustomForbiddenBreak("ance");
-		addCustomForbiddenBreak("each");
-		addCustomForbiddenBreak("fore");
-		addCustomForbiddenBreak("like");
-		addCustomForbiddenBreak("pend");
-		addCustomForbiddenBreak("quen");
-		addCustomForbiddenBreak("sire");
-		addCustomForbiddenBreak("void");
+		addUnbreakableString("ance");
+		addUnbreakableString("each");
+		addUnbreakableString("fore");
+		addUnbreakableString("less");
+		addUnbreakableString("like");
+		addUnbreakableString("pend");
+		addUnbreakableString("plet");
+		addUnbreakableString("quen");
+		addUnbreakableString("sire");
+		addUnbreakableString("thos");
+		addUnbreakableString("void");
 	}
 	
 	public function addBreakableVowel(vowel:String):Void
@@ -284,7 +304,7 @@ class MassiveFont
 		return charCodes.indexOf(charID2) != -1;
 	}
 	
-	public function addCustomForbiddenBreak(str:String):Void
+	public function addUnbreakableString(str:String):Void
 	{
 		var numChars:Int = str.length;
 		var charCodes:Array<Int> = new Array<Int>();
@@ -293,20 +313,24 @@ class MassiveFont
 			charCodes[i] = str.charCodeAt(i);
 		}
 		
-		if (this._customBreaksNumCharsMin == 0 || numChars < this._customBreaksNumCharsMin) this._customBreaksNumCharsMin = numChars;
-		if (this._customBreaksNumCharsMax == 0 || numChars > this._customBreaksNumCharsMax) this._customBreaksNumCharsMax = numChars;
+		if (this._minUnbreakableChars == 0 || numChars < this._minUnbreakableChars) this._minUnbreakableChars = numChars;
+		if (this._maxUnbreakableChars == 0 || numChars > this._maxUnbreakableChars) this._maxUnbreakableChars = numChars;
 		
-		var entries:Array<Array<Int>> = this._customForbiddenBreaks.get(charCodes[0]);
+		var entries:Array<Array<Int>> = this._unbreakableStrings.get(charCodes[0]);
 		if (entries == null)
 		{
 			entries = new Array<Array<Int>>();
-			this._customForbiddenBreaks.set(charCodes[0], entries);
+			this._unbreakableStrings.set(charCodes[0], entries);
 		}
 		entries[entries.length] = charCodes;
+		
+		this._hasUnbreakableStrings = true;
 	}
 	
-	public function isCustomForbiddenBreak(chars:Array<GlyphLocation>, fromIndex:Int):Bool
+	public function isUnbreakableString(chars:Array<GlyphLocation>, fromIndex:Int):Bool
 	{
+		if (!this._hasUnbreakableStrings) return false;
+		
 		var startIndex:Int;
 		var endIndex:Int;
 		var maxIndex:Int = fromIndex + 1;
@@ -314,11 +338,11 @@ class MassiveFont
 		var entries:Array<Array<Int>>;
 		var entry:Array<Int>;
 		var numEntries:Int;
-		var count:Int;
-		var testChars:Array<Int> = new Array<Int>();
-		var ok:Bool;
+		//var count:Int;
+		//var testChars:Array<Int> = new Array<Int>();
+		var unbreakable:Bool;
 		
-		for (numChars in this._customBreaksNumCharsMin...this._customBreaksNumCharsMax + 1)
+		for (numChars in this._minUnbreakableChars...this._maxUnbreakableChars + 1)
 		{
 			if (numChars > charCount) break;
 			startIndex = fromIndex - (numChars - 1);
@@ -328,14 +352,14 @@ class MassiveFont
 			
 			for (i in startIndex...endIndex)
 			{
-				entries = this._customForbiddenBreaks.get(chars[i].glyph.charID);
+				entries = this._unbreakableStrings.get(chars[i].glyph.charID);
 				if (entries == null) continue;
 				
-				count = i + numChars;
-				for (j in i...count)
-				{
-					testChars[testChars.length] = chars[j].glyph.charID;
-				}
+				//count = i + numChars;
+				//for (j in i...count)
+				//{
+					//testChars[testChars.length] = chars[j].glyph.charID;
+				//}
 				
 				numEntries = entries.length;
 				for (j in 0...numEntries)
@@ -343,18 +367,19 @@ class MassiveFont
 					entry = entries[j];
 					if (entry.length != numChars) continue;
 					
-					ok = true;
+					unbreakable = true;
 					for (k in 0...numChars)
 					{
-						if (testChars[k] != entry[k])
+						//if (testChars[k] != entry[k])
+						if (chars[i + k].glyph.charID != entry[k])
 						{
-							ok = false;
+							unbreakable = false;
 							break;
 						}
 					}
-					if (ok) return true;
+					if (unbreakable) return true;
 				}
-				testChars.resize(0);
+				//testChars.resize(0);
 			}
 		}
 		return false;
@@ -447,7 +472,7 @@ class MassiveFont
 			word += chars[i].char;
 		}
 		trace(word);
-		if (word == "desire")
+		if (word == "happiness")
 		{
 			trace("debug");
 		}
@@ -484,6 +509,12 @@ class MassiveFont
 						ok = false;
 					}
 					
+					// second part cannot start with twice the same consonant
+					if (ok && numCharsAfter > 1 && ! chars[fromIndex + 1].isSpace && chars[fromIndex + 1].glyph.charID == chars[fromIndex + 2].glyph.charID)
+					{
+						ok = false;
+					}
+					
 					// first part cannot end with a vowel if second part starts with a vowel
 					if (ok && numCharsAfter > 0 && chars[fromIndex].isVowel && chars[fromIndex + 1].isVowel && !isBreakableVowel(chars[fromIndex].glyph.charID) && (numCharsBefore == 0 || !isBreakableVowelWithModifier(chars[fromIndex].glyph.charID, chars[fromIndex - 1].glyph.charID)))
 					{
@@ -511,7 +542,7 @@ class MassiveFont
 				if (!isForbiddenBreak(chars[fromIndex].glyph.charID, chars[fromIndex + 1].glyph.charID))
 				{
 					// check for unbreakable character sequence
-					if (!isCustomForbiddenBreak(chars, fromIndex))
+					if (!isUnbreakableString(chars, fromIndex))
 					{
 						return fromIndex;
 					}
