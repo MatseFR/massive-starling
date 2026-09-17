@@ -30,6 +30,8 @@ class MassiveFont
 	//private static var _spaces:Array<GlyphLocation> = new Array<GlyphLocation>(); // CHAR_SPACE & CHAR_TAB
 	
 	public var baseline:Float;
+	public var hyphenChar(get, set):String;
+	public var hyphenCharID(get, set):Int;
 	public var lineHeight(default, null):Float;
 	public var name(default, null):String;
 	public var offsetX:Float;
@@ -37,6 +39,22 @@ class MassiveFont
 	public var padding:Float;
 	public var size(default, null):Float;
 	public var texture(default, null):Texture;
+	
+	private var _hyphenChar:String;
+	private function get_hyphenChar():String { return this._hyphenChar; }
+	private function set_hyphenChar(value:String):String
+	{
+		this._hyphenChar = value;
+		return this._hyphenChar;
+	}
+	
+	private var _hyphenCharID:Int = CHAR_MINUS;
+	private function get_hyphenCharID():Int { return this._hyphenCharID; }
+	private function set_hyphenCharID(value:Int):Int
+	{
+		this._hyphenCharID = value;
+		return this._hyphenCharID;
+	}
 	
 	private var _glyphs:Map<Int, Glyph> = new Map<Int, Glyph>();
 	private var _hyphenGlyph:Glyph;
@@ -70,6 +88,9 @@ class MassiveFont
 		if (this._hyphenGlyph == null)
 		{
 			this._hyphenGlyph = getGlyph(CHAR_MISSING);
+		}
+		else
+		{
 			this._hyphenGlyph.isHyphen = true;
 		}
 		
@@ -127,13 +148,15 @@ class MassiveFont
 		
 		addBreakableVowel("y");
 		
-		addBreakableVowelModifier("u", "q");
+		//addBreakableVowelModifier("u", "q");
 		
 		addForbiddenBreak("a", "g");
 		addForbiddenBreak("a", "k");
 		addForbiddenBreak("a", "l"); // de-mor-al-ized ?
 		addForbiddenBreak("a", "m");
 		addForbiddenBreak("a", "n");
+		
+		addForbiddenBreak("b", "o");
 		
 		addForbiddenBreak("c", "a");
 		addForbiddenBreak("c", "e");
@@ -162,6 +185,7 @@ class MassiveFont
 		addForbiddenBreak("i", "n");
 		addForbiddenBreak("i", "r");
 		addForbiddenBreak("i", "s");
+		//addForbiddenBreak("i", "v"); // u-ni-ver-sal
 		addForbiddenBreak("i", "z");
 		
 		addForbiddenBreak("j", "e");
@@ -198,7 +222,8 @@ class MassiveFont
 		addForbiddenBreak("q", "u");
 		
 		addForbiddenBreak("r", "a");
-		addForbiddenBreak("r", "e");
+		//addForbiddenBreak("r", "e"); // ex-plor-er
+		//addForbiddenBreak("r", "i");
 		
 		addForbiddenBreak("s", "e");
 		addForbiddenBreak("s", "h");
@@ -215,6 +240,7 @@ class MassiveFont
 		addForbiddenBreak("t", "y");
 		
 		addForbiddenBreak("u", "a");
+		addForbiddenBreak("u", "c");
 		addForbiddenBreak("u", "e");
 		addForbiddenBreak("u", "i");
 		addForbiddenBreak("u", "m");
@@ -237,23 +263,38 @@ class MassiveFont
 		addForbiddenBreak("z", "y");
 		
 		// 3 letters
+		addUnbreakableString("act");
 		addUnbreakableString("der");
+		addUnbreakableString("ect");
 		addUnbreakableString("ing");
+		addUnbreakableString("riv");
 		addUnbreakableString("sue");
 		addUnbreakableString("tem");
+		addUnbreakableString("ure");
 		
 		// 4 letters
 		addUnbreakableString("ance");
 		addUnbreakableString("each");
+		//addUnbreakableString("fect");
 		addUnbreakableString("fore");
+		addUnbreakableString("here");
 		addUnbreakableString("less");
 		addUnbreakableString("like");
+		addUnbreakableString("noun");
+		addUnbreakableString("oice");
 		addUnbreakableString("pend");
 		addUnbreakableString("plet");
 		addUnbreakableString("quen");
+		addUnbreakableString("sion");
 		addUnbreakableString("sire");
 		addUnbreakableString("thos");
 		addUnbreakableString("void");
+		
+		// 5 letters
+		addUnbreakableString("treme");
+		
+		// 6 letters
+		addUnbreakableString("nounce");
 	}
 	
 	public function addBreakableVowel(vowel:String):Void
@@ -338,8 +379,6 @@ class MassiveFont
 		var entries:Array<Array<Int>>;
 		var entry:Array<Int>;
 		var numEntries:Int;
-		//var count:Int;
-		//var testChars:Array<Int> = new Array<Int>();
 		var unbreakable:Bool;
 		
 		for (numChars in this._minUnbreakableChars...this._maxUnbreakableChars + 1)
@@ -355,12 +394,6 @@ class MassiveFont
 				entries = this._unbreakableStrings.get(chars[i].glyph.charID);
 				if (entries == null) continue;
 				
-				//count = i + numChars;
-				//for (j in i...count)
-				//{
-					//testChars[testChars.length] = chars[j].glyph.charID;
-				//}
-				
 				numEntries = entries.length;
 				for (j in 0...numEntries)
 				{
@@ -370,7 +403,6 @@ class MassiveFont
 					unbreakable = true;
 					for (k in 0...numChars)
 					{
-						//if (testChars[k] != entry[k])
 						if (chars[i + k].glyph.charID != entry[k])
 						{
 							unbreakable = false;
@@ -379,7 +411,6 @@ class MassiveFont
 					}
 					if (unbreakable) return true;
 				}
-				//testChars.resize(0);
 			}
 		}
 		return false;
@@ -456,6 +487,87 @@ class MassiveFont
 		GlyphLocation.rechargePool();
 	}
 	
+	private function getBreakIndexWithHyphens(chars:Array<GlyphLocation>, fromIndex:Int, minCharsBefore:Int, minCharsAfter:Int, canBreakWords:Bool, minWordLength:Int):Int
+	{
+		var hyphenIndexes:Array<Int> = new Array<Int>();
+		var hyphenIndex:Int;
+		var index:Int;
+		//var i:Int;
+		var word:Array<GlyphLocation>;
+		var count:Int;
+		
+		for (i in 0...chars.length)
+		{
+			if (chars[i].isHyphen)
+			{
+				hyphenIndexes[hyphenIndexes.length] = i;
+			}
+		}
+		
+		if (canBreakWords)
+		{
+			// find first hyphen index <= fromIndex
+			hyphenIndex = -1;
+			index = hyphenIndexes.length - 1;
+			while (hyphenIndex <= 0)
+			{
+				if (hyphenIndexes[index] <= fromIndex)
+				{
+					hyphenIndex = hyphenIndexes[index];
+					break;
+				}
+				--index;
+			}
+			
+			// if hyphen index == fromIndex return that
+			if (hyphenIndex == fromIndex) return fromIndex;
+			
+			// else if word between hyphen index and next hyphen/word end is big enough try to break it
+			if (canBreakWords)
+			{
+				count = 0;
+				if (index < hyphenIndexes.length - 1)
+				{
+					count = hyphenIndexes[index + 1] - hyphenIndex;
+				}
+				else
+				{
+					count = chars.length - hyphenIndex;
+				}
+				
+				if (count >= minWordLength)
+				{
+					word = GlyphLocation.arrayFromPool();
+					//i = index + 1;
+					for (i in 1...count)
+					{
+						word[word.length] = chars[index + i];
+					}
+					
+					//index = getBreakIndex(word, 
+				}
+			}
+			
+			// else return hyphen index
+			return hyphenIndex;
+		}
+		else
+		{
+			// return first hyphen index that is <= fromIndex
+			index = hyphenIndexes.length - 1;
+			while (index >= 0)
+			{
+				if (hyphenIndexes[index] <= fromIndex)
+				{
+					return hyphenIndexes[index];
+				}
+				--index;
+			}
+		}
+		
+		return -1;
+	}
+	
 	private function getBreakIndex(chars:Array<GlyphLocation>, fromIndex:Int, minCharsBefore:Int, minCharsAfter:Int):Int
 	{
 		var numCharsBefore:Int = fromIndex + 1;
@@ -478,19 +590,45 @@ class MassiveFont
 		}
 		#end
 		
+		//var hyphens:Array<GlyphLocation> = new Array<GlyphLocation>();
+		//var hyphenIndexes:Array<Int> = new Array<Int>();
+		//var hasHyphens:Bool;
+		
 		for (i in 0...fromIndex + 1)
 		{
-			if (chars[i].isVowel) ++numVowelsBefore;
+			if (chars[i].isVowel)
+			{
+				++numVowelsBefore;
+			}
+			//else if (chars[i].isHyphen)
+			//{
+				////hyphens[hyphens.length] = chars[i];
+				//hyphenIndexes[hyphenIndexes.length] = i;
+			//}
 		}
 		
 		if (numVowelsBefore == 0) return -1;
 		
 		for (i in fromIndex + 1...chars.length)
 		{
-			if (chars[i].isVowel) ++numVowelsAfter;
+			if (chars[i].isVowel)
+			{
+				++numVowelsAfter;
+			}
+			//else if (chars[i].isHyphen)
+			//{
+				////hyphens[hyphens.length] = chars[i];
+				//hyphenIndexes[hyphenIndexes.length] = i;
+			//}
 		}
 		
 		if (numVowelsBefore + numVowelsAfter < 2) return -1;
+		
+		//hasHyphens = hyphenIndexes.length != 0;
+		//if (hasHyphens)
+		//{
+			//
+		//}
 		
 		while (fromIndex >= minCharsBefore - 1)
 		{
@@ -580,6 +718,7 @@ class MassiveFont
 		var hyphenationMinRatio:Float = 0.1;
 		var hyphenationMinCharsBefore:Int = 2;
 		var hyphenationMinCharsAfter:Int = 2;
+		var canBreakWordsWithHyphen:Bool = false; // should we break words like master-builder
 		var intPositions:Bool = true;
 		var letterSpreading:Bool = true;
 		var letterSpreadingMax:Float = 3.0;
@@ -627,10 +766,14 @@ class MassiveFont
 		
 		var hyphenationAllowed:Bool;
 		var hyphenationOccured:Bool;
+		var letterSpreadingOccured:Bool;
 		
 		var testGlyph:Glyph;
 		var testLocation:GlyphLocation;
 		var index:Int;
+		
+		var lastHyphen:Int;
+		var currentWordHyphenIndexes:Array<Int> = new Array<Int>();
 		
 		#if debug
 		var maxSpread:Float = 0;
@@ -652,11 +795,14 @@ class MassiveFont
 			if (fontSize < containerHeight)
 			{
 				lastWhiteSpace = -1;
+				lastHyphen = -1;
                 lastCharID = -1;
 				currentLine = GlyphLocation.arrayFromPool();
 				currentWord = GlyphLocation.arrayFromPool();
 				currentX = 0;
 				currentY = 0;
+				
+				if (hyphenation) currentWordHyphenIndexes.resize(0);
 				
 				numChars = text.length;
 				i = 0;
@@ -682,13 +828,28 @@ class MassiveFont
 						if (charID == CHAR_SPACE || charID == CHAR_TAB)
 						{
 							lastWhiteSpace = i;
+							lastHyphen = -1;
 							if (currentWord.length != 0)
 							{
 								_words[_words.length] = currentWord;
 								currentWord = GlyphLocation.arrayFromPool();
+								//if (hyphenation) currentWordHyphenIndexes.resize(0);
 							}
 							//_spaces[_spaces.length] = glyphLocation;
 							++numSpaces;
+						}
+						else if (charID == this._hyphenCharID && lastWhiteSpace != i - 1)
+						{
+							lastHyphen = i;
+							//if (hyphenation)
+							//{
+								//currentWordHyphenIndexes[currentWordHyphenIndexes.length] = i;
+							//}
+							//if (currentWord.length != 0)
+							//{
+								//_words[_words.length] = currentWord;
+								//currentWord = GlyphLocation.arrayFromPool();
+							//}
 						}
 						
 						if (kerning)
@@ -711,7 +872,7 @@ class MassiveFont
 						
 						if (glyphLocation.x + glyph.width > containerWidth)
 						{
-							hyphenationAllowed = hyphenation && !glyph.isSpace;
+							hyphenationAllowed = hyphenation && !glyph.isSpace && !glyph.isHyphen;
 							
 							if (wordWrap && hyphenationAllowed)
 							{
@@ -753,20 +914,20 @@ class MassiveFont
                                 if (autoScale && lastWhiteSpace == -1) break;
 								
 								word = GlyphLocation.arrayFromPool();
-								//for (c in 0...currentWord.length - 1)
 								for (c in 0...currentWord.length)
 								{
 									testLocation = currentWord[c];
 									if (testLocation.isSpace) continue;
+									//if (testLocation.isHyphen) currentWordHyphenIndexes[currentWordHyphenIndexes.length] = i;
 									word[word.length] = testLocation;
 								}
 								
 								index = -1;
-								j = word.length - 1;
+								j = word.length - 2; // we already kow that the last char doesn't fit
 								while (j >= 0)
 								{
 									testLocation = word[j];
-									if (testLocation.x + testLocation.glyph.xAdvance + this._hyphenGlyph.xOffset + this._hyphenGlyph.width <= containerWidth)
+									if (testLocation.isHyphen || testLocation.x + testLocation.glyph.xAdvance + this._hyphenGlyph.xOffset + this._hyphenGlyph.width <= containerWidth)
 									{
 										index = j;
 										break;
@@ -785,6 +946,7 @@ class MassiveFont
 											if (nextCharID == CHAR_SPACE || nextCharID == CHAR_TAB || nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN) break;
 											testGlyph = getGlyph(nextCharID);
 											if (testGlyph.isPunctuation) break;
+											if (testGlyph.isHyphen) break; //lastHyphen = j;
 											testLocation = GlyphLocation.fromPool(testGlyph);
 											word[word.length] = testLocation;
 											++j;
@@ -792,27 +954,37 @@ class MassiveFont
 										}
 									}
 									
-									index = getBreakIndex(word, index, hyphenationMinCharsBefore, hyphenationMinCharsAfter);
-									if (index != -1)
+									if (word.length >= hyphenationMinLength)
 									{
-										hyphenationOccured = true;
-										testLocation = word[index];
-										numCharsToRemove = i - testLocation.index;
-										i = testLocation.index;
-										currentLine.resize(currentLine.length - numCharsToRemove);
-										currentWord.resize(currentWord.length - numCharsToRemove);
-										//if (testLocation.glyph != this._hyphenGlyph)
-										if (!testLocation.isHyphen)
+										if (lastHyphen != -1)
 										{
-											glyphLocation = GlyphLocation.fromPool(this._hyphenGlyph);
-											glyphLocation.isHyphen = true;
-											glyphLocation.index = i;
-											glyphLocation.x = testLocation.x + testLocation.glyph.xAdvance + this._hyphenGlyph.xOffset;
-											glyphLocation.y = currentY + this._hyphenGlyph.yOffset;
-											currentLine[currentLine.length] = glyphLocation;
-											currentWord[currentWord.length] = glyphLocation;
+											index = getBreakIndexWithHyphens(word, index, hyphenationMinCharsBefore, hyphenationMinCharsAfter, canBreakWordsWithHyphen, hyphenationMinLength);
 										}
-										_words[_words.length] = currentWord;
+										else
+										{
+											index = getBreakIndex(word, index, hyphenationMinCharsBefore, hyphenationMinCharsAfter);
+										}
+										if (index != -1)
+										{
+											hyphenationOccured = true;
+											testLocation = word[index];
+											numCharsToRemove = i - testLocation.index;
+											i = testLocation.index;
+											currentLine.resize(currentLine.length - numCharsToRemove);
+											currentWord.resize(currentWord.length - numCharsToRemove);
+											//if (testLocation.glyph != this._hyphenGlyph)
+											if (!testLocation.isHyphen)
+											{
+												glyphLocation = GlyphLocation.fromPool(this._hyphenGlyph);
+												glyphLocation.isHyphen = true;
+												glyphLocation.index = i;
+												glyphLocation.x = testLocation.x + testLocation.glyph.xAdvance + this._hyphenGlyph.xOffset;
+												glyphLocation.y = currentY + this._hyphenGlyph.yOffset;
+												currentLine[currentLine.length] = glyphLocation;
+												currentWord[currentWord.length] = glyphLocation;
+											}
+											_words[_words.length] = currentWord;
+										}
 									}
 								}
 							}
@@ -894,6 +1066,7 @@ class MassiveFont
 								
 								if (letterSpreading)
 								{
+									letterSpreadingOccured = false;
 									ratio = spreadWidth / containerWidth;
 									if (ratio >= letterSpreadingMinRatio)
 									{
@@ -917,6 +1090,7 @@ class MassiveFont
 											currentX = glyphLocation.x + glyphLocation.glyph.xAdvance;
 											remainingWidth = containerWidth - currentX;
 											spreadWidth = remainingWidth / (_words.length - 1);
+											letterSpreadingOccured = true;
 										}
 									}
 								}
@@ -981,6 +1155,7 @@ class MassiveFont
 							currentX = 0;
 							currentY += this.lineHeight + leading;
 							lastWhiteSpace = -1;
+							lastHyphen = -1;
 							lastCharID = - 1;
 							numSpaces = 0;
 						}
