@@ -109,8 +109,7 @@ class MassiveFont
 			if (glyph != null) glyph.isVowel = true;
 		}
 		
-		//var punctuation:String = "\"'()[]{}<>-_+=*$£%,;.:?/\\|!§#@°~ 	";
-		var punctuation:String = ",;.:?!\"'()";
+		var punctuation:String = ",;.:?!\"'()-";
 		count = punctuation.length;
 		for (i in 0...count)
 		{
@@ -492,7 +491,6 @@ class MassiveFont
 		var hyphenIndexes:Array<Int> = new Array<Int>();
 		var hyphenIndex:Int;
 		var index:Int;
-		//var i:Int;
 		var word:Array<GlyphLocation>;
 		var count:Int;
 		
@@ -538,13 +536,11 @@ class MassiveFont
 				if (count >= minWordLength)
 				{
 					word = GlyphLocation.arrayFromPool();
-					//i = index + 1;
 					for (i in 1...count)
 					{
 						word[word.length] = chars[index + i];
 					}
 					
-					//index = getBreakIndex(word, 
 				}
 			}
 			
@@ -590,21 +586,12 @@ class MassiveFont
 		}
 		#end
 		
-		//var hyphens:Array<GlyphLocation> = new Array<GlyphLocation>();
-		//var hyphenIndexes:Array<Int> = new Array<Int>();
-		//var hasHyphens:Bool;
-		
 		for (i in 0...fromIndex + 1)
 		{
 			if (chars[i].isVowel)
 			{
 				++numVowelsBefore;
 			}
-			//else if (chars[i].isHyphen)
-			//{
-				////hyphens[hyphens.length] = chars[i];
-				//hyphenIndexes[hyphenIndexes.length] = i;
-			//}
 		}
 		
 		if (numVowelsBefore == 0) return -1;
@@ -615,20 +602,9 @@ class MassiveFont
 			{
 				++numVowelsAfter;
 			}
-			//else if (chars[i].isHyphen)
-			//{
-				////hyphens[hyphens.length] = chars[i];
-				//hyphenIndexes[hyphenIndexes.length] = i;
-			//}
 		}
 		
 		if (numVowelsBefore + numVowelsAfter < 2) return -1;
-		
-		//hasHyphens = hyphenIndexes.length != 0;
-		//if (hasHyphens)
-		//{
-			//
-		//}
 		
 		while (fromIndex >= minCharsBefore - 1)
 		{
@@ -752,8 +728,7 @@ class MassiveFont
 		var numSpaces:Int;
 		
 		var remainingWidth:Float = 0.0;
-		var remainingSpace:Float;
-		var spreadWidth:Float;
+		var spreadWidth:Float = 0.0;
 		var cumulatedOffset:Float;
 		var word:Array<GlyphLocation>;
 		var nextCharID:Int;
@@ -766,7 +741,7 @@ class MassiveFont
 		
 		var hyphenationAllowed:Bool;
 		var hyphenationOccured:Bool;
-		var letterSpreadingOccured:Bool;
+		var letterSpreadingOccured:Bool = false;
 		
 		var testGlyph:Glyph;
 		var testLocation:GlyphLocation;
@@ -833,23 +808,12 @@ class MassiveFont
 							{
 								_words[_words.length] = currentWord;
 								currentWord = GlyphLocation.arrayFromPool();
-								//if (hyphenation) currentWordHyphenIndexes.resize(0);
 							}
-							//_spaces[_spaces.length] = glyphLocation;
 							++numSpaces;
 						}
 						else if (charID == this._hyphenCharID && lastWhiteSpace != i - 1)
 						{
 							lastHyphen = i;
-							//if (hyphenation)
-							//{
-								//currentWordHyphenIndexes[currentWordHyphenIndexes.length] = i;
-							//}
-							//if (currentWord.length != 0)
-							//{
-								//_words[_words.length] = currentWord;
-								//currentWord = GlyphLocation.arrayFromPool();
-							//}
 						}
 						
 						if (kerning)
@@ -918,7 +882,6 @@ class MassiveFont
 								{
 									testLocation = currentWord[c];
 									if (testLocation.isSpace) continue;
-									//if (testLocation.isHyphen) currentWordHyphenIndexes[currentWordHyphenIndexes.length] = i;
 									word[word.length] = testLocation;
 								}
 								
@@ -946,7 +909,7 @@ class MassiveFont
 											if (nextCharID == CHAR_SPACE || nextCharID == CHAR_TAB || nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN) break;
 											testGlyph = getGlyph(nextCharID);
 											if (testGlyph.isPunctuation) break;
-											if (testGlyph.isHyphen) break; //lastHyphen = j;
+											//if (testGlyph.isHyphen) break; //lastHyphen = j;
 											testLocation = GlyphLocation.fromPool(testGlyph);
 											word[word.length] = testLocation;
 											++j;
@@ -972,7 +935,7 @@ class MassiveFont
 											i = testLocation.index;
 											currentLine.resize(currentLine.length - numCharsToRemove);
 											currentWord.resize(currentWord.length - numCharsToRemove);
-											//if (testLocation.glyph != this._hyphenGlyph)
+											
 											if (!testLocation.isHyphen)
 											{
 												glyphLocation = GlyphLocation.fromPool(this._hyphenGlyph);
@@ -1051,14 +1014,11 @@ class MassiveFont
 							if (hAlignJustify)
 							{
 								glyphLocation = currentLine[currentLine.length - 1];
-								//currentX = glyphLocation.x + glyphLocation.glyph.xAdvance;
 								currentX = glyphLocation.x + glyphLocation.glyph.width;
 								remainingWidth = containerWidth - currentX;
-								spreadWidth = remainingWidth / (_words.length - 1);
 								
 								#if debug
-								//if (spreadWidth > maxSpread) maxSpread = spreadWidth;
-								ratio = spreadWidth / containerWidth;
+								ratio = remainingWidth / containerWidth;
 								if (ratio > maxSpread) maxSpread = ratio;
 								#end
 								
@@ -1067,7 +1027,7 @@ class MassiveFont
 								if (letterSpreading)
 								{
 									letterSpreadingOccured = false;
-									ratio = spreadWidth / containerWidth;
+									ratio = remainingWidth / containerWidth;
 									if (ratio >= letterSpreadingMinRatio)
 									{
 										spreadWidth = remainingWidth / (currentLine.length - 1);
@@ -1097,8 +1057,11 @@ class MassiveFont
 								
 								if (intPositions)
 								{
-									remainingSpace = spreadWidth;
-									intIncrement = remainingSpace % intPositionStep;
+									if (!letterSpreadingOccured)
+									{
+										spreadWidth = remainingWidth / (_words.length - 1);
+									}
+									intIncrement = spreadWidth % intPositionStep;
 									spreadWidth -= intIncrement;
 									intCounter = 0;
 									
