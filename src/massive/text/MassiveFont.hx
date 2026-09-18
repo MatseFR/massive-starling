@@ -67,6 +67,9 @@ class MassiveFont
 	private var _minUnbreakableChars:Int = 0;
 	private var _maxUnbreakableChars:Int = 0;
 	private var _hasUnbreakableStrings:Bool;
+	
+	// helpers
+	private var __hyphenIndexes:Array<Int> = new Array<Int>();
 
 	public function new(texture:Texture = null, fontData:Dynamic = null) 
 	{
@@ -488,7 +491,7 @@ class MassiveFont
 	
 	private function getBreakIndexWithHyphens(chars:Array<GlyphLocation>, fromIndex:Int, minCharsBefore:Int, minCharsAfter:Int, canBreakWords:Bool, minWordLength:Int):Int
 	{
-		var hyphenIndexes:Array<Int> = new Array<Int>();
+		this.__hyphenIndexes.resize(0);
 		var hyphenIndex:Int;
 		var index:Int;
 		var word:Array<GlyphLocation>;
@@ -498,7 +501,7 @@ class MassiveFont
 		{
 			if (chars[i].isHyphen)
 			{
-				hyphenIndexes[hyphenIndexes.length] = i;
+				this.__hyphenIndexes[this.__hyphenIndexes.length] = i;
 			}
 		}
 		
@@ -506,12 +509,12 @@ class MassiveFont
 		{
 			// find first hyphen index <= fromIndex
 			hyphenIndex = -1;
-			index = hyphenIndexes.length - 1;
-			while (hyphenIndex <= 0)
+			index = this.__hyphenIndexes.length - 1;
+			while (index >= 0)
 			{
-				if (hyphenIndexes[index] <= fromIndex)
+				if (this.__hyphenIndexes[index] <= fromIndex)
 				{
-					hyphenIndex = hyphenIndexes[index];
+					hyphenIndex = this.__hyphenIndexes[index];
 					break;
 				}
 				--index;
@@ -523,24 +526,26 @@ class MassiveFont
 			// else if word between hyphen index and next hyphen/word end is big enough try to break it
 			if (canBreakWords)
 			{
-				count = 0;
-				if (index < hyphenIndexes.length - 1)
+				//count = 0;
+				if (index < this.__hyphenIndexes.length - 1)
 				{
-					count = hyphenIndexes[index + 1] - hyphenIndex;
+					count = this.__hyphenIndexes[index + 1] - hyphenIndex;
 				}
 				else
 				{
 					count = chars.length - hyphenIndex;
 				}
 				
-				if (count >= minWordLength)
+				if (count - 1 >= minWordLength)
 				{
 					word = GlyphLocation.arrayFromPool();
 					for (i in 1...count)
 					{
-						word[word.length] = chars[index + i];
+						word[word.length] = chars[hyphenIndex + i];
 					}
 					
+					index = getBreakIndex(word, fromIndex - hyphenIndex, minCharsBefore, minCharsAfter);
+					if (index != -1) return hyphenIndex + index;
 				}
 			}
 			
@@ -550,12 +555,12 @@ class MassiveFont
 		else
 		{
 			// return first hyphen index that is <= fromIndex
-			index = hyphenIndexes.length - 1;
+			index = this.__hyphenIndexes.length - 1;
 			while (index >= 0)
 			{
-				if (hyphenIndexes[index] <= fromIndex)
+				if (this.__hyphenIndexes[index] <= fromIndex)
 				{
-					return hyphenIndexes[index];
+					return this.__hyphenIndexes[index];
 				}
 				--index;
 			}
@@ -690,11 +695,11 @@ class MassiveFont
         var fontSize:Float = format.size;
         var autoScale:Bool = false;// = options.autoScale;
 		var hyphenation:Bool = true;
-		var hyphenationMinLength:Int = 7;
+		var hyphenationMinLength:Int = 6;
 		var hyphenationMinRatio:Float = 0.1;
 		var hyphenationMinCharsBefore:Int = 2;
 		var hyphenationMinCharsAfter:Int = 2;
-		var canBreakWordsWithHyphen:Bool = false; // should we break words like master-builder
+		var canBreakWordsWithHyphen:Bool = true; // should we break words like master-builder
 		var intPositions:Bool = true;
 		var letterSpreading:Bool = true;
 		var letterSpreadingMax:Float = 3.0;
@@ -748,7 +753,6 @@ class MassiveFont
 		var index:Int;
 		
 		var lastHyphen:Int;
-		var currentWordHyphenIndexes:Array<Int> = new Array<Int>();
 		
 		#if debug
 		var maxSpread:Float = 0;
@@ -776,8 +780,6 @@ class MassiveFont
 				currentWord = GlyphLocation.arrayFromPool();
 				currentX = 0;
 				currentY = 0;
-				
-				if (hyphenation) currentWordHyphenIndexes.resize(0);
 				
 				numChars = text.length;
 				i = 0;
@@ -836,7 +838,7 @@ class MassiveFont
 						
 						if (glyphLocation.x + glyph.width > containerWidth)
 						{
-							hyphenationAllowed = hyphenation && !glyph.isSpace && !glyph.isHyphen;
+							hyphenationAllowed = hyphenation && !glyph.isSpace;
 							
 							if (wordWrap && hyphenationAllowed)
 							{
