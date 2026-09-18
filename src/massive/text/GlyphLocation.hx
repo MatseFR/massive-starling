@@ -78,7 +78,6 @@ class GlyphLocation
 	private function setFromPool(glyph:Glyph):GlyphLocation
 	{
 		this.glyph = glyph;
-		this.isHyphen = false;
 		if (this.glyph != null)
 		{
 			this.isHyphen = glyph.isHyphen;
