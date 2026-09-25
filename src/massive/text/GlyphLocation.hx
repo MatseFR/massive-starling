@@ -1,4 +1,5 @@
 package massive.text;
+import massive.text.internal.TextPartLayoutResult;
 
 /**
  * ...
@@ -35,6 +36,7 @@ class GlyphLocation
 		{
 			_instance = _OUT[i];
 			_instance.glyph = null;
+			_instance.textPart = null;
 			_POOL[_POOL.length] = _instance;
 		}
 		_OUT.resize(0);
@@ -58,6 +60,7 @@ class GlyphLocation
 	public var isVowel:Bool;
 	public var glyph:Glyph;
 	public var scale:Float;
+	public var textPart:TextPartLayoutResult;
 	public var x:Float;
 	public var y:Float;
 
