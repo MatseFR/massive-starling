@@ -8,6 +8,7 @@ import massive.text.MassiveFont;
 import massive.text.MassiveText;
 import massive.text.Text;
 import massive.text.TextAlign;
+import massive.text.TextField;
 import massive.text.TextFormat;
 import massive.text.TextOptions;
 import massive.text.internal.TextLayoutResult;
@@ -32,6 +33,7 @@ class MassiveTextDemo extends Sprite
 	private var _options:TextOptions;
 	private var _langRules:LangRules;
 	
+	private var _tf:TextField;
 	private var _text:Text;
 	private var _result:TextLayoutResult;
 
@@ -60,8 +62,8 @@ class MassiveTextDemo extends Sprite
 		this._container = new ImgContainer();
 		this._display.addLayer(this._container);
 		
-		//this._format = new TextFormat("mini", "default", this._font.size * 2, 0xffffff, TextAlign.JUSTIFY);
-		this._format = new TextFormat("mini", "default", this._font.size * 4, 0xffffff, TextAlign.JUSTIFY);
+		this._format = new TextFormat("mini", "default", this._font.size * 2, 0xffffff, TextAlign.JUSTIFY);
+		//this._format = new TextFormat("mini", "default", this._font.size * 4, 0xffffff, TextAlign.JUSTIFY);
 		
 		this._options = new TextOptions();
 		this._options.padding = 24;
@@ -80,18 +82,22 @@ class MassiveTextDemo extends Sprite
 			//str += "over-confident master-builder ";
 		//}
 		str = 'Here is some text !{"format":{"color":"0xff0000"}, "animIn":{"id":"fadeIn"}, "animOut":{"id":"fadeOut"}}!and here is some text in red which will suddenly switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00"}}! yellow because why not... !{"format":{"color":"0x00ffff"}}!Or electric blue maybe ?';
-		this._text = MassiveText.parseText(str);
-		this._text.format = this._format;
-		this._text.options = this._options;
+		//this._text = MassiveText.parseText(str);
+		//this._text.format = this._format;
+		//this._text.options = this._options;
+		
+		//var textWidth:Int = this.stage.stageWidth;
+		//var textHeight:Int = this.stage.stageHeight;
+		//this._result = MassiveText.processText(textWidth, textHeight, this._text, this._langRules);
+		//this._result.getImages(this._display, this._container.datas);
+		//GlyphLocation.rechargePool();
+		//this._result.pool();
 		
 		var textWidth:Int = this.stage.stageWidth;
 		var textHeight:Int = this.stage.stageHeight;
-		this._result = MassiveText.processText(textWidth, textHeight, this._text, this._langRules);
-		this._result.getImages(this._display, this._container.datas);
-		GlyphLocation.rechargePool();
-		this._result.pool();
-		
-		//this._font.fillContainer(this._container, this.stage.stageWidth, this.stage.stageHeight, this._text, this._format, true);
+		this._tf = new TextField(null, this._format, this._options, textWidth, textHeight);
+		this._tf.textData = str;
+		this._display.addLayer(this._tf);
 		
 		this.stage.addEventListener(Event.RESIZE, stageResizeHandler);
 	}
@@ -102,19 +108,22 @@ class MassiveTextDemo extends Sprite
 		
 		trace(this.stage.stageWidth);
 		
-		#if flash
-		Img.toPoolVector(this._container.datas);
-		#else
-		Img.toPoolArray(this._container.datas);
-		#end
-		this._container.removeAllChildren();
+		//#if flash
+		//Img.toPoolVector(this._container.datas);
+		//#else
+		//Img.toPoolArray(this._container.datas);
+		//#end
+		//this._container.removeAllChildren();
+		//
+		//var textWidth:Int = this.stage.stageWidth;
+		//var textHeight:Int = this.stage.stageHeight;
+		//this._result = MassiveText.processText(textWidth, textHeight, this._text, this._langRules);
+		//this._result.getImages(this._display, this._container.datas);
+		//GlyphLocation.rechargePool();
+		//this._result.pool();
 		
-		var textWidth:Int = this.stage.stageWidth;
-		var textHeight:Int = this.stage.stageHeight;
-		this._result = MassiveText.processText(textWidth, textHeight, this._text, this._langRules);
-		this._result.getImages(this._display, this._container.datas);
-		GlyphLocation.rechargePool();
-		this._result.pool();
+		this._tf.width = this.stage.stageWidth;
+		this._tf.height = this.stage.stageHeight;
 	}
 
 	private function updateViewPort(width:Int, height:Int):Void 
