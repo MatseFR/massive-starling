@@ -25,8 +25,8 @@ class TextPartLayoutResult
 	
 	public var format:TextFormat = new TextFormat();
 	public var glyphLocations:Array<GlyphLocation> = new Array<GlyphLocation>();
-	public var images:Array<Img> = new Array<Img>();
 	public var style:FontStyle;
+	public var textureIndex:Int = -1;
 	
 	public function new(fromPart:TextPart, style:FontStyle) 
 	{
@@ -37,7 +37,6 @@ class TextPartLayoutResult
 	public function clear():Void
 	{
 		this.glyphLocations.resize(0);
-		this.images.resize(0);
 		this.style = null;
 	}
 	
@@ -60,7 +59,8 @@ class TextPartLayoutResult
 	public function getImages(display:MassiveDisplay, imgs:Array<Img>):Void
 	#end
 	{
-		var texIndex:Int = display.getTextureIndex(this.style.texture);
+		if (this.textureIndex == -1) this.textureIndex = display.getTextureIndex(this.style.texture.root);
+		
 		var img:Img;
 		var location:GlyphLocation;
 		var red:Float = this.format.red;
@@ -72,14 +72,20 @@ class TextPartLayoutResult
 		var blueOffset:Float = this.format.blueOffset;
 		var alphaOffset:Float = this.format.alphaOffset;
 		var count:Int = this.glyphLocations.length;
-		Img.fromPoolArray(count, this.images);
+		
+		var imgIndex:Int = imgs.length;
+		#if flash
+		Img.fromPoolVector(count, imgs);
+		#else
+		Img.fromPoolArray(count, imgs);
+		#end
 		
 		for (i in 0...count)
 		{
 			location = this.glyphLocations[i];
-			img = this.images[i];
+			img = imgs[imgIndex + i];
 			img.frame = location.glyph.frame;
-			img.textureIndex = texIndex;
+			img.textureIndex = this.textureIndex;
 			img.x = location.x;
 			img.y = location.y;
 			img.red = red;
@@ -91,8 +97,6 @@ class TextPartLayoutResult
 			img.blueOffset = blueOffset;
 			img.alphaOffset = alphaOffset;
 			img.scale = location.scale;
-			
-			imgs[imgs.length] = img;
 		}
 	}
 	
