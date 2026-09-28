@@ -18,8 +18,7 @@ class TextPart
 	public var animationInData:Dynamic;
 	public var animationOutData:Dynamic;
 	public var format(get, set):TextFormat;
-	public var formatData:Dynamic;
-	//public var glyphLocations(default, null):Array<GlyphLocation> = new Array<GlyphLocation>();
+	public var formatData(get, set):Dynamic;
 	public var numChars(get, never):Int;
 	public var options(get, set):TextOptions;
 	public var optionsData:Dynamic;
@@ -32,9 +31,17 @@ class TextPart
 		if (value != null)
 		{
 			this._format.copyFrom(value);
-			if (this.formatData != null) this._format.loadJson(this.formatData);
+			if (this._formatData != null) this._format.loadJson(this._formatData);
 		}
 		return value;
+	}
+	
+	private var _formatData:Dynamic;
+	private function get_formatData():Dynamic { return this._formatData; }
+	private function set_formatData(value:Dynamic):Dynamic
+	{
+		if (value != null) this._format.loadJson(value);
+		return this._formatData = value;
 	}
 	
 	private function get_numChars():Int { return this.text == null ? 0 : this.text.length; }
@@ -63,7 +70,6 @@ class TextPart
 		this.text = null;
 		this._format.clear();
 		this._options.clear();
-		//this.glyphLocations.resize(0);
 	}
 	
 	public function pool():Void
