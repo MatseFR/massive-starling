@@ -7,6 +7,7 @@ import massive.display.MassiveDisplay;
 import massive.display.base.ContainerBase;
 import massive.display.render.RenderData;
 import massive.text.internal.TextLayoutResult;
+import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
@@ -257,8 +258,44 @@ class TextField extends ContainerBase
 		this._requiresBounds = this._isAutoSize;
 	}
 	
-	private function updateBounds():Void
+	private function updateBounds(renderOffsetX:Float, renderOffsetY:Float):Void
 	{
+		writeBoundsData(this._boundsData, renderOffsetX, renderOffsetY);
+		
+		if (this.numDatas == 0)
+		{
+			this._bounds.setTo(this.x, this.y, 0.0, 0.0);
+			return;
+		}
+		
+		var pos:Int = -1;
+		
+		var minX:Float = MathUtils.FLOAT_MAX;
+		var maxX:Float = MathUtils.FLOAT_MIN;
+		var minY:Float = MathUtils.FLOAT_MAX;
+		var maxY:Float = MathUtils.FLOAT_MIN;
+		
+		var tX:Float;
+		var tY:Float;
+		
+		for (i in 0...this.numDatas)
+		{
+			for (j in 0...4)
+			{
+				tX = this._boundsData[++pos];
+				tY = this._boundsData[++pos];
+				
+				if (minX > tX) minX = tX;
+				if (maxX < tX) maxX = tX;
+				if (minY > tY) minY = tY;
+				if (maxY < tY) maxY = tY;
+			}
+		}
+		
+		this._bounds.setTo(this.x + minX - renderOffsetX, this.y + minY - renderOffsetY, maxX - minX, maxY - minY);
+		
+		if (this._isHorizontalAutoSize) this._width = this._bounds.width;
+		if (this._isVerticalAutoSize) this._height = this._bounds.height;
 		
 		this._requiresBounds = false;
 	}
@@ -290,6 +327,8 @@ class TextField extends ContainerBase
 				this.__quadsWritten = 0;
 			}
 		}
+		
+		if (this._requiresBounds) updateBounds(renderOffsetX, renderOffsetY);
 		
 		finishDataBytes();
 	}
@@ -323,6 +362,8 @@ class TextField extends ContainerBase
 				this.__position = 0;
 			}
 		}
+		
+		if (this._requiresBounds) updateBounds(renderOffsetX, renderOffsetY);
 		
 		finishDataBytesMemory();
 	}
@@ -358,6 +399,8 @@ class TextField extends ContainerBase
 			}
 		}
 		
+		if (this._requiresBounds) updateBounds(renderOffsetX, renderOffsetY);
+		
 		finishDataFloat32Array();
 	}
 	#end
@@ -390,6 +433,8 @@ class TextField extends ContainerBase
 				this.__position = 0;
 			}
 		}
+		
+		if (this._requiresBounds) updateBounds(renderOffsetX, renderOffsetY);
 		
 		finishDataVector();
 	}
