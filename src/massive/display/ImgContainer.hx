@@ -19,12 +19,6 @@ class ImgContainer extends ContainerBase
 	public var datas(default, null):Array<Img>;
 	#end
 	
-	//#if flash
-	//private var _datas:Vector<Img>;
-	//#else
-	//private var _datas:Array<Img>;
-	//#end
-	
 	#if flash
 	public function new(datas:Vector<Img> = null) 
 	#else
