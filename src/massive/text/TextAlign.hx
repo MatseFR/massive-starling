@@ -14,4 +14,7 @@ class TextAlign
 	public static inline var RIGHT:String = "right";
 	public static inline var TOP:String = "top";
 	
+	public static var horizontalValues:Array<String> = [CENTER, JUSTIFY, LEFT, RIGHT];
+	public static var verticalValues:Array<String> = [BOTTOM, CENTER, TOP];
+	
 }
