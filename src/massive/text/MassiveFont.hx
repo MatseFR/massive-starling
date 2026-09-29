@@ -70,4 +70,16 @@ class MassiveFont
 		return style;
 	}
 	
+	public function getFontStyleNames(?names:Array<String>):Array<String>
+	{
+		if (names == null) names = new Array<String>();
+		
+		for (name in this._styleMap.keys())
+		{
+			names[names.length] = name;
+		}
+		
+		return names;
+	}
+	
 }
