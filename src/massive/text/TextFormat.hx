@@ -54,7 +54,7 @@ class TextFormat extends EventDispatcher
         this._green = (Std.int(value >> 8) & 0xFF) / 255.0;
         this._blue = (value & 0xFF) / 255.0;
 		this._colorChanged = false;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._color = value;
 	}
 	
@@ -75,7 +75,7 @@ class TextFormat extends EventDispatcher
         this.greenOffset = (Std.int(value >> 8) & 0xFF) / 255.0;
         this.blueOffset = (value & 0xFF) / 255.0;
 		this._colorOffsetChanged = false;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._colorOffset = value;
 	}
 	
@@ -85,7 +85,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._font == value) return value;
 		this._font = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._font;
 	}
 	
@@ -95,7 +95,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._kerning == value) return value;
 		this._kerning = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._kerning;
 	}
 	
@@ -105,7 +105,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._horizontalAlign == value) return value;
 		this._horizontalAlign = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._horizontalAlign;
 	}
 	
@@ -115,7 +115,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._leading == value) return value;
 		this._leading = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._leading;
 	}
 	
@@ -125,7 +125,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._letterSpacing == value) return value;
 		this._letterSpacing = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._letterSpacing;
 	}
 	
@@ -135,7 +135,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._size == value) return value;
 		this._size = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._size;
 	}
 	
@@ -145,7 +145,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._style == value) return value;
 		this._style = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._style;
 	}
 	
@@ -155,7 +155,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._verticalAlign == value) return value;
 		this._verticalAlign = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._verticalAlign;
 	}
 	
@@ -165,7 +165,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._red == value) return value;
 		this._red = value;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._red;
 	}
 	
@@ -176,7 +176,7 @@ class TextFormat extends EventDispatcher
 		if (this._green == value) return value;
 		this._green = value;
 		this._colorChanged = true;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._green;
 	}
 	
@@ -187,7 +187,7 @@ class TextFormat extends EventDispatcher
 		if (this._blue == value) return value;
 		this._blue = value;
 		this._colorChanged = true;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._blue;
 	}
 	
@@ -198,7 +198,7 @@ class TextFormat extends EventDispatcher
 		if (this._alpha == value) return value;
 		this._alpha = value;
 		this._colorChanged = true;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._alpha;
 	}
 	
@@ -209,7 +209,7 @@ class TextFormat extends EventDispatcher
 		if (this._redOffset == value) return value;
 		this._redOffset = value;
 		this._colorOffsetChanged = true;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._redOffset;
 	}
 	
@@ -220,7 +220,7 @@ class TextFormat extends EventDispatcher
 		if (this._greenOffset == value) return value;
 		this._greenOffset = value;
 		this._colorOffsetChanged = true;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._greenOffset;
 	}
 	
@@ -231,7 +231,7 @@ class TextFormat extends EventDispatcher
 		if (this._blueOffset == value) return value;
 		this._blueOffset = value;
 		this._colorOffsetChanged = true;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._blueOffset;
 	}
 	
@@ -242,12 +242,13 @@ class TextFormat extends EventDispatcher
 		if (this._alphaOffset == value) return value;
 		this._alphaOffset = value;
 		this._colorOffsetChanged = true;
-		dispatchEventWith(Event.CHANGE);
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._alphaOffset;
 	}
 	
 	private var _colorChanged:Bool;
 	private var _colorOffsetChanged:Bool;
+	private var _eventsEnabled:Bool = true;
 
 	public function new(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0xffffff, hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER) 
 	{
@@ -266,6 +267,7 @@ class TextFormat extends EventDispatcher
 		
 		this._colorChanged = false;
 		this._colorOffsetChanged = false;
+		this._eventsEnabled = true;
 	}
 	
 	public function pool():Void
@@ -276,35 +278,39 @@ class TextFormat extends EventDispatcher
 	
 	public function loadJson(json:Dynamic, dispatchChangeEvent:Bool = true):Void
 	{
-		if (json.font != null) this._font = json.font;
-		if (json.style != null) this._style = json.style;
-		if (json.kerning != null) this._kerning = json.kerning;
-		if (json.leading != null) this._leading = json.leading;
-		if (json.letterSpacing != null) this._letterSpacing = json.letterSpacing;
-		if (json.horizontalAlign != null) this._horizontalAlign = json.horizontalAlign;
-		if (json.verticalAlign != null) this._verticalAlign = json.verticalAlign;
+		this._eventsEnabled = false;
+		
+		if (json.font != null) this.font = json.font;
+		if (json.style != null) this.style = json.style;
+		if (json.kerning != null) this.kerning = json.kerning;
+		if (json.leading != null) this.leading = json.leading;
+		if (json.letterSpacing != null) this.letterSpacing = json.letterSpacing;
+		if (json.horizontalAlign != null) this.horizontalAlign = json.horizontalAlign;
+		if (json.verticalAlign != null) this.verticalAlign = json.verticalAlign;
 		if (json.color != null)
 		{
 			this.color = json.color;
 		}
 		else
 		{
-			if (json.red != null) this._red = json.red;
-			if (json.green != null) this._green = json.green;
-			if (json.blue != null) this._blue = json.blue;
+			if (json.red != null) this.red = json.red;
+			if (json.green != null) this.green = json.green;
+			if (json.blue != null) this.blue = json.blue;
 		}
-		if (json.alpha != null) this._alpha = json.alpha;
+		if (json.alpha != null) this.alpha = json.alpha;
 		if (json.colorOffset != null)
 		{
 			this.colorOffset = json.colorOffset;
 		}
 		else
 		{
-			if (json.redOffset != null) this._redOffset = json.redOffset;
-			if (json.greenOffset != null) this._greenOffset = json.greenOffset;
-			if (json.blueOffset != null) this._blueOffset = json.blueOffset;
+			if (json.redOffset != null) this.redOffset = json.redOffset;
+			if (json.greenOffset != null) this.greenOffset = json.greenOffset;
+			if (json.blueOffset != null) this.blueOffset = json.blueOffset;
 		}
 		if (json.alphaOffset != null) this._alphaOffset = json.alphaOffset;
+		
+		this._eventsEnabled = true;
 		
 		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
@@ -314,6 +320,9 @@ class TextFormat extends EventDispatcher
 		if (toFormat == null)
 		{
 			toFormat = fromPool(this.font, this.style, this.size, this.color, this.horizontalAlign, this.verticalAlign);
+			
+			toFormat._eventsEnabled = false;
+			
 			toFormat.kerning = this.kerning;
 			toFormat.leading = this.leading;
 			toFormat.letterSpacing = this.letterSpacing;
@@ -325,6 +334,8 @@ class TextFormat extends EventDispatcher
 			toFormat.greenOffset = this.greenOffset;
 			toFormat.blueOffset = this.blueOffset;
 			toFormat.alphaOffset = this.alphaOffset;
+			
+			toFormat._eventsEnabled = true;
 		}
 		else
 		{
@@ -336,56 +347,72 @@ class TextFormat extends EventDispatcher
 	
 	public function copyFrom(format:TextFormat, dispatchChangeEvent:Bool = true):Void
 	{
-		this._font = format._font;
-		this._style = format._style;
-		this._size = format._size;
-		this._kerning = format._kerning;
-		this._leading = format._leading;
-		this._letterSpacing = format._letterSpacing;
-		this._horizontalAlign = format._horizontalAlign;
-		this._verticalAlign = format._verticalAlign;
+		this._eventsEnabled = false;
 		
-		this._red = format._red;
-		this._green = format._green;
-		this._blue = format._blue;
-		this._alpha = format._alpha;
+		this.font = format._font;
+		this.style = format._style;
+		this.size = format._size;
+		this.kerning = format._kerning;
+		this.leading = format._leading;
+		this.letterSpacing = format._letterSpacing;
+		this.horizontalAlign = format._horizontalAlign;
+		this.verticalAlign = format._verticalAlign;
 		
-		this._redOffset = format._redOffset;
-		this._greenOffset = format._greenOffset;
-		this._blueOffset = format._blueOffset;
-		this._alphaOffset = format._alphaOffset;
+		this.red = format._red;
+		this.green = format._green;
+		this.blue = format._blue;
+		this.alpha = format._alpha;
+		
+		this.redOffset = format._redOffset;
+		this.greenOffset = format._greenOffset;
+		this.blueOffset = format._blueOffset;
+		this.alphaOffset = format._alphaOffset;
+		
+		this._eventsEnabled = true;
 		
 		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
 	
-	public function setTo(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0x0, hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, dispatchChangeEvent:Bool = true):Void
+	public function setTo(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0xffffff, hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, dispatchChangeEvent:Bool = true):Void
 	{
-		this._font = font;
-		this._style = style;
-		this._size = size;
-		this._color = color;
-		this._horizontalAlign = hAlign;
-		this._verticalAlign = vAlign;
+		this._eventsEnabled = false;
+		
+		this.font = font;
+		this.style = style;
+		this.size = size;
+		this.color = color;
+		this.horizontalAlign = hAlign;
+		this.verticalAlign = vAlign;
+		
+		this._eventsEnabled = true;
 		
 		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
 	
 	public function setColor(red:Float, green:Float, blue:Float, alpha:Float, dispatchChangeEvent:Bool = true):Void
 	{
-		this._red = red;
-		this._green = green;
-		this._blue = blue;
-		this._alpha = alpha;
+		this._eventsEnabled = false;
+		
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = alpha;
+		
+		this._eventsEnabled = true;
 		
 		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
 	
 	public function setColorOffset(red:Float, green:Float, blue:Float, alpha:Float, dispatchChangeEvent:Bool = true):Void
 	{
-		this._redOffset = red;
-		this._greenOffset = green;
-		this._blueOffset = blue;
-		this._alphaOffset = alpha;
+		this._eventsEnabled = false;
+		
+		this.redOffset = red;
+		this.greenOffset = green;
+		this.blueOffset = blue;
+		this.alphaOffset = alpha;
+		
+		this._eventsEnabled = true;
 		
 		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
