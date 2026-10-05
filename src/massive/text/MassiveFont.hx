@@ -1,4 +1,7 @@
 package massive.text;
+#if flash
+import openfl.Vector;
+#end
 import starling.textures.Texture;
 
 /**
@@ -14,6 +17,11 @@ class MassiveFont
 	public var lineHeight(default, null):Float;
 	public var name(default, null):String;
 	public var size(default, null):Float;
+	#if flash
+	public var textures(default, null):Vector<Texture> = new Vector<Texture>();
+	#else
+	public var textures(default, null):Array<Texture> = new Array<Texture>();
+	#end
 	
 	private var _defaultStyle:FontStyle;
 	private function get_defaultStyle():FontStyle { return this._defaultStyle; }
@@ -60,6 +68,7 @@ class MassiveFont
 	public function addFontStyle(fontStyle:FontStyle):Void
 	{
 		this._styleMap.set(fontStyle.name, fontStyle);
+		if (this.textures.indexOf(fontStyle.texture) == -1) this.textures[this.textures.length] = fontStyle.texture;
 		if (this._defaultStyle == null) this.defaultStyle = fontStyle;
 	}
 	
