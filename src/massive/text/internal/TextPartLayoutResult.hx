@@ -38,6 +38,7 @@ class TextPartLayoutResult
 	{
 		this.glyphLocations.resize(0);
 		this.style = null;
+		this.textureIndex = -1;
 	}
 	
 	public function pool():Void
