@@ -25,7 +25,7 @@ class TextPart
 	public var text:String;
 	
 	private var _format:TextFormat = new TextFormat();
-	private function get_format():TextFormat { return this._format; }
+	private inline function get_format():TextFormat { return this._format; }
 	private function set_format(value:TextFormat):TextFormat
 	{
 		if (value != null)
@@ -37,7 +37,7 @@ class TextPart
 	}
 	
 	private var _formatData:Dynamic;
-	private function get_formatData():Dynamic { return this._formatData; }
+	private inline function get_formatData():Dynamic { return this._formatData; }
 	private function set_formatData(value:Dynamic):Dynamic
 	{
 		if (value != null) this._format.loadJson(value);
@@ -46,7 +46,7 @@ class TextPart
 	
 	private function get_numChars():Int { return this.text == null ? 0 : this.text.length; }
 	
-	private var _options:TextOptions;
+	private var _options:TextOptions = new TextOptions();
 	private function get_options():TextOptions { return this._options; }
 	private function set_options(value:TextOptions):TextOptions
 	{
