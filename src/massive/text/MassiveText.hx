@@ -301,8 +301,10 @@ class MassiveText
 		
 		var i:Int;
 		var j:Int;
+		var p:Int = 0;
 		
-		for (p in 0...numParts)
+		//for (p in 0...numParts)
+		while (p < numParts)
 		{
 			part = text.parts[p];
 			setFormat(part.format);
@@ -375,9 +377,9 @@ class MassiveText
 					
 					if (glyphLocation.x + glyph.width > containerWidth)
 					{
-						hyphenationAllowed = hyphenation && !glyph.isSpace;
+						hyphenationAllowed = wordWrap && hyphenation && !glyph.isSpace;
 						
-						if (wordWrap && hyphenationAllowed)
+						if (hyphenationAllowed)
 						{
 							// we want to know how much space there will be if we put this entire word on the next line
 							if (lastWhiteSpace != -1)
@@ -463,7 +465,7 @@ class MassiveText
 										hyphenationOccured = true;
 										testLocation = testWord[index];
 										numCharsToRemove = charIndex - testLocation.index;
-										i -= numCharsToRemove; // TODO check that
+										i -= numCharsToRemove;
 										currentLine.resize(currentLine.length - numCharsToRemove);
 										currentWord.resize(currentWord.length - numCharsToRemove);
 										
@@ -516,12 +518,39 @@ class MassiveText
 							else
 							{
 								currentLine.pop(); // TODO : see if resize() is faster
+								currentWord.pop();
+								if (currentWord.length != 0) _words[_words.length] = currentWord;
 								
 								// continue with next line, if there is one
-								// TODO : change to handle CHAR_CARRIAGE_RETURN too
-								while (i < numChars - 1 && txt.charCodeAt(i) != CHAR_NEWLINE)
+								while (true)
 								{
-									++i;
+									nextCharID = txt.charCodeAt(i);
+									if (nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN)
+									{
+										break;
+									}
+									if (i == numChars - 1)
+									{
+										// next part, if possible
+										++p;
+										if (p == numParts)
+										{
+											break;
+										}
+										part = text.parts[p];
+										setFormat(part.format);
+										txt = part.text;
+										partResult = TextPartLayoutResult.fromPool(part, _fontStyle);
+										textResult.addPart(partResult);
+										
+										totalChars += numChars;
+										numChars = txt.length;
+										i = 0;
+									}
+									else
+									{
+										++i;
+									}
 								}
 							}
 						}
@@ -651,6 +680,7 @@ class MassiveText
 			}
 			totalChars += numChars;
 			if (finished) break;
+			++p;
 		}
 		
 		var numLines:Int = _lines.length;
