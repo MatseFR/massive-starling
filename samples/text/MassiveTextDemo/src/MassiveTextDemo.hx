@@ -1,9 +1,15 @@
 package;
 
-import massive.display.Img;
+import feathers.data.ArrayCollection;
+import feathers.layout.AutoSizeMode;
+import inputAction.InputAction;
+import inputAction.controllers.KeyAction;
+import inputAction.events.InputActionEvent;
 import massive.display.ImgContainer;
 import massive.display.MassiveDisplay;
-import massive.text.GlyphLocation;
+import massive.display.color.ColorMode;
+import massive.display.color.ColorOffsetMode;
+import massive.display.render.RenderMode;
 import massive.text.MassiveFont;
 import massive.text.MassiveText;
 import massive.text.Text;
@@ -14,19 +20,31 @@ import massive.text.TextOptions;
 import massive.text.internal.TextLayoutResult;
 import massive.text.lang.LangRules;
 import massive.text.lang.LatinDefaultRules;
+import openfl.Assets;
+import openfl.ui.Keyboard;
+import starling.assets.AssetManager;
 import starling.core.Starling;
-import starling.display.Sprite;
+import starling.display.BlendMode;
 import starling.events.Event;
-import starling.events.ResizeEvent;
 import starling.textures.TextureSmoothing;
+import valedit.ExposedCollection;
+import valedit.value.ExposedFloatDrag;
+import valedit.value.ExposedSelect;
+import valeditor.ValEditor;
+import valeditor.data.Data;
+import valeditor.editor.base.ValEditorSimpleStarling;
+import valeditor.input.InputActionID;
+import valeditor.ui.feathers.data.MenuItem;
+import valeditor.ui.feathers.view.SimpleEditViewToggleGroups;
 
 /**
  * ...
  * @author Matse
  */
-class MassiveTextDemo extends Sprite 
+class MassiveTextDemo extends ValEditorSimpleStarling 
 {
 	private var _display:MassiveDisplay;
+	private var _displayCollection:ExposedCollection;
 	private var _container:ImgContainer;
 	private var _font:MassiveFont;
 	private var _format:TextFormat;
@@ -34,39 +52,129 @@ class MassiveTextDemo extends Sprite
 	private var _langRules:LangRules;
 	
 	private var _tf:TextField;
+	private var _tfCollection:ExposedCollection;
 	private var _text:Text;
 	private var _result:TextLayoutResult;
+	
+	private var _assetManager:AssetManager;
+	
+	private var _autoCenter:Bool = true;
+	private var _autoFill:Bool = true;
+	
+	// edit menu
+	private var _editMenuCollection:ArrayCollection<MenuItem>;
+	private var _undoItem:MenuItem;
+	private var _redoItem:MenuItem;
+	
+	// options menu
+	private var _optionsMenuCollection:ArrayCollection<MenuItem>;
+	private var _uiSkinItem:MenuItem;
+	private var _autoFillItem:MenuItem;
+	private var _autoCenterItem:MenuItem;
+	private var _centerItem:MenuItem;
 
 	public function new() 
 	{
 		super();
-		addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 	}
 	
-	private function addedToStageHandler(evt:Event):Void
+	override function exposeData():Void 
 	{
-		removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
+		Data.exposeMassive();
+		Data.exposeStarling();
+	}
+	
+	override public function start():Void 
+	{
+		this.editView = new SimpleEditViewToggleGroups();
+		this.editView.autoSizeMode = AutoSizeMode.STAGE;
 		
-		trace(this.stage.stageWidth);
+		super.start();
+	}
+	
+	override function ready():Void 
+	{
+		super.ready();
+		
+		this._assetManager = new AssetManager();
+		this._assetManager.enqueue([
+			Assets.getPath("font/arial/arial_12.fnt"),
+			Assets.getPath("font/arial/arial_12.png"),
+			Assets.getPath("font/arial/arial_12_bold.fnt"),
+			Assets.getPath("font/arial/arial_12_bold.png"),
+			Assets.getPath("font/arial/arial_12_italic.fnt"),
+			Assets.getPath("font/arial/arial_12_italic.png"),
+			
+			Assets.getPath("font/arial/arial_16.fnt"),
+			Assets.getPath("font/arial/arial_16.png"),
+			Assets.getPath("font/arial/arial_16_bold.fnt"),
+			Assets.getPath("font/arial/arial_16_bold.png"),
+			Assets.getPath("font/arial/arial_16_italic.fnt"),
+			Assets.getPath("font/arial/arial_16_italic.png")
+		]);
+		this._assetManager.loadQueue(assetsLoaded);
+	}
+	
+	private function assetsLoaded():Void
+	{
+		initInputActions();
+		
+		// edit menu
+		this._undoItem = new MenuItem("undo", "Undo", false, "Ctrl+Z");
+		this._redoItem = new MenuItem("redo", "Redo", false, "Ctrl+Y");
+		this._editMenuCollection = new ArrayCollection<MenuItem>([
+			this._undoItem,
+			this._redoItem
+		]);
+		this.editView.addMenu("edit", "Edit", onEditMenuCallback, onEditMenuOpen, this._editMenuCollection);
+		
+		// options menu
+		this._uiSkinItem = new MenuItem("ui_skin", "", true);
+		this._autoFillItem = new MenuItem("auto_fill", "Auto fill enabled", true);
+		this._autoCenterItem = new MenuItem("auto_center", "Auto center enabled", true);
+		this._centerItem = new MenuItem("center", "Center", true);
+		this._optionsMenuCollection = new ArrayCollection<MenuItem>([
+			this._uiSkinItem,
+			this._autoFillItem,
+			this._autoCenterItem,
+			this._centerItem
+		]);
+		this.editView.addMenu("options", "Options", onOptionsMenuCallback, onOptionsMenuOpen, this._optionsMenuCollection);
+		
+		cast(this.editView, SimpleEditViewToggleGroups).addToggleGroup("MassiveDisplay", "DISPLAY", false);
+		cast(this.editView, SimpleEditViewToggleGroups).addToggleGroup("TextField", "TEXTFIELD", true);
+		cast(this.editView, SimpleEditViewToggleGroups).rightContainer.maxWidth = 600;
+		cast(this.editView, SimpleEditViewToggleGroups).rightContainer.width = 450;
 		
 		MassiveDisplay.init();
 		
-		this._font = new MassiveFont("mini");
-		this._font.createFontStyle();
-		MassiveText.registerFont(this._font);
-		
-		this._display = new MassiveDisplay(this._font.defaultStyle.texture);
-		this._display.setTextureSmoothingAt(0, TextureSmoothing.NONE);
+		this._display = new MassiveDisplay();
 		addChild(this._display);
 		
-		this._container = new ImgContainer();
-		this._display.addLayer(this._container);
+		var font:MassiveFont;
 		
-		this._format = new TextFormat("mini", "default", this._font.size * 2, 0xffffff, TextAlign.JUSTIFY);
+		font = new MassiveFont("arial 12");
+		font.createFontStyle("regular", this._assetManager.getTexture("arial_12"), this._assetManager.getXml("arial_12"));
+		font.createFontStyle("bold", this._assetManager.getTexture("arial_12_bold"), this._assetManager.getXml("arial_12_bold"));
+		font.createFontStyle("italic", this._assetManager.getTexture("arial_12_italic"), this._assetManager.getXml("arial_12_italic"));
+		MassiveText.registerFont(font);
+		
+		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
+		
+		font = new MassiveFont("arial 16");
+		font.createFontStyle("regular", this._assetManager.getTexture("arial_16"), this._assetManager.getXml("arial_16"));
+		font.createFontStyle("bold", this._assetManager.getTexture("arial_16_bold"), this._assetManager.getXml("arial_16_bold"));
+		font.createFontStyle("italic", this._assetManager.getTexture("arial_16_italic"), this._assetManager.getXml("arial_16_italic"));
+		MassiveText.registerFont(font);
+		
+		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
+		
+		this._format = new TextFormat(font.name, "regular", font.size, 0xffffff, TextAlign.JUSTIFY);
 		//this._format = new TextFormat("mini", "default", this._font.size * 4, 0xffffff, TextAlign.JUSTIFY);
 		
 		this._options = new TextOptions();
 		this._options.padding = 24;
+		this._options.wordWrap = false;
 		
 		this._langRules = new LatinDefaultRules();
 		
@@ -81,61 +189,230 @@ class MassiveTextDemo extends Sprite
 		//{
 			//str += "over-confident master-builder ";
 		//}
-		str = 'Here is some text !{"format":{"color":"0xff0000"}, "animIn":{"id":"fadeIn"}, "animOut":{"id":"fadeOut"}}!and here is some text in red which will suddenly switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00"}}! yellow because why not... !{"format":{"color":"0x00ffff"}}!Or electric blue maybe ?';
-		//this._text = MassiveText.parseText(str);
-		//this._text.format = this._format;
-		//this._text.options = this._options;
+		str = 'Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ?';
 		
-		//var textWidth:Int = this.stage.stageWidth;
-		//var textHeight:Int = this.stage.stageHeight;
-		//this._result = MassiveText.processText(textWidth, textHeight, this._text, this._langRules);
-		//this._result.getImages(this._display, this._container.datas);
-		//GlyphLocation.rechargePool();
-		//this._result.pool();
-		
-		var textWidth:Int = this.stage.stageWidth;
-		var textHeight:Int = this.stage.stageHeight;
+		var textWidth:Float = this.editView.displayRect.width;
+		var textHeight:Float = this.editView.displayRect.height;
 		this._tf = new TextField(null, this._format, this._options, textWidth, textHeight);
+		this._tf.textDataSafeMode = true;
+		this._tf.x = this.editView.displayRect.x;
+		this._tf.y = this.editView.displayRect.y;
 		this._tf.textData = str;
 		this._display.addLayer(this._tf);
 		
-		this.stage.addEventListener(Event.RESIZE, stageResizeHandler);
+		this._tfCollection = ValEditor.edit(this._tf, null, this.editView.getEditContainer("TextField"));
+		
+		// MassiveDisplay collection
+		// we're only interested in a few properties so we create a custom collection
+		var float:ExposedFloatDrag;
+		var select:ExposedSelect;
+		
+		this._displayCollection = new ExposedCollection();
+		
+		select = new ExposedSelect("blendMode");
+		select.add(BlendMode.ADD);
+		select.add(BlendMode.AUTO);
+		select.add(BlendMode.BELOW);
+		select.add(BlendMode.ERASE);
+		select.add(BlendMode.MASK);
+		select.add(BlendMode.MULTIPLY);
+		select.add(BlendMode.NONE);
+		select.add(BlendMode.NORMAL);
+		select.add(BlendMode.SCREEN);
+		this._displayCollection.addValue(select);
+		
+		select = new ExposedSelect("renderMode");
+		select.choiceListFunction = RenderMode.getValues;
+		select.valueListFunction = RenderMode.getValues;
+		this._displayCollection.addValue(select);
+		
+		select = new ExposedSelect("colorMode");
+		select.choiceListFunction = ColorMode.getValues;
+		select.valueListFunction = ColorMode.getValues;
+		this._displayCollection.addValue(select);
+		
+		float = new ExposedFloatDrag("red", null, null, null, 0.01);
+		this._displayCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("green", null, null, null, 0.01);
+		this._displayCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("blue", null, null, null, 0.01);
+		this._displayCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("alpha", null, null, null, 0.01);
+		this._displayCollection.addValue(float);
+		
+		select = new ExposedSelect("colorOffsetMode");
+		select.choiceListFunction = ColorOffsetMode.getValues;
+		select.valueListFunction = ColorOffsetMode.getValues;
+		this._displayCollection.addValue(select);
+		
+		float = new ExposedFloatDrag("redOffset", null, -10.0, 10.0, 0.01);
+		this._displayCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("greenOffset", null, -10.0, 10.0, 0.01);
+		this._displayCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("blueOffset", null, -10.0, 10.0, 0.01);
+		this._displayCollection.addValue(float);
+		
+		float = new ExposedFloatDrag("alphaOffset", null, -10.0, 10.0, 0.01);
+		this._displayCollection.addValue(float);
+		
+		ValEditor.edit(this._display, this._displayCollection, this.editView.getEditContainer("MassiveDisplay"));
+		//\MassiveDisplay collection
 	}
 	
-	private function stageResizeHandler(evt:ResizeEvent):Void
+	override function onDisplayResize(evt:openfl.events.Event):Void 
 	{
-		updateViewPort(evt.width, evt.height);
+		super.onDisplayResize(evt);
 		
-		trace(this.stage.stageWidth);
+		if (Starling.current.showStats)
+		{
+			#if flash
+			if (!Starling.current.hasEventListener(Event.RENDER, updateStarlingStats))
+			{
+				Starling.current.addEventListener(Event.RENDER, updateStarlingStats);
+			}
+			#else
+			Starling.current.__statsDisplay.x = this.editView.displayRect.x;
+			Starling.current.__statsDisplay.y = this.editView.displayRect.y;
+			#end
+		}
 		
-		//#if flash
-		//Img.toPoolVector(this._container.datas);
-		//#else
-		//Img.toPoolArray(this._container.datas);
-		//#end
-		//this._container.removeAllChildren();
-		//
-		//var textWidth:Int = this.stage.stageWidth;
-		//var textHeight:Int = this.stage.stageHeight;
-		//this._result = MassiveText.processText(textWidth, textHeight, this._text, this._langRules);
-		//this._result.getImages(this._display, this._container.datas);
-		//GlyphLocation.rechargePool();
-		//this._result.pool();
+		if (this._autoFill) fillDisplayArea();
+		if (this._autoCenter) centerTextField();
 		
-		this._tf.width = this.stage.stageWidth;
-		this._tf.height = this.stage.stageHeight;
-	}
-
-	private function updateViewPort(width:Int, height:Int):Void 
-	{
-		var current:Starling = Starling.current;
-		var scale:Float = current.contentScaleFactor;
-		
-		this.stage.stageWidth  = Std.int(width  / scale);
-		this.stage.stageHeight = Std.int(height / scale);
-		
-		current.viewPort.width  = this.stage.stageWidth  * scale;
-		current.viewPort.height = this.stage.stageHeight * scale;
+		if (this._tfCollection != null) this._tfCollection.read();
 	}
 	
+	private function centerTextField():Void
+	{
+		if (this._tf != null)
+		{
+			this._tf.x = Math.fround(this.editView.displayRect.x + (this.editView.displayRect.width - this._tf.width) / 2.0);
+			this._tf.y = Math.fround(this.editView.displayRect.y + (this.editView.displayRect.height - this._tf.height) / 2.0);
+		}
+	}
+	
+	private function fillDisplayArea():Void
+	{
+		if (this._tf != null)
+		{
+			this._tf.x = this.editView.displayRect.x;
+			this._tf.y = this.editView.displayRect.y;
+			this._tf.width = this.editView.displayRect.width;
+			this._tf.height = this.editView.displayRect.height;
+		}
+	}
+	
+	#if flash
+	@:access(starling.core.Starling)
+	private function updateStarlingStats(evt:Event):Void
+	{
+		Starling.current.removeEventListener(Event.RENDER, updateStarlingStats);
+		
+		Starling.current.__statsDisplay.x = this.editView.displayRect.x;
+		Starling.current.__statsDisplay.y = this.editView.displayRect.y;
+	}
+	#end
+	
+	private function onEditMenuCallback(item:MenuItem):Void
+	{
+		switch (item.id)
+		{
+			case "undo" :
+				ValEditor.actionStack.undo();
+			
+			case "redo" :
+				ValEditor.actionStack.redo();
+		}
+	}
+	
+	private function onEditMenuOpen(evt:openfl.events.Event):Void
+	{
+		this._undoItem.enabled = ValEditor.actionStack.canUndo;
+		this._redoItem.enabled = ValEditor.actionStack.canRedo;
+		this._editMenuCollection.updateAll();
+	}
+	
+	private function onOptionsMenuCallback(item:MenuItem):Void
+	{
+		switch (item.id)
+		{
+			case "ui_skin" :
+				ValEditor.theme.darkMode = !ValEditor.theme.darkMode;
+			
+			case "auto_fill" :
+				this._autoFill = !this._autoFill;
+				if (this._autoFill) fillDisplayArea();
+			
+			case "auto_center" :
+				this._autoCenter = !this._autoCenter;
+				if (this._autoCenter) centerTextField();
+			
+			case "center" :
+				centerTextField();
+		}
+	}
+	
+	private function onOptionsMenuOpen(evt:openfl.events.Event):Void
+	{
+		if (ValEditor.theme.darkMode)
+		{
+			this._uiSkinItem.text = "UI light mode";
+		}
+		else
+		{
+			this._uiSkinItem.text = "UI dark mode";
+		}
+		
+		if (this._autoCenter)
+		{
+			this._autoCenterItem.text = "Auto center enabled";
+		}
+		else
+		{
+			this._autoCenterItem.text = "Auto center disabled";
+		}
+		
+		if (this._autoFill)
+		{
+			this._autoFillItem.text = "Auto fill enabled";
+		}
+		else
+		{
+			this._autoFillItem.text = "Auto fill disabled";
+		}
+	}
+	
+	private function initInputActions():Void
+	{
+		var keyAction:KeyAction;
+		
+		// undo
+		keyAction = new KeyAction(InputActionID.UNDO, false, true);
+		ValEditor.keyboardController.addKeyAction(Keyboard.Z, keyAction);
+		
+		// redo
+		keyAction = new KeyAction(InputActionID.REDO, false, true);
+		ValEditor.keyboardController.addKeyAction(Keyboard.Y, keyAction);
+		
+		ValEditor.input.addEventListener(InputActionEvent.ACTION_BEGIN, onInputActionBegin);
+	}
+	
+	private function onInputActionBegin(evt:InputActionEvent):Void
+	{
+		var inputAction:InputAction = evt.action;
+		
+		switch (inputAction.actionID)
+		{
+			case InputActionID.REDO :
+				ValEditor.actionStack.redo();
+			
+			case InputActionID.UNDO :
+				ValEditor.actionStack.undo();
+		}
+	}
 }
