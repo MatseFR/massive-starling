@@ -119,6 +119,98 @@ class MassiveText
 		return text;
 	}
 	
+	public static function parseTextSafe(txt:String, text:Text = null):Text
+	{
+		if (text == null) text = Text.fromPool();
+		
+		var currIndex:Int = 0;
+		var openIndex:Int;
+		var closeIndex:Int;
+		var nextIndex:Int;
+		var str:String;
+		var json:Dynamic = null;
+		var part:TextPart;
+		var numChars:Int = txt.length;
+		var ok:Bool;
+		
+		part = TextPart.fromPool();
+		part.text = "";
+		text.addPart(part);
+		
+		while (true)
+		{
+			openIndex = txt.indexOf(OPEN_PARAMS, currIndex);
+			if (openIndex != -1)
+			{
+				closeIndex = txt.indexOf(CLOSE_PARAMS, openIndex + OPEN_PARAMS.length);
+				if (closeIndex != -1)
+				{
+					nextIndex = txt.indexOf(OPEN_PARAMS, openIndex + OPEN_PARAMS.length);
+					if (nextIndex == -1 || nextIndex > closeIndex)
+					{
+						str = "{" + txt.substring(openIndex + OPEN_PARAMS.length, closeIndex) + "}";
+						ok = true;
+						try
+						{
+							json = Json.parse(str);
+						}
+						catch (e)
+						{
+							ok = false;
+						}
+						if (ok)
+						{
+							if (openIndex != currIndex)
+							{
+								part.text = txt.substring(currIndex, openIndex);
+								part = TextPart.fromPool();
+								part.text = "";
+								text.addPart(part);
+							}
+							
+							if (json.format != null) part.formatData = json.format;
+							if (json.options != null) part.optionsData = json.options;
+							if (json.anim != null) part.animationData = json.anim;
+							if (json.animIn != null) part.animationInData = json.animIn;
+							if (json.animOut != null) part.animationOutData = json.animOut;
+						}
+						else
+						{
+							part.text += txt.substring(currIndex, closeIndex + CLOSE_PARAMS.length);
+						}
+						currIndex = closeIndex + CLOSE_PARAMS.length;
+						if (currIndex == numChars) break;
+					}
+					else
+					{
+						if (nextIndex != -1)
+						{
+							part.text += txt.substring(currIndex, nextIndex);
+							currIndex = nextIndex;
+						}
+						else
+						{
+							part.text += txt.substring(currIndex, numChars);
+							break;
+						}
+					}
+				}
+				else
+				{
+					part.text = txt.substring(currIndex, numChars);
+					break;
+				}
+			}
+			else
+			{
+				part.text = txt.substring(currIndex, numChars);
+				break;
+			}
+		}
+		
+		return text;
+	}
+	
 	private static function setFormat(format:TextFormat):Void
 	{
 		_font = getFont(format.font);
