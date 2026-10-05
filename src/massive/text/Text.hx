@@ -30,9 +30,13 @@ class Text
 			return value;
 		}
 		this._format.copyFrom(value);
-		for (i in 0...this.parts.length)
+		if (this.parts.length != 0)
 		{
-			this.parts[i].format = this._format;
+			this.parts[0].format = this._format;
+			for (i in 1...this.parts.length)
+			{
+				this.parts[i].format = this.parts[i - 1].format;
+			}
 		}
 		return this._format;
 	}
@@ -99,7 +103,14 @@ class Text
 	
 	public function addPart(part:TextPart):Void
 	{
-		part.format = this._format;
+		if (this.parts.length == 0)
+		{
+			part.format = this._format;
+		}
+		else
+		{
+			part.format = this.parts[this.parts.length - 1].format;
+		}
 		this.parts[this.parts.length] = part;
 	}
 	
