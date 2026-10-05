@@ -33,6 +33,7 @@ class TextField extends ContainerBase
 	public var options(get, set):TextOptions;
 	public var text(get, set):String;
 	public var textData(get, set):String;
+	public var textDataSafeMode:Bool;
 	public var textObject(get, set):Text;
 	public var width(get, set):Float;
 	
@@ -95,7 +96,14 @@ class TextField extends ContainerBase
 		if (value != null)
 		{
 			createTextObject();
-			MassiveText.parseText(value, this._textObject);
+			if (this.textDataSafeMode)
+			{
+				MassiveText.parseTextSafe(value, this._textObject);
+			}
+			else
+			{
+				MassiveText.parseText(value, this._textObject);
+			}
 			this._requiresRecomposition = true;
 		}
 		return this._textData = value;
@@ -148,6 +156,9 @@ class TextField extends ContainerBase
 		if (options != null) this.options = options;
 		this._width = width;
 		this._height = height;
+		
+		this._format.addEventListener(Event.CHANGE, onFormatChange);
+		this._options.addEventListener(Event.CHANGE, onOptionsChange);
 	}
 	
 	override public function clear():Void
@@ -209,7 +220,11 @@ class TextField extends ContainerBase
 	
 	private function onFormatChange(evt:Event):Void
 	{
-		if (!this._requiresRecomposition) this._requiresRecomposition = this._textObject != null;
+		if (this._textObject != null)
+		{
+			this._textObject.format = this._format;
+			this._requiresRecomposition = true;
+		}
 	}
 	
 	private function onOptionsChange(evt:Event):Void
@@ -234,7 +249,11 @@ class TextField extends ContainerBase
 			this._isVerticalAutoSize = false;
 		}
 		
-		if (!this._requiresRecomposition) this._requiresRecomposition = this._textObject != null;
+		if (this._textObject != null)
+		{
+			this._textObject.options = this._options;
+			this._requiresRecomposition = true;
+		}
 	}
 	
 	private function recompose(display:MassiveDisplay):Void
@@ -256,6 +275,7 @@ class TextField extends ContainerBase
 		result.pool();
 		
 		this._requiresBounds = this._isAutoSize;
+		this._requiresRecomposition = false;
 	}
 	
 	private function updateBounds(renderOffsetX:Float, renderOffsetY:Float):Void
