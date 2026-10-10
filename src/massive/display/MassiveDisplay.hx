@@ -1006,7 +1006,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		updateBuffers();
 	}
 	
-	public function addTexture(texture:Texture, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function addTexture(texture:Texture, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Int
 	{
 		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		this._textures[this._textures.length] = texture;
@@ -1014,6 +1014,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._textureSmoothings[this._textureSmoothings.length] = textureSmoothing;
 		this._textureRepeats[this._textureRepeats.length] = textureRepeat;
 		if (update) updateTextures();
+		return this._textures.length - 1;
 	}
 	
 	public function addTextureAt(texture:Texture, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
@@ -1076,6 +1077,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	
 	public function getTextureIndex(texture:Texture):Int
 	{
+		if (!this._textureIndexMap.exists(texture)) return -1;
 		return this._textureIndexMap.get(texture);
 	}
 	
@@ -1129,7 +1131,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		if (update) updateTextures();
 	}
 	
+	#if (flash || SWC)
+	public function removeTextures(textures:Vector<Texture>, update:Bool = true):Void
+	#else
 	public function removeTextures(textures:Array<Texture>, update:Bool = true):Void
+	#end
 	{
 		var index:Int;
 		for (i in 0...textures.length)
