@@ -84,12 +84,9 @@ class Frame
 		if (textures == null || textures.length == 0) return null;
 		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
-		var frame:Frame;
-		
 		for (texture in textures)
 		{
-			frame = fromTexture(texture);
-			frames[frames.length] = frame;
+			frames[frames.length] = fromTexture(texture);
 		}
 		
 		return frames;
@@ -109,12 +106,9 @@ class Frame
 		if (textures == null || textures.length == 0) return null;
 		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
-		var frame:Frame;
-		
 		for (texture in textures)
 		{
-			frame = fromTextureWithAlign(texture, horizontalAlign, verticalAlign);
-			frames[frames.length] = frame;
+			frames[frames.length] = fromTextureWithAlign(texture, horizontalAlign, verticalAlign);
 		}
 		
 		return frames;
@@ -133,12 +127,9 @@ class Frame
 		if (textures == null || textures.length == 0) return null;
 		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
-		var frame:Frame;
-		
 		for (texture in textures)
 		{
-			frame = fromTextureWithPivot(texture, pivotX, pivotY);
-			frames[frames.length] = frame;
+			frames[frames.length] = fromTextureWithPivot(texture, pivotX, pivotY);
 		}
 		
 		return frames;
@@ -155,12 +146,9 @@ class Frame
 		if (textures == null || textures.length == 0) return null;
 		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
-		var frame:Frame;
-		
 		for (texture in textures)
 		{
-			frame = fromTexture(texture);
-			frames[frames.length] = frame;
+			frames[frames.length] = fromTexture(texture);
 		}
 		
 		return frames;
@@ -180,12 +168,9 @@ class Frame
 		if (textures == null || textures.length == 0) return null;
 		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
-		var frame:Frame;
-		
 		for (texture in textures)
 		{
-			frame = fromTextureWithAlign(texture, horizontalAlign, verticalAlign);
-			frames[frames.length] = frame;
+			frames[frames.length] = fromTextureWithAlign(texture, horizontalAlign, verticalAlign);
 		}
 		
 		return frames;
@@ -204,12 +189,9 @@ class Frame
 		if (textures == null || textures.length == 0) return null;
 		if (frames == null) frames = #if flash new Vector<Frame>() #else new Array<Frame>() #end ;
 		
-		var frame:Frame;
-		
 		for (texture in textures)
 		{
-			frame = fromTextureWithPivot(texture, pivotX, pivotY);
-			frames[frames.length] = frame;
+			frames[frames.length] = fromTextureWithPivot(texture, pivotX, pivotY);
 		}
 		
 		return frames;
@@ -290,6 +272,7 @@ class Frame
 	public function new(rootTexture:ConcreteTexture, x:Float, y:Float,
 						width:Float, height:Float, rotated:Bool) 
 	{
+		this.rootTexture = rootTexture;
 		this.u1 = x / rootTexture.nativeWidth;
 		this.v1 = y / rootTexture.nativeHeight;
 		this.u2 = (x + width) / rootTexture.nativeWidth;
