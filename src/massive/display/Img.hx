@@ -7,7 +7,7 @@ import openfl.Vector;
 #end
 
 /**
- * Image display object with optionnal texture animation
+ * Image display object
  * @author Matse
  */
 class Img extends QuadBase
@@ -18,7 +18,7 @@ class Img extends QuadBase
 	static private var _tempImg:Img;
 	
 	/**
-	   Returns an ImageData from pool if there's at least one in pool, or a new one otherwise
+	   Returns an Img from pool if there's at least one in pool, or a new one otherwise
 	   @return
 	**/
 	static public function fromPool(frame:Frame = null):Img
@@ -32,7 +32,7 @@ class Img extends QuadBase
 	}
 	
 	/**
-	   Returns an Array of ImageData, taken from pool if possible and created otherwise
+	   Returns an Array of Img, taken from pool if possible and created otherwise
 	   @param	numImages
 	   @param	images
 	   @return
@@ -59,7 +59,7 @@ class Img extends QuadBase
 	
 	#if flash
 	/**
-	   Returns a Vector of ImageData, taken from pool if possible and created otherwise
+	   Returns a Vector of Img, taken from pool if possible and created otherwise
 	   @param	numImages
 	   @param	images
 	   @return
@@ -86,7 +86,7 @@ class Img extends QuadBase
 	#end
 	
 	/**
-	   Equivalent to calling ImageData's pool function
+	   Equivalent to calling Img's pool function
 	   @param	img
 	**/
 	static public function toPool(img:Img):Void
@@ -96,7 +96,7 @@ class Img extends QuadBase
 	}
 	
 	/**
-	   Pools all ImageData objects in the specified Array
+	   Pools all Img objects in the specified Array
 	   @param	images
 	**/
 	static public function toPoolArray(images:Array<Img>):Void
@@ -110,7 +110,7 @@ class Img extends QuadBase
 	
 	#if flash
 	/**
-	   Pools all ImageData objects in the specified Vector
+	   Pools all Img objects in the specified Vector
 	   @param	images
 	**/
 	static public function toPoolVector(images:Vector<Img>):Void
