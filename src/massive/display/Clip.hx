@@ -15,13 +15,109 @@ import openfl.Vector;
  */
 class Clip extends Img 
 {
-	static private var _POOL:Array<Clip> = new Array<Clip>();
+	private static var _POOL:Array<Clip> = new Array<Clip>();
 	
-	static public function fromPool():Clip
+	/**
+	   Returns a Clip from pool if there's at least one in pool, or a new one otherwise
+	   @return
+	**/
+	public static function fromPool():Clip
 	{
 		if (_POOL.length != 0) return _POOL.pop();
 		return new Clip();
 	}
+	
+	/**
+	   Returns an Array of Clip, taken from pool if possible and created otherwise
+	   @param	numClips
+	   @param	clips
+	   @return
+	**/
+	public static function fromPoolArray(numClips:Int, clips:Array<Clip> = null):Array<Clip>
+	{
+		if (clips == null) clips = new Array<Clip>();
+		
+		while (numClips != 0)
+		{
+			if (_POOL.length == 0) break;
+			clips[clips.length] = _POOL.pop();
+			numClips--;
+		}
+		
+		while (numClips != 0)
+		{
+			clips[clips.length] = new Clip();
+			numClips--;
+		}
+		
+		return clips;
+	}
+	
+	#if flash
+	/**
+	   Returns a Vector of Clip, taken from pool if possible and created otherwise
+	   @param	numClips
+	   @param	clips
+	   @return
+	**/
+	public static function fromPoolVector(numClips:Int, clips:Vector<Clip> = null):Vector<Clip>
+	{
+		if (clips == null) clips = new Vector<Clip>();
+		
+		while (numClips != 0)
+		{
+			if (_POOL.length == 0) break;
+			clips[clips.length] = _POOL.pop();
+			numClips--;
+		}
+		
+		while (numClips != 0)
+		{
+			clips[clips.length] = new Clip();
+			numClips--;
+		}
+		
+		return clips;
+	}
+	#end
+	
+	/**
+	   Equivalent to calling Clip's pool function
+	   @param	img
+	**/
+	static public function toPool(clip:Clip):Void
+	{
+		clip.clear();
+		_POOL[_POOL.length] = clip;
+	}
+	
+	/**
+	   Pools all Clip objects in the specified Array
+	   @param	images
+	**/
+	static public function toPoolArray(clips:Array<Clip>):Void
+	{
+		var count:Int = clips.length;
+		for (i in 0...count)
+		{
+			clips[i].pool();
+		}
+	}
+	
+	#if flash
+	/**
+	   Pools all Clip objects in the specified Vector
+	   @param	images
+	**/
+	static public function toPoolVector(clips:Vector<Clip>):Void
+	{
+		var count:Int = clips.length;
+		for (i in 0...count)
+		{
+			clips[i].pool();
+		}
+	}
+	#end
 	
 	/**
 	   Tells whether this object is animated or not
