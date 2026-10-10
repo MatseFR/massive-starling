@@ -1,9 +1,11 @@
 package massive.text.internal;
+import massive.display.Clip;
 import massive.display.Img;
 import massive.display.MassiveDisplay;
 #if flash
 import openfl.Vector;
 #end
+import starling.textures.Texture;
 
 /**
  * ...
@@ -47,16 +49,15 @@ class TextLayoutResult
 	}
 	
 	#if flash
-	public function getImages(display:MassiveDisplay, imgs:Vector<Img> = null):Vector<Img>
+	public function getImages(display:MassiveDisplay, datas:Vector<Img>, imgStorage:Vector<Img>, clipStorage:Vector<Clip>, addedTextures:Vector<Texture>):Void
 	#else
-	public function getImages(display:MassiveDisplay, imgs:Array<Img> = null):Array<Img>
+	public function getImages(display:MassiveDisplay, datas:Array<Img>, imgStorage:Array<Img>, clipStorage:Array<Clip>, addedTextures:Array<Texture>):Void
 	#end
 	{
 		for (i in 0...this.parts.length)
 		{
-			this.parts[i].getImages(display, imgs);
+			this.parts[i].getImages(display, datas, imgStorage, clipStorage, addedTextures);
 		}
-		return imgs;
 	}
 	
 }
