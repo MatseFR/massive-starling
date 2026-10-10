@@ -1,4 +1,5 @@
 package massive.text;
+import massive.text.internal.TextPart;
 
 /**
  * ...
