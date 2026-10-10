@@ -10,22 +10,22 @@ class TextFormat extends EventDispatcher
 {
 	private static var _POOL:Array<TextFormat> = new Array<TextFormat>();
 	
-	public static function fromPool(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0x0, hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER):TextFormat
+	public static function fromPool(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0x0):TextFormat
 	{
-		if (_POOL.length != 0) return _POOL.pop().setFromPool(font, style, size, color, hAlign, vAlign);
-		return new TextFormat(font, style, size, color, hAlign, vAlign);
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(font, style, size, color);
+		return new TextFormat(font, style, size, color);
 	}
 	
 	public var color(get, set):Int;
 	public var colorOffset(get, set):Int;
 	public var font(get, set):String;
 	public var kerning(get, set):Bool;
-	public var horizontalAlign(get, set):String;
+	//public var horizontalAlign(get, set):String;
 	public var leading(get, set):Float;
 	public var letterSpacing(get, set):Float;
 	public var size(get, set):Float;
 	public var style(get, set):String;
-	public var verticalAlign(get, set):String;
+	//public var verticalAlign(get, set):String;
 	
 	public var red(get, set):Float;
 	public var green(get, set):Float;
@@ -99,15 +99,15 @@ class TextFormat extends EventDispatcher
 		return this._kerning;
 	}
 	
-	private var _horizontalAlign:String;
-	private inline function get_horizontalAlign():String { return this._horizontalAlign; }
-	private function set_horizontalAlign(value:String):String
-	{
-		if (this._horizontalAlign == value) return value;
-		this._horizontalAlign = value;
-		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
-		return this._horizontalAlign;
-	}
+	//private var _horizontalAlign:String;
+	//private inline function get_horizontalAlign():String { return this._horizontalAlign; }
+	//private function set_horizontalAlign(value:String):String
+	//{
+		//if (this._horizontalAlign == value) return value;
+		//this._horizontalAlign = value;
+		//if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
+		//return this._horizontalAlign;
+	//}
 	
 	private var _leading:Float = 0.0;
 	private inline function get_leading():Float { return this._leading; }
@@ -149,15 +149,15 @@ class TextFormat extends EventDispatcher
 		return this._style;
 	}
 	
-	private var _verticalAlign:String;
-	private inline function get_verticalAlign():String { return this._verticalAlign; }
-	private function set_verticalAlign(value:String):String
-	{
-		if (this._verticalAlign == value) return value;
-		this._verticalAlign = value;
-		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
-		return this._verticalAlign;
-	}
+	//private var _verticalAlign:String;
+	//private inline function get_verticalAlign():String { return this._verticalAlign; }
+	//private function set_verticalAlign(value:String):String
+	//{
+		//if (this._verticalAlign == value) return value;
+		//this._verticalAlign = value;
+		//if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
+		//return this._verticalAlign;
+	//}
 	
 	private var _red:Float = 1.0;
 	private inline function get_red():Float { return this._red; }
@@ -250,10 +250,10 @@ class TextFormat extends EventDispatcher
 	private var _colorOffsetChanged:Bool;
 	private var _eventsEnabled:Bool = true;
 
-	public function new(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0xffffff, hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER) 
+	public function new(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0xffffff) 
 	{
 		super();
-		setTo(font, style, size, color, hAlign, vAlign, false);
+		setTo(font, style, size, color, false);
 	}
 	
 	public function clear():Void
@@ -285,8 +285,7 @@ class TextFormat extends EventDispatcher
 		if (json.kerning != null) this.kerning = json.kerning;
 		if (json.leading != null) this.leading = json.leading;
 		if (json.letterSpacing != null) this.letterSpacing = json.letterSpacing;
-		if (json.horizontalAlign != null) this.horizontalAlign = json.horizontalAlign;
-		if (json.verticalAlign != null) this.verticalAlign = json.verticalAlign;
+		
 		if (json.color != null)
 		{
 			this.color = json.color;
@@ -319,7 +318,7 @@ class TextFormat extends EventDispatcher
 	{
 		if (toFormat == null)
 		{
-			toFormat = fromPool(this.font, this.style, this.size, this.color, this.horizontalAlign, this.verticalAlign);
+			toFormat = fromPool(this.font, this.style, this.size, this.color);
 			
 			toFormat._eventsEnabled = false;
 			
@@ -355,8 +354,6 @@ class TextFormat extends EventDispatcher
 		this.kerning = format._kerning;
 		this.leading = format._leading;
 		this.letterSpacing = format._letterSpacing;
-		this.horizontalAlign = format._horizontalAlign;
-		this.verticalAlign = format._verticalAlign;
 		
 		this.red = format._red;
 		this.green = format._green;
@@ -373,7 +370,7 @@ class TextFormat extends EventDispatcher
 		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
 	
-	public function setTo(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0xffffff, hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, dispatchChangeEvent:Bool = true):Void
+	public function setTo(font:String = null, style:String = null, size:Float = 0.0, color:Int = 0xffffff, dispatchChangeEvent:Bool = true):Void
 	{
 		this._eventsEnabled = false;
 		
@@ -381,8 +378,6 @@ class TextFormat extends EventDispatcher
 		this.style = style;
 		this.size = size;
 		this.color = color;
-		this.horizontalAlign = hAlign;
-		this.verticalAlign = vAlign;
 		
 		this._eventsEnabled = true;
 		
@@ -417,9 +412,9 @@ class TextFormat extends EventDispatcher
 		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
 	
-	private function setFromPool(font:String, style:String, size:Float, color:Int, hAlign:String, vAlign:String):TextFormat
+	private function setFromPool(font:String, style:String, size:Float, color:Int):TextFormat
 	{
-		setTo(font, style, size, color, hAlign, vAlign, false);
+		setTo(font, style, size, color, false);
 		return this;
 	}
 	

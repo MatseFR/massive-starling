@@ -11,13 +11,14 @@ class TextOptions extends EventDispatcher
 {
 	private static var _POOL:Array<TextOptions> = new Array<TextOptions>();
 	
-	public static function fromPool(wordWrap:Bool = true, hyphenation:Bool = true, letterSpreading:Bool = true):TextOptions
+	public static function fromPool(hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, wordWrap:Bool = true, hyphenation:Bool = true, letterSpreading:Bool = true):TextOptions
 	{
-		if (_POOL.length != 0) return _POOL.pop().setFromPool(wordWrap, hyphenation, letterSpreading);
-		return new TextOptions(wordWrap, hyphenation, letterSpreading);
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(hAlign, vAlign, wordWrap, hyphenation, letterSpreading);
+		return new TextOptions(hAlign, vAlign, wordWrap, hyphenation, letterSpreading);
 	}
 	
 	public var autoSize(get, set):String;
+	public var horizontalAlign(get, set):String;
 	public var hyphenation(get, set):Bool;
 	public var hyphenationMinLength(get, set):Int;
 	public var hyphenationMinRatio(get, set):Float;
@@ -26,6 +27,7 @@ class TextOptions extends EventDispatcher
 	public var letterSpreadingMax(get, set):Float;
 	public var letterSpreadingMinRatio(get, set):Float;
 	public var padding(get, set):Float;
+	public var verticalAlign(get, set):String;
 	public var wordWrap(get, set):Bool;
 	
 	private var _autoSize:String = TextFieldAutoSize.NONE;
@@ -36,6 +38,16 @@ class TextOptions extends EventDispatcher
 		this._autoSize = value;
 		dispatchEventWith(Event.CHANGE);
 		return this._autoSize;
+	}
+	
+	private var _horizontalAlign:String;
+	private inline function get_horizontalAlign():String { return this._horizontalAlign; }
+	private function set_horizontalAlign(value:String):String
+	{
+		if (this._horizontalAlign == value) return value;
+		this._horizontalAlign = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._horizontalAlign;
 	}
 	
 	private var _hyphenation:Bool;
@@ -118,6 +130,16 @@ class TextOptions extends EventDispatcher
 		return this._padding;
 	}
 	
+	private var _verticalAlign:String;
+	private inline function get_verticalAlign():String { return this._verticalAlign; }
+	private function set_verticalAlign(value:String):String
+	{
+		if (this._verticalAlign == value) return value;
+		this._verticalAlign = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._verticalAlign;
+	}
+	
 	private var _wordWrap:Bool;
 	private inline function get_wordWrap():Bool { return this._wordWrap; }
 	private function set_wordWrap(value:Bool):Bool
@@ -128,10 +150,12 @@ class TextOptions extends EventDispatcher
 		return this._wordWrap;
 	}
 
-	public function new(wordWrap:Bool = true, hyphenation:Bool = true, letterSpreading:Bool = true) 
+	public function new(hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, wordWrap:Bool = true, hyphenation:Bool = true, letterSpreading:Bool = true) 
 	{
 		super();
 		
+		this._horizontalAlign = hAlign;
+		this._verticalAlign = vAlign;
 		this._wordWrap = wordWrap;
 		this._hyphenation = hyphenation;
 		this._letterSpreading = letterSpreading;
@@ -154,9 +178,10 @@ class TextOptions extends EventDispatcher
 		_POOL[_POOL.length] = this;
 	}
 	
-	public function loadJson(json:Dynamic):Void
+	public function loadJson(json:Dynamic, dispatchChangeEvent:Bool = true):Void
 	{
 		if (json.autoSize != null) this._autoSize = json.autoSize;
+		if (json.horizontalAlign != null) this._horizontalAlign = json.horizontalAlign;
 		if (json.hyphenation != null) this._hyphenation = json.hyphenation;
 		if (json.hyphenationMinLength != null) this._hyphenationMinLength = json.hyphenationMinLength;
 		if (json.hyphenationMinRatio != null) this._hyphenationMinRatio = json.hyphenationMinRatio;
@@ -165,14 +190,17 @@ class TextOptions extends EventDispatcher
 		if (json.letterSpreadingMax != null) this._letterSpreadingMax = json.letterSpreadingMax;
 		if (json.letterSpreadingMinRatio != null) this._letterSpreadingMinRatio = json.letterSpreadingMinRatio;
 		if (json.padding != null) this._padding = json.padding;
+		if (json.verticalAlign != null) this._verticalAlign = json.verticalAlign;
 		if (json.wordWrap != null) this._wordWrap = json.wordWrap;
+		
+		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
 	
-	public function clone(toOptions:TextOptions = null):TextOptions
+	public function clone(toOptions:TextOptions = null, dispatchChangeEvent:Bool = true):TextOptions
 	{
 		if (toOptions == null)
 		{
-			toOptions = fromPool(this._wordWrap, this._hyphenation, this._letterSpreading);
+			toOptions = fromPool(this._horizontalAlign, this._verticalAlign, this._wordWrap, this._hyphenation, this._letterSpreading);
 			toOptions._autoSize = this._autoSize;
 			toOptions._hyphenationMinLength = this._hyphenationMinLength;
 			toOptions._hyphenationMinRatio = this._hyphenationMinRatio;
@@ -183,31 +211,37 @@ class TextOptions extends EventDispatcher
 		}
 		else
 		{
-			toOptions.copyFrom(this);
+			toOptions.copyFrom(this, dispatchChangeEvent);
 		}
 		
 		return toOptions;
 	}
 	
-	public function copyFrom(options:TextOptions):Void
+	public function copyFrom(options:TextOptions, dispatchChangeEvent:Bool = true):Void
 	{
-		this.autoSize = options.autoSize;
-		this.hyphenation = options.hyphenation;
-		this.hyphenationMinLength = options.hyphenationMinLength;
-		this.hyphenationMinRatio = options.hyphenationMinRatio;
-		this.intPositions = options.intPositions;
-		this.letterSpreading = options.letterSpreading;
-		this.letterSpreadingMax = options.letterSpreadingMax;
-		this.letterSpreadingMinRatio = options.letterSpreadingMinRatio;
-		this.padding = options.padding;
-		this.wordWrap = options.wordWrap;
+		this._autoSize = options._autoSize;
+		this._horizontalAlign = options._horizontalAlign;
+		this._hyphenation = options._hyphenation;
+		this._hyphenationMinLength = options._hyphenationMinLength;
+		this._hyphenationMinRatio = options._hyphenationMinRatio;
+		this._intPositions = options._intPositions;
+		this._letterSpreading = options._letterSpreading;
+		this._letterSpreadingMax = options._letterSpreadingMax;
+		this._letterSpreadingMinRatio = options._letterSpreadingMinRatio;
+		this._padding = options._padding;
+		this._verticalAlign = options._verticalAlign;
+		this._wordWrap = options._wordWrap;
+		
+		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
 	}
 	
-	private function setFromPool(wordWrap:Bool, hyphenation:Bool, letterSpreading:Bool):TextOptions
+	private function setFromPool(hAlign:String, vAlign:String, wordWrap:Bool, hyphenation:Bool, letterSpreading:Bool):TextOptions
 	{
-		this.wordWrap = wordWrap;
-		this.hyphenation = hyphenation;
-		this.letterSpreading = letterSpreading;
+		this._horizontalAlign = hAlign;
+		this._verticalAlign = vAlign;
+		this._wordWrap = wordWrap;
+		this._hyphenation = hyphenation;
+		this._letterSpreading = letterSpreading;
 		return this;
 	}
 	
