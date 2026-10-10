@@ -1,6 +1,5 @@
 package massive.text.internal;
 import massive.data.Frame;
-import massive.text.GlyphLocation;
 
 /**
  * ...
