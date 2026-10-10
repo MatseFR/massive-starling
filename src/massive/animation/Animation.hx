@@ -46,6 +46,17 @@ class Animation
 	public var nextAnimationID:String;
 	public var numFrames(default, null):Int = 0;
 	public var numLoops:Int = 0;
+	public var referenceAnimationFrame(get, set):AnimationFrame;
+	public var referenceFrame:Frame;
+	
+	private var _referenceAnimationFrame:AnimationFrame;
+	private function get_referenceAnimationFrame():AnimationFrame { return this._referenceAnimationFrame; }
+	private function set_referenceAnimationFrame(value:AnimationFrame):AnimationFrame
+	{
+		if (value == null) return value;
+		this.referenceFrame = value.frame;
+		return this._referenceAnimationFrame = value;
+	}
 	
 	#if flash
 	private var _frames:Vector<Frame> = new Vector<Frame>();
@@ -97,6 +108,8 @@ class Animation
 		this.loop = false;
 		this.lastFrameIndex = -1;
 		this.loopFrame = this.numFrames = this.numLoops = 0;
+		this._referenceAnimationFrame = null;
+		this.referenceFrame = null;
 		
 		#if flash
 		this._frames.length = 0;
@@ -168,6 +181,11 @@ class Animation
 		else
 		{
 			this.loopDuration = this.duration - this.animationFrames[this.loopFrame - 1].timing;
+		}
+		
+		if (this._referenceAnimationFrame == null && this.numFrames != 0)
+		{
+			this.referenceAnimationFrame = this.animationFrames[0];
 		}
 		
 		this.hasVertexPosition = false;
