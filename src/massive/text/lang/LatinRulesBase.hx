@@ -1,4 +1,5 @@
 package massive.text.lang;
+import massive.text.internal.ElementLocation;
 
 /**
  * ...
@@ -99,7 +100,7 @@ abstract class LatinRulesBase extends LangRules
 		this._hasUnbreakableStrings = true;
 	}
 	
-	public function isUnbreakableString(chars:Array<GlyphLocation>, fromIndex:Int):Bool
+	public function isUnbreakableString(chars:Array<ElementLocation>, fromIndex:Int):Bool
 	{
 		if (!this._hasUnbreakableStrings) return false;
 		
@@ -122,7 +123,7 @@ abstract class LatinRulesBase extends LangRules
 			
 			for (i in startIndex...endIndex)
 			{
-				entries = this._unbreakableStrings.get(chars[i].glyph.charID);
+				entries = this._unbreakableStrings.get(chars[i].charID);
 				if (entries == null) continue;
 				
 				numEntries = entries.length;
@@ -134,7 +135,7 @@ abstract class LatinRulesBase extends LangRules
 					unbreakable = true;
 					for (k in 0...numChars)
 					{
-						if (chars[i + k].glyph.charID != entry[k])
+						if (chars[i + k].charID != entry[k])
 						{
 							unbreakable = false;
 							break;

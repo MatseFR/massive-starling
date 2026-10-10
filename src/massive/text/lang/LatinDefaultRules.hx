@@ -1,4 +1,5 @@
 package massive.text.lang;
+import massive.text.internal.ElementLocation;
 
 /**
  * ...
@@ -164,7 +165,7 @@ class LatinDefaultRules extends LatinRulesBase
 		addUnbreakableString("nounce");
 	}
 	
-	public function getBreakIndexWithHyphens(chars:Array<GlyphLocation>, fromIndex:Int, minWordLength:Int):Int
+	public function getBreakIndexWithHyphens(chars:Array<ElementLocation>, fromIndex:Int, minWordLength:Int):Int
 	{
 		this.__hyphenIndexes.resize(0);
 		var minCharsBefore:Int = 1;
@@ -172,7 +173,7 @@ class LatinDefaultRules extends LatinRulesBase
 		var canBreakWords:Bool = true;
 		var hyphenIndex:Int;
 		var index:Int;
-		var word:Array<GlyphLocation>;
+		var word:Array<ElementLocation>;
 		var count:Int;
 		
 		for (i in 0...chars.length)
@@ -216,7 +217,7 @@ class LatinDefaultRules extends LatinRulesBase
 				
 				if (count - 1 >= minWordLength)
 				{
-					word = GlyphLocation.arrayFromPool();
+					word = ElementLocation.arrayFromPool();
 					for (i in 1...count)
 					{
 						word[word.length] = chars[hyphenIndex + i];
@@ -247,7 +248,7 @@ class LatinDefaultRules extends LatinRulesBase
 		return -1;
 	}
 	
-	public function getBreakIndex(chars:Array<GlyphLocation>, fromIndex:Int):Int
+	public function getBreakIndex(chars:Array<ElementLocation>, fromIndex:Int):Int
 	{
 		var minCharsBefore:Int = 1;
 		var minCharsAfter:Int = 1;
@@ -258,17 +259,17 @@ class LatinDefaultRules extends LatinRulesBase
 		var ok:Bool;
 		
 		#if debug
-		var word:String = "";
-		var charCount:Int = chars.length;
-		for (i in 0...charCount)
-		{
-			word += chars[i].char;
-		}
-		trace(word);
-		if (word == "happiness")
-		{
-			trace("debug");
-		}
+		//var word:String = "";
+		//var charCount:Int = chars.length;
+		//for (i in 0...charCount)
+		//{
+			//word += chars[i].char;
+		//}
+		//trace(word);
+		//if (word == "happiness")
+		//{
+			//trace("debug");
+		//}
 		#end
 		
 		for (i in 0...fromIndex + 1)
@@ -303,19 +304,19 @@ class LatinDefaultRules extends LatinRulesBase
 				else if (numVowelsAfter > 0)
 				{
 					// first part cannot end with twice the same consonant
-					if (numCharsBefore > 1 && !chars[fromIndex - 1].isVowel && chars[fromIndex - 1].glyph.charID == chars[fromIndex].glyph.charID)
+					if (numCharsBefore > 1 && !chars[fromIndex - 1].isVowel && chars[fromIndex - 1].charID == chars[fromIndex].charID)
 					{
 						ok = false;
 					}
 					
 					// second part cannot start with twice the same consonant
-					if (ok && numCharsAfter > 1 && ! chars[fromIndex + 1].isSpace && chars[fromIndex + 1].glyph.charID == chars[fromIndex + 2].glyph.charID)
+					if (ok && numCharsAfter > 1 && ! chars[fromIndex + 1].isSpace && chars[fromIndex + 1].charID == chars[fromIndex + 2].charID)
 					{
 						ok = false;
 					}
 					
 					// first part cannot end with a vowel if second part starts with a vowel
-					if (ok && numCharsAfter > 0 && chars[fromIndex].isVowel && chars[fromIndex + 1].isVowel && !isBreakableVowel(chars[fromIndex].glyph.charID) && (numCharsBefore == 0 || !isBreakableVowelWithModifier(chars[fromIndex].glyph.charID, chars[fromIndex - 1].glyph.charID)))
+					if (ok && numCharsAfter > 0 && chars[fromIndex].isVowel && chars[fromIndex + 1].isVowel && !isBreakableVowel(chars[fromIndex].charID) && (numCharsBefore == 0 || !isBreakableVowelWithModifier(chars[fromIndex].charID, chars[fromIndex - 1].charID)))
 					{
 						ok = false;
 					}
@@ -338,7 +339,7 @@ class LatinDefaultRules extends LatinRulesBase
 			if (ok)
 			{
 				// check for unbreakable pair
-				if (!isForbiddenBreak(chars[fromIndex].glyph.charID, chars[fromIndex + 1].glyph.charID))
+				if (!isForbiddenBreak(chars[fromIndex].charID, chars[fromIndex + 1].charID))
 				{
 					// check for unbreakable character sequence
 					if (!isUnbreakableString(chars, fromIndex))

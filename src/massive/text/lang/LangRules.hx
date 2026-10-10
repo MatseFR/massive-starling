@@ -1,4 +1,5 @@
 package massive.text.lang;
+import massive.text.internal.ElementLocation;
 
 /**
  * ...
@@ -14,8 +15,8 @@ abstract class LangRules
 	
 	abstract public function dispose():Void;
 	
-	abstract public function getBreakIndexWithHyphens(chars:Array<GlyphLocation>, fromIndex:Int, minWordLength:Int):Int;
+	abstract public function getBreakIndexWithHyphens(chars:Array<ElementLocation>, fromIndex:Int, minWordLength:Int):Int;
 	
-	abstract public function getBreakIndex(chars:Array<GlyphLocation>, fromIndex:Int):Int;
+	abstract public function getBreakIndex(chars:Array<ElementLocation>, fromIndex:Int):Int;
 	
 }
