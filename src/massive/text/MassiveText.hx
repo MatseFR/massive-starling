@@ -1,7 +1,21 @@
 package massive.text;
 import haxe.Json;
+import massive.animation.AnimationCollection;
+import massive.data.FrameCollection;
+import massive.text.internal.ClipConfig;
+import massive.text.internal.ClipLocation;
+import massive.text.internal.ElementLocation;
+import massive.text.internal.GlyphLocation;
+import massive.text.internal.ImgConfig;
+import massive.text.internal.ImgLocation;
+import massive.text.internal.Line;
+import massive.text.internal.LinePart;
 import massive.text.internal.TextLayoutResult;
+import massive.text.internal.TextPart;
+import massive.text.internal.TextPartClipLayoutResult;
+import massive.text.internal.TextPartImgLayoutResult;
 import massive.text.internal.TextPartLayoutResult;
+import massive.text.internal.TextPartStringLayoutResult;
 import massive.text.lang.LangRules;
 import openfl.errors.Error;
 
@@ -24,10 +38,42 @@ class MassiveText
 	public static var CLOSE_PARAMS:String = "}!";
 	public static var OPEN_PARAMS:String = "!{";
 	
+	public static var animations(default, null):AnimationCollection = new AnimationCollection();
 	public static var defaultFont:MassiveFont;
 	public static var defaultLangRules:LangRules;
-	public static var defaultTextFormat:TextFormat;// = new TextFormat();
-	public static var defaultTextOptions:TextOptions;// = new TextOptions();
+	public static var defaultTextFormat(get, set):TextFormat;// = new TextFormat();
+	public static var defaultTextOptions(get, set):TextOptions;// = new TextOptions();
+	public static var frames(default, null):FrameCollection = new FrameCollection();
+	
+	private static var _defaultTextFormat:TextFormat = new TextFormat();
+	private static function get_defaultTextFormat():TextFormat { return _defaultTextFormat; }
+	private static function set_defaultTextFormat(value:TextFormat):TextFormat
+	{
+		if (value == null)
+		{
+			_defaultTextFormat.clear();
+		}
+		else
+		{
+			_defaultTextFormat.copyFrom(value);
+		}
+		return _defaultTextFormat;
+	}
+	
+	private static var _defaultTextOptions:TextOptions = new TextOptions();
+	private static function get_defaultTextOptions():TextOptions { return _defaultTextOptions; }
+	private static function set_defaultTextOptions(value:TextOptions):TextOptions
+	{
+		if (value == null)
+		{
+			_defaultTextOptions.clear();
+		}
+		else
+		{
+			_defaultTextOptions.copyFrom(value);
+		}
+		return _defaultTextOptions;
+	}
 	
 	private static var _fonts:Map<String, MassiveFont> = new Map<String, MassiveFont>();
 	
@@ -73,10 +119,10 @@ class MassiveText
 		var closeIndex:Int;
 		var str:String;
 		var json:Dynamic;
-		var part:TextPart;
+		var part:TextPartString;
 		var numChars:Int = txt.length;
 		
-		part = TextPart.fromPool();
+		part = TextPartString.fromPool();
 		text.addPart(part);
 		
 		while (true)
@@ -87,7 +133,7 @@ class MassiveText
 				if (openIndex != currIndex)
 				{
 					part.text = txt.substring(currIndex, openIndex);
-					part = TextPart.fromPool();
+					part = TextPartString.fromPool();
 					text.addPart(part);
 				}
 				closeIndex = txt.indexOf(CLOSE_PARAMS, openIndex + OPEN_PARAMS.length);
@@ -96,7 +142,6 @@ class MassiveText
 					str = "{" + txt.substring(openIndex + OPEN_PARAMS.length, closeIndex) + "}";
 					json = Json.parse(str);
 					if (json.format != null) part.formatData = json.format;
-					if (json.options != null) part.optionsData = json.options;
 					if (json.anim != null) part.animationData = json.anim;
 					if (json.animIn != null) part.animationInData = json.animIn;
 					if (json.animOut != null) part.animationOutData = json.animOut;
@@ -130,12 +175,15 @@ class MassiveText
 		var str:String;
 		var json:Dynamic = null;
 		var part:TextPart;
+		var clipPart:TextPartClip;
+		var imgPart:TextPartImg;
+		var strPart:TextPartString = null;
+		var clipConfig:ClipConfig;
+		var imgConfig:ImgConfig;
 		var numChars:Int = txt.length;
+		var nodeData:Array<Dynamic>;
+		var nodeCount:Int;
 		var ok:Bool;
-		
-		part = TextPart.fromPool();
-		part.text = "";
-		text.addPart(part);
 		
 		while (true)
 		{
@@ -162,21 +210,80 @@ class MassiveText
 						{
 							if (openIndex != currIndex)
 							{
-								part.text = txt.substring(currIndex, openIndex);
-								part = TextPart.fromPool();
-								part.text = "";
-								text.addPart(part);
+								if (strPart == null)
+								{
+									strPart = TextPartString.fromPool();
+									text.addPart(strPart);
+								}
+								strPart.text = txt.substring(currIndex, openIndex);
+								strPart = null;
+							}
+							
+							part = null;
+							if (json.img != null)
+							{
+								part = imgPart = TextPartImg.fromPool();
+								//if (json.img.frame != null)
+								//{
+									//imgPart.frames[imgPart.frames.length] = frames.get(json.img.frame);
+								//}
+								imgPart.imgConfigs[imgPart.imgConfigs.length] = ImgConfig.fromPool(json.img);
+								text.addPart(imgPart);
+							}
+							else if (json.imgs != null)
+							{
+								part = imgPart = TextPartImg.fromPool();
+								nodeData = json.imgs;
+								nodeCount = nodeData.length;
+								for (i in 0...nodeCount)
+								{
+									imgPart.imgConfigs[imgPart.imgConfigs.length] = ImgConfig.fromPool(nodeData[i]);
+								}
+								text.addPart(imgPart);
+							}
+							
+							if (json.clip != null)
+							{
+								part = clipPart = TextPartClip.fromPool();
+								//if (json.clip.animation != null)
+								//{
+									//clipPart.animations[clipPart.animations.length] = animations.get(json.clip.animation);
+								//}
+								clipPart.clipConfigs[clipPart.clipConfigs.length] = ClipConfig.fromPool(json.clip);
+								text.addPart(clipPart);
+							}
+							else if (json.clips != null)
+							{
+								part = clipPart = TextPartClip.fromPool();
+								nodeData = json.clips;
+								nodeCount = nodeData.length;
+								for (i in 0...nodeCount)
+								{
+									clipPart.clipConfigs[clipPart.clipConfigs.length] = ClipConfig.fromPool(nodeData[i]);
+								}
+								text.addPart(clipPart);
+							}
+							
+							if (part == null)
+							{
+								part = strPart = TextPartString.fromPool();
+								text.addPart(strPart);
 							}
 							
 							if (json.format != null) part.formatData = json.format;
-							if (json.options != null) part.optionsData = json.options;
 							if (json.anim != null) part.animationData = json.anim;
 							if (json.animIn != null) part.animationInData = json.animIn;
 							if (json.animOut != null) part.animationOutData = json.animOut;
 						}
 						else
 						{
-							part.text += txt.substring(currIndex, closeIndex + CLOSE_PARAMS.length);
+							if (strPart == null)
+							{
+								strPart = TextPartString.fromPool();
+								text.addPart(strPart);
+							}
+							strPart.text = txt.substring(currIndex, closeIndex + CLOSE_PARAMS.length);
+							strPart = null;
 						}
 						currIndex = closeIndex + CLOSE_PARAMS.length;
 						if (currIndex == numChars) break;
@@ -185,25 +292,46 @@ class MassiveText
 					{
 						if (nextIndex != -1)
 						{
-							part.text += txt.substring(currIndex, nextIndex);
+							if (strPart == null)
+							{
+								strPart = TextPartString.fromPool();
+								text.addPart(strPart);
+							}
+							strPart.text = txt.substring(currIndex, nextIndex);
+							strPart = null;
 							currIndex = nextIndex;
 						}
 						else
 						{
-							part.text += txt.substring(currIndex, numChars);
+							if (strPart == null)
+							{
+								strPart = TextPartString.fromPool();
+								text.addPart(strPart);
+							}
+							strPart.text = txt.substring(currIndex, numChars);
 							break;
 						}
 					}
 				}
 				else
 				{
-					part.text = txt.substring(currIndex, numChars);
+					if (strPart == null)
+					{
+						strPart = TextPartString.fromPool();
+						text.addPart(strPart);
+					}
+					strPart.text = txt.substring(currIndex, numChars);
 					break;
 				}
 			}
 			else
 			{
-				part.text = txt.substring(currIndex, numChars);
+				if (strPart == null)
+				{
+					strPart = TextPartString.fromPool();
+					text.addPart(strPart);
+				}
+				strPart.text = txt.substring(currIndex, numChars);
 				break;
 			}
 		}
@@ -217,7 +345,7 @@ class MassiveText
 		_fontStyle = _font.getFontStyle(format.style);
 		_glyphMap = _fontStyle.glyphs;
 		_hyphenGlyph = _fontStyle.hyphenGlyph;
-		_lineHeight = _fontStyle.lineHeight;
+		//_lineHeight = _fontStyle.lineHeight;
 		_kerning = format.kerning;
 		_leading = format.leading;
 		_spacing = format.letterSpacing;
@@ -231,12 +359,12 @@ class MassiveText
 		if (text.options == null) text.options = defaultTextOptions;
 		if (langRules == null) langRules = defaultLangRules;
 		
-		var hAlign:String = text.format.horizontalAlign;
+		var hAlign:String = text.options.horizontalAlign;
 		var hAlignJustify:Bool = hAlign == TextAlign.JUSTIFY;
 		var hAlignCenter:Bool = hAlign == TextAlign.CENTER;
 		var hAlignRight:Bool = hAlign == TextAlign.RIGHT;
 		var doHAlign:Bool = hAlignCenter || hAlignRight;
-		var vAlign:String = text.format.verticalAlign;
+		var vAlign:String = text.options.verticalAlign;
 		
 		var options:TextOptions = text.options;
 		var hyphenation:Bool = options.hyphenation && langRules != null;
@@ -246,7 +374,13 @@ class MassiveText
 		var letterSpreading:Bool = options.letterSpreading;
 		var letterSpreadingMax:Float = options.letterSpreadingMax;
 		var letterSpreadingMinRatio:Float = options.letterSpreadingMinRatio;
-		var padding:Float = options.padding;
+		var paddingX:Float = options.paddingLeft + options.paddingRight;
+		var paddingY:Float = options.paddingTop + options.paddingBottom;
+		var paddingLeft:Float = options.paddingLeft;
+		var paddingTop:Float = options.paddingTop;
+		var restrictImageHeightToFontize:Bool = options.restrictImageHeightToFontSize;
+		var restrictImageHeightOverFlow:Float = options.restrictImageHeightOverflow;
+		var uniformLineHeight:Bool = options.uniformLineHeight;
 		var wordWrap:Bool = options.wordWrap;
 		
 		var charID:Int;
@@ -257,6 +391,9 @@ class MassiveText
 		var lineFull:Bool;
 		var glyph:Glyph;
 		var glyphLocation:GlyphLocation;
+		var location:ElementLocation;
+		var clipLocation:ClipLocation;
+		var imgLocation:ImgLocation;
 		var numChars:Int;
 		var numCharsToRemove:Int;
 		var numSpaces:Int = 0;
@@ -264,8 +401,11 @@ class MassiveText
 		
 		var currentX:Float = 0;
 		var currentY:Float = 0;
-		var currentLine:Array<GlyphLocation> = GlyphLocation.arrayFromPool();
-		var currentWord:Array<GlyphLocation> = GlyphLocation.arrayFromPool();
+		var currentLine:Array<ElementLocation> = ElementLocation.arrayFromPool();
+		var currentWord:Array<ElementLocation> = ElementLocation.arrayFromPool();
+		var lineObject:Line = Line.fromPool();
+		var linePart:LinePart;
+		var linePartLocations:Array<ElementLocation>;
 		
 		var hyphenationAllowed:Bool;
 		var hyphenationOccured:Bool;
@@ -273,9 +413,9 @@ class MassiveText
 		var index:Int;
 		var ratio:Float;
 		var remainingWidth:Float = 0.0;
-		var testLocation:GlyphLocation;
-		var testWord:Array<GlyphLocation> = GlyphLocation.arrayFromPool();
-		var word:Array<GlyphLocation>;
+		var testLocation:ElementLocation;
+		var testWord:Array<ElementLocation> = ElementLocation.arrayFromPool();
+		var word:Array<ElementLocation>;
 		var nextCharID:Int;
 		var testGlyph:Glyph;
 		var cumulatedOffset:Float;
@@ -285,48 +425,102 @@ class MassiveText
 		var intCounter:Float;
 		
 		var part:TextPart;
-		var txt:String;
+		var clipPart:TextPartClip = null;
+		var imgPart:TextPartImg = null;
+		var strPart:TextPartString = null;
+		var txt:String = null;
 		var textResult:TextLayoutResult = TextLayoutResult.fromPool();
 		var partResult:TextPartLayoutResult;
 		var numParts:Int = text.numParts;
 		var allChars:Int = text.numChars;
-		var locations:Array<GlyphLocation> = null;
+		var locations:Array<ElementLocation> = null;
 		
 		var finished:Bool = false;
 		
 		var scale:Float = 1.0;
 		
-		var containerWidth:Float = width;
-		var containerHeight:Float = height;
+		var containerWidth:Float = width - paddingX;//padding * 2;
+		var containerHeight:Float = height - paddingY;//padding * 2;
+		
+		var lineHeight:Float;
+		var lineHeightChange:Bool;
+		var maxLineHeight:Float = 0.0;
+		var baseline:Float;
+		var baselineChange:Bool;
+		var maxBaseline:Float = 0.0;
+		
+		var isClip:Bool;
+		var isImg:Bool;
+		var isText:Bool;
 		
 		var i:Int;
 		var j:Int;
 		var p:Int = 0;
 		
-		//for (p in 0...numParts)
 		while (p < numParts)
 		{
 			part = text.parts[p];
 			setFormat(part.format);
+			
 			if (p == 0)
 			{
-				scale = _fontScale;
-				containerWidth = (width - padding * 2) / scale;
-				containerHeight = (height - padding * 2) / scale;
 				if (intPositions) intPositionStep = 1.0 / scale;
 			}
 			if (_fontSize > containerHeight) break; // TODO this should be checked earlier, only once
 			
-			txt = part.text;
-			partResult = TextPartLayoutResult.fromPool(part, _fontStyle);
-			textResult.addPart(partResult);
+			if (part.isText)
+			{
+				scale = _fontScale;
+				
+				strPart = cast part;
+				isText = true;
+				isClip = isImg = false;
+				
+				txt = strPart.text;
+				partResult = TextPartStringLayoutResult.fromPool(strPart, _fontStyle);
+				textResult.addPart(partResult);
+			}
+			else if (part.isImg)
+			{
+				scale = 1.0;
+				
+				imgPart = cast part;
+				isImg = true;
+				isClip = isText = false;
+				
+				partResult = TextPartImgLayoutResult.fromPool();
+				textResult.addPart(partResult);
+			}
+			else
+			{
+				scale = 1.0;
+				
+				clipPart = cast part;
+				isClip = true;
+				isImg = isText = false;
+				
+				partResult = TextPartClipLayoutResult.fromPool();
+				textResult.addPart(partResult);
+			}
 			
-			numChars = txt.length;
+			numChars = part.numChars;
+			linePart = part.getLinePart(_fontStyle, _fontScale);
+			lineObject.addPart(linePart);
+			linePartLocations = linePart.elementLocations;
+			
 			i = 0;
 			while (i < numChars)
 			{
 				lineFull = false;
-				charID = txt.charCodeAt(i);
+				
+				if (isText)
+				{
+					charID = txt.charCodeAt(i);
+				}
+				else
+				{
+					charID = CHAR_MISSING;
+				}
 				charIndex = totalChars + i;
 				
 				if (charID == CHAR_NEWLINE || charID == CHAR_CARRIAGE_RETURN)
@@ -335,49 +529,73 @@ class MassiveText
 				}
 				else
 				{
-					glyph = _glyphMap.get(charID);
-					if (glyph == null)
+					if (isText)
 					{
-						trace("[MassiveText] Character '" + txt.charAt(i) + "' not found");
-						charID = CHAR_MISSING;
 						glyph = _glyphMap.get(charID);
-					}
-					
-					if (charID == CHAR_SPACE || charID == CHAR_TAB)
-					{
-						lastWhiteSpace = charIndex;
-						lastHyphen = -1;
-						if (currentWord.length != 0)
+						if (glyph == null)
 						{
-							_words[_words.length] = currentWord;
-							currentWord = GlyphLocation.arrayFromPool();
+							trace("[MassiveText] Character '" + txt.charAt(i) + "' not found");
+							charID = CHAR_MISSING;
+							glyph = _glyphMap.get(charID);
 						}
-						++numSpaces;
+						
+						if (charID == CHAR_SPACE || charID == CHAR_TAB)
+						{
+							lastWhiteSpace = charIndex;
+							lastHyphen = -1;
+							if (currentWord.length != 0)
+							{
+								_words[_words.length] = currentWord;
+								currentWord = ElementLocation.arrayFromPool();
+							}
+							++numSpaces;
+						}
+						else if (charID == CHAR_HYPHEN && lastWhiteSpace != charIndex - 1)
+						{
+							lastHyphen = charIndex;
+						}
+						
+						if (_kerning)
+						{
+							currentX += glyph.getKerning(lastCharID);
+						}
+						
+						location = glyphLocation = GlyphLocation.fromPool(glyph);
+						location.scale = scale;
+						lastCharID = charID;
 					}
-					else if (charID == CHAR_HYPHEN && lastWhiteSpace != charIndex - 1)
+					else if (isImg)
 					{
-						lastHyphen = charIndex;
+						location = imgLocation = ImgLocation.fromPool(imgPart.imgConfigs[i]);
+						if (restrictImageHeightToFontize && location.height > _fontSize + restrictImageHeightOverFlow)
+						{
+							location.scale = (_fontSize + restrictImageHeightOverFlow) / location.height;
+						}
+						lastCharID = CHAR_MISSING;
+					}
+					else // isClip
+					{
+						location = clipLocation = ClipLocation.fromPool(clipPart.clipConfigs[i]);
+						if (restrictImageHeightToFontize && location.height > _fontSize + restrictImageHeightOverFlow)
+						{
+							location.scale = (_fontSize + restrictImageHeightOverFlow) / location.height;
+						}
+						lastCharID = CHAR_MISSING;
 					}
 					
-					if (_kerning)
+					location.index = charIndex;
+					//location.scale = scale;
+					location.x = currentX + location.xOffset * scale;
+					location.y = currentY + location.yOffset * scale;
+					currentLine[currentLine.length] = location;
+					currentWord[currentWord.length] = location;
+					linePartLocations[linePartLocations.length] = location;
+					location.textPart = partResult;
+					currentX += (location.xAdvance + _spacing) * scale;
+					
+					if (location.x + location.width * scale > containerWidth)
 					{
-						currentX += glyph.getKerning(lastCharID);
-					}
-					
-					glyphLocation = GlyphLocation.fromPool(glyph);
-					glyphLocation.index = charIndex;
-					glyphLocation.x = currentX + glyph.xOffset;
-					glyphLocation.y = currentY + glyph.yOffset;
-					currentLine[currentLine.length] = glyphLocation;
-					currentWord[currentWord.length] = glyphLocation;
-					glyphLocation.textPart = partResult;
-					
-					currentX += glyph.xAdvance + _spacing;
-					lastCharID = charID;
-					
-					if (glyphLocation.x + glyph.width > containerWidth)
-					{
-						hyphenationAllowed = wordWrap && hyphenation && !glyph.isSpace;
+						hyphenationAllowed = isText && wordWrap && hyphenation && !location.isSpace;
 						
 						if (hyphenationAllowed)
 						{
@@ -397,7 +615,7 @@ class MassiveText
 									testLocation = currentLine[index];
 									if (!testLocation.isSpace)
 									{
-										remainingWidth = containerWidth - (testLocation.x + testLocation.glyph.width);
+										remainingWidth = containerWidth - (testLocation.x + testLocation.width);
 										break;
 									}
 									++j;
@@ -422,7 +640,7 @@ class MassiveText
 							while (j >= 0)
 							{
 								testLocation = testWord[j];
-								if (testLocation.isHyphen || testLocation.x + testLocation.glyph.xAdvance + _hyphenGlyph.xOffset + _hyphenGlyph.width <= containerWidth)
+								if (testLocation.isHyphen || testLocation.x + testLocation.xAdvance + _hyphenGlyph.xOffset + _hyphenGlyph.width <= containerWidth)
 								{
 									index = j;
 									break;
@@ -468,15 +686,17 @@ class MassiveText
 										i -= numCharsToRemove;
 										currentLine.resize(currentLine.length - numCharsToRemove);
 										currentWord.resize(currentWord.length - numCharsToRemove);
+										linePartLocations.resize(linePart.elementLocations.length - numCharsToRemove);
 										
 										if (!testLocation.isHyphen)
 										{
 											glyphLocation = GlyphLocation.fromPool(_hyphenGlyph);
 											glyphLocation.index = totalChars + i;
-											glyphLocation.x = testLocation.x + testLocation.glyph.xAdvance + _hyphenGlyph.xOffset;
+											glyphLocation.x = testLocation.x + testLocation.xAdvance + _hyphenGlyph.xOffset;
 											glyphLocation.y = currentY + _hyphenGlyph.yOffset;
 											currentLine[currentLine.length] = glyphLocation;
 											currentWord[currentWord.length] = glyphLocation;
+											linePartLocations[linePartLocations.length] = glyphLocation;
 											glyphLocation.textPart = partResult;
 										}
 										_words[_words.length] = currentWord;
@@ -499,6 +719,7 @@ class MassiveText
 										currentWord.resize(currentWord.length - numCharsToRemove);
 										_words[_words.length] = currentWord;
 									}
+									linePartLocations.resize(linePartLocations.length - numCharsToRemove);
 								}
 								else
 								{
@@ -509,6 +730,7 @@ class MassiveText
 										currentWord.resize(currentWord.length - (numCharsToRemove + 1));
 										_words[_words.length] = currentWord;
 									}
+									linePartLocations.resize(linePartLocations.length - numCharsToRemove);
 								}
 								
 								if (currentLine.length == 0) break;
@@ -519,33 +741,59 @@ class MassiveText
 							{
 								currentLine.pop(); // TODO : see if resize() is faster
 								currentWord.pop();
+								linePartLocations.pop();
 								if (currentWord.length != 0) _words[_words.length] = currentWord;
 								
 								// continue with next line, if there is one
 								while (true)
 								{
-									nextCharID = txt.charCodeAt(i);
-									if (nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN)
+									if (isText)
 									{
-										break;
+										nextCharID = txt.charCodeAt(i);
+										if (nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN)
+										{
+											break;
+										}
 									}
 									if (i == numChars - 1)
 									{
 										// next part, if possible
-										++p;
+										while (true)
+										{
+											++p;
+											if (p == numParts)
+											{
+												break;
+											}
+											part = text.parts[p];
+											setFormat(part.format);
+											
+											totalChars += numChars;
+											
+											if (part.isText)
+											{
+												scale = _fontScale;
+												
+												strPart = cast part;
+												
+												partResult = TextPartStringLayoutResult.fromPool(strPart, _fontStyle);
+												textResult.addPart(partResult);
+												
+												txt = strPart.text;
+												numChars = txt.length;
+												i = 0;
+												break;
+											}
+											else
+											{
+												numChars = part.numChars;
+											}
+										}
+										
 										if (p == numParts)
 										{
 											break;
 										}
-										part = text.parts[p];
-										setFormat(part.format);
-										txt = part.text;
-										partResult = TextPartLayoutResult.fromPool(part, _fontStyle);
-										textResult.addPart(partResult);
-										
-										totalChars += numChars;
-										numChars = txt.length;
-										i = 0;
 									}
 									else
 									{
@@ -562,13 +810,14 @@ class MassiveText
 						{
 							// TODO : compare .resize() and .pop() speeds
 							currentLine.pop();
+							linePartLocations.pop();
 						}
 						
 						// JUSTIFY
 						if (hAlignJustify)
 						{
-							glyphLocation = currentLine[currentLine.length - 1];
-							currentX = glyphLocation.x + glyphLocation.glyph.width;
+							location = currentLine[currentLine.length - 1];
+							currentX = location.x + location.width;
 							remainingWidth = containerWidth - currentX;
 							
 							cumulatedOffset = 0.0;
@@ -596,7 +845,7 @@ class MassiveText
 										}
 										
 										cumulatedOffset = 0.0;
-										currentX = glyphLocation.x + glyphLocation.glyph.width;
+										currentX = location.x + location.width;
 										remainingWidth = containerWidth - currentX;
 										spreadWidth = remainingWidth / (_words.length - 1);
 										letterSpreadingOccured = true;
@@ -650,30 +899,64 @@ class MassiveText
 					}
 				}
 				
-				if (totalChars + i == allChars - 1)
+				if (lineFull || totalChars + i == allChars - 1)
 				{
-					_lines[_lines.length] = currentLine;
-				}
-				else if (lineFull)
-				{
+					_lineObjects[_lineObjects.length] = lineObject;
 					_lines[_lines.length] = currentLine;
 					
-					if (currentY + _lineHeight + _leading + _fontStyle.size <= containerHeight)
+					lineObject.validate();
+					lineHeight = lineObject.maxLineHeight;
+					baseline = lineObject.maxBaseline;
+					if (uniformLineHeight)
 					{
-						currentLine = GlyphLocation.arrayFromPool();
-						_words.resize(0);
-						currentWord.resize(0);
-						currentX = 0;
-						currentY += _lineHeight + _leading;
-						lastWhiteSpace = -1;
-						lastHyphen = -1;
-						lastCharID = -1;
-						numSpaces = 0;
+						lineHeightChange = lineHeight > maxLineHeight;
+						if (lineHeightChange) maxLineHeight = lineHeight;
+						baselineChange = baseline > maxBaseline;
+						if (baselineChange) maxBaseline = baseline;
+						
+						if (lineHeightChange || baselineChange)
+						{
+							var yChange:Float = 0.0;
+							for (l in 0..._lineObjects.length)
+							{
+								yChange = _lineObjects[l].adjust(maxLineHeight, maxBaseline, yChange);
+							}
+							currentY += yChange;
+						}
+						else
+						{
+							lineObject.adjust(maxLineHeight, maxBaseline, 0.0);
+						}
+						lineHeight = maxLineHeight;
 					}
 					else
 					{
-						finished = true;
-						break;
+						lineObject.adjust(lineHeight, baseline, 0.0);
+					}
+					
+					if (lineFull)
+					{
+						if (currentY + lineHeight + _leading + _fontStyle.size <= containerHeight)
+						{
+							currentLine = ElementLocation.arrayFromPool();
+							lineObject = Line.fromPool();
+							linePart = part.getLinePart(_fontStyle, _fontScale);
+							lineObject.addPart(linePart);
+							linePartLocations = linePart.elementLocations;
+							_words.resize(0);
+							currentWord.resize(0);
+							currentX = 0;
+							currentY += lineHeight + _leading;
+							lastWhiteSpace = -1;
+							lastHyphen = -1;
+							lastCharID = -1;
+							numSpaces = 0;
+						}
+						else
+						{
+							finished = true;
+							break;
+						}
 					}
 				}
 				++i;
@@ -684,7 +967,15 @@ class MassiveText
 		}
 		
 		var numLines:Int = _lines.length;
-		var bottom:Float = currentY + _lineHeight;
+		var bottom:Float;// = currentY + _lineObjects[numLines - 1].maxLineHeight;//_lineHeight;
+		if (uniformLineHeight)
+		{
+			bottom = currentY + maxLineHeight;
+		}
+		else
+		{
+			bottom = currentY + _lineObjects[numLines - 1].maxLineHeight;
+		}
 		var xOffset:Int = 0;
 		var yOffset:Int = 0;
 		var right:Float;
@@ -712,7 +1003,7 @@ class MassiveText
 			if (doHAlign)
 			{
 				testLocation = currentLine[currentLine.length - 1];
-				right = testLocation.x - testLocation.glyph.xOffset + testLocation.glyph.xAdvance;
+				right = testLocation.x - testLocation.xOffset + testLocation.xAdvance;
 				
 				if (hAlignRight)
 				{
@@ -726,22 +1017,27 @@ class MassiveText
 			
 			for (c in 0...numChars)
 			{
-				glyphLocation = currentLine[c];
-				if (glyphLocation.glyph.width > 0 && glyphLocation.glyph.height > 0)
+				location = currentLine[c];
+				if (location.width > 0 && location.height > 0)
 				{
-					if (glyphLocation.textPart != partResult)
+					if (location.textPart != partResult)
 					{
-						partResult = glyphLocation.textPart;
-						locations = partResult.glyphLocations;
+						partResult = location.textPart;
+						locations = partResult.elementLocations;
 					}
-					glyphLocation.x = (glyphLocation.x + xOffset) * scale + padding;
-					glyphLocation.y = (glyphLocation.y + yOffset) * scale + padding;
-					glyphLocation.scale = scale;
-					locations[locations.length] = glyphLocation;
+					location.x = (location.x + xOffset) * scale + paddingLeft;
+					location.y = (location.y + yOffset) * scale + paddingTop;
+					//location.scale = scale;
+					locations[locations.length] = location;
 				}
 			}
 		}
 		
+		for (l in 0...numLines)
+		{
+			_lineObjects[l].pool();
+		}
+		_lineObjects.resize(0);
 		_lines.resize(0);
 		_words.resize(0);
 		
@@ -749,8 +1045,9 @@ class MassiveText
 	}
 	
 	// helper vars
-	private static var _lines:Array<Array<GlyphLocation>> = new Array<Array<GlyphLocation>>();
-	private static var _words:Array<Array<GlyphLocation>> = new Array<Array<GlyphLocation>>();
+	private static var _lineObjects:Array<Line> = new Array<Line>();
+	private static var _lines:Array<Array<ElementLocation>> = new Array<Array<ElementLocation>>();
+	private static var _words:Array<Array<ElementLocation>> = new Array<Array<ElementLocation>>();
 	private static var _font:MassiveFont;
 	private static var _fontScale:Float;
 	private static var _fontStyle:FontStyle;
