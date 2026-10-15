@@ -5,6 +5,9 @@ import feathers.layout.AutoSizeMode;
 import inputAction.InputAction;
 import inputAction.controllers.KeyAction;
 import inputAction.events.InputActionEvent;
+import massive.animation.Animation;
+import massive.animation.Animator;
+import massive.data.Frame;
 import massive.display.ImgContainer;
 import massive.display.MassiveDisplay;
 import massive.display.color.ColorMode;
@@ -20,12 +23,15 @@ import massive.text.TextOptions;
 import massive.text.internal.TextLayoutResult;
 import massive.text.lang.LangRules;
 import massive.text.lang.LatinDefaultRules;
+import massive.util.AnimUtils;
 import openfl.Assets;
+import openfl.Vector;
 import openfl.ui.Keyboard;
 import starling.assets.AssetManager;
 import starling.core.Starling;
 import starling.display.BlendMode;
 import starling.events.Event;
+import starling.textures.Texture;
 import starling.textures.TextureSmoothing;
 import valedit.ExposedCollection;
 import valedit.value.ExposedFloatDrag;
@@ -46,6 +52,7 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 	private var _display:MassiveDisplay;
 	private var _displayCollection:ExposedCollection;
 	private var _container:ImgContainer;
+	private var _animator:Animator;
 	private var _font:MassiveFont;
 	private var _format:TextFormat;
 	private var _options:TextOptions;
@@ -96,29 +103,6 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 	{
 		super.ready();
 		
-		this._assetManager = new AssetManager();
-		this._assetManager.enqueue([
-			Assets.getPath("font/arial/arial_12.fnt"),
-			Assets.getPath("font/arial/arial_12.png"),
-			Assets.getPath("font/arial/arial_12_bold.fnt"),
-			Assets.getPath("font/arial/arial_12_bold.png"),
-			Assets.getPath("font/arial/arial_12_italic.fnt"),
-			Assets.getPath("font/arial/arial_12_italic.png"),
-			
-			Assets.getPath("font/arial/arial_16.fnt"),
-			Assets.getPath("font/arial/arial_16.png"),
-			Assets.getPath("font/arial/arial_16_bold.fnt"),
-			Assets.getPath("font/arial/arial_16_bold.png"),
-			Assets.getPath("font/arial/arial_16_italic.fnt"),
-			Assets.getPath("font/arial/arial_16_italic.png")
-		]);
-		this._assetManager.loadQueue(assetsLoaded);
-	}
-	
-	private function assetsLoaded():Void
-	{
-		initInputActions();
-		
 		// edit menu
 		this._undoItem = new MenuItem("undo", "Undo", false, "Ctrl+Z");
 		this._redoItem = new MenuItem("redo", "Redo", false, "Ctrl+Y");
@@ -146,10 +130,39 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		cast(this.editView, SimpleEditViewToggleGroups).rightContainer.maxWidth = 600;
 		cast(this.editView, SimpleEditViewToggleGroups).rightContainer.width = 450;
 		
+		this._assetManager = new AssetManager();
+		this._assetManager.enqueue([
+			Assets.getPath("font/arial/arial_12.fnt"),
+			Assets.getPath("font/arial/arial_12.png"),
+			Assets.getPath("font/arial/arial_12_bold.fnt"),
+			Assets.getPath("font/arial/arial_12_bold.png"),
+			Assets.getPath("font/arial/arial_12_italic.fnt"),
+			Assets.getPath("font/arial/arial_12_italic.png"),
+			
+			Assets.getPath("font/arial/arial_16.fnt"),
+			Assets.getPath("font/arial/arial_16.png"),
+			Assets.getPath("font/arial/arial_16_bold.fnt"),
+			Assets.getPath("font/arial/arial_16_bold.png"),
+			Assets.getPath("font/arial/arial_16_italic.fnt"),
+			Assets.getPath("font/arial/arial_16_italic.png"),
+			
+			Assets.getPath("img/xbox.xml"),
+			Assets.getPath("img/xbox.png")
+		]);
+		this._assetManager.loadQueue(assetsLoaded);
+	}
+	
+	private function assetsLoaded():Void
+	{
+		initInputActions();
+		
 		MassiveDisplay.init();
 		
 		this._display = new MassiveDisplay();
 		addChild(this._display);
+		
+		this._animator = new Animator();
+		Starling.currentJuggler.add(this._animator);
 		
 		var font:MassiveFont;
 		
@@ -169,14 +182,47 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		
 		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
 		
-		this._format = new TextFormat(font.name, "regular", font.size, 0xffffff, TextAlign.JUSTIFY);
+		this._format = new TextFormat(font.name, "regular", font.size, 0xffffff);
 		//this._format = new TextFormat("mini", "default", this._font.size * 4, 0xffffff, TextAlign.JUSTIFY);
 		
-		this._options = new TextOptions();
+		this._options = new TextOptions(TextAlign.JUSTIFY);
 		this._options.padding = 24;
-		this._options.wordWrap = false;
+		this._options.wordWrap = true;
 		
 		this._langRules = new LatinDefaultRules();
+		
+		var frame:Frame;
+		var texture:Texture;
+		
+		texture = this._assetManager.getTexture("controller_xbox360");
+		this._display.addTexture(texture.root);
+		frame = Frame.fromTexture(texture);
+		MassiveText.frames.add("controller_xbox360", frame);
+		texture = this._assetManager.getTexture("xbox_button_color_y");
+		frame = Frame.fromTexture(texture);
+		MassiveText.frames.add("xbox_button_color_y", frame);
+		
+		var animation:Animation;
+		#if flash
+		var frames:Vector<Frame> = new Vector<Frame>();
+		#else
+		var frames:Array<Frame> = new Array<Frame>();
+		#end
+		var textures:Array<Texture> = new Array<Texture>();
+		
+		//textures[textures.length] = this._assetManager.getTexture("xbox_dpad");
+		textures[textures.length] = this._assetManager.getTexture("xbox_dpad_left");
+		textures[textures.length] = this._assetManager.getTexture("xbox_dpad_down");
+		textures[textures.length] = this._assetManager.getTexture("xbox_dpad_right");
+		textures[textures.length] = this._assetManager.getTexture("xbox_dpad_up");
+		
+		Frame.fromTextureArray(textures, frames);
+		
+		animation = AnimUtils.createAnimation(frames, 5);
+		animation.id = "dpad";
+		animation.loop = true;
+		MassiveText.animations.add(animation);
+		
 		
 		var str:String;
 		//str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
@@ -189,11 +235,14 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		//{
 			//str += "over-confident master-builder ";
 		//}
-		str = 'Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ?';
+		str = 'Here is an image !{"img":{"frame":"xbox_button_color_y", "scale":0.5}}! Here is a clip !{"clip":{"animation":"dpad", "scale":0.5}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
+		
+		//str = 'Arial 16 text !{"format":{"font":"arial 12", "size":"12"}}!Arial 12 text';
 		
 		var textWidth:Float = this.editView.displayRect.width;
 		var textHeight:Float = this.editView.displayRect.height;
 		this._tf = new TextField(null, this._format, this._options, textWidth, textHeight);
+		this._tf.animator = this._animator;
 		this._tf.textDataSafeMode = true;
 		this._tf.x = this.editView.displayRect.x;
 		this._tf.y = this.editView.displayRect.y;
@@ -264,6 +313,7 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		//\MassiveDisplay collection
 	}
 	
+	@:access(starling.core.Starling)
 	override function onDisplayResize(evt:openfl.events.Event):Void 
 	{
 		super.onDisplayResize(evt);
