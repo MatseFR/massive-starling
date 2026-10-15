@@ -1,6 +1,9 @@
 package massive.text;
 
 import massive.animation.Animation;
+import massive.text.internal.ClipConfig;
+import massive.text.internal.LinePart;
+import massive.text.internal.LinePartClip;
 import massive.text.internal.TextPart;
 
 /**
@@ -17,9 +20,9 @@ class TextPartClip extends TextPart
 		return new TextPartClip();
 	}
 	
-	public var animations(default, null):Array<Animation> = new Array<Animation>();
+	public var clipConfigs(default, null):Array<ClipConfig> = new Array<ClipConfig>();
 	
-	private function get_numChars():Int { return this.animations.length; }
+	private function get_numChars():Int { return this.clipConfigs.length; }
 
 	public function new() 
 	{
@@ -29,7 +32,11 @@ class TextPartClip extends TextPart
 	
 	override public function clear():Void 
 	{
-		this.animations.resize(0);
+		for (i in 0...this.clipConfigs.length)
+		{
+			this.clipConfigs[i].pool();
+		}
+		this.clipConfigs.resize(0);
 		
 		super.clear();
 	}
@@ -38,6 +45,11 @@ class TextPartClip extends TextPart
 	{
 		clear();
 		_POOL[_POOL.length] = this;
+	}
+	
+	public function getLinePart(style:FontStyle, fontScale:Float):LinePart
+	{
+		return LinePartClip.fromPool();
 	}
 	
 }
