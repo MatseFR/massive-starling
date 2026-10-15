@@ -40,9 +40,13 @@ class TextPartImgLayoutResult extends TextPartLayoutResult
 	{
 		if (this.elementLocations.length == 0) return;
 		
+		var img:Img;
+		var location:ImgLocation;
+		
 		if (this.textureIndex == -1)
 		{
-			var texture:Texture = this.elementLocations[0].frame.rootTexture;
+			location = cast this.elementLocations[0];
+			var texture:Texture = location.imgConfig.frame.rootTexture;
 			this.textureIndex = display.getTextureIndex(texture);
 			if (this.textureIndex == -1)
 			{
@@ -50,9 +54,6 @@ class TextPartImgLayoutResult extends TextPartLayoutResult
 				addedTextures[addedTextures.length] = texture;
 			}
 		}
-		
-		var img:Img;
-		var location:ImgLocation;
 		
 		var count:Int = this.elementLocations.length;
 		
@@ -67,11 +68,12 @@ class TextPartImgLayoutResult extends TextPartLayoutResult
 		{
 			location = cast this.elementLocations[i];
 			img = datas[dataIndex + i];
-			img.frame = location.frame;
+			//img.frame = location.frame;
+			location.imgConfig.toImg(img);
 			img.textureIndex = this.textureIndex;
 			img.x = location.x;
 			img.y = location.y;
-			img.scale = location.scale;
+			img.scale *= location.scale;
 			imgStorage[imgStorage.length] = img;
 		}
 	}
