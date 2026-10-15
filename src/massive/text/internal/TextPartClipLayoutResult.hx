@@ -40,9 +40,13 @@ class TextPartClipLayoutResult extends TextPartLayoutResult
 	{
 		if (this.elementLocations.length == 0) return;
 		
+		var clip:Clip;
+		var location:ClipLocation;
+		
 		if (this.textureIndex == -1) 
 		{
-			var texture:Texture = cast(this.elementLocations[0], ClipLocation).animation.referenceFrame.rootTexture;
+			location = cast this.elementLocations[0];
+			var texture:Texture = location.clipConfig.animation.referenceFrame.rootTexture;
 			this.textureIndex = display.getTextureIndex(texture);
 			if (this.textureIndex == -1)
 			{
@@ -51,8 +55,6 @@ class TextPartClipLayoutResult extends TextPartLayoutResult
 			}
 		}
 		
-		var clip:Clip;
-		var location:ClipLocation;
 		var count:Int = this.elementLocations.length;
 		
 		var clipIndex:Int = clipStorage.length;
@@ -65,13 +67,14 @@ class TextPartClipLayoutResult extends TextPartLayoutResult
 		
 		for (i in 0...count)
 		{
-			clip = clipStorage[clipIndex + i];
-			clip.textureIndex = this.textureIndex;
 			location = cast this.elementLocations[i];
-			clip.play(location.animation);
+			clip = clipStorage[clipIndex + i];
+			location.clipConfig.toClip(clip);
+			//clip.play(location.animation);
+			clip.textureIndex = this.textureIndex;
 			clip.x = location.x;
 			clip.y = location.y;
-			clip.scale = location.scale;
+			clip.scale *= location.scale;
 			datas[datas.length] = clip;
 		}
 	}
