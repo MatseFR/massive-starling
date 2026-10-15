@@ -15,7 +15,6 @@ class Line
 	}
 	
 	public var parts(default, null):Array<LinePart> = new Array<LinePart>();
-	//public var lineHeight:Float = 0.0;
 	public var maxBaseline:Float = 0.0;
 	public var maxLineHeight:Float = 0.0;
 	
@@ -31,7 +30,6 @@ class Line
 			this.parts[i].pool();
 		}
 		this.parts.resize(0);
-		//this.lineHeight = 0.0;
 		this.maxBaseline = 0.0;
 		this.maxLineHeight = 0.0;
 	}
