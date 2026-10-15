@@ -20,12 +20,10 @@ class TextFormat extends EventDispatcher
 	public var colorOffset(get, set):Int;
 	public var font(get, set):String;
 	public var kerning(get, set):Bool;
-	//public var horizontalAlign(get, set):String;
 	public var leading(get, set):Float;
 	public var letterSpacing(get, set):Float;
 	public var size(get, set):Float;
 	public var style(get, set):String;
-	//public var verticalAlign(get, set):String;
 	
 	public var red(get, set):Float;
 	public var green(get, set):Float;
@@ -70,7 +68,7 @@ class TextFormat extends EventDispatcher
 	}
 	private function set_colorOffset(value:Int):Int
 	{
-		if (this._colorOffsetChanged && this._colorOffset == value) return value;
+		if (!this._colorOffsetChanged && this._colorOffset == value) return value;
 		this.redOffset = (Std.int(value >> 16) & 0xFF) / 255.0;
         this.greenOffset = (Std.int(value >> 8) & 0xFF) / 255.0;
         this.blueOffset = (value & 0xFF) / 255.0;
@@ -98,16 +96,6 @@ class TextFormat extends EventDispatcher
 		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._kerning;
 	}
-	
-	//private var _horizontalAlign:String;
-	//private inline function get_horizontalAlign():String { return this._horizontalAlign; }
-	//private function set_horizontalAlign(value:String):String
-	//{
-		//if (this._horizontalAlign == value) return value;
-		//this._horizontalAlign = value;
-		//if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
-		//return this._horizontalAlign;
-	//}
 	
 	private var _leading:Float = 0.0;
 	private inline function get_leading():Float { return this._leading; }
@@ -149,22 +137,13 @@ class TextFormat extends EventDispatcher
 		return this._style;
 	}
 	
-	//private var _verticalAlign:String;
-	//private inline function get_verticalAlign():String { return this._verticalAlign; }
-	//private function set_verticalAlign(value:String):String
-	//{
-		//if (this._verticalAlign == value) return value;
-		//this._verticalAlign = value;
-		//if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
-		//return this._verticalAlign;
-	//}
-	
 	private var _red:Float = 1.0;
 	private inline function get_red():Float { return this._red; }
 	private function set_red(value:Float):Float
 	{
 		if (this._red == value) return value;
 		this._red = value;
+		this._colorChanged = true;
 		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._red;
 	}
@@ -197,7 +176,6 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._alpha == value) return value;
 		this._alpha = value;
-		this._colorChanged = true;
 		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._alpha;
 	}
@@ -241,7 +219,6 @@ class TextFormat extends EventDispatcher
 	{
 		if (this._alphaOffset == value) return value;
 		this._alphaOffset = value;
-		this._colorOffsetChanged = true;
 		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._alphaOffset;
 	}
@@ -282,6 +259,7 @@ class TextFormat extends EventDispatcher
 		
 		if (json.font != null) this.font = json.font;
 		if (json.style != null) this.style = json.style;
+		if (json.size != null) this.size = json.size;
 		if (json.kerning != null) this.kerning = json.kerning;
 		if (json.leading != null) this.leading = json.leading;
 		if (json.letterSpacing != null) this.letterSpacing = json.letterSpacing;
