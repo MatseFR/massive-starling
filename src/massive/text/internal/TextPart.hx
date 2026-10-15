@@ -46,9 +46,11 @@ abstract class TextPart
 	public function clear():Void
 	{
 		this._format.clear();
-		this.animationData = this.animationInData = this.animationOutData = null;
+		this._formatData = this.animationData = this.animationInData = this.animationOutData = null;
 	}
 	
 	abstract public function pool():Void;
+	
+	abstract public function getLinePart(style:FontStyle, fontScale:Float):LinePart;
 	
 }
