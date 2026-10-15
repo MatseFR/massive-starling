@@ -64,10 +64,6 @@ class Text
 			return value;
 		}
 		this._options.copyFrom(value);
-		//for (i in 0...this.parts.length)
-		//{
-			//this.parts[i].options = this._options;
-		//}
 		return this._options;
 	}
 	
