@@ -2,10 +2,13 @@ package massive.text;
 #if !flash
 import lime.utils.Float32Array;
 #end
+import massive.animation.Animator;
+import massive.display.Clip;
 import massive.display.Img;
 import massive.display.MassiveDisplay;
 import massive.display.base.ContainerBase;
 import massive.display.render.RenderData;
+import massive.text.internal.ElementLocation;
 import massive.text.internal.TextLayoutResult;
 import massive.util.MathUtils;
 import openfl.Vector;
@@ -13,6 +16,7 @@ import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
 import starling.events.Event;
 import starling.text.TextFieldAutoSize;
+import starling.textures.Texture;
 
 /**
  * ...
@@ -28,6 +32,7 @@ class TextField extends ContainerBase
 		return new TextField();
 	}
 	
+	public var animator(get, set):Animator;
 	public var format(get, set):TextFormat;
 	public var height(get, set):Float;
 	public var options(get, set):TextOptions;
@@ -36,6 +41,22 @@ class TextField extends ContainerBase
 	public var textDataSafeMode:Bool;
 	public var textObject(get, set):Text;
 	public var width(get, set):Float;
+	
+	private var _animator:Animator;
+	private function get_animator():Animator { return this._animator; }
+	private function set_animator(value:Animator):Animator
+	{
+		if (this._animator == value) return value;
+		if (this._animator != null)
+		{
+			this._animator.removeBasicClipList(this._clips);
+		}
+		if (value != null)
+		{
+			value.addBasicClipList(this._clips);
+		}
+		return this._animator = value;
+	}
 	
 	private var _format:TextFormat = new TextFormat();
 	private function get_format():TextFormat { return this._format; }
@@ -80,7 +101,7 @@ class TextField extends ContainerBase
 		if (value != null)
 		{
 			createTextObject();
-			var part:TextPart = TextPart.fromPool();
+			var part:TextPartString = TextPartString.fromPool();
 			part.text = value;
 			this._textObject.addPart(part);
 			this._requiresRecomposition = true;
@@ -136,10 +157,17 @@ class TextField extends ContainerBase
 	#if flash
 	private var _boundsData:Vector<Float> = new Vector<Float>();
 	private var _datas:Vector<Img> = new Vector<Img>();
+	private var _clips:Vector<Clip> = new Vector<Clip>();
+	private var _images:Vector<Img> = new Vector<Img>();
+	private var _addedTextures:Vector<Texture> = new Vector<Texture>();
 	#else
 	private var _boundsData:Array<Float> = new Array<Float>();
 	private var _datas:Array<Img> = new Array<Img>();
+	private var _clips:Array<Clip> = new Array<Clip>();
+	private var _images:Array<Img> = new Array<Img>();
+	private var _addedTextures:Array<Texture> = new Array<Texture>();
 	#end
+	private var _lastDisplay:MassiveDisplay;
 	private var _isTextObjectExternal:Bool;
 	private var _requiresBounds:Bool;
 	private var _requiresRecomposition:Bool;
@@ -164,6 +192,7 @@ class TextField extends ContainerBase
 	override public function clear():Void
 	{
 		clearText();
+		this.animator = null;
 		this._format.clear();
 		this._options.clear();
 	}
@@ -186,16 +215,43 @@ class TextField extends ContainerBase
 	
 	private function clearText():Void
 	{
-		if (this._datas.length != 0)
+		#if flash
+		if (this._images.length != 0)
 		{
-			#if flash
-			Img.toPoolVector(this._datas);
-			this._datas.length = 0;
-			#else
-			Img.toPoolArray(this._datas);
-			this._datas.resize(0);
-			#end
+			Img.toPoolVector(this._images);
+			this._images.length = 0;
 		}
+		if (this._clips.length != 0)
+		{
+			Clip.toPoolVector(this._clips);
+			this._clips.length = 0;
+		}
+		if (this._addedTextures.length != 0)
+		{
+			this._lastDisplay.removeTextures(this._addedTextures);
+			this._addedTextures.length = 0;
+		}
+		this._datas.length = 0;
+		#else
+		if (this._images.length != 0)
+		{
+			Img.toPoolArray(this._images);
+			this._images.resize(0);
+		}
+		if (this._clips.length != 0)
+		{
+			Clip.toPoolArray(this._clips);
+			this._clips.resize(0);
+		}
+		if (this._addedTextures.length != 0)
+		{
+			this._lastDisplay.removeTextures(this._addedTextures);
+			this._addedTextures.resize(0);
+		}
+		this._datas.resize(0);
+		#end
+		
+		this._lastDisplay = null;
 		
 		this._text = null;
 		this._textData = null;
@@ -259,10 +315,38 @@ class TextField extends ContainerBase
 	private function recompose(display:MassiveDisplay):Void
 	{
 		#if flash
-		Img.toPoolVector(this._datas);
+		if (this._images.length != 0)
+		{
+			Img.toPoolVector(this._images);
+			this._images.length = 0;
+		}
+		if (this._clips.length != 0)
+		{
+			Clip.toPoolVector(this._clips);
+			this._clips.length = 0;
+		}
+		if (this._addedTextures.length != 0)
+		{
+			this._lastDisplay.removeTextures(this._addedTextures);
+			this._addedTextures.length = 0;
+		}
 		this._datas.length = 0;
 		#else
-		Img.toPoolArray(this._datas);
+		if (this._images.length != 0)
+		{
+			Img.toPoolArray(this._images);
+			this._images.resize(0);
+		}
+		if (this._clips.length != 0)
+		{
+			Clip.toPoolArray(this._clips);
+			this._clips.resize(0);
+		}
+		if (this._addedTextures.length != 0)
+		{
+			this._lastDisplay.removeTextures(this._addedTextures);
+			this._addedTextures.resize(0);
+		}
 		this._datas.resize(0);
 		#end
 		
@@ -270,12 +354,14 @@ class TextField extends ContainerBase
 		var h:Float = this._isVerticalAutoSize ? 1000000 : this._height;
 		
 		var result:TextLayoutResult = MassiveText.processText(w, h, this._textObject, null);
-		result.getImages(display, this._datas);
-		GlyphLocation.rechargePool();
+		result.getImages(display, this._datas, this._images, this._clips, this._addedTextures);
+		ElementLocation.rechargePool();
 		result.pool();
 		
 		this._requiresBounds = this._isAutoSize;
 		this._requiresRecomposition = false;
+		
+		this._lastDisplay = display;
 	}
 	
 	private function updateBounds(renderOffsetX:Float, renderOffsetY:Float):Void
@@ -327,7 +413,7 @@ class TextField extends ContainerBase
 	{
 		if (this._datas == null) return;
 		
-		if (this._requiresRecomposition) recompose(renderData.display);
+		if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
@@ -361,7 +447,7 @@ class TextField extends ContainerBase
 	{
 		if (this._datas == null) return;
 		
-		if (this._requiresRecomposition) recompose(renderData.display);
+		if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
@@ -397,7 +483,7 @@ class TextField extends ContainerBase
 	{
 		if (this._datas == null) return;
 		
-		if (this._requiresRecomposition) recompose(renderData.display);
+		if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
@@ -432,7 +518,7 @@ class TextField extends ContainerBase
 	{
 		if (this._datas == null) return;
 		
-		if (this._requiresRecomposition) recompose(renderData.display);
+		if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
