@@ -1,5 +1,4 @@
 package massive.text.internal;
-import massive.animation.Animation;
 
 /**
  * ...
@@ -12,10 +11,9 @@ class ClipLocation extends ElementLocation
 	
 	private static var _instance:ClipLocation;
 	
-	public static function fromPool(animation:Animation):ClipLocation
+	public static function fromPool(config:ClipConfig):ClipLocation
 	{
-		_instance = _POOL.length != 0 ? _POOL.pop().setFromPool(animation) : new ClipLocation(animation);
-		return _OUT[_OUT.length] = _instance;
+		return _OUT[_OUT.length] = _POOL.length != 0 ? _POOL.pop().setFromPool(config) : new ClipLocation(config);
 	}
 	
 	public static function rechargePool():Void
@@ -24,35 +22,35 @@ class ClipLocation extends ElementLocation
 		for (i in 0...count)
 		{
 			_instance = _OUT[i];
-			_instance.animation = null;
-			_instance.frame = null;
+			_instance.clipConfig = null;
+			//_instance.frame = null;
 			_instance.textPart = null;
 			_POOL[_POOL.length] = _instance;
 		}
 		_OUT.resize(0);
 	}
 	
-	public var animation(default, null):Animation;
+	public var clipConfig(default, null):ClipConfig;
 	
-	public function new(animation:Animation) 
+	public function new(config:ClipConfig) 
 	{
 		super();
-		this.animation = animation;
-		this.frame = this.animation.referenceFrame;
+		this.clipConfig = config;
+		//this.frame = this.clipConfig.animation.referenceFrame;
 		
-		this.width = this.frame.width;
-		this.height = this.frame.height;
+		this.width = this.clipConfig.animation.referenceFrame.width * this.clipConfig.scale;
+		this.height = this.clipConfig.animation.referenceFrame.height * this.clipConfig.scale;
 		this.xAdvance = this.width;
 		this.xOffset = this.yOffset = 0.0;
 	}
 	
-	private function setFromPool(animation:Animation):ClipLocation
+	private function setFromPool(config:ClipConfig):ClipLocation
 	{
-		this.animation = animation;
-		this.frame = this.animation.referenceFrame;
+		this.clipConfig = config;
+		//this.frame = this.clipConfig.animation.referenceFrame;
 		
-		this.width = this.frame.width;
-		this.height = this.frame.height;
+		this.width = this.clipConfig.animation.referenceFrame.width * this.clipConfig.scale;
+		this.height = this.clipConfig.animation.referenceFrame.height * this.clipConfig.scale;
 		this.xAdvance = this.width;
 		this.xOffset = this.yOffset = 0.0;
 		return this;
