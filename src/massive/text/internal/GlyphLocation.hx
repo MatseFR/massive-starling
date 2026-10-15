@@ -14,8 +14,7 @@ class GlyphLocation extends ElementLocation
 	
 	public static function fromPool(glyph:Glyph):GlyphLocation
 	{
-		_instance = _POOL.length != 0 ? _POOL.pop().setFromPool(glyph) : new GlyphLocation(glyph);
-		return _OUT[_OUT.length] = _instance;
+		return _OUT[_OUT.length] = _POOL.length != 0 ? _POOL.pop().setFromPool(glyph) : new GlyphLocation(glyph);
 	}
 	
 	public static function rechargePool():Void
