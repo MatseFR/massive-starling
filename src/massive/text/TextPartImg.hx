@@ -1,6 +1,9 @@
 package massive.text;
 
 import massive.data.Frame;
+import massive.text.internal.ImgConfig;
+import massive.text.internal.LinePart;
+import massive.text.internal.LinePartImg;
 import massive.text.internal.TextPart;
 
 /**
@@ -17,9 +20,9 @@ class TextPartImg extends TextPart
 		return new TextPartImg();
 	}
 	
-	public var frames(default, null):Array<Frame> = new Array<Frame>();
+	public var imgConfigs(default, null):Array<ImgConfig> = new Array<ImgConfig>();
 	
-	private function get_numChars():Int { return this.frames.length; }
+	private function get_numChars():Int { return this.imgConfigs.length; }
 	
 	public function new() 
 	{
@@ -29,7 +32,11 @@ class TextPartImg extends TextPart
 	
 	override public function clear():Void 
 	{
-		this.frames.resize(0);
+		for (i in 0...this.imgConfigs.length)
+		{
+			this.imgConfigs[i].pool();
+		}
+		this.imgConfigs.resize(0);
 		
 		super.clear();
 	}
@@ -38,6 +45,11 @@ class TextPartImg extends TextPart
 	{
 		clear();
 		_POOL[_POOL.length] = this;
+	}
+	
+	public function getLinePart(style:FontStyle, fontScale:Float):LinePart
+	{
+		return LinePartImg.fromPool();
 	}
 	
 }
