@@ -27,6 +27,13 @@ class TextOptions extends EventDispatcher
 	public var letterSpreadingMax(get, set):Float;
 	public var letterSpreadingMinRatio(get, set):Float;
 	public var padding(get, set):Float;
+	public var paddingLeft(get, set):Float;
+	public var paddingRight(get, set):Float;
+	public var paddingTop(get, set):Float;
+	public var paddingBottom(get, set):Float;
+	public var restrictImageHeightToFontSize(get, set):Bool;
+	public var restrictImageHeightOverflow(get, set):Float;
+	public var uniformLineHeight(get, set):Bool;
 	public var verticalAlign(get, set):String;
 	public var wordWrap(get, set):Bool;
 	
@@ -120,14 +127,82 @@ class TextOptions extends EventDispatcher
 		return this._letterSpreadingMinRatio;
 	}
 	
-	private var _padding:Float = 0.0;
-	private inline function get_padding():Float { return this._padding; }
+	private inline function get_padding():Float { return this._paddingLeft; }
 	private function set_padding(value:Float):Float
 	{
-		if (this._padding == value) return value;
-		this._padding = value;
+		this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = value;
 		dispatchEventWith(Event.CHANGE);
-		return this._padding;
+		return value;
+	}
+	
+	private var _paddingLeft:Float = 0.0;
+	private inline function get_paddingLeft():Float { return this._paddingLeft; }
+	private function set_paddingLeft(value:Float):Float
+	{
+		if (this._paddingLeft == value) return value;
+		this._paddingLeft = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._paddingLeft;
+	}
+	
+	private var _paddingRight:Float = 0.0;
+	private inline function get_paddingRight():Float { return this._paddingRight; }
+	private function set_paddingRight(value:Float):Float
+	{
+		if (this._paddingRight == value) return value;
+		this._paddingRight = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._paddingRight;
+	}
+	
+	private var _paddingTop:Float = 0.0;
+	private inline function get_paddingTop():Float { return this._paddingTop; }
+	private function set_paddingTop(value:Float):Float
+	{
+		if (this._paddingTop == value) return value;
+		this._paddingTop = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._paddingTop;
+	}
+	
+	private var _paddingBottom:Float = 0.0;
+	private inline function get_paddingBottom():Float { return this._paddingBottom; }
+	private function set_paddingBottom(value:Float):Float
+	{
+		if (this._paddingBottom == value) return value;
+		this._paddingBottom = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._paddingBottom;
+	}
+	
+	private var _restrictImageHeightToFontSize:Bool = true;
+	private inline function get_restrictImageHeightToFontSize():Bool { return this._restrictImageHeightToFontSize; }
+	private function set_restrictImageHeightToFontSize(value:Bool):Bool
+	{
+		if (this._restrictImageHeightToFontSize == value) return value;
+		this._restrictImageHeightToFontSize = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._restrictImageHeightToFontSize;
+	}
+	
+	private var _restrictImageHeightOverflow:Float = 0.0;
+	private inline function get_restrictImageHeightOverflow():Float { return this._restrictImageHeightOverflow; }
+	private function set_restrictImageHeightOverflow(value:Float):Float
+	{
+		if (this._restrictImageHeightOverflow == value) return value;
+		this._restrictImageHeightOverflow = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._restrictImageHeightOverflow;
+	}
+	
+	private var _uniformLineHeight:Bool = true;
+	private inline function get_uniformLineHeight():Bool { return this._uniformLineHeight; }
+	private function set_uniformLineHeight(value:Bool):Bool
+	{
+		if (this._uniformLineHeight == value) return value;
+		this._uniformLineHeight = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._uniformLineHeight;
 	}
 	
 	private var _verticalAlign:String;
@@ -169,7 +244,10 @@ class TextOptions extends EventDispatcher
 		this._intPositions = true;
 		this._letterSpreadingMax = 2.0;
 		this._letterSpreadingMinRatio = 0.1;
-		this._padding = 0.0;
+		this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = 0.0;
+		this._restrictImageHeightToFontSize = true;
+		this._restrictImageHeightOverflow = 0.0;
+		this._uniformLineHeight = true;
 	}
 	
 	public function pool():Void
@@ -189,7 +267,20 @@ class TextOptions extends EventDispatcher
 		if (json.letterSpreading != null) this._letterSpreading = json.letterSpreading;
 		if (json.letterSpreadingMax != null) this._letterSpreadingMax = json.letterSpreadingMax;
 		if (json.letterSpreadingMinRatio != null) this._letterSpreadingMinRatio = json.letterSpreadingMinRatio;
-		if (json.padding != null) this._padding = json.padding;
+		if (json.padding != null)
+		{
+			this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = json.padding;
+		}
+		else
+		{
+			if (json.paddingLeft != null) this._paddingLeft = json.paddingLeft;
+			if (json.paddingRight != null) this._paddingRight = json.paddingRight;
+			if (json.paddingTop != null) this._paddingTop = json.paddingTop;
+			if (json.paddingBottom != null) this._paddingBottom = json.paddingBottom;
+		}
+		if (json.restrictImageHeightToFontSize != null) this._restrictImageHeightToFontSize = json.restrictImageHeightToFontSize;
+		if (json.restrictImageHeightOverflow != null) this._restrictImageHeightOverflow = json.restrictImageHeightOverflow;
+		if (json.uniformLineHeight != null) this._uniformLineHeight = json.uniformLineHeight;
 		if (json.verticalAlign != null) this._verticalAlign = json.verticalAlign;
 		if (json.wordWrap != null) this._wordWrap = json.wordWrap;
 		
@@ -207,7 +298,13 @@ class TextOptions extends EventDispatcher
 			toOptions._intPositions = this._intPositions;
 			toOptions._letterSpreadingMax = this._letterSpreadingMax;
 			toOptions._letterSpreadingMinRatio = this._letterSpreadingMinRatio;
-			toOptions._padding = this._padding;
+			toOptions._paddingLeft = this._paddingLeft;
+			toOptions._paddingRight = this._paddingRight;
+			toOptions._paddingTop = this._paddingTop;
+			toOptions._paddingBottom = this._paddingBottom;
+			toOptions._restrictImageHeightToFontSize = this._restrictImageHeightToFontSize;
+			toOptions._restrictImageHeightOverflow = this._restrictImageHeightOverflow;
+			toOptions._uniformLineHeight = this._uniformLineHeight;
 		}
 		else
 		{
@@ -228,7 +325,13 @@ class TextOptions extends EventDispatcher
 		this._letterSpreading = options._letterSpreading;
 		this._letterSpreadingMax = options._letterSpreadingMax;
 		this._letterSpreadingMinRatio = options._letterSpreadingMinRatio;
-		this._padding = options._padding;
+		this._paddingLeft = options._paddingLeft;
+		this._paddingRight = options._paddingRight;
+		this._paddingTop = options._paddingTop;
+		this._paddingBottom = options._paddingBottom;
+		this._restrictImageHeightToFontSize = options._restrictImageHeightToFontSize;
+		this._restrictImageHeightOverflow = options._restrictImageHeightOverflow;
+		this._uniformLineHeight = options._uniformLineHeight;
 		this._verticalAlign = options._verticalAlign;
 		this._wordWrap = options._wordWrap;
 		
