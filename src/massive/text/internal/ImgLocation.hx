@@ -1,5 +1,4 @@
 package massive.text.internal;
-import massive.data.Frame;
 
 /**
  * ...
@@ -12,10 +11,9 @@ class ImgLocation extends ElementLocation
 	
 	private static var _instance:ImgLocation;
 	
-	public static function fromPool(frame:Frame):ImgLocation
+	public static function fromPool(config:ImgConfig):ImgLocation
 	{
-		_instance = _POOL.length != 0 ? _POOL.pop().setFromPool(frame) : new ImgLocation(frame);
-		return _OUT[_OUT.length] = _instance;
+		return _OUT[_OUT.length] = _POOL.length != 0 ? _POOL.pop().setFromPool(config) : new ImgLocation(config);
 	}
 	
 	public static function rechargePool():Void
@@ -24,30 +22,33 @@ class ImgLocation extends ElementLocation
 		for (i in 0...count)
 		{
 			_instance = _OUT[i];
-			_instance.frame = null;
+			_instance.imgConfig = null;
+			//_instance.frame = null;
 			_instance.textPart = null;
 			_POOL[_POOL.length] = _instance;
 		}
 		_OUT.resize(0);
 	}
 	
-	public function new(frame:Frame) 
+	public var imgConfig(default, null):ImgConfig;
+	
+	public function new(config:ImgConfig) 
 	{
 		super();
-		this.frame = frame;
+		this.imgConfig = config;
 		
-		this.width = this.frame.width;
-		this.height = this.frame.height;
+		this.width = this.imgConfig.frame.width * this.imgConfig.scale;
+		this.height = this.imgConfig.frame.height * this.imgConfig.scale;
 		this.xAdvance = this.width;
 		this.xOffset = this.yOffset = 0.0;
 	}
 	
-	private function setFromPool(frame:Frame):ImgLocation
+	private function setFromPool(config:ImgConfig):ImgLocation
 	{
-		this.frame = frame;
+		this.imgConfig = config;
 		
-		this.width = this.frame.width;
-		this.height = this.frame.height;
+		this.width = this.imgConfig.frame.width * this.imgConfig.scale;
+		this.height = this.imgConfig.frame.height * this.imgConfig.scale;
 		this.xAdvance = this.width;
 		this.xOffset = this.yOffset = 0.0;
 		return this;
