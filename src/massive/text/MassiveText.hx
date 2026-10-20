@@ -448,7 +448,9 @@ class MassiveText
 						glyph = _glyphMap.get(charID);
 						if (glyph == null)
 						{
+							#if debug
 							trace("[MassiveText] Character '" + _txt.charAt(_i) + "' not found");
+							#end
 							charID = CHAR_MISSING;
 							glyph = _glyphMap.get(charID);
 						}
@@ -646,9 +648,15 @@ class MassiveText
 								
 								removeChars(numCharsToRemove);
 								
-								if (_currentLine.length == 0) break;
+								if (_currentLine.length == 0)
+								{
+									#if debug
+									trace("[MassiveText] cannot fit a single element on a whole line - giving up");
+									#end
+									finished = true;
+									break;
+								}
 								
-								_i -= numCharsToRemove;
 							}
 							else
 							{
@@ -1124,6 +1132,7 @@ class MassiveText
 		
 		while (j >= 0)
 		{
+			--_i;
 			_linePartLocations.pop();
 			if (_currentWord[offset + j].linePart != _linePart)
 			{
@@ -1134,10 +1143,11 @@ class MassiveText
 				_textResult.removeLastPart();
 				previousPart();
 			}
+			_currentWord.pop();
+			if (_currentWord.length == 0) _currentWord = _words.pop();
 			--j;
 		}
 		
-		_currentWord.resize(_currentWord.length - numCharsToRemove);
 		_currentLine.resize(numCharsToRemove > _currentLine.length ? 0 : _currentLine.length - numCharsToRemove);
 	}
 	
