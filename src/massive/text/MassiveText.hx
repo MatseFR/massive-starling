@@ -409,6 +409,7 @@ class MassiveText
 		
 		var locations:Array<ElementLocation> = null;
 		
+		var ok:Bool;
 		var finished:Bool = false;
 		
 		var scale:Float = 1.0;
@@ -647,16 +648,6 @@ class MassiveText
 								}
 								
 								removeChars(numCharsToRemove);
-								
-								if (_currentLine.length == 0)
-								{
-									#if debug
-									trace("[MassiveText] cannot fit a single element on a whole line - giving up");
-									#end
-									finished = true;
-									break;
-								}
-								
 							}
 							else
 							{
@@ -678,39 +669,22 @@ class MassiveText
 									if (_i == _numChars - 1)
 									{
 										// next part, if possible
+										ok = false;
 										while (true)
 										{
-											++_partIndex;
-											if (_partIndex == _numParts)
+											if (_partIndex + 1 == _numParts)
 											{
 												break;
 											}
-											_part = text.parts[_partIndex];
-											setFormat(_part.format);
-											
-											_totalChars += _numChars;
-											
-											if (_part.isText)
+											nextPart();
+											if (_isText)
 											{
-												_scale = _fontScale;
-												
-												_strPart = cast _part;
-												
-												_partResult = TextPartStringLayoutResult.fromPool(_strPart, _fontStyle);
-												_textResult.addPart(_partResult);
-												
-												_txt = _strPart.text;
-												_numChars = _txt.length;
-												_i = 0;
+												ok = true;
 												break;
-											}
-											else
-											{
-												_numChars = _part.numChars;
 											}
 										}
 										
-										if (_partIndex == _numParts)
+										if (!ok)
 										{
 											break;
 										}
@@ -720,6 +694,15 @@ class MassiveText
 										++_i;
 									}
 								}
+							}
+							
+							if (_currentLine.length == 0)
+							{
+								#if debug
+								trace("[MassiveText] cannot fit a single element on a whole line - giving up");
+								#end
+								finished = true;
+								break;
 							}
 						}
 						
@@ -824,6 +807,12 @@ class MassiveText
 				if (lineFull || _totalChars + _i == _allChars - 1)
 				{
 					validateLine();
+					
+					if (_totalChars + _i == _allChars - 1)
+					{
+						finished = true;
+						break;
+					}
 					
 					if (lineFull)
 					{
