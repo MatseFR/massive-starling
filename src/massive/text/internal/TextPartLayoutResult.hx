@@ -14,16 +14,18 @@ import starling.textures.Texture;
 abstract class TextPartLayoutResult 
 {
 	public var elementLocations(default, null):Array<ElementLocation> = new Array<ElementLocation>();
+	public var part(default, null):TextPart;
 	public var textureIndex:Int = -1;
 	
-	public function new() 
+	public function new(part:TextPart) 
 	{
-		
+		this.part = part;
 	}
 	
 	public function clear():Void
 	{
 		this.elementLocations.resize(0);
+		this.part = null;
 		this.textureIndex = -1;
 	}
 	

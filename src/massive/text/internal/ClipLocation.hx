@@ -23,7 +23,8 @@ class ClipLocation extends ElementLocation
 		{
 			_instance = _OUT[i];
 			_instance.clipConfig = null;
-			//_instance.frame = null;
+			_instance.linePart = null;
+			_instance._scale = 1.0;
 			_instance.textPart = null;
 			_POOL[_POOL.length] = _instance;
 		}
@@ -36,23 +37,21 @@ class ClipLocation extends ElementLocation
 	{
 		super();
 		this.clipConfig = config;
-		//this.frame = this.clipConfig.animation.referenceFrame;
 		
-		this.width = this.clipConfig.animation.referenceFrame.width * this.clipConfig.scale;
-		this.height = this.clipConfig.animation.referenceFrame.height * this.clipConfig.scale;
-		this.xAdvance = this.width;
-		this.xOffset = this.yOffset = 0.0;
+		this.originalWidth = this.width = this.clipConfig.animation.referenceFrame.width * this.clipConfig.scale;
+		this.originalHeight = this.height = this.clipConfig.animation.referenceFrame.height * this.clipConfig.scale;
+		this.originalXAdvance = this.xAdvance = this.width;
+		this.originalXOffset = this.originalYOffset = this.xOffset = this.yOffset = 0.0;
 	}
 	
 	private function setFromPool(config:ClipConfig):ClipLocation
 	{
 		this.clipConfig = config;
-		//this.frame = this.clipConfig.animation.referenceFrame;
 		
-		this.width = this.clipConfig.animation.referenceFrame.width * this.clipConfig.scale;
-		this.height = this.clipConfig.animation.referenceFrame.height * this.clipConfig.scale;
-		this.xAdvance = this.width;
-		this.xOffset = this.yOffset = 0.0;
+		this.originalWidth = this.width = this.clipConfig.animation.referenceFrame.width * this.clipConfig.scale;
+		this.originalHeight = this.height = this.clipConfig.animation.referenceFrame.height * this.clipConfig.scale;
+		this.originalXAdvance = this.xAdvance = this.width;
+		this.originalXOffset = this.originalYOffset = this.xOffset = this.yOffset = 0.0;
 		return this;
 	}
 	

@@ -45,7 +45,13 @@ abstract class ElementLocation
 	public var isSpace:Bool;
 	public var isSpecial:Bool;
 	public var isVowel:Bool;
-	public var scale:Float;
+	public var linePart:LinePart;
+	public var originalHeight(default, null):Float;
+	public var originalWidth(default, null):Float;
+	public var originalXAdvance(default, null):Float;
+	public var originalXOffset(default, null):Float;
+	public var originalYOffset(default, null):Float;
+	public var scale(get, set):Float;
 	public var textPart:TextPartLayoutResult;
 	public var width(default, null):Float;
 	public var x:Float;
@@ -53,6 +59,19 @@ abstract class ElementLocation
 	public var xAdvance(default, null):Float;
 	public var xOffset(default, null):Float;
 	public var yOffset(default, null):Float;
+	
+	private var _scale:Float = 1.0;
+	private inline function get_scale():Float { return this._scale; }
+	private function set_scale(value:Float):Float
+	{
+		if (this._scale == value) return value;
+		this.width = this.originalWidth * value;
+		this.height = this.originalHeight * value;
+		this.xAdvance = this.originalXAdvance * value;
+		this.xOffset = this.originalXOffset * value;
+		this.yOffset = this.originalYOffset * value;
+		return this._scale = value;
+	}
 	
 	public function new() 
 	{

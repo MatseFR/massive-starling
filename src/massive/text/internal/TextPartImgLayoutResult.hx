@@ -5,6 +5,7 @@ import massive.display.MassiveDisplay;
 #if flash
 import openfl.Vector;
 #end
+import massive.text.TextPartImg;
 import starling.textures.Texture;
 
 /**
@@ -15,21 +16,27 @@ class TextPartImgLayoutResult extends TextPartLayoutResult
 {
 	private static var _POOL:Array<TextPartImgLayoutResult> = new Array<TextPartImgLayoutResult>();
 	
-	public static function fromPool():TextPartImgLayoutResult
+	public static function fromPool(part:TextPartImg):TextPartImgLayoutResult
 	{
-		if (_POOL.length != 0) return _POOL.pop();
-		return new TextPartImgLayoutResult();
+		if (_POOL.length != 0) return _POOL.pop().setFromPool(part);
+		return new TextPartImgLayoutResult(part);
 	}
 	
-	public function new() 
+	public function new(part:TextPartImg) 
 	{
-		super();
+		super(part);
 	}
 	
 	public function pool():Void
 	{
 		clear();
 		_POOL[_POOL.length] = this;
+	}
+	
+	private function setFromPool(part:TextPartImg):TextPartImgLayoutResult
+	{
+		this.part = part;
+		return this;
 	}
 	
 	#if flash

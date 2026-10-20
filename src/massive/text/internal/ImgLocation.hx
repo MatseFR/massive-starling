@@ -23,7 +23,8 @@ class ImgLocation extends ElementLocation
 		{
 			_instance = _OUT[i];
 			_instance.imgConfig = null;
-			//_instance.frame = null;
+			_instance.linePart = null;
+			_instance._scale = 1.0;
 			_instance.textPart = null;
 			_POOL[_POOL.length] = _instance;
 		}
@@ -37,20 +38,20 @@ class ImgLocation extends ElementLocation
 		super();
 		this.imgConfig = config;
 		
-		this.width = this.imgConfig.frame.width * this.imgConfig.scale;
-		this.height = this.imgConfig.frame.height * this.imgConfig.scale;
-		this.xAdvance = this.width;
-		this.xOffset = this.yOffset = 0.0;
+		this.originalWidth = this.width = this.imgConfig.frame.width * this.imgConfig.scale;
+		this.originalHeight = this.height = this.imgConfig.frame.height * this.imgConfig.scale;
+		this.originalXAdvance = this.xAdvance = this.width;
+		this.originalXOffset = this.originalYOffset = this.xOffset = this.yOffset = 0.0;
 	}
 	
 	private function setFromPool(config:ImgConfig):ImgLocation
 	{
 		this.imgConfig = config;
 		
-		this.width = this.imgConfig.frame.width * this.imgConfig.scale;
-		this.height = this.imgConfig.frame.height * this.imgConfig.scale;
-		this.xAdvance = this.width;
-		this.xOffset = this.yOffset = 0.0;
+		this.originalWidth = this.width = this.imgConfig.frame.width * this.imgConfig.scale;
+		this.originalHeight = this.height = this.imgConfig.frame.height * this.imgConfig.scale;
+		this.originalXAdvance = this.xAdvance = this.width;
+		this.originalXOffset = this.originalYOffset = this.xOffset = this.yOffset = 0.0;
 		return this;
 	}
 	

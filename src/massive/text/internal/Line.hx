@@ -17,6 +17,7 @@ class Line
 	public var parts(default, null):Array<LinePart> = new Array<LinePart>();
 	public var maxBaseline:Float = 0.0;
 	public var maxLineHeight:Float = 0.0;
+	public var currentLineHeight:Float;
 	
 	public function new() 
 	{
@@ -45,6 +46,21 @@ class Line
 		this.parts[this.parts.length] = part;
 	}
 	
+	public function removeLastPart():Void
+	{
+		this.parts.pop().pool();
+	}
+	
+	//public function removePart(part:TextPartLayoutResult):Void
+	//{
+		//this.parts.splice(this.parts.indexOf(part), 1);
+	//}
+	//
+	//public function removePartAt(index:Int):Void
+	//{
+		//this.parts.splice(index, 1);
+	//}
+	
 	public function validate():Void
 	{
 		var part:LinePart;
@@ -58,6 +74,8 @@ class Line
 			if (part.lineHeight > this.maxLineHeight) this.maxLineHeight = part.lineHeight;
 			if (part.baseline > this.maxBaseline) this.maxBaseline = part.baseline;
 		}
+		
+		this.currentLineHeight = this.maxLineHeight;
 	}
 	
 	public function adjust(finalLineHeight:Float, finalBaseline:Float, yOffset:Float):Float
@@ -66,7 +84,9 @@ class Line
 		{
 			this.parts[i].adjust(finalLineHeight, finalBaseline, yOffset);
 		}
-		return finalLineHeight - this.maxLineHeight + yOffset;
+		var diff:Float = finalLineHeight - this.currentLineHeight + yOffset;
+		this.currentLineHeight = finalLineHeight;
+		return diff;
 	}
 	
 }

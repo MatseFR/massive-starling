@@ -28,6 +28,6 @@ abstract class LinePart
 	
 	abstract public function validate():Void;
 	
-	abstract public function adjust(finalLineHeight:Float, finalBaseline:Float, yOffset:Float):Float;
+	abstract public function adjust(finalLineHeight:Float, finalBaseline:Float, yOffset:Float):Void;
 	
 }

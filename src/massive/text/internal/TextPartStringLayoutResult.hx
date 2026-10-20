@@ -29,7 +29,7 @@ class TextPartStringLayoutResult extends TextPartLayoutResult
 	
 	public function new(fromPart:TextPartString, style:FontStyle) 
 	{
-		super();
+		super(fromPart);
 		this.format.copyFrom(fromPart.format);
 		this.style = style;
 	}
@@ -50,6 +50,7 @@ class TextPartStringLayoutResult extends TextPartLayoutResult
 	private function setFromPool(fromPart:TextPartString, style:FontStyle):TextPartStringLayoutResult
 	{
 		this.format.copyFrom(fromPart.format);
+		this.part = fromPart;
 		this.style = style;
 		return this;
 	}

@@ -25,6 +25,8 @@ class GlyphLocation extends ElementLocation
 			_instance = _OUT[i];
 			_instance.frame = null;
 			_instance.glyph = null;
+			_instance.linePart = null;
+			_instance._scale = 1.0;
 			_instance.textPart = null;
 			_POOL[_POOL.length] = _instance;
 		}
@@ -52,14 +54,14 @@ class GlyphLocation extends ElementLocation
 		//{
 			this.charID = glyph.charID;
 			this.frame = glyph.frame;
-			this.height = glyph.height;
+			this.originalHeight = this.height = glyph.height;
 			this.isHyphen = glyph.isHyphen;
 			this.isSpace = glyph.isSpace;
 			this.isVowel = glyph.isVowel;
-			this.width = glyph.width;
-			this.xAdvance = glyph.xAdvance;
-			this.xOffset = glyph.xOffset;
-			this.yOffset = glyph.yOffset;
+			this.originalWidth = this.width = glyph.width;
+			this.originalXAdvance = this.xAdvance = glyph.xAdvance;
+			this.originalXOffset = this.xOffset = glyph.xOffset;
+			this.originalYOffset = this.yOffset = glyph.yOffset;
 			#if debug
 			this.char = glyph.char;
 			#end
@@ -73,14 +75,14 @@ class GlyphLocation extends ElementLocation
 		//{
 			this.charID = glyph.charID;
 			this.frame = glyph.frame;
-			this.height = glyph.height;
+			this.originalHeight = this.height = glyph.height;
 			this.isHyphen = glyph.isHyphen;
 			this.isSpace = glyph.isSpace;
 			this.isVowel = glyph.isVowel;
-			this.width = glyph.width;
-			this.xAdvance = glyph.xAdvance;
-			this.xOffset = glyph.xOffset;
-			this.yOffset = glyph.yOffset;
+			this.originalWidth = this.width = glyph.width;
+			this.originalXAdvance = this.xAdvance = glyph.xAdvance;
+			this.originalXOffset = this.xOffset = glyph.xOffset;
+			this.originalYOffset = this.yOffset = glyph.yOffset;
 			#if debug
 			this.char = glyph.char;
 			#end
