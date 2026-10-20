@@ -188,6 +188,7 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		this._options = new TextOptions(TextAlign.JUSTIFY);
 		this._options.padding = 24;
 		this._options.wordWrap = true;
+		this._options.restrictImageHeightOverflow = 4.0;
 		
 		this._langRules = new LatinDefaultRules();
 		
@@ -201,6 +202,9 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		texture = this._assetManager.getTexture("xbox_button_color_y");
 		frame = Frame.fromTexture(texture);
 		MassiveText.frames.add("xbox_button_color_y", frame);
+		texture = this._assetManager.getTexture("xbox_button_color_a");
+		frame = Frame.fromTexture(texture);
+		MassiveText.frames.add("xbox_button_color_a", frame);
 		
 		var animation:Animation;
 		#if flash
@@ -210,13 +214,32 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		#end
 		var textures:Array<Texture> = new Array<Texture>();
 		
-		//textures[textures.length] = this._assetManager.getTexture("xbox_dpad");
-		textures[textures.length] = this._assetManager.getTexture("xbox_dpad_left");
-		textures[textures.length] = this._assetManager.getTexture("xbox_dpad_down");
-		textures[textures.length] = this._assetManager.getTexture("xbox_dpad_right");
-		textures[textures.length] = this._assetManager.getTexture("xbox_dpad_up");
+		frame = Frame.fromTexture(this._assetManager.getTexture("xbox_dpad"));
+		var upFrame:Frame = Frame.fromTexture(this._assetManager.getTexture("xbox_dpad_up"));
+		var downFrame:Frame = Frame.fromTexture(this._assetManager.getTexture("xbox_dpad_down"));
+		var leftFrame:Frame = Frame.fromTexture(this._assetManager.getTexture("xbox_dpad_left"));
+		var rightFrame:Frame = Frame.fromTexture(this._assetManager.getTexture("xbox_dpad_right"));
 		
-		Frame.fromTextureArray(textures, frames);
+		frames[frames.length] = frame;
+		frames[frames.length] = upFrame;
+		frames[frames.length] = frame;
+		frames[frames.length] = upFrame;
+		frames[frames.length] = frame;
+		frames[frames.length] = downFrame;
+		frames[frames.length] = frame;
+		frames[frames.length] = downFrame;
+		frames[frames.length] = frame;
+		frames[frames.length] = leftFrame;
+		frames[frames.length] = frame;
+		frames[frames.length] = rightFrame;
+		frames[frames.length] = frame;
+		frames[frames.length] = leftFrame;
+		frames[frames.length] = frame;
+		frames[frames.length] = rightFrame;
+		frames[frames.length] = frame;
+		frames[frames.length] = frame;
+		frames[frames.length] = frame;
+		frames[frames.length] = frame;
 		
 		animation = AnimUtils.createAnimation(frames, 5);
 		animation.id = "dpad";
@@ -235,7 +258,8 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		//{
 			//str += "over-confident master-builder ";
 		//}
-		str = 'Here is an image !{"img":{"frame":"xbox_button_color_y", "scale":0.5}}! Here is a clip !{"clip":{"animation":"dpad", "scale":0.5}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
+		str = 'Here is an image !{"img":{"frame":"xbox_button_color_y", "scale":0.5}}! Here is a clip !{"clip":{"animation":"dpad", "scale":0.5}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again (press !{"img":{"frame":"xbox_button_color_a", "scale":0.5}}!) and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
+		//str = 'Here is an image !{"img":{"frame":"xbox_button_color_y"}}! Here is a clip !{"clip":{"animation":"dpad"}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
 		
 		//str = 'Arial 16 text !{"format":{"font":"arial 12", "size":"12"}}!Arial 12 text';
 		
