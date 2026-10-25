@@ -16,6 +16,7 @@ class FontStyle
 	public var glyphs(default, null):Map<Int, Glyph> = new Map<Int, Glyph>();
 	public var hyphenGlyph(default, null):Glyph;
 	public var lineHeight(default, null):Float;
+	public var missingGlyph(default, null):Glyph;
 	public var name(default, null):String;
 	public var offsetX:Float;
 	public var offsetY:Float;
@@ -38,24 +39,24 @@ class FontStyle
 		this.offsetX = this.offsetY = 0.0;
 		this.texture = texture;
 		
-		addGlyph(MassiveText.CHAR_MISSING, new Glyph(MassiveText.CHAR_MISSING, null, 0, 0, 0));
+		this.missingGlyph = new Glyph(MassiveText.CHAR_MISSING, null, 0, 0, 0);
+		addGlyph(MassiveText.CHAR_MISSING, this.missingGlyph);
 		parseFontData(fontData);
 		
 		this.hyphenGlyph = getGlyph(MassiveText.CHAR_MINUS);
 		if (this.hyphenGlyph == null)
 		{
-			this.hyphenGlyph = getGlyph(MassiveText.CHAR_MISSING);
+			this.hyphenGlyph = this.missingGlyph;
 		}
 		else
 		{
 			this.hyphenGlyph.isHyphen = true;
 		}
 		
-		var glyph:Glyph;
-		glyph = getGlyph(MassiveText.CHAR_SPACE);
-		if (glyph != null) glyph.isSpace = true;
+		this.spaceGlyph = getGlyph(MassiveText.CHAR_SPACE);
+		if (this.spaceGlyph != null) this.spaceGlyph.isSpace = true;
 		
-		glyph = getGlyph(MassiveText.CHAR_TAB);
+		var glyph:Glyph = getGlyph(MassiveText.CHAR_TAB);
 		if (glyph != null) glyph.isSpace = true;
 	}
 	
