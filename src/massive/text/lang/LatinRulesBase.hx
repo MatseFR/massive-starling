@@ -1,4 +1,7 @@
 package massive.text.lang;
+import massive.text.FontStyle;
+import massive.text.Glyph;
+import massive.text.MassiveFont;
 import massive.text.internal.ElementLocation;
 
 /**
@@ -7,6 +10,18 @@ import massive.text.internal.ElementLocation;
  */
 abstract class LatinRulesBase extends LangRules
 {
+	public static var CONSONANTS:String = "bcdfghjklmnpqrstvwxz";
+	public static var CONSONANTS_IDS:Array<Int> = [98, 99, 100, 102, 103, 104, 106, 107, 108, 109, 110, 112, 113, 114, 115, 116, 118, 119, 120, 122];
+	
+	public static var NUMBERS:String = "0123456789";
+	public static var NUMBERS_IDS:Array<Int> = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57];
+	
+	public static var PUNCTUATION:String = ",;.:!?()[]{}«»\"-/";
+	public static var PUNCTUATION_IDS:Array<Int> = [44, 59, 46, 58, 33, 63, 40, 41, 91, 93, 123, 125, 171, 187, 34, 45, 47];
+	
+	public static var VOWELS:String = "aeiouy";
+	public static var VOWELS_IDS:Array<Int> = [97, 101, 105, 111, 117, 121];
+	
 	private var _breakableVowels:Map<Int, Bool> = new Map<Int, Bool>();
 	private var _breakableVowelModifiers:Map<Int, Array<Int>> = new Map<Int, Array<Int>>();
 	private var _forbiddenBreaks:Map<Int, Array<Int>> = new Map<Int, Array<Int>>();
@@ -27,6 +42,49 @@ abstract class LatinRulesBase extends LangRules
 		this._breakableVowelModifiers.clear();
 		this._forbiddenBreaks.clear();
 		this._unbreakableStrings.clear();
+	}
+	
+	public function applyToFont(font:MassiveFont):Void
+	{
+		var styleNames:Array<String> = font.getFontStyleNames();
+		for (i in 0...styleNames.length)
+		{
+			applyToFontStyle(font.getFontStyle(styleNames[i]));
+		}
+	}
+	
+	public function applyToFontStyle(style:FontStyle):Void
+	{
+		var glyph:Glyph;
+		
+		for (i in 0...CONSONANTS_IDS.length)
+		{
+			glyph = style.getGlyph(CONSONANTS_IDS[i]);
+			if (glyph == null) continue;
+			glyph.isLetter = true;
+		}
+		
+		for (i in 0...VOWELS_IDS.length)
+		{
+			glyph = style.getGlyph(VOWELS_IDS[i]);
+			if (glyph == null) continue;
+			glyph.isLetter = true;
+			glyph.isVowel = true;
+		}
+		
+		for (i in 0...PUNCTUATION_IDS.length)
+		{
+			glyph = style.getGlyph(PUNCTUATION_IDS[i]);
+			if (glyph == null) continue;
+			glyph.isPunctuation = true;
+		}
+		
+		for (i in 0...NUMBERS_IDS.length)
+		{
+			glyph = style.getGlyph(NUMBERS_IDS[i]);
+			if (glyph == null) continue;
+			glyph.isNumber = true;
+		}
 	}
 	
 	public function addBreakableVowel(vowel:String):Void
