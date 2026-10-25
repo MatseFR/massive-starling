@@ -14,7 +14,7 @@ class Glyph
 	public var frame(default, null):Frame;
 	public var height(default, null):Float;
 	public var isHyphen:Bool;
-	public var isLetter:Bool = true;
+	public var isLetter:Bool;
 	public var isNumber:Bool;
 	public var isPunctuation:Bool;
 	public var isSpace:Bool;
