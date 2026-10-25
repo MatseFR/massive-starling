@@ -1,4 +1,5 @@
 package massive.text.lang;
+import massive.text.MassiveFont;
 import massive.text.internal.ElementLocation;
 
 /**
@@ -14,6 +15,10 @@ abstract class LangRules
 	}
 	
 	abstract public function dispose():Void;
+	
+	abstract public function applyToFont(font:MassiveFont):Void;
+	
+	abstract public function applyToFontStyle(style:FontStyle):Void;
 	
 	abstract public function getBreakIndexWithHyphens(chars:Array<ElementLocation>, fromIndex:Int, minWordLength:Int):Int;
 	
