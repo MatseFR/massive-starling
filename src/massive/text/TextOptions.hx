@@ -77,7 +77,7 @@ class TextOptions extends EventDispatcher
 		return this._hyphenationMinLength;
 	}
 	
-	private var _hyphenationMinRatio:Float = 0.1;
+	private var _hyphenationMinRatio:Float = 0.05;
 	private inline function get_hyphenationMinRatio():Float { return this._hyphenationMinRatio; }
 	private function set_hyphenationMinRatio(value:Float):Float
 	{
