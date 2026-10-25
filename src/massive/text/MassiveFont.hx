@@ -40,6 +40,7 @@ class MassiveFont
 	private function set_hyphenChar(value:String):String
 	{
 		this._hyphenChar = value;
+		this._hyphenCharID = value == null ? 0 : value.charCodeAt(0);
 		return this._hyphenChar;
 	}
 	
@@ -48,6 +49,7 @@ class MassiveFont
 	private function set_hyphenCharID(value:Int):Int
 	{
 		this._hyphenCharID = value;
+		this._hyphenChar = String.fromCharCode(value);
 		return this._hyphenCharID;
 	}
 	
