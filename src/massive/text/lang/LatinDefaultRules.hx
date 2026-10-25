@@ -253,7 +253,7 @@ class LatinDefaultRules extends LatinRulesBase
 		var minCharsBefore:Int = 1;
 		var minCharsAfter:Int = 1;
 		var numCharsBefore:Int = fromIndex + 1;
-		var numCharsAfter:Int = chars.length - fromIndex;
+		var numCharsAfter:Int = chars.length - 1 - fromIndex;
 		var numVowelsBefore:Int = 0;
 		var numVowelsAfter:Int = 0;
 		var ok:Bool;
