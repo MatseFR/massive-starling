@@ -40,10 +40,25 @@ class MassiveText
 	
 	public static var animations(default, null):AnimationCollection = new AnimationCollection();
 	public static var defaultFont:MassiveFont;
-	public static var defaultLangRules:LangRules;
+	public static var defaultLangRules(get, set):LangRules;
 	public static var defaultTextFormat(get, set):TextFormat;// = new TextFormat();
 	public static var defaultTextOptions(get, set):TextOptions;// = new TextOptions();
 	public static var frames(default, null):FrameCollection = new FrameCollection();
+	
+	private static var _defaultLangRules:LangRules;
+	private static function get_defaultLangRules():LangRules { return _defaultLangRules; }
+	private static function set_defaultLangRules(value:LangRules):LangRules
+	{
+		if (_defaultLangRules == value) return value;
+		if (value != null)
+		{
+			for (font in _fonts)
+			{
+				value.applyToFont(font);
+			}
+		}
+		return _defaultLangRules = value;
+	}
 	
 	private static var _defaultTextFormat:TextFormat = new TextFormat();
 	private static function get_defaultTextFormat():TextFormat { return _defaultTextFormat; }
@@ -102,6 +117,7 @@ class MassiveText
 	public static function registerFont(font:MassiveFont):Void
 	{
 		_fonts.set(font.name, font);
+		if (_defaultLangRules != null) _defaultLangRules.applyToFont(font);
 		if (defaultFont == null) defaultFont = font;
 	}
 	
@@ -223,10 +239,6 @@ class MassiveText
 							if (json.img != null)
 							{
 								part = imgPart = TextPartImg.fromPool();
-								//if (json.img.frame != null)
-								//{
-									//imgPart.frames[imgPart.frames.length] = frames.get(json.img.frame);
-								//}
 								imgPart.imgConfigs[imgPart.imgConfigs.length] = ImgConfig.fromPool(json.img);
 								text.addPart(imgPart);
 							}
@@ -245,10 +257,6 @@ class MassiveText
 							if (json.clip != null)
 							{
 								part = clipPart = TextPartClip.fromPool();
-								//if (json.clip.animation != null)
-								//{
-									//clipPart.animations[clipPart.animations.length] = animations.get(json.clip.animation);
-								//}
 								clipPart.clipConfigs[clipPart.clipConfigs.length] = ClipConfig.fromPool(json.clip);
 								text.addPart(clipPart);
 							}
@@ -606,10 +614,7 @@ class MassiveText
 										hyphenationOccured = true;
 										testLocation = testWord[index];
 										numCharsToRemove = _charIndex - testLocation.index;
-										_i -= numCharsToRemove;
-										_currentLine.resize(_currentLine.length - numCharsToRemove);
-										_currentWord.resize(_currentWord.length - numCharsToRemove);
-										_linePartLocations.resize(_linePart.elementLocations.length - numCharsToRemove);
+										removeChars(numCharsToRemove);
 										
 										if (!testLocation.isHyphen)
 										{
@@ -623,7 +628,6 @@ class MassiveText
 											glyphLocation.linePart = _linePart;
 											glyphLocation.textPart = _partResult;
 										}
-										_words[_words.length] = _currentWord;
 									}
 								}
 							}
