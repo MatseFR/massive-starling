@@ -10,6 +10,7 @@ import massive.display.base.ContainerBase;
 import massive.display.render.RenderData;
 import massive.text.internal.ElementLocation;
 import massive.text.internal.TextLayoutResult;
+import massive.text.lang.LangRules;
 import massive.util.MathUtils;
 import openfl.Vector;
 import openfl.geom.Rectangle;
@@ -35,6 +36,7 @@ class TextField extends ContainerBase
 	public var animator(get, set):Animator;
 	public var format(get, set):TextFormat;
 	public var height(get, set):Float;
+	public var langRules(get, set):LangRules;
 	public var options(get, set):TextOptions;
 	public var text(get, set):String;
 	public var textData(get, set):String;
@@ -78,6 +80,15 @@ class TextField extends ContainerBase
 		if (this._height == value) return value;
 		this._requiresRecomposition = this._textObject != null;
 		return this._height = value;
+	}
+	
+	private var _langRules:LangRules;
+	private function get_langRules():LangRules { return this._langRules; }
+	private function set_langRules(value:LangRules):LangRules
+	{
+		if (this._langRules == value) return value;
+		this._requiresRecomposition = this._textObject != null;
+		return this._langRules = value;
 	}
 	
 	private var _options:TextOptions = new TextOptions();
@@ -350,10 +361,10 @@ class TextField extends ContainerBase
 		this._datas.resize(0);
 		#end
 		
-		var w:Float = this._isHorizontalAutoSize ? 100000 : this._width;
-		var h:Float = this._isVerticalAutoSize ? 1000000 : this._height;
+		var w:Float = this._isHorizontalAutoSize ? 1000000 : this._width;
+		var h:Float = this._isVerticalAutoSize ? 10000000 : this._height;
 		
-		var result:TextLayoutResult = MassiveText.processText(w, h, this._textObject, null);
+		var result:TextLayoutResult = MassiveText.processText(w, h, this._textObject, this._langRules);
 		result.getImages(display, this._datas, this._images, this._clips, this._addedTextures);
 		ElementLocation.rechargePool();
 		result.pool();
