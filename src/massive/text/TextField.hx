@@ -361,18 +361,25 @@ class TextField extends ContainerBase
 		this._datas.resize(0);
 		#end
 		
-		var w:Float = this._isHorizontalAutoSize ? 1000000 : this._width;
-		var h:Float = this._isVerticalAutoSize ? 10000000 : this._height;
-		
-		var result:TextLayoutResult = MassiveText.processText(w, h, this._textObject, this._langRules);
-		result.getImages(display, this._datas, this._images, this._clips, this._addedTextures);
-		ElementLocation.rechargePool();
-		result.pool();
+		if (this._textObject != null)
+		{
+			var w:Float = this._isHorizontalAutoSize ? 1000000 : this._width;
+			var h:Float = this._isVerticalAutoSize ? 10000000 : this._height;
+			
+			var result:TextLayoutResult = MassiveText.processText(w, h, this._textObject, this._langRules);
+			result.getImages(display, this._datas, this._images, this._clips, this._addedTextures);
+			ElementLocation.rechargePool();
+			result.pool();
+			
+			this._lastDisplay = display;
+		}
+		else
+		{
+			this._lastDisplay = null;
+		}
 		
 		this._requiresBounds = this._isAutoSize;
 		this._requiresRecomposition = false;
-		
-		this._lastDisplay = display;
 	}
 	
 	private function updateBounds(renderOffsetX:Float, renderOffsetY:Float):Void
