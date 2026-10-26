@@ -84,7 +84,9 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 	
 	// text menu
 	private var _textMenuCollection:ArrayCollection<MenuItem>;
-	
+	private var _loremIpsumItem:MenuItem;
+	private var _englishItem:MenuItem;
+	private var _dataItem:MenuItem;
 
 	public function new() 
 	{
@@ -130,6 +132,17 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 			this._centerItem
 		]);
 		this.editView.addMenu("options", "Options", onOptionsMenuCallback, onOptionsMenuOpen, this._optionsMenuCollection);
+		
+		// text menu
+		this._loremIpsumItem = new MenuItem("lorem_ipsum", "Lorem ipsum");
+		this._englishItem = new MenuItem("english", "English");
+		this._dataItem = new MenuItem("data", "Data");
+		this._textMenuCollection = new ArrayCollection<MenuItem>([
+			this._loremIpsumItem,
+			this._englishItem,
+			this._dataItem
+		]);
+		this.editView.addMenu("text", "Text", onTextMenuCallback, null, this._textMenuCollection);
 		
 		cast(this.editView, SimpleEditViewToggleGroups).addToggleGroup("MassiveDisplay", "DISPLAY", false);
 		cast(this.editView, SimpleEditViewToggleGroups).addToggleGroup("TextField", "TEXTFIELD", true);
@@ -193,10 +206,11 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		
 		this._options = new TextOptions(TextAlign.JUSTIFY);
 		this._options.padding = 24;
-		this._options.wordWrap = false;
+		this._options.wordWrap = true;
 		this._options.restrictImageHeightOverflow = 4.0;
 		
 		this._langRules = new LatinDefaultRules();
+		MassiveText.defaultLangRules = this._langRules;
 		
 		var frame:Frame;
 		var texture:Texture;
@@ -218,7 +232,6 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		#else
 		var frames:Array<Frame> = new Array<Frame>();
 		#end
-		var textures:Array<Texture> = new Array<Texture>();
 		
 		frame = Frame.fromTexture(this._assetManager.getTexture("xbox_dpad"));
 		var upFrame:Frame = Frame.fromTexture(this._assetManager.getTexture("xbox_dpad_up"));
@@ -252,19 +265,27 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		animation.loop = true;
 		MassiveText.animations.add(animation);
 		
-		
+		var sample:TextSample;
 		var str:String;
 		str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 		str += "\n\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
-		//str = "But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?";
-		//str += "\n\nOn the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.";
+		sample = new TextSample(str);
+		this._texts.set("lorem_ipsum", sample);
+		
+		str = "But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?";
+		str += "\n\nOn the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.";
+		sample = new TextSample(str);
+		this._texts.set("english", sample);
 		
 		//str = "over-confident master-builder ";
 		//for (i in 0...20)
 		//{
 			//str += "over-confident master-builder ";
 		//}
-		//str = 'Here is an image !{"img":{"frame":"xbox_button_color_y", "scale":0.5}}! Here is a clip !{"clip":{"animation":"dpad", "scale":0.5}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again (press !{"img":{"frame":"xbox_button_color_a", "scale":0.5}}!) and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
+		str = 'Here is an image !{"img":{"frame":"xbox_button_color_y", "scale":0.5}}! Here is a clip !{"clip":{"animation":"dpad", "scale":0.5}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again (press !{"img":{"frame":"xbox_button_color_a", "scale":0.5}}!) and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
+		str += '\nAnd here\'s some text on another line to check that the style is correct even when wordwrap is turned off and previous line is cut';
+		sample = new TextSample(str, true);
+		this._texts.set("data", sample);
 		//str += '\n!{"format":{"color":"0xffffff", "style":"regular"}}!And here\'s some text on another line';
 		//str = 'Here is an image !{"img":{"frame":"xbox_button_color_y"}}! Here is a clip !{"clip":{"animation":"dpad"}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
 		
@@ -277,8 +298,9 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		this._tf.textDataSafeMode = true;
 		this._tf.x = this.editView.displayRect.x;
 		this._tf.y = this.editView.displayRect.y;
-		//this._tf.textData = str;
-		this._tf.text = str;
+		//this._tf.langRules = this._langRules;
+		this._tf.textData = str;
+		//this._tf.text = str;
 		this._display.addLayer(this._tf);
 		
 		this._tfCollection = ValEditor.edit(this._tf, null, this.editView.getEditContainer("TextField"));
@@ -466,6 +488,19 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		else
 		{
 			this._autoFillItem.text = "Auto fill disabled";
+		}
+	}
+	
+	private function onTextMenuCallback(item:MenuItem):Void
+	{
+		var sample:TextSample = this._texts.get(item.id);
+		if (sample.isData)
+		{
+			this._tf.textData = sample.text;
+		}
+		else
+		{
+			this._tf.text = sample.text;
 		}
 	}
 	
