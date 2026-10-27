@@ -36,16 +36,8 @@ class GlyphLocation extends ElementLocation
 	#if debug
 	public var char:String;
 	#end
-	//public var index:Int;
-	//public var isHyphen:Bool;
-	//public var isSpace:Bool;
-	//public var isVowel:Bool;
 	public var glyph:Glyph;
-	//public var scale:Float;
-	//public var textPart:TextPartLayoutResult;
-	//public var x:Float;
-	//public var y:Float;
-
+	
 	public function new(glyph:Glyph) 
 	{
 		super();
