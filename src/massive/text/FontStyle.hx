@@ -20,11 +20,12 @@ class FontStyle
 	public var name(default, null):String;
 	public var offsetX:Float;
 	public var offsetY:Float;
+	public var outline:Float;
 	public var size(default, null):Float;
 	public var spaceGlyph(default, null):Glyph;
 	public var texture(default, null):Texture;
 
-	public function new(name:String, texture:Texture = null, fontData:Dynamic = null) 
+	public function new(name:String, texture:Texture = null, fontData:Dynamic = null, adjustIfOutline:Bool = true) 
 	{
 		this.name = name;
 		
@@ -41,7 +42,7 @@ class FontStyle
 		
 		this.missingGlyph = new Glyph(MassiveText.CHAR_MISSING, null, 0, 0, 0);
 		addGlyph(MassiveText.CHAR_MISSING, this.missingGlyph);
-		parseFontData(fontData);
+		parseFontData(fontData, adjustIfOutline);
 		
 		this.hyphenGlyph = getGlyph(MassiveText.CHAR_MINUS);
 		if (this.hyphenGlyph == null)
@@ -100,7 +101,7 @@ class FontStyle
 		return true;
 	}
 	
-	private function parseFontData(data:Dynamic):Void
+	private function parseFontData(data:Dynamic, adjustIfOutline:Bool):Void
 	{
 		try
         {
@@ -114,7 +115,7 @@ class FontStyle
                 fontXml = Xml.parse((data : flash.xml.XML).toString()).firstElement();
             #end
                 
-            parseFontXml(fontXml);
+            parseFontXml(fontXml, adjustIfOutline);
         }
         catch (error:Dynamic)
         {
@@ -122,7 +123,7 @@ class FontStyle
         }
 	}
 	
-	private function parseFontXml(fontXml:Xml):Void
+	private function parseFontXml(fontXml:Xml, adjustIfOutline:Bool):Void
 	{
 		var scale:Float = this.texture.scale;
 		var frameRect:Rectangle = this.texture.frame;
@@ -154,8 +155,12 @@ class FontStyle
 		
 		this.fontName = info != null ? info.get("face") : "";
 		this.size = info != null ? Std.parseFloat(info.get("size")) / scale : Math.NaN;
+		this.outline = info != null ? Std.parseFloat(info.get("outline")) / scale : 0.0;
 		this.lineHeight = common != null ? Std.parseFloat(common.get("lineHeight")) / scale : Math.NaN;
 		this.baseline = common != null ? Std.parseFloat(common.get("base")) / scale : Math.NaN;
+		
+		var outlineOffset:Float = this.outline > 0.0 ? adjustIfOutline ? this.outline - 1.0 : 0.0 : 0.0;
+		var useOutlineOffset:Bool = outlineOffset != 0.0;
 		
 		if (this.size <= 0.0)
 		{
@@ -177,6 +182,12 @@ class FontStyle
 				var xOffset:Float = Std.parseFloat(charElement.get("xoffset")) / scale;
 				var yOffset:Float = Std.parseFloat(charElement.get("yoffset")) / scale;
 				var xAdvance:Float = Std.parseFloat(charElement.get("xadvance")) / scale;
+				
+				if (useOutlineOffset)
+				{
+					xOffset += outlineOffset;
+					xAdvance += outlineOffset;
+				}
 				
 				var x:Float = Std.parseFloat(charElement.get("x")) / scale + frameX;
 				var y:Float = Std.parseFloat(charElement.get("y")) / scale + frameY;
