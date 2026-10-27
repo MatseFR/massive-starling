@@ -87,6 +87,8 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 	private var _loremIpsumItem:MenuItem;
 	private var _englishItem:MenuItem;
 	private var _dataItem:MenuItem;
+	private var _multiSizeItem:MenuItem;
+	private var _testItem:MenuItem;
 
 	public function new() 
 	{
@@ -137,10 +139,14 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		this._loremIpsumItem = new MenuItem("lorem_ipsum", "Lorem ipsum");
 		this._englishItem = new MenuItem("english", "English");
 		this._dataItem = new MenuItem("data", "Data");
+		this._multiSizeItem = new MenuItem("multi_size", "Multi size");
+		this._testItem = new MenuItem("test", "Test");
 		this._textMenuCollection = new ArrayCollection<MenuItem>([
 			this._loremIpsumItem,
 			this._englishItem,
-			this._dataItem
+			this._dataItem,
+			this._multiSizeItem,
+			//this._testItem
 		]);
 		this.editView.addMenu("text", "Text", onTextMenuCallback, null, this._textMenuCollection);
 		
@@ -151,19 +157,32 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		
 		this._assetManager = new AssetManager();
 		this._assetManager.enqueue([
-			Assets.getPath("font/arial/arial_12.fnt"),
-			Assets.getPath("font/arial/arial_12.png"),
-			Assets.getPath("font/arial/arial_12_bold.fnt"),
-			Assets.getPath("font/arial/arial_12_bold.png"),
-			Assets.getPath("font/arial/arial_12_italic.fnt"),
-			Assets.getPath("font/arial/arial_12_italic.png"),
-			
 			Assets.getPath("font/arial/arial_16.fnt"),
 			Assets.getPath("font/arial/arial_16.png"),
 			Assets.getPath("font/arial/arial_16_bold.fnt"),
 			Assets.getPath("font/arial/arial_16_bold.png"),
 			Assets.getPath("font/arial/arial_16_italic.fnt"),
 			Assets.getPath("font/arial/arial_16_italic.png"),
+			Assets.getPath("font/arial/arial_16_outline_2px.fnt"),
+			Assets.getPath("font/arial/arial_16_outline_2px.png"),
+			
+			Assets.getPath("font/arial/arial_20.fnt"),
+			Assets.getPath("font/arial/arial_20.png"),
+			Assets.getPath("font/arial/arial_20_bold.fnt"),
+			Assets.getPath("font/arial/arial_20_bold.png"),
+			Assets.getPath("font/arial/arial_20_italic.fnt"),
+			Assets.getPath("font/arial/arial_20_italic.png"),
+			Assets.getPath("font/arial/arial_20_outline_2px.fnt"),
+			Assets.getPath("font/arial/arial_20_outline_2px.png"),
+			
+			Assets.getPath("font/arial/arial_24.fnt"),
+			Assets.getPath("font/arial/arial_24.png"),
+			Assets.getPath("font/arial/arial_24_bold.fnt"),
+			Assets.getPath("font/arial/arial_24_bold.png"),
+			Assets.getPath("font/arial/arial_24_italic.fnt"),
+			Assets.getPath("font/arial/arial_24_italic.png"),
+			Assets.getPath("font/arial/arial_24_outline_2px.fnt"),
+			Assets.getPath("font/arial/arial_24_outline_2px.png"),
 			
 			Assets.getPath("img/xbox.xml"),
 			Assets.getPath("img/xbox.png")
@@ -185,27 +204,37 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		
 		var font:MassiveFont;
 		
-		font = new MassiveFont("arial 12");
-		font.createFontStyle("regular", this._assetManager.getTexture("arial_12"), this._assetManager.getXml("arial_12"));
-		font.createFontStyle("bold", this._assetManager.getTexture("arial_12_bold"), this._assetManager.getXml("arial_12_bold"));
-		font.createFontStyle("italic", this._assetManager.getTexture("arial_12_italic"), this._assetManager.getXml("arial_12_italic"));
-		MassiveText.registerFont(font);
-		
-		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
-		
 		font = new MassiveFont("arial 16");
 		font.createFontStyle("regular", this._assetManager.getTexture("arial_16"), this._assetManager.getXml("arial_16"));
 		font.createFontStyle("bold", this._assetManager.getTexture("arial_16_bold"), this._assetManager.getXml("arial_16_bold"));
 		font.createFontStyle("italic", this._assetManager.getTexture("arial_16_italic"), this._assetManager.getXml("arial_16_italic"));
+		font.createFontStyle("outline", this._assetManager.getTexture("arial_16_outline_2px"), this._assetManager.getXml("arial_16_outline_2px"));
 		MassiveText.registerFont(font);
 		
 		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
 		
-		this._format = new TextFormat(font.name, "regular", font.size, 0xffffff);
-		//this._format = new TextFormat("mini", "default", this._font.size * 4, 0xffffff, TextAlign.JUSTIFY);
+		font = new MassiveFont("arial 20");
+		font.createFontStyle("regular", this._assetManager.getTexture("arial_20"), this._assetManager.getXml("arial_20"));
+		font.createFontStyle("bold", this._assetManager.getTexture("arial_20_bold"), this._assetManager.getXml("arial_20_bold"));
+		font.createFontStyle("italic", this._assetManager.getTexture("arial_20_italic"), this._assetManager.getXml("arial_20_italic"));
+		font.createFontStyle("outline", this._assetManager.getTexture("arial_20_outline_2px"), this._assetManager.getXml("arial_20_outline_2px"));
+		MassiveText.registerFont(font);
+		
+		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
+		
+		font = new MassiveFont("arial 24");
+		font.createFontStyle("regular", this._assetManager.getTexture("arial_24"), this._assetManager.getXml("arial_24"));
+		font.createFontStyle("bold", this._assetManager.getTexture("arial_24_bold"), this._assetManager.getXml("arial_24_bold"));
+		font.createFontStyle("italic", this._assetManager.getTexture("arial_24_italic"), this._assetManager.getXml("arial_24_italic"));
+		font.createFontStyle("outline", this._assetManager.getTexture("arial_24_outline_2px"), this._assetManager.getXml("arial_24_outline_2px"));
+		MassiveText.registerFont(font);
+		
+		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
+		
+		this._format = new TextFormat(font.name, "regular", 0.0, 0xffffff);
 		
 		this._options = new TextOptions(TextAlign.JUSTIFY);
-		this._options.padding = 24;
+		this._options.padding = 60;
 		this._options.wordWrap = true;
 		this._options.restrictImageHeightOverflow = 4.0;
 		
@@ -277,19 +306,24 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		sample = new TextSample(str);
 		this._texts.set("english", sample);
 		
+		str = 'Here is an image !{"img":{"frame":"xbox_button_color_y"}}! Here is a clip !{"clip":{"animation":"dpad"}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again (press !{"img":{"frame":"xbox_button_color_a"}}!) and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? !{"format":{"style":"regular"}}!Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
+		str += '\n\nAnd here\'s some text on another line to check that the !{"format":{"style":"bold"}}!style !{"format":{"style":"regular", "color":"0xffffff"}}!is correct even when wordwrap is turned off and previous line is cut. Also let\'s use !{"format":{"style":"outline"}}!outline style since it\'s here!';
+		sample = new TextSample(str, true);
+		this._texts.set("data", sample);
+		
+		str = '!{"format":{"font":"arial 16", "size":0}}!Arial 16 text !{"format":{"font":"arial 24", "size":0}}!Arial 24 text !{"format":{"font":"arial 20", "size":0}}!Arial 20 text !{"format":{"font":"arial 16", "size":32}}!Arial 16x2 text !{"format":{"font":"arial 24", "size":0}}!Arial 24 text !{"format":{"font":"arial 20", "size":40}}!Arial 20x2 text';
+		sample = new TextSample(str, true);
+		this._texts.set("multi_size", sample);
+		
 		//str = "over-confident master-builder ";
 		//for (i in 0...20)
 		//{
 			//str += "over-confident master-builder ";
 		//}
-		str = 'Here is an image !{"img":{"frame":"xbox_button_color_y", "scale":0.5}}! Here is a clip !{"clip":{"animation":"dpad", "scale":0.5}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again (press !{"img":{"frame":"xbox_button_color_a", "scale":0.5}}!) and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
-		str += '\nAnd here\'s some text on another line to check that the style is correct even when wordwrap is turned off and previous line is cut';
-		sample = new TextSample(str, true);
-		this._texts.set("data", sample);
-		//str += '\n!{"format":{"color":"0xffffff", "style":"regular"}}!And here\'s some text on another line';
-		//str = 'Here is an image !{"img":{"frame":"xbox_button_color_y"}}! Here is a clip !{"clip":{"animation":"dpad"}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
-		
-		//str = 'Arial 16 text !{"format":{"font":"arial 12", "size":"12"}}!Arial 12 text';
+		//str = "''''''''";
+		//str = '\'';
+		//sample = new TextSample(str);
+		//this._texts.set("test", sample);
 		
 		var textWidth:Float = this.editView.displayRect.width;
 		var textHeight:Float = this.editView.displayRect.height;
@@ -298,9 +332,6 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		this._tf.textDataSafeMode = true;
 		this._tf.x = this.editView.displayRect.x;
 		this._tf.y = this.editView.displayRect.y;
-		//this._tf.langRules = this._langRules;
-		this._tf.textData = str;
-		//this._tf.text = str;
 		this._display.addLayer(this._tf);
 		
 		this._tfCollection = ValEditor.edit(this._tf, null, this.editView.getEditContainer("TextField"));
@@ -365,6 +396,22 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		
 		ValEditor.edit(this._display, this._displayCollection, this.editView.getEditContainer("MassiveDisplay"));
 		//\MassiveDisplay collection
+		
+		showText("data");
+	}
+	
+	private function showText(id:String):Void
+	{
+		var sample:TextSample = this._texts.get(id);
+		if (sample.isData)
+		{
+			this._tf.textData = sample.text;
+		}
+		else
+		{
+			this._tf.text = sample.text;
+		}
+		this._tfCollection.read();
 	}
 	
 	@:access(starling.core.Starling)
@@ -493,15 +540,7 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 	
 	private function onTextMenuCallback(item:MenuItem):Void
 	{
-		var sample:TextSample = this._texts.get(item.id);
-		if (sample.isData)
-		{
-			this._tf.textData = sample.text;
-		}
-		else
-		{
-			this._tf.text = sample.text;
-		}
+		showText(item.id);
 	}
 	
 	private function initInputActions():Void
