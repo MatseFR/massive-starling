@@ -350,7 +350,9 @@ class MassiveText
 	private static function setFormat(format:TextFormat):Void
 	{
 		_font = getFont(format.font);
+		if (_font == null) _font = defaultFont;
 		_fontStyle = _font.getFontStyle(format.style);
+		if (_fontStyle == null) _fontStyle = _font.defaultStyle;
 		_glyphMap = _fontStyle.glyphs;
 		_hyphenGlyph = _fontStyle.hyphenGlyph;
 		_kerning = format.kerning;
