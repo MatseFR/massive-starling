@@ -60,9 +60,9 @@ class MassiveFont
 		this.name = name;
 	}
 	
-	public function createFontStyle(name:String = "default", texture:Texture = null, fontData:Dynamic = null):FontStyle
+	public function createFontStyle(name:String = "default", texture:Texture = null, fontData:Dynamic = null, adjustIfOutline:Bool = true):FontStyle
 	{
-		var fontStyle:FontStyle = new FontStyle(name, texture, fontData);
+		var fontStyle:FontStyle = new FontStyle(name, texture, fontData, adjustIfOutline);
 		addFontStyle(fontStyle);
 		return fontStyle;
 	}
