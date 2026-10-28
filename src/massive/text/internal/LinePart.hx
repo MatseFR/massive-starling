@@ -9,6 +9,7 @@ abstract class LinePart
 	public var elementLocations:Array<ElementLocation> = new Array<ElementLocation>();
 	public var baseline:Float = 0.0;
 	public var baselineCurrent:Float = 0.0;
+	public var isText(default, null):Bool;
 	public var lineHeight:Float = 0.0;
 	public var lineHeightCurrent:Float = 0.0;
 	
@@ -28,6 +29,6 @@ abstract class LinePart
 	
 	abstract public function validate():Void;
 	
-	abstract public function adjust(finalLineHeight:Float, finalBaseline:Float, yOffset:Float):Void;
+	abstract public function adjust(finalLineHeight:Float, finalTextHeight:Float, finalBaseline:Float, yOffset:Float):Void;
 	
 }

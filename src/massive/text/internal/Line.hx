@@ -14,10 +14,12 @@ class Line
 		return new Line();
 	}
 	
-	public var parts(default, null):Array<LinePart> = new Array<LinePart>();
+	public var currentLineHeight:Float;
 	public var maxBaseline:Float = 0.0;
 	public var maxLineHeight:Float = 0.0;
-	public var currentLineHeight:Float;
+	public var maxTextHeight:Float = 0.0;
+	public var parts(default, null):Array<LinePart> = new Array<LinePart>();
+	public var yOffset:Float = 0.0;
 	
 	public function new() 
 	{
@@ -31,8 +33,11 @@ class Line
 			this.parts[i].pool();
 		}
 		this.parts.resize(0);
+		
 		this.maxBaseline = 0.0;
 		this.maxLineHeight = 0.0;
+		this.maxTextHeight = 0.0;
+		this.yOffset = 0.0;
 	}
 	
 	public function pool():Void
@@ -51,21 +56,12 @@ class Line
 		this.parts.pop().pool();
 	}
 	
-	//public function removePart(part:TextPartLayoutResult):Void
-	//{
-		//this.parts.splice(this.parts.indexOf(part), 1);
-	//}
-	//
-	//public function removePartAt(index:Int):Void
-	//{
-		//this.parts.splice(index, 1);
-	//}
-	
 	public function validate():Void
 	{
 		var part:LinePart;
 		this.maxLineHeight = 0.0;
 		this.maxBaseline = 0.0;
+		this.maxTextHeight = 0.0;
 		
 		for (i in 0...this.parts.length)
 		{
@@ -73,16 +69,18 @@ class Line
 			part.validate();
 			if (part.lineHeight > this.maxLineHeight) this.maxLineHeight = part.lineHeight;
 			if (part.baseline > this.maxBaseline) this.maxBaseline = part.baseline;
+			if (part.isText && part.lineHeight > this.maxTextHeight) this.maxTextHeight = part.lineHeight;
 		}
 		
 		this.currentLineHeight = this.maxLineHeight;
 	}
 	
-	public function adjust(finalLineHeight:Float, finalBaseline:Float, yOffset:Float):Float
+	public function adjust(finalLineHeight:Float, finalTextHeight:Float, finalBaseline:Float, yOffset:Float):Float
 	{
+		this.yOffset += yOffset;
 		for (i in 0...this.parts.length)
 		{
-			this.parts[i].adjust(finalLineHeight, finalBaseline, yOffset);
+			this.parts[i].adjust(finalLineHeight, finalTextHeight, finalBaseline, this.yOffset);
 		}
 		var diff:Float = finalLineHeight - this.currentLineHeight + yOffset;
 		this.currentLineHeight = finalLineHeight;

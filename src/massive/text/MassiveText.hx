@@ -420,7 +420,7 @@ class MassiveText
 		var ok:Bool;
 		var finished:Bool = false;
 		
-		var scale:Float = 1.0;
+		//var scale:Float = 1.0;
 		
 		var containerWidth:Float = width - paddingX;
 		var containerHeight:Float = height - paddingY;
@@ -486,7 +486,7 @@ class MassiveText
 						}
 						
 						location = glyphLocation = GlyphLocation.fromPool(glyph);
-						location.scale = scale;
+						location.scale = _scale;
 						_lastCharID = charID;
 					}
 					else // img or clip
@@ -516,7 +516,7 @@ class MassiveText
 					
 					location.index = _charIndex;
 					location.x = _currentX + location.xOffset;
-					location.y = _currentY + location.yOffset;
+					location.originY = _currentY + location.yOffset;
 					_currentLine[_currentLine.length] = location;
 					_currentWord[_currentWord.length] = location;
 					_linePartLocations[_linePartLocations.length] = location;
@@ -619,9 +619,10 @@ class MassiveText
 										if (!testLocation.isHyphen)
 										{
 											glyphLocation = GlyphLocation.fromPool(_hyphenGlyph);
+											glyphLocation.scale = _scale;
 											glyphLocation.index = _totalChars + _i;
-											glyphLocation.x = testLocation.x + testLocation.xAdvance + _hyphenGlyph.xOffset;
-											glyphLocation.y = _currentY + _hyphenGlyph.yOffset;
+											glyphLocation.x = testLocation.x + testLocation.xAdvance + glyphLocation.xOffset;
+											glyphLocation.originY = _currentY + glyphLocation.yOffset;
 											_currentLine[_currentLine.length] = glyphLocation;
 											_currentWord[_currentWord.length] = glyphLocation;
 											_linePartLocations[_linePartLocations.length] = glyphLocation;
@@ -793,6 +794,10 @@ class MassiveText
 							}
 							else
 							{
+								if (!letterSpreadingOccured)
+								{
+									spreadWidth = remainingWidth / (_words.length - 1);
+								}
 								for (c in 1..._words.length)
 								{
 									cumulatedOffset += spreadWidth;
@@ -939,6 +944,7 @@ class MassiveText
 		
 		_maxLineHeight = 0.0;
 		_maxBaseline = 0.0;
+		_maxTextHeight = 0.0;
 		
 		nextLine();
 		nextPart();
@@ -1049,31 +1055,34 @@ class MassiveText
 		_lineObject.validate();
 		_lineHeight = _lineObject.maxLineHeight;
 		_baseline = _lineObject.maxBaseline;
+		_textHeight = _lineObject.maxTextHeight;
 		if (_uniformLineHeight)
 		{
 			var lineHeightChange:Bool = _lineHeight > _maxLineHeight;
 			if (lineHeightChange) _maxLineHeight = _lineHeight;
 			var baselineChange = _baseline > _maxBaseline;
 			if (baselineChange) _maxBaseline = _baseline;
+			var textHeightChange:Bool = _textHeight > _maxTextHeight;
+			if (textHeightChange) _maxTextHeight = _textHeight;
 			
-			if (lineHeightChange || baselineChange)
+			if (lineHeightChange || baselineChange || textHeightChange)
 			{
 				var yChange:Float = 0.0;
 				for (l in 0..._lineObjects.length)
 				{
-					yChange = _lineObjects[l].adjust(_maxLineHeight, _maxBaseline, yChange);
+					yChange = _lineObjects[l].adjust(_maxLineHeight, _maxTextHeight, _maxBaseline, yChange);
 				}
 				_currentY += yChange;
 			}
 			else
 			{
-				_lineObject.adjust(_maxLineHeight, _maxBaseline, 0.0);
+				_lineObject.adjust(_maxLineHeight, _maxTextHeight, _maxBaseline, 0.0);
 			}
 			_lineHeight = _maxLineHeight;
 		}
 		else
 		{
-			_lineObject.adjust(_lineHeight, _baseline, 0.0);
+			_lineObject.adjust(_lineHeight, _textHeight, _baseline, 0.0);
 		}
 	}
 	
@@ -1145,9 +1154,6 @@ class MassiveText
 	}
 	
 	// new helper vars
-	//private static var _containerWidth:Float;
-	//private static var _containerHeight:Float;
-	
 	private static var _i:Int;
 	
 	private static var _text:Text;
@@ -1180,6 +1186,8 @@ class MassiveText
 	private static var _maxLineHeight:Float;
 	private static var _baseline:Float;
 	private static var _maxBaseline:Float;
+	private static var _textHeight:Float;
+	private static var _maxTextHeight:Float;
 	
 	private static var _currentLine:Array<ElementLocation>;
 	private static var _currentWord:Array<ElementLocation>;
@@ -1203,7 +1211,6 @@ class MassiveText
 	private static var _fontStyle:FontStyle;
 	private static var _glyphMap:Map<Int, Glyph>;
 	private static var _hyphenGlyph:Glyph;
-	//private static var _lineHeight:Float;
 	private static var _kerning:Bool;
 	private static var _leading:Float;
 	private static var _spacing:Float;

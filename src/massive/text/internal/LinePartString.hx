@@ -9,27 +9,11 @@ import massive.text.FontStyle;
 class LinePartString extends LinePart 
 {
 	private static var _POOL:Array<LinePartString> = new Array<LinePartString>();
-	//private static var _OUT:Array<LinePartString> = new Array<LinePartString>();
-	
-	//private static var _instance:LinePartString;
 	
 	public static function fromPool(style:FontStyle, fontScale:Float):LinePartString
 	{
-		//return _OUT[_OUT.length] = _POOL.length != 0 ? _POOL.pop().setFromPool(style, fontScale) : new LinePartString(style, fontScale);
 		return _POOL.length != 0 ? _POOL.pop().setFromPool(style, fontScale) : new LinePartString(style, fontScale);
 	}
-	
-	//public static function rechargePool():Void
-	//{
-		//var count:Int = _OUT.length;
-		//for (i in 0...count)
-		//{
-			//_instance = _OUT[i];
-			//_instance.style = null;
-			//_POOL[_POOL.length] = _instance;
-		//}
-		//_OUT.resize(0);
-	//}
 	
 	public var fontScale:Float;
 	public var style:FontStyle;
@@ -37,6 +21,7 @@ class LinePartString extends LinePart
 	public function new(style:FontStyle, fontScale:Float) 
 	{
 		super();
+		this.isText = true;
 		this.style = style;
 		this.fontScale = fontScale;
 		
@@ -73,23 +58,17 @@ class LinePartString extends LinePart
 		
 	}
 	
-	public function adjust(finalLineHeight:Float, finalBaseline:Float, yOffset:Float):Void
+	public function adjust(finalLineHeight:Float, finalTextHeight:Float, finalBaseline:Float, yOffset:Float):Void
 	{
-		var lineHeightDiff:Float = (finalLineHeight - this.lineHeightCurrent) / 2;
+		var lineHeightDiff:Float = (finalLineHeight - finalTextHeight) / 2;
 		var baselineDiff:Float = finalBaseline - this.baselineCurrent;
 		var location:ElementLocation;
 		
 		for (i in 0...this.elementLocations.length)
 		{
 			location = this.elementLocations[i];
-			location.y = Math.ffloor(location.y + yOffset + lineHeightDiff + baselineDiff * location.scale);
-			//location.y += baselineDiff * location.scale;
+			location.y = Math.ffloor(location.originY + yOffset + lineHeightDiff + baselineDiff);
 		}
-		
-		this.lineHeightCurrent = finalLineHeight;
-		this.baselineCurrent = finalBaseline;
-		
-		//return lineHeightDiff + yOffset;
 	}
 	
 }
