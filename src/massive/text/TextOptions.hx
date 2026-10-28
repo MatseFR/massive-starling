@@ -11,7 +11,7 @@ class TextOptions extends EventDispatcher
 {
 	private static var _POOL:Array<TextOptions> = new Array<TextOptions>();
 	
-	public static function fromPool(hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, wordWrap:Bool = true, hyphenation:Bool = true, letterSpreading:Bool = true):TextOptions
+	public static function fromPool(hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, wordWrap:Bool = true, hyphenation:Bool = false, letterSpreading:Bool = true):TextOptions
 	{
 		if (_POOL.length != 0) return _POOL.pop().setFromPool(hAlign, vAlign, wordWrap, hyphenation, letterSpreading);
 		return new TextOptions(hAlign, vAlign, wordWrap, hyphenation, letterSpreading);
@@ -225,7 +225,7 @@ class TextOptions extends EventDispatcher
 		return this._wordWrap;
 	}
 
-	public function new(hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, wordWrap:Bool = true, hyphenation:Bool = true, letterSpreading:Bool = true) 
+	public function new(hAlign:String = TextAlign.CENTER, vAlign:String = TextAlign.CENTER, wordWrap:Bool = true, hyphenation:Bool = false, letterSpreading:Bool = true) 
 	{
 		super();
 		
