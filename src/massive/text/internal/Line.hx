@@ -14,12 +14,10 @@ class Line
 		return new Line();
 	}
 	
-	public var currentLineHeight:Float;
 	public var maxBaseline:Float = 0.0;
 	public var maxLineHeight:Float = 0.0;
 	public var maxTextHeight:Float = 0.0;
 	public var parts(default, null):Array<LinePart> = new Array<LinePart>();
-	public var yOffset:Float = 0.0;
 	
 	public function new() 
 	{
@@ -37,7 +35,6 @@ class Line
 		this.maxBaseline = 0.0;
 		this.maxLineHeight = 0.0;
 		this.maxTextHeight = 0.0;
-		this.yOffset = 0.0;
 	}
 	
 	public function pool():Void
@@ -71,20 +68,33 @@ class Line
 			if (part.baseline > this.maxBaseline) this.maxBaseline = part.baseline;
 			if (part.isText && part.lineHeight > this.maxTextHeight) this.maxTextHeight = part.lineHeight;
 		}
-		
-		this.currentLineHeight = this.maxLineHeight;
 	}
 	
-	public function adjust(finalLineHeight:Float, finalTextHeight:Float, finalBaseline:Float, yOffset:Float):Float
+	public function adjust(finalLineHeight:Float, finalTextHeight:Float, finalBaseline:Float, yOffset:Float):Void
 	{
-		this.yOffset += yOffset;
 		for (i in 0...this.parts.length)
 		{
-			this.parts[i].adjust(finalLineHeight, finalTextHeight, finalBaseline, this.yOffset);
+			this.parts[i].adjust(finalLineHeight, finalTextHeight, finalBaseline, yOffset);
 		}
-		var diff:Float = finalLineHeight - this.currentLineHeight + yOffset;
-		this.currentLineHeight = finalLineHeight;
-		return diff;
+	}
+	
+	public function getMinSpaceWidth():Float
+	{
+		var hasText:Bool = false;
+		var minWidth:Float = Math.POSITIVE_INFINITY;
+		var part:LinePart;
+		
+		for (i in 0...this.parts.length)
+		{
+			part = this.parts[i];
+			if (part.isText)
+			{
+				hasText = true;
+				if (part.spaceWidth < minWidth) minWidth = part.spaceWidth;
+			}
+		}
+		
+		return hasText ? minWidth : 0.0;
 	}
 	
 }
