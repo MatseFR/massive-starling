@@ -356,7 +356,6 @@ class MassiveText
 		_glyphMap = _fontStyle.glyphs;
 		_hyphenGlyph = _fontStyle.hyphenGlyph;
 		_kerning = format.kerning;
-		_leading = format.leading;
 		_spacing = format.letterSpacing;
 		_fontSize = format.size != 0.0 ? format.size : _fontStyle.size;
 		_fontScale = _fontSize / _fontStyle.size;
@@ -380,14 +379,17 @@ class MassiveText
 		var hyphenationMinLength:Int = options.hyphenationMinLength;
 		var hyphenationMinRatio:Float = options.hyphenationMinRatio;
 		var intPositions:Bool = options.intPositions;
+		_leading = options.leading;
 		var letterSpreading:Bool = options.letterSpreading;
+		var letterSpreadingAllowIrregular:Bool = options.letterSpreadingAllowIrregular;
 		var letterSpreadingMax:Float = options.letterSpreadingMax;
-		var letterSpreadingMinRatio:Float = options.letterSpreadingMinRatio;
+		var useLetterSpreadingMax:Bool = letterSpreadingMax > 0.0;
+		var letterSpreadingSpaceRatio:Float = options.letterSpreadingSpaceRatio;
 		var paddingX:Float = options.paddingLeft + options.paddingRight;
 		var paddingY:Float = options.paddingTop + options.paddingBottom;
 		var paddingLeft:Float = options.paddingLeft;
 		var paddingTop:Float = options.paddingTop;
-		var restrictImageHeightToFontize:Bool = options.restrictImageHeightToFontSize;
+		var restrictImageHeightToFontSize:Bool = options.restrictImageHeightToFontSize;
 		var restrictImageHeightOverFlow:Float = options.restrictImageHeightOverflow;
 		var wordWrap:Bool = options.wordWrap;
 		
@@ -422,7 +424,10 @@ class MassiveText
 		var ok:Bool;
 		var finished:Bool = false;
 		
-		//var scale:Float = 1.0;
+		var spaceWidth:Float;// = 0.0;
+		var letterWidth:Float;
+		var letterCount:Int;
+		var numLetters:Float;
 		
 		var containerWidth:Float = width - paddingX;
 		var containerHeight:Float = height - paddingY;
@@ -433,7 +438,6 @@ class MassiveText
 		
 		while (true)
 		{
-			//i = 0;
 			while (_i < _numChars)
 			{
 				lineFull = false;
@@ -509,7 +513,7 @@ class MassiveText
 							location = clipLocation = ClipLocation.fromPool(_clipPart.clipConfigs[_i]);
 						}
 						
-						if (restrictImageHeightToFontize && location.height > _fontSize + restrictImageHeightOverFlow)
+						if (restrictImageHeightToFontSize && location.height > _fontSize + restrictImageHeightOverFlow)
 						{
 							location.scale = (_fontSize + restrictImageHeightOverFlow) / location.height;
 						}
@@ -518,7 +522,6 @@ class MassiveText
 					
 					location.index = _charIndex;
 					location.x = _currentX + location.xOffset;
-					location.originY = _currentY + location.yOffset;
 					_currentLine[_currentLine.length] = location;
 					_currentWord[_currentWord.length] = location;
 					_linePartLocations[_linePartLocations.length] = location;
@@ -624,7 +627,6 @@ class MassiveText
 											glyphLocation.scale = _scale;
 											glyphLocation.index = _totalChars + _i;
 											glyphLocation.x = testLocation.x + testLocation.xAdvance + glyphLocation.xOffset;
-											glyphLocation.originY = _currentY + glyphLocation.yOffset;
 											_currentLine[_currentLine.length] = glyphLocation;
 											_currentWord[_currentWord.length] = glyphLocation;
 											_linePartLocations[_linePartLocations.length] = glyphLocation;
@@ -668,10 +670,7 @@ class MassiveText
 									if (_isText)
 									{
 										nextCharID = _txt.charCodeAt(_i);
-										if (nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN)
-										{
-											break;
-										}
+										if (nextCharID == CHAR_NEWLINE || nextCharID == CHAR_CARRIAGE_RETURN) break;
 									}
 									if (_i == _numChars - 1)
 									{
@@ -679,10 +678,7 @@ class MassiveText
 										ok = false;
 										while (true)
 										{
-											if (_partIndex + 1 == _numParts)
-											{
-												break;
-											}
+											if (_partIndex + 1 == _numParts) break;
 											nextPart();
 											if (_isText)
 											{
@@ -691,10 +687,7 @@ class MassiveText
 											}
 										}
 										
-										if (!ok)
-										{
-											break;
-										}
+										if (!ok) break;
 									}
 									else
 									{
@@ -728,6 +721,8 @@ class MassiveText
 						// JUSTIFY
 						if (hAlignJustify)
 						{
+							_numSpaces = _words.length - 1;
+							
 							location = _currentLine[_currentLine.length - 1];
 							_currentX = location.x + location.width;
 							remainingWidth = containerWidth - _currentX;
@@ -736,41 +731,61 @@ class MassiveText
 							
 							if (letterSpreading)
 							{
-								letterSpreadingOccured = false;
-								ratio = remainingWidth / containerWidth;
-								if (ratio >= letterSpreadingMinRatio)
+								// we want to prioritize increasing spaces rather than spreading letters
+								// we plan to increase spaces based on letterSpreadingSpaceRatio
+								// and if there is enough space left we start spreading letters
+								// keep in mind that in some cases there can be a single word on a whole line : in that case letter spreading is the only way to justify
+								spaceWidth = _lineObject.getMinSpaceWidth() * _numSpaces * (letterSpreadingSpaceRatio - 1.0);
+								
+								letterWidth = remainingWidth - spaceWidth;
+								letterCount = _currentLine.length;
+								numLetters = letterCount - 1.0;
+								
+								if (letterWidth >= numLetters || _numSpaces == 0)
 								{
-									spreadWidth = remainingWidth / (_currentLine.length - 1);
-									if (!intPositions || spreadWidth >= intPositionStep)
+									if (_numSpaces == 0 && letterSpreadingAllowIrregular)
 									{
-										spreadWidth = Math.min(spreadWidth, letterSpreadingMax);
-										if (intPositions)
-										{
-											intIncrement = spreadWidth % intPositionStep;
-											spreadWidth -= intIncrement;
-										}
+										spreadWidth = letterWidth / numLetters;
+										if (useLetterSpreadingMax) spreadWidth = Math.min(spreadWidth, letterSpreadingMax);
+										intIncrement = spreadWidth % intPositionStep;
+										spreadWidth -= intIncrement;
+										intCounter = 0.0;
 										
-										for (c in 1..._currentLine.length)
+										for (c in 1...letterCount)
+										{
+											intCounter += intIncrement;
+											if (intCounter + EPSILON >= intPositionStep)
+											{
+												intCounter -= intPositionStep;
+												cumulatedOffset += spreadWidth + intPositionStep;
+											}
+											else
+											{
+												cumulatedOffset += spreadWidth;
+											}
+											_currentLine[c].x += cumulatedOffset;
+										}
+									}
+									else
+									{
+										spreadWidth = Math.ffloor(letterWidth / numLetters);
+										if (useLetterSpreadingMax) spreadWidth = Math.min(spreadWidth, letterSpreadingMax);
+										
+										for (c in 1...letterCount)
 										{
 											cumulatedOffset += spreadWidth;
 											_currentLine[c].x += cumulatedOffset;
 										}
-										
-										cumulatedOffset = 0.0;
-										_currentX = location.x + location.width;
-										remainingWidth = containerWidth - _currentX;
-										spreadWidth = remainingWidth / (_words.length - 1);
-										letterSpreadingOccured = true;
 									}
+									cumulatedOffset = 0.0;
+									_currentX = location.x + location.width;
 								}
 							}
 							
 							if (intPositions)
 							{
-								if (!letterSpreadingOccured)
-								{
-									spreadWidth = remainingWidth / (_words.length - 1);
-								}
+								remainingWidth = containerWidth - _currentX;
+								spreadWidth = remainingWidth / (_words.length - 1);
 								intIncrement = spreadWidth % intPositionStep;
 								spreadWidth -= intIncrement;
 								intCounter = 0.0;
@@ -827,7 +842,7 @@ class MassiveText
 					
 					if (lineFull)
 					{
-						if (_currentY + _lineHeight + _leading + _fontStyle.size <= containerHeight)
+						if (_currentY + _leading + _fontStyle.size <= containerHeight)
 						{
 							nextLine();
 						}
@@ -852,15 +867,7 @@ class MassiveText
 		}
 		
 		var numLines:Int = _lines.length;
-		var bottom:Float;
-		if (_uniformLineHeight)
-		{
-			bottom = _currentY + _maxLineHeight;
-		}
-		else
-		{
-			bottom = _currentY + _lineObjects[numLines - 1].maxLineHeight;
-		}
+		var bottom:Float = _currentY - _leading;
 		var xOffset:Int = 0;
 		var yOffset:Int = 0;
 		var right:Float;
@@ -992,11 +999,11 @@ class MassiveText
 			}
 			else if (_isImg)
 			{
-				_partResult = TextPartImgLayoutResult.fromPool(_imgPart);
+				_partResult = TextPartImgLayoutResult.fromPool();
 			}
 			else
 			{
-				_partResult = TextPartClipLayoutResult.fromPool(_clipPart);
+				_partResult = TextPartClipLayoutResult.fromPool();
 			}
 			_textResult.addPart(_partResult);
 		}
@@ -1069,22 +1076,24 @@ class MassiveText
 			
 			if (lineHeightChange || baselineChange || textHeightChange)
 			{
-				var yChange:Float = 0.0;
+				_currentY = 0.0;
 				for (l in 0..._lineObjects.length)
 				{
-					yChange = _lineObjects[l].adjust(_maxLineHeight, _maxTextHeight, _maxBaseline, yChange);
+					_lineObjects[l].adjust(_maxLineHeight, _maxTextHeight, _maxBaseline, _currentY);
+					_currentY += _maxLineHeight + _leading;
 				}
-				_currentY += yChange;
 			}
 			else
 			{
-				_lineObject.adjust(_maxLineHeight, _maxTextHeight, _maxBaseline, 0.0);
+				_lineObject.adjust(_maxLineHeight, _maxTextHeight, _maxBaseline, _currentY);
+				_currentY += _maxLineHeight + _leading;
 			}
 			_lineHeight = _maxLineHeight;
 		}
 		else
 		{
-			_lineObject.adjust(_lineHeight, _textHeight, _baseline, 0.0);
+			_lineObject.adjust(_lineHeight, _textHeight, _baseline, _currentY);
+			_currentY += _lineHeight + _leading;
 		}
 	}
 	
@@ -1099,7 +1108,6 @@ class MassiveText
 		if (_part != null)
 		{
 			nextLinePart();
-			_currentY += _lineHeight + _leading;
 		}
 		
 		_currentX = 0.0;
