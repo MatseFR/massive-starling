@@ -28,12 +28,12 @@ class LinePartClip extends LinePart
 	public function validate():Void
 	{
 		this.lineHeight = 0.0;
-		var clipLocation:ClipLocation;
+		var location:ElementLocation;
 		
 		for (i in 0...this.elementLocations.length)
 		{
-			clipLocation = cast this.elementLocations[i];
-			if (clipLocation.height > this.lineHeight) this.lineHeight = clipLocation.height;
+			location = this.elementLocations[i];
+			if (location.height > this.lineHeight) this.lineHeight = location.height;
 		}
 	}
 	
@@ -43,7 +43,7 @@ class LinePartClip extends LinePart
 		for (i in 0...this.elementLocations.length)
 		{
 			location = this.elementLocations[i];
-			location.y = Math.ffloor(location.originY + yOffset + (finalLineHeight - location.height) / 2.0);
+			location.y = Math.ffloor(yOffset + (finalLineHeight - location.height) / 2.0);
 		}
 	}
 	

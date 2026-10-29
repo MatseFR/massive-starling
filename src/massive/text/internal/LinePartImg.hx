@@ -27,15 +27,13 @@ class LinePartImg extends LinePart
 	public function validate():Void
 	{
 		this.lineHeight = 0.0;
-		var imgLocation:ImgLocation;
+		var location:ElementLocation;
 		
 		for (i in 0...this.elementLocations.length)
 		{
-			imgLocation = cast this.elementLocations[i];
-			if (imgLocation.height > this.lineHeight) this.lineHeight = imgLocation.height;
+			location = this.elementLocations[i];
+			if (location.height > this.lineHeight) this.lineHeight = location.height;
 		}
-		
-		this.lineHeightCurrent = this.lineHeight;
 	}
 	
 	public function adjust(finalLineHeight:Float, finalTextHeight:Float, finalBaseline:Float, yOffset:Float):Void
@@ -44,7 +42,7 @@ class LinePartImg extends LinePart
 		for (i in 0...this.elementLocations.length)
 		{
 			location = this.elementLocations[i];
-			location.y = Math.ffloor(location.originY + yOffset + (finalLineHeight - location.height) / 2.0);
+			location.y = Math.ffloor(yOffset + (finalLineHeight - location.height) / 2.0);
 		}
 	}
 	

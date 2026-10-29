@@ -25,8 +25,10 @@ class LinePartString extends LinePart
 		this.style = style;
 		this.fontScale = fontScale;
 		
-		this.baseline = this.baselineCurrent = this.style.baseline * this.fontScale;
-		this.lineHeight = this.lineHeightCurrent = this.style.lineHeight * this.fontScale;
+		this.baseline = this.style.baseline * this.fontScale;
+		this.lineHeight = this.style.lineHeight * this.fontScale;
+		
+		this.spaceWidth = this.style.spaceWidth * this.fontScale;
 	}
 	
 	override public function clear():Void 
@@ -47,8 +49,10 @@ class LinePartString extends LinePart
 		this.style = style;
 		this.fontScale = fontScale;
 		
-		this.baseline = this.baselineCurrent = this.style.baseline * this.fontScale;
-		this.lineHeight = this.lineHeightCurrent = this.style.lineHeight * this.fontScale;
+		this.baseline = this.style.baseline * this.fontScale;
+		this.lineHeight = this.style.lineHeight * this.fontScale;
+		
+		this.spaceWidth = this.style.spaceWidth * this.fontScale;
 		
 		return this;
 	}
@@ -60,14 +64,14 @@ class LinePartString extends LinePart
 	
 	public function adjust(finalLineHeight:Float, finalTextHeight:Float, finalBaseline:Float, yOffset:Float):Void
 	{
-		var lineHeightDiff:Float = (finalLineHeight - finalTextHeight) / 2;
-		var baselineDiff:Float = finalBaseline - this.baselineCurrent;
+		var lineHeightDiff:Float = Math.ffloor((finalLineHeight - finalTextHeight) / 2);
+		var baselineDiff:Float = finalBaseline - this.baseline;
 		var location:ElementLocation;
 		
 		for (i in 0...this.elementLocations.length)
 		{
 			location = this.elementLocations[i];
-			location.y = Math.ffloor(location.originY + yOffset + lineHeightDiff + baselineDiff);
+			location.y = location.yOffset + yOffset + lineHeightDiff + baselineDiff;
 		}
 	}
 	
