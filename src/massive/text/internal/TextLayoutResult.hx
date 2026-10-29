@@ -22,7 +22,6 @@ class TextLayoutResult
 	}
 	
 	public var numParts(get, never):Int;
-	public var partMap(default, null):Map<TextPart, TextPartLayoutResult> = new Map<TextPart, TextPartLayoutResult>();
 	public var parts(default, null):Array<TextPartLayoutResult> = new Array<TextPartLayoutResult>();
 	
 	private inline function get_numParts():Int { return this.parts.length; }
@@ -34,7 +33,6 @@ class TextLayoutResult
 	
 	public function clear():Void
 	{
-		this.partMap.clear();
 		for (i in 0...this.parts.length)
 		{
 			this.parts[i].pool();
@@ -50,7 +48,6 @@ class TextLayoutResult
 	
 	public function addPart(part:TextPartLayoutResult):Void
 	{
-		this.partMap.set(part.part, part);
 		this.parts[this.parts.length] = part;
 	}
 	
@@ -67,20 +64,8 @@ class TextLayoutResult
 	
 	public function removeLastPart():Void
 	{
-		var part:TextPartLayoutResult = this.parts.pop();
-		this.partMap.remove(part.part);
-		part.pool();
+		this.parts.pop().pool();
 	}
-	
-	//public function removePart(part:TextPartLayoutResult):Void
-	//{
-		//this.parts.splice(this.parts.indexOf(part), 1);
-	//}
-	//
-	//public function removePartAt(index:Int):Void
-	//{
-		//this.parts.splice(index, 1);
-	//}
 	
 	#if flash
 	public function getImages(display:MassiveDisplay, datas:Vector<Img>, imgStorage:Vector<Img>, clipStorage:Vector<Clip>, addedTextures:Vector<Texture>):Void
