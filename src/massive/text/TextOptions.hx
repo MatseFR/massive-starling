@@ -23,9 +23,11 @@ class TextOptions extends EventDispatcher
 	public var hyphenationMinLength(get, set):Int;
 	public var hyphenationMinRatio(get, set):Float;
 	public var intPositions(get, set):Bool;
+	public var leading(get, set):Float;
 	public var letterSpreading(get, set):Bool;
+	public var letterSpreadingAllowIrregular(get, set):Bool;
 	public var letterSpreadingMax(get, set):Float;
-	public var letterSpreadingMinRatio(get, set):Float;
+	public var letterSpreadingSpaceRatio(get, set):Float;
 	public var padding(get, set):Float;
 	public var paddingLeft(get, set):Float;
 	public var paddingRight(get, set):Float;
@@ -97,6 +99,16 @@ class TextOptions extends EventDispatcher
 		return this._intPositions;
 	}
 	
+	private var _leading:Float = 0.0;
+	private inline function get_leading():Float { return this._leading; }
+	private function set_leading(value:Float):Float
+	{
+		if (this._leading == value) return value;
+		this._leading = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._leading;
+	}
+	
 	private var _letterSpreading:Bool;
 	private inline function get_letterSpreading():Bool { return this._letterSpreading; }
 	private function set_letterSpreading(value:Bool):Bool
@@ -107,7 +119,17 @@ class TextOptions extends EventDispatcher
 		return this._letterSpreading;
 	}
 	
-	private var _letterSpreadingMax:Float = 2.0;
+	private var _letterSpreadingAllowIrregular:Bool;
+	private inline function get_letterSpreadingAllowIrregular():Bool { return this._letterSpreadingAllowIrregular; }
+	private function set_letterSpreadingAllowIrregular(value:Bool):Bool
+	{
+		if (this._letterSpreadingAllowIrregular == value) return value;
+		this._letterSpreadingAllowIrregular = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._letterSpreadingAllowIrregular;
+	}
+	
+	private var _letterSpreadingMax:Float = 0.0;
 	private inline function get_letterSpreadingMax():Float { return this._letterSpreadingMax; }
 	private function set_letterSpreadingMax(value:Float):Float
 	{
@@ -117,14 +139,14 @@ class TextOptions extends EventDispatcher
 		return this._letterSpreadingMax;
 	}
 	
-	private var _letterSpreadingMinRatio:Float = 0.1;
-	private inline function get_letterSpreadingMinRatio():Float { return this._letterSpreadingMinRatio; }
-	private function set_letterSpreadingMinRatio(value:Float):Float
+	private var _letterSpreadingSpaceRatio:Float = 3.0;
+	private inline function get_letterSpreadingSpaceRatio():Float { return this._letterSpreadingSpaceRatio; }
+	private function set_letterSpreadingSpaceRatio(value:Float):Float
 	{
-		if (this._letterSpreadingMinRatio == value) return value;
-		this._letterSpreadingMinRatio = value;
+		if (this._letterSpreadingSpaceRatio == value) return value;
+		this._letterSpreadingSpaceRatio = value;
 		dispatchEventWith(Event.CHANGE);
-		return this._letterSpreadingMinRatio;
+		return this._letterSpreadingSpaceRatio;
 	}
 	
 	private inline function get_padding():Float { return this._paddingLeft; }
@@ -242,8 +264,10 @@ class TextOptions extends EventDispatcher
 		this._hyphenationMinLength = 7;
 		this._hyphenationMinRatio = 0.1;
 		this._intPositions = true;
-		this._letterSpreadingMax = 2.0;
-		this._letterSpreadingMinRatio = 0.1;
+		this._leading = 0.0;
+		this._letterSpreadingAllowIrregular = false;
+		this._letterSpreadingMax = 0.0;
+		this._letterSpreadingSpaceRatio = 3.0;
 		this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = 0.0;
 		this._restrictImageHeightToFontSize = true;
 		this._restrictImageHeightOverflow = 0.0;
@@ -264,9 +288,11 @@ class TextOptions extends EventDispatcher
 		if (json.hyphenationMinLength != null) this._hyphenationMinLength = json.hyphenationMinLength;
 		if (json.hyphenationMinRatio != null) this._hyphenationMinRatio = json.hyphenationMinRatio;
 		if (json.intPositions != null) this._intPositions = json.intPositions;
+		if (json.leading != null) this._leading = json.leading;
 		if (json.letterSpreading != null) this._letterSpreading = json.letterSpreading;
+		if (json.letterSpreadingAllowIrregular != null) this._letterSpreadingAllowIrregular = json.letterSpreadingAllowIrregular;
 		if (json.letterSpreadingMax != null) this._letterSpreadingMax = json.letterSpreadingMax;
-		if (json.letterSpreadingMinRatio != null) this._letterSpreadingMinRatio = json.letterSpreadingMinRatio;
+		if (json.letterSpreadingSpaceRatio != null) this._letterSpreadingSpaceRatio = json.letterSpreadingMinRatio;
 		if (json.padding != null)
 		{
 			this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = json.padding;
@@ -296,8 +322,10 @@ class TextOptions extends EventDispatcher
 			toOptions._hyphenationMinLength = this._hyphenationMinLength;
 			toOptions._hyphenationMinRatio = this._hyphenationMinRatio;
 			toOptions._intPositions = this._intPositions;
+			toOptions._leading = this._leading;
+			toOptions._letterSpreadingAllowIrregular = this._letterSpreadingAllowIrregular;
 			toOptions._letterSpreadingMax = this._letterSpreadingMax;
-			toOptions._letterSpreadingMinRatio = this._letterSpreadingMinRatio;
+			toOptions._letterSpreadingSpaceRatio = this._letterSpreadingSpaceRatio;
 			toOptions._paddingLeft = this._paddingLeft;
 			toOptions._paddingRight = this._paddingRight;
 			toOptions._paddingTop = this._paddingTop;
@@ -322,9 +350,11 @@ class TextOptions extends EventDispatcher
 		this._hyphenationMinLength = options._hyphenationMinLength;
 		this._hyphenationMinRatio = options._hyphenationMinRatio;
 		this._intPositions = options._intPositions;
+		this._leading = options._leading;
 		this._letterSpreading = options._letterSpreading;
+		this._letterSpreadingAllowIrregular = options._letterSpreadingAllowIrregular;
 		this._letterSpreadingMax = options._letterSpreadingMax;
-		this._letterSpreadingMinRatio = options._letterSpreadingMinRatio;
+		this._letterSpreadingSpaceRatio = options._letterSpreadingSpaceRatio;
 		this._paddingLeft = options._paddingLeft;
 		this._paddingRight = options._paddingRight;
 		this._paddingTop = options._paddingTop;
