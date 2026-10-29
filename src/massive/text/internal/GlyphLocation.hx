@@ -42,52 +42,40 @@ class GlyphLocation extends ElementLocation
 	{
 		super();
 		this.glyph = glyph;
-		//if (this.glyph != null)
-		//{
-			this.charID = glyph.charID;
-			this.frame = glyph.frame;
-			this.originalHeight = this.height = glyph.height;
-			this.isHyphen = glyph.isHyphen;
-			this.isSpace = glyph.isSpace;
-			this.isVowel = glyph.isVowel;
-			this.originalWidth = this.width = glyph.width;
-			this.originalXAdvance = this.xAdvance = glyph.xAdvance;
-			this.originalXOffset = this.xOffset = glyph.xOffset;
-			this.originalYOffset = this.yOffset = glyph.yOffset;
-			#if debug
-			this.char = glyph.char;
-			#end
-		//}
+		
+		this.charID = glyph.charID;
+		this.frame = glyph.frame;
+		this.originalHeight = this.height = glyph.height;
+		this.isHyphen = glyph.isHyphen;
+		this.isSpace = glyph.isSpace;
+		this.isVowel = glyph.isVowel;
+		this.originalWidth = this.width = glyph.width;
+		this.originalXAdvance = this.xAdvance = glyph.xAdvance;
+		this.originalXOffset = this.xOffset = glyph.xOffset;
+		this.originalYOffset = this.yOffset = glyph.yOffset;
+		#if debug
+		this.char = glyph.char;
+		#end
 	}
 	
 	private function setFromPool(glyph:Glyph):GlyphLocation
 	{
 		this.glyph = glyph;
-		//if (this.glyph != null)
-		//{
-			this.charID = glyph.charID;
-			this.frame = glyph.frame;
-			this.originalHeight = this.height = glyph.height;
-			this.isHyphen = glyph.isHyphen;
-			this.isSpace = glyph.isSpace;
-			this.isVowel = glyph.isVowel;
-			this.originalWidth = this.width = glyph.width;
-			this.originalXAdvance = this.xAdvance = glyph.xAdvance;
-			this.originalXOffset = this.xOffset = glyph.xOffset;
-			this.originalYOffset = this.yOffset = glyph.yOffset;
-			#if debug
-			this.char = glyph.char;
-			#end
-		//}
-		//else
-		//{
-			//this.isHyphen = false;
-			//this.isSpace = false;
-			//this.isVowel = false;
-			//#if debug
-			//this.char = null;
-			//#end
-		//}
+		
+		this.charID = glyph.charID;
+		this.frame = glyph.frame;
+		this.originalHeight = this.height = glyph.height;
+		this.isHyphen = glyph.isHyphen;
+		this.isSpace = glyph.isSpace;
+		this.isVowel = glyph.isVowel;
+		this.originalWidth = this.width = glyph.width;
+		this.originalXAdvance = this.xAdvance = glyph.xAdvance;
+		this.originalXOffset = this.xOffset = glyph.xOffset;
+		this.originalYOffset = this.yOffset = glyph.yOffset;
+		#if debug
+		this.char = glyph.char;
+		#end
+		
 		return this;
 	}
 	
