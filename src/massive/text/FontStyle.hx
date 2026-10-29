@@ -23,6 +23,7 @@ class FontStyle
 	public var outline:Float;
 	public var size(default, null):Float;
 	public var spaceGlyph(default, null):Glyph;
+	public var spaceWidth(default, null):Float = 0.0;
 	public var texture(default, null):Texture;
 
 	public function new(name:String, texture:Texture = null, fontData:Dynamic = null, adjustIfOutline:Bool = true) 
@@ -55,7 +56,11 @@ class FontStyle
 		}
 		
 		this.spaceGlyph = getGlyph(MassiveText.CHAR_SPACE);
-		if (this.spaceGlyph != null) this.spaceGlyph.isSpace = true;
+		if (this.spaceGlyph != null) 
+		{
+			this.spaceGlyph.isSpace = true;
+			this.spaceWidth = this.spaceGlyph.xOffset + this.spaceGlyph.xAdvance;
+		}
 		
 		var glyph:Glyph = getGlyph(MassiveText.CHAR_TAB);
 		if (glyph != null) glyph.isSpace = true;
