@@ -133,46 +133,137 @@ class MassiveText
 		var currIndex:Int = 0;
 		var openIndex:Int;
 		var closeIndex:Int;
+		var nextIndex:Int;
 		var str:String;
 		var json:Dynamic;
-		var part:TextPartString;
+		var part:TextPart;
+		var clipPart:TextPartClip;
+		var imgPart:TextPartImg;
+		var strPart:TextPartString = null;
 		var numChars:Int = txt.length;
-		
-		part = TextPartString.fromPool();
-		text.addPart(part);
+		var nodeData:Array<Dynamic>;
+		var nodeCount:Int;
 		
 		while (true)
 		{
 			openIndex = txt.indexOf(OPEN_PARAMS, currIndex);
 			if (openIndex != -1)
 			{
-				if (openIndex != currIndex)
-				{
-					part.text = txt.substring(currIndex, openIndex);
-					part = TextPartString.fromPool();
-					text.addPart(part);
-				}
 				closeIndex = txt.indexOf(CLOSE_PARAMS, openIndex + OPEN_PARAMS.length);
 				if (closeIndex != -1)
 				{
-					str = "{" + txt.substring(openIndex + OPEN_PARAMS.length, closeIndex) + "}";
-					json = Json.parse(str);
-					if (json.format != null) part.formatData = json.format;
-					if (json.anim != null) part.animationData = json.anim;
-					if (json.animIn != null) part.animationInData = json.animIn;
-					if (json.animOut != null) part.animationOutData = json.animOut;
+					nextIndex = txt.indexOf(OPEN_PARAMS, openIndex + OPEN_PARAMS.length);
+					if (nextIndex == -1 || nextIndex > closeIndex)
+					{
+						str = "{" + txt.substring(openIndex + OPEN_PARAMS.length, closeIndex) + "}";
+						json = Json.parse(str);
+						
+						if (openIndex != currIndex)
+						{
+							if (strPart == null)
+							{
+								strPart = TextPartString.fromPool();
+								text.addPart(strPart);
+							}
+							strPart.text = txt.substring(currIndex, openIndex);
+							strPart = null;
+						}
+						
+						part = null;
+						if (json.img != null)
+						{
+							part = imgPart = TextPartImg.fromPool();
+							imgPart.imgConfigs[imgPart.imgConfigs.length] = ImgConfig.fromPool(json.img);
+							text.addPart(imgPart);
+						}
+						else if (json.imgs != null)
+						{
+							part = imgPart = TextPartImg.fromPool();
+							nodeData = json.imgs;
+							nodeCount = nodeData.length;
+							for (i in 0...nodeCount)
+							{
+								imgPart.imgConfigs[imgPart.imgConfigs.length] = ImgConfig.fromPool(nodeData[i]);
+							}
+							text.addPart(imgPart);
+						}
+						
+						if (json.clip != null)
+						{
+							part = clipPart = TextPartClip.fromPool();
+							clipPart.clipConfigs[clipPart.clipConfigs.length] = ClipConfig.fromPool(json.clip);
+							text.addPart(clipPart);
+						}
+						else if (json.clips != null)
+						{
+							part = clipPart = TextPartClip.fromPool();
+							nodeData = json.clips;
+							nodeCount = nodeData.length;
+							for (i in 0...nodeCount)
+							{
+								clipPart.clipConfigs[clipPart.clipConfigs.length] = ClipConfig.fromPool(nodeData[i]);
+							}
+							text.addPart(clipPart);
+						}
+						
+						if (part == null)
+						{
+							part = strPart = TextPartString.fromPool();
+							text.addPart(strPart);
+						}
+						
+						if (json.format != null) part.formatData = json.format;
+						if (json.anim != null) part.animationData = json.anim;
+						if (json.animIn != null) part.animationInData = json.animIn;
+						if (json.animOut != null) part.animationOutData = json.animOut;
+						
+						currIndex = closeIndex + CLOSE_PARAMS.length;
+						if (currIndex == numChars) break;
+					}
+					else
+					{
+						if (nextIndex != -1)
+						{
+							if (strPart == null)
+							{
+								strPart = TextPartString.fromPool();
+								text.addPart(strPart);
+							}
+							strPart.text = txt.substring(currIndex, nextIndex);
+							strPart = null;
+							currIndex = nextIndex;
+						}
+						else
+						{
+							if (strPart == null)
+							{
+								strPart = TextPartString.fromPool();
+								text.addPart(strPart);
+							}
+							strPart.text = txt.substring(currIndex, numChars);
+							break;
+						}
+					}
 				}
 				else
 				{
-					// error : no params closing
-					throw new Error("no params closing");
+					if (strPart == null)
+					{
+						strPart = TextPartString.fromPool();
+						text.addPart(strPart);
+					}
+					strPart.text = txt.substring(currIndex, numChars);
+					break;
 				}
-				currIndex = closeIndex + CLOSE_PARAMS.length;
-				if (currIndex == numChars) break;
 			}
 			else
 			{
-				part.text = txt.substring(currIndex, numChars);
+				if (strPart == null)
+				{
+					strPart = TextPartString.fromPool();
+					text.addPart(strPart);
+				}
+				strPart.text = txt.substring(currIndex, numChars);
 				break;
 			}
 		}
@@ -194,8 +285,6 @@ class MassiveText
 		var clipPart:TextPartClip;
 		var imgPart:TextPartImg;
 		var strPart:TextPartString = null;
-		var clipConfig:ClipConfig;
-		var imgConfig:ImgConfig;
 		var numChars:Int = txt.length;
 		var nodeData:Array<Dynamic>;
 		var nodeCount:Int;
