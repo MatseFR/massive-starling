@@ -20,7 +20,6 @@ class TextFormat extends EventDispatcher
 	public var colorOffset(get, set):Int;
 	public var font(get, set):String;
 	public var kerning(get, set):Bool;
-	public var leading(get, set):Float;
 	public var letterSpacing(get, set):Float;
 	public var size(get, set):Float;
 	public var style(get, set):String;
@@ -95,16 +94,6 @@ class TextFormat extends EventDispatcher
 		this._kerning = value;
 		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._kerning;
-	}
-	
-	private var _leading:Float = 0.0;
-	private inline function get_leading():Float { return this._leading; }
-	private function set_leading(value:Float):Float
-	{
-		if (this._leading == value) return value;
-		this._leading = value;
-		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
-		return this._leading;
 	}
 	
 	private var _letterSpacing:Float = 0.0;
@@ -237,7 +226,7 @@ class TextFormat extends EventDispatcher
 	{
 		this._color = 0xffffff;
 		this._colorOffset = 0x000000;
-		this._leading = this._letterSpacing = 0.0;
+		this._letterSpacing = 0.0;
 		this._kerning = true;
 		this._red = this._green = this._blue = this._alpha = 1.0;
 		this._redOffset = this._greenOffset = this._blueOffset = this._alphaOffset = 0.0;
@@ -261,7 +250,6 @@ class TextFormat extends EventDispatcher
 		if (json.style != null) this.style = json.style;
 		if (json.size != null) this.size = json.size;
 		if (json.kerning != null) this.kerning = json.kerning;
-		if (json.leading != null) this.leading = json.leading;
 		if (json.letterSpacing != null) this.letterSpacing = json.letterSpacing;
 		
 		if (json.color != null)
@@ -301,7 +289,6 @@ class TextFormat extends EventDispatcher
 			toFormat._eventsEnabled = false;
 			
 			toFormat.kerning = this.kerning;
-			toFormat.leading = this.leading;
 			toFormat.letterSpacing = this.letterSpacing;
 			toFormat.red = this.red;
 			toFormat.green = this.green;
@@ -330,7 +317,6 @@ class TextFormat extends EventDispatcher
 		this.style = format._style;
 		this.size = format._size;
 		this.kerning = format._kerning;
-		this.leading = format._leading;
 		this.letterSpacing = format._letterSpacing;
 		
 		this.red = format._red;
