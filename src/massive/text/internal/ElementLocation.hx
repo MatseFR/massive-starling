@@ -51,7 +51,6 @@ abstract class ElementLocation
 	public var originalXAdvance(default, null):Float;
 	public var originalXOffset(default, null):Float;
 	public var originalYOffset(default, null):Float;
-	public var originY:Float;
 	public var scale(get, set):Float;
 	public var textPart:TextPartLayoutResult;
 	public var width(default, null):Float;
