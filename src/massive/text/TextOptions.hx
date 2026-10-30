@@ -33,8 +33,6 @@ class TextOptions extends EventDispatcher
 	public var paddingRight(get, set):Float;
 	public var paddingTop(get, set):Float;
 	public var paddingBottom(get, set):Float;
-	//public var restrictImageHeightToFontSize(get, set):Bool;
-	//public var restrictImageHeightOverflow(get, set):Float;
 	public var uniformLineHeight(get, set):Bool;
 	public var verticalAlign(get, set):String;
 	public var wordWrap(get, set):Bool;
@@ -79,7 +77,7 @@ class TextOptions extends EventDispatcher
 		return this._hyphenationMinLength;
 	}
 	
-	private var _hyphenationSpaceRatio:Float = 0.05;
+	private var _hyphenationSpaceRatio:Float = 4.0;
 	private inline function get_hyphenationSpaceRatio():Float { return this._hyphenationSpaceRatio; }
 	private function set_hyphenationSpaceRatio(value:Float):Float
 	{
@@ -139,7 +137,7 @@ class TextOptions extends EventDispatcher
 		return this._letterSpreadingMax;
 	}
 	
-	private var _letterSpreadingSpaceRatio:Float = 3.0;
+	private var _letterSpreadingSpaceRatio:Float = 4.0;
 	private inline function get_letterSpreadingSpaceRatio():Float { return this._letterSpreadingSpaceRatio; }
 	private function set_letterSpreadingSpaceRatio(value:Float):Float
 	{
@@ -242,12 +240,12 @@ class TextOptions extends EventDispatcher
 	{
 		this._autoSize = TextFieldAutoSize.NONE;
 		this._hyphenationMinLength = 7;
-		this._hyphenationSpaceRatio = 0.1;
+		this._hyphenationSpaceRatio = 4.0;
 		this._intPositions = true;
 		this._leading = 0.0;
 		this._letterSpreadingAllowIrregular = false;
 		this._letterSpreadingMax = 0.0;
-		this._letterSpreadingSpaceRatio = 3.0;
+		this._letterSpreadingSpaceRatio = 4.0;
 		this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = 0.0;
 		this._uniformLineHeight = true;
 	}
