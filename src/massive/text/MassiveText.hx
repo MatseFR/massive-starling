@@ -448,6 +448,8 @@ class MassiveText
 		_spacing = format.letterSpacing;
 		_fontSize = format.size != 0.0 ? format.size : _fontStyle.size;
 		_fontScale = _fontSize / _fontStyle.size;
+		_restrictImageHeightToFontSize = format.restrictImgHeightToFontSize;
+		_restrictImageHeightOverflow = format.restrictImgHeightOverflow;
 	}
 	
 	public static function processText(width:Float, height:Float, text:Text, langRules:LangRules):TextLayoutResult
@@ -466,7 +468,7 @@ class MassiveText
 		var options:TextOptions = text.options;
 		var hyphenation:Bool = options.hyphenation && langRules != null;
 		var hyphenationMinLength:Int = options.hyphenationMinLength;
-		var hyphenationMinRatio:Float = options.hyphenationMinRatio;
+		var hyphenationMinRatio:Float = options.hyphenationSpaceRatio;
 		var intPositions:Bool = options.intPositions;
 		_leading = options.leading;
 		var letterSpreading:Bool = options.letterSpreading;
@@ -478,8 +480,8 @@ class MassiveText
 		var paddingY:Float = options.paddingTop + options.paddingBottom;
 		var paddingLeft:Float = options.paddingLeft;
 		var paddingTop:Float = options.paddingTop;
-		var restrictImageHeightToFontSize:Bool = options.restrictImageHeightToFontSize;
-		var restrictImageHeightOverFlow:Float = options.restrictImageHeightOverflow;
+		//var restrictImageHeightToFontSize:Bool = options.restrictImageHeightToFontSize;
+		//var restrictImageHeightOverFlow:Float = options.restrictImageHeightOverflow;
 		var wordWrap:Bool = options.wordWrap;
 		
 		var charID:Int;
@@ -602,9 +604,9 @@ class MassiveText
 							location = clipLocation = ClipLocation.fromPool(_clipPart.clipConfigs[_i]);
 						}
 						
-						if (restrictImageHeightToFontSize && location.height > _fontSize + restrictImageHeightOverFlow)
+						if (_restrictImageHeightToFontSize && location.height > _fontSize + _restrictImageHeightOverflow)
 						{
-							location.scale = (_fontSize + restrictImageHeightOverFlow) / location.height;
+							location.scale = (_fontSize + _restrictImageHeightOverflow) / location.height;
 						}
 						_lastCharID = CHAR_MISSING;
 					}
@@ -1314,5 +1316,7 @@ class MassiveText
 	private static var _leading:Float;
 	private static var _spacing:Float;
 	private static var _fontSize:Float;
+	private static var _restrictImageHeightToFontSize:Bool;
+	private static var _restrictImageHeightOverflow:Float;
 	
 }
