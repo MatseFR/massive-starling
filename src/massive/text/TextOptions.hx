@@ -21,7 +21,7 @@ class TextOptions extends EventDispatcher
 	public var horizontalAlign(get, set):String;
 	public var hyphenation(get, set):Bool;
 	public var hyphenationMinLength(get, set):Int;
-	public var hyphenationMinRatio(get, set):Float;
+	public var hyphenationSpaceRatio(get, set):Float;
 	public var intPositions(get, set):Bool;
 	public var leading(get, set):Float;
 	public var letterSpreading(get, set):Bool;
@@ -33,8 +33,8 @@ class TextOptions extends EventDispatcher
 	public var paddingRight(get, set):Float;
 	public var paddingTop(get, set):Float;
 	public var paddingBottom(get, set):Float;
-	public var restrictImageHeightToFontSize(get, set):Bool;
-	public var restrictImageHeightOverflow(get, set):Float;
+	//public var restrictImageHeightToFontSize(get, set):Bool;
+	//public var restrictImageHeightOverflow(get, set):Float;
 	public var uniformLineHeight(get, set):Bool;
 	public var verticalAlign(get, set):String;
 	public var wordWrap(get, set):Bool;
@@ -79,14 +79,14 @@ class TextOptions extends EventDispatcher
 		return this._hyphenationMinLength;
 	}
 	
-	private var _hyphenationMinRatio:Float = 0.05;
-	private inline function get_hyphenationMinRatio():Float { return this._hyphenationMinRatio; }
-	private function set_hyphenationMinRatio(value:Float):Float
+	private var _hyphenationSpaceRatio:Float = 0.05;
+	private inline function get_hyphenationSpaceRatio():Float { return this._hyphenationSpaceRatio; }
+	private function set_hyphenationSpaceRatio(value:Float):Float
 	{
-		if (this._hyphenationMinRatio == value) return value;
-		this._hyphenationMinRatio = value;
+		if (this._hyphenationSpaceRatio == value) return value;
+		this._hyphenationSpaceRatio = value;
 		dispatchEventWith(Event.CHANGE);
-		return this._hyphenationMinRatio;
+		return this._hyphenationSpaceRatio;
 	}
 	
 	private var _intPositions:Bool = true;
@@ -197,26 +197,6 @@ class TextOptions extends EventDispatcher
 		return this._paddingBottom;
 	}
 	
-	private var _restrictImageHeightToFontSize:Bool = true;
-	private inline function get_restrictImageHeightToFontSize():Bool { return this._restrictImageHeightToFontSize; }
-	private function set_restrictImageHeightToFontSize(value:Bool):Bool
-	{
-		if (this._restrictImageHeightToFontSize == value) return value;
-		this._restrictImageHeightToFontSize = value;
-		dispatchEventWith(Event.CHANGE);
-		return this._restrictImageHeightToFontSize;
-	}
-	
-	private var _restrictImageHeightOverflow:Float = 0.0;
-	private inline function get_restrictImageHeightOverflow():Float { return this._restrictImageHeightOverflow; }
-	private function set_restrictImageHeightOverflow(value:Float):Float
-	{
-		if (this._restrictImageHeightOverflow == value) return value;
-		this._restrictImageHeightOverflow = value;
-		dispatchEventWith(Event.CHANGE);
-		return this._restrictImageHeightOverflow;
-	}
-	
 	private var _uniformLineHeight:Bool = true;
 	private inline function get_uniformLineHeight():Bool { return this._uniformLineHeight; }
 	private function set_uniformLineHeight(value:Bool):Bool
@@ -262,15 +242,13 @@ class TextOptions extends EventDispatcher
 	{
 		this._autoSize = TextFieldAutoSize.NONE;
 		this._hyphenationMinLength = 7;
-		this._hyphenationMinRatio = 0.1;
+		this._hyphenationSpaceRatio = 0.1;
 		this._intPositions = true;
 		this._leading = 0.0;
 		this._letterSpreadingAllowIrregular = false;
 		this._letterSpreadingMax = 0.0;
 		this._letterSpreadingSpaceRatio = 3.0;
 		this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = 0.0;
-		this._restrictImageHeightToFontSize = true;
-		this._restrictImageHeightOverflow = 0.0;
 		this._uniformLineHeight = true;
 	}
 	
@@ -280,39 +258,6 @@ class TextOptions extends EventDispatcher
 		_POOL[_POOL.length] = this;
 	}
 	
-	public function loadJson(json:Dynamic, dispatchChangeEvent:Bool = true):Void
-	{
-		if (json.autoSize != null) this._autoSize = json.autoSize;
-		if (json.horizontalAlign != null) this._horizontalAlign = json.horizontalAlign;
-		if (json.hyphenation != null) this._hyphenation = json.hyphenation;
-		if (json.hyphenationMinLength != null) this._hyphenationMinLength = json.hyphenationMinLength;
-		if (json.hyphenationMinRatio != null) this._hyphenationMinRatio = json.hyphenationMinRatio;
-		if (json.intPositions != null) this._intPositions = json.intPositions;
-		if (json.leading != null) this._leading = json.leading;
-		if (json.letterSpreading != null) this._letterSpreading = json.letterSpreading;
-		if (json.letterSpreadingAllowIrregular != null) this._letterSpreadingAllowIrregular = json.letterSpreadingAllowIrregular;
-		if (json.letterSpreadingMax != null) this._letterSpreadingMax = json.letterSpreadingMax;
-		if (json.letterSpreadingSpaceRatio != null) this._letterSpreadingSpaceRatio = json.letterSpreadingMinRatio;
-		if (json.padding != null)
-		{
-			this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = json.padding;
-		}
-		else
-		{
-			if (json.paddingLeft != null) this._paddingLeft = json.paddingLeft;
-			if (json.paddingRight != null) this._paddingRight = json.paddingRight;
-			if (json.paddingTop != null) this._paddingTop = json.paddingTop;
-			if (json.paddingBottom != null) this._paddingBottom = json.paddingBottom;
-		}
-		if (json.restrictImageHeightToFontSize != null) this._restrictImageHeightToFontSize = json.restrictImageHeightToFontSize;
-		if (json.restrictImageHeightOverflow != null) this._restrictImageHeightOverflow = json.restrictImageHeightOverflow;
-		if (json.uniformLineHeight != null) this._uniformLineHeight = json.uniformLineHeight;
-		if (json.verticalAlign != null) this._verticalAlign = json.verticalAlign;
-		if (json.wordWrap != null) this._wordWrap = json.wordWrap;
-		
-		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
-	}
-	
 	public function clone(toOptions:TextOptions = null, dispatchChangeEvent:Bool = true):TextOptions
 	{
 		if (toOptions == null)
@@ -320,7 +265,7 @@ class TextOptions extends EventDispatcher
 			toOptions = fromPool(this._horizontalAlign, this._verticalAlign, this._wordWrap, this._hyphenation, this._letterSpreading);
 			toOptions._autoSize = this._autoSize;
 			toOptions._hyphenationMinLength = this._hyphenationMinLength;
-			toOptions._hyphenationMinRatio = this._hyphenationMinRatio;
+			toOptions._hyphenationSpaceRatio = this._hyphenationSpaceRatio;
 			toOptions._intPositions = this._intPositions;
 			toOptions._leading = this._leading;
 			toOptions._letterSpreadingAllowIrregular = this._letterSpreadingAllowIrregular;
@@ -330,8 +275,6 @@ class TextOptions extends EventDispatcher
 			toOptions._paddingRight = this._paddingRight;
 			toOptions._paddingTop = this._paddingTop;
 			toOptions._paddingBottom = this._paddingBottom;
-			toOptions._restrictImageHeightToFontSize = this._restrictImageHeightToFontSize;
-			toOptions._restrictImageHeightOverflow = this._restrictImageHeightOverflow;
 			toOptions._uniformLineHeight = this._uniformLineHeight;
 		}
 		else
@@ -348,7 +291,7 @@ class TextOptions extends EventDispatcher
 		this._horizontalAlign = options._horizontalAlign;
 		this._hyphenation = options._hyphenation;
 		this._hyphenationMinLength = options._hyphenationMinLength;
-		this._hyphenationMinRatio = options._hyphenationMinRatio;
+		this._hyphenationSpaceRatio = options._hyphenationSpaceRatio;
 		this._intPositions = options._intPositions;
 		this._leading = options._leading;
 		this._letterSpreading = options._letterSpreading;
@@ -359,8 +302,6 @@ class TextOptions extends EventDispatcher
 		this._paddingRight = options._paddingRight;
 		this._paddingTop = options._paddingTop;
 		this._paddingBottom = options._paddingBottom;
-		this._restrictImageHeightToFontSize = options._restrictImageHeightToFontSize;
-		this._restrictImageHeightOverflow = options._restrictImageHeightOverflow;
 		this._uniformLineHeight = options._uniformLineHeight;
 		this._verticalAlign = options._verticalAlign;
 		this._wordWrap = options._wordWrap;
@@ -376,6 +317,127 @@ class TextOptions extends EventDispatcher
 		this._hyphenation = hyphenation;
 		this._letterSpreading = letterSpreading;
 		return this;
+	}
+	
+	public function isSameAs(options:TextOptions):Bool
+	{
+		if (this._autoSize != options._autoSize) return false;
+		if (this._horizontalAlign != options._horizontalAlign) return false;
+		if (this._verticalAlign != options._verticalAlign) return false;
+		if (this._hyphenation != options._hyphenation) return false;
+		if (this._hyphenationMinLength != options._hyphenationMinLength) return false;
+		if (this._hyphenationSpaceRatio != options._hyphenationSpaceRatio) return false;
+		if (this._intPositions != options._intPositions) return false;
+		if (this._leading != options._leading) return false;
+		if (this._letterSpreading != options._letterSpreading) return false;
+		if (this._letterSpreadingAllowIrregular != options._letterSpreadingAllowIrregular) return false;
+		if (this._letterSpreadingMax != options._letterSpreadingMax) return false;
+		if (this._letterSpreadingSpaceRatio != options._letterSpreadingSpaceRatio) return false;
+		if (this._paddingLeft != options._paddingLeft) return false;
+		if (this._paddingRight != options._paddingRight) return false;
+		if (this._paddingTop != options._paddingTop) return false;
+		if (this._paddingBottom != options._paddingBottom) return false;
+		if (this._uniformLineHeight != options._uniformLineHeight) return false;
+		if (this._wordWrap != options._wordWrap) return false;
+		return true;
+	}
+	
+	public function loadJson(json:Dynamic, dispatchChangeEvent:Bool = true):Void
+	{
+		if (json.autoSize != null) this._autoSize = json.autoSize;
+		if (json.hAlign != null) this._horizontalAlign = json.hAlign;
+		if (json.hyphenation != null) this._hyphenation = json.hyphenation;
+		if (json.hyphenationMinLength != null) this._hyphenationMinLength = json.hyphenationMinLength;
+		if (json.hyphenationSpaceRatio != null) this._hyphenationSpaceRatio = json.hyphenationSpaceRatio;
+		if (json.intPositions != null) this._intPositions = json.intPositions;
+		if (json.leading != null) this._leading = json.leading;
+		if (json.letterSpreading != null) this._letterSpreading = json.letterSpreading;
+		if (json.letterSpreadingAllowIrregular != null) this._letterSpreadingAllowIrregular = json.letterSpreadingAllowIrregular;
+		if (json.letterSpreadingMax != null) this._letterSpreadingMax = json.letterSpreadingMax;
+		if (json.letterSpreadingSpaceRatio != null) this._letterSpreadingSpaceRatio = json.letterSpreadingSpaceRatio;
+		if (json.padding != null)
+		{
+			this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = json.padding;
+		}
+		else
+		{
+			if (json.paddingLeft != null) this._paddingLeft = json.paddingLeft;
+			if (json.paddingRight != null) this._paddingRight = json.paddingRight;
+			if (json.paddingTop != null) this._paddingTop = json.paddingTop;
+			if (json.paddingBottom != null) this._paddingBottom = json.paddingBottom;
+		}
+		if (json.uniformLineHeight != null) this._uniformLineHeight = json.uniformLineHeight;
+		if (json.vAlign != null) this._verticalAlign = json.vAlign;
+		if (json.wordWrap != null) this._wordWrap = json.wordWrap;
+		
+		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
+	}
+	
+	public function toJson(relativeTo:TextOptions = null):Dynamic
+	{
+		var json:Dynamic = {};
+		
+		if (relativeTo != null)
+		{
+			if (this._autoSize != relativeTo._autoSize) json.autoSize = this._autoSize;
+			if (this._horizontalAlign != relativeTo._horizontalAlign) json.hAlign = this._horizontalAlign;
+			if (this._verticalAlign != relativeTo._verticalAlign) json.vAlign = this._verticalAlign;
+			if (this._hyphenation != relativeTo._hyphenation) json.hyphenation = this._hyphenation;
+			if (this._hyphenationMinLength != relativeTo._hyphenationMinLength) json.hyphenationMinLength = this._hyphenationMinLength;
+			if (this._hyphenationSpaceRatio != relativeTo._hyphenationSpaceRatio) json.hyphenationSpaceRatio = this._hyphenationSpaceRatio;
+			if (this._intPositions != relativeTo._intPositions) json.intPositions = this._intPositions;
+			if (this._leading != relativeTo._leading) json.leading = this._leading;
+			if (this._letterSpreading != relativeTo._letterSpreading) json.letterSpreading = this._letterSpreading;
+			if (this._letterSpreadingAllowIrregular != relativeTo._letterSpreadingAllowIrregular) json.letterSpreadingAllowIrregular = this._letterSpreadingAllowIrregular;
+			if (this._letterSpreadingMax != relativeTo._letterSpreadingMax) json.letterSpreadingMax = this._letterSpreadingMax;
+			if (this._letterSpreadingSpaceRatio != relativeTo._letterSpreadingSpaceRatio) json.letterSpreadingSpaceRatio = this._letterSpreadingSpaceRatio;
+			if (this._paddingLeft != relativeTo._paddingLeft || this._paddingRight != relativeTo._paddingRight || this._paddingTop != relativeTo._paddingTop || this._paddingBottom != relativeTo._paddingBottom)
+			{
+				if (this._paddingLeft == this._paddingRight && this._paddingLeft == this._paddingTop && this._paddingLeft == this._paddingBottom)
+				{
+					json.padding = this._paddingLeft;
+				}
+				else
+				{
+					json.paddingLeft = this._paddingLeft;
+					json.paddingRight = this._paddingRight;
+					json.paddingTop = this._paddingTop;
+					json.paddingBottom = this._paddingBottom;
+				}
+			}
+			if (this._uniformLineHeight != relativeTo._uniformLineHeight) json.uniformLineHeight = this._uniformLineHeight;
+			if (this._wordWrap != relativeTo._wordWrap) json.wordWrap = this._wordWrap;
+		}
+		else
+		{
+			json.autoSize = this._autoSize;
+			json.hAlign = this._horizontalAlign;
+			json.vAlign = this._verticalAlign;
+			json.hyphenation = this._hyphenation;
+			json.hyphenationMinLength = this._hyphenationMinLength;
+			json.hyphenationSpaceRatio = this._hyphenationSpaceRatio;
+			json.intPositions = this._intPositions;
+			json.leading = this._leading;
+			json.letterSpreading = this._letterSpreading;
+			json.letterSpreadingAllowIrregular = this._letterSpreadingAllowIrregular;
+			json.letterSpreadingMax = this._letterSpreadingMax;
+			json.letterSpreadingSpaceRatio = this._letterSpreadingSpaceRatio;
+			if (this._paddingLeft == this._paddingRight && this._paddingLeft == this._paddingTop && this._paddingLeft == this._paddingBottom)
+			{
+				json.padding = this._paddingLeft;
+			}
+			else
+			{
+				json.paddingLeft = this._paddingLeft;
+				json.paddingRight = this._paddingRight;
+				json.paddingTop = this._paddingTop;
+				json.paddingBottom = this._paddingBottom;
+			}
+			json.uniformLineHeight = this._uniformLineHeight;
+			json.wordWrap = this._wordWrap;
+		}
+		
+		return json;
 	}
 	
 }
