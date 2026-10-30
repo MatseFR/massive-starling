@@ -33,6 +33,7 @@ import starling.display.BlendMode;
 import starling.events.Event;
 import starling.textures.Texture;
 import starling.textures.TextureSmoothing;
+import starling.utils.Align;
 import valedit.ExposedCollection;
 import valedit.value.ExposedFloatDrag;
 import valedit.value.ExposedSelect;
@@ -232,11 +233,11 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
 		
 		this._format = new TextFormat(font.name, "regular", 0.0, 0xffffff);
+		this._format.restrictImgHeightOverflow = 8.0;
 		
 		this._options = new TextOptions(TextAlign.JUSTIFY);
 		this._options.padding = 60;
 		this._options.wordWrap = true;
-		this._options.restrictImageHeightOverflow = 4.0;
 		
 		this._langRules = new LatinDefaultRules();
 		MassiveText.defaultLangRules = this._langRules;
@@ -246,13 +247,13 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		
 		texture = this._assetManager.getTexture("controller_xbox360");
 		this._display.addTexture(texture.root);
-		frame = Frame.fromTexture(texture);
+		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
 		MassiveText.frames.add("controller_xbox360", frame);
 		texture = this._assetManager.getTexture("xbox_button_color_y");
-		frame = Frame.fromTexture(texture);
+		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
 		MassiveText.frames.add("xbox_button_color_y", frame);
 		texture = this._assetManager.getTexture("xbox_button_color_a");
-		frame = Frame.fromTexture(texture);
+		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
 		MassiveText.frames.add("xbox_button_color_a", frame);
 		
 		var animation:Animation;
