@@ -86,7 +86,7 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 	private var _textMenuCollection:ArrayCollection<MenuItem>;
 	private var _loremIpsumItem:MenuItem;
 	private var _englishItem:MenuItem;
-	private var _dataItem:MenuItem;
+	private var _imgAndClipItem:MenuItem;
 	private var _multiSizeItem:MenuItem;
 	private var _testItem:MenuItem;
 
@@ -138,13 +138,13 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		// text menu
 		this._loremIpsumItem = new MenuItem("lorem_ipsum", "Lorem ipsum");
 		this._englishItem = new MenuItem("english", "English");
-		this._dataItem = new MenuItem("data", "Data");
+		this._imgAndClipItem = new MenuItem("img_and_clip", "Img and Clip");
 		this._multiSizeItem = new MenuItem("multi_size", "Multi size");
 		this._testItem = new MenuItem("test", "Test");
 		this._textMenuCollection = new ArrayCollection<MenuItem>([
 			this._loremIpsumItem,
 			this._englishItem,
-			this._dataItem,
+			this._imgAndClipItem,
 			this._multiSizeItem,
 			//this._testItem
 		]);
@@ -307,9 +307,9 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		this._texts.set("english", sample);
 		
 		str = 'Here is an image !{"img":{"frame":"xbox_button_color_y"}}! Here is a clip !{"clip":{"animation":"dpad"}}! Here is some text !{"format":{"color":"0xff0000"}}!and here is some text in !{"format":{"style":"bold"}}!red!{"format":{"style":"regular"}}! which will !{"format":{"style":"italic"}}!suddenly!{"format":{"style":"regular"}}! switch back to !{"format":{"color":"0xffffff"}}!white again (press !{"img":{"frame":"xbox_button_color_a"}}!) and then go!{"format":{"color":"0xffff00", "style":"bold"}}! yellow !{"format":{"style":"regular"}}!because why not... !{"format":{"color":"0x00ffff", "style":"italic"}}!Or electric blue maybe ? !{"format":{"style":"regular"}}!Let\'s put another image at the end !{"img":{"frame":"controller_xbox360", "scale":1.0}}!';
-		str += '\n\nAnd here\'s some text on another line to check that the !{"format":{"style":"bold"}}!style !{"format":{"style":"regular", "color":"0xffffff"}}!is correct even when wordwrap is turned off and previous line is cut. Also let\'s use !{"format":{"style":"outline"}}!outline style since it\'s here!';
+		str += '\n\nAnd here\'s some text on another line to check that the !{"format":{"style":"bold"}}!style !{"format":{"style":"regular", "color":"0xffffff"}}!is correct even when wordwrap is turned off and previous line is cut. !{"format":{"style":"outline"}}!Also let\'s use outline style since it\'s here!';
 		sample = new TextSample(str, true);
-		this._texts.set("data", sample);
+		this._texts.set("img_and_clip", sample);
 		
 		str = '!{"format":{"font":"arial 16", "size":0}}!Arial 16 text !{"format":{"font":"arial 24", "size":0}}!Arial 24 text !{"format":{"font":"arial 20", "size":0}}!Arial 20 text !{"format":{"font":"arial 16", "size":32}}!Arial 16x2 text !{"format":{"font":"arial 24", "size":0}}!Arial 24 text !{"format":{"font":"arial 20", "size":40}}!Arial 20x2 text';
 		sample = new TextSample(str, true);
@@ -322,8 +322,11 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		//}
 		//str = "''''''''";
 		//str = '\'';
-		//sample = new TextSample(str);
-		//this._texts.set("test", sample);
+		
+		str = '!{"format":{"font":"arial 24", "size":96, "style":"outline"}}!O!{"format":{"font":"arial 20", "size":0, "style":"regular"}}!nce upon a time, blabla bla blablabla...';
+		str += '\n!{"format":{"font":"arial 24", "size":96, "style":"outline"}}!T!{"format":{"font":"arial 20", "size":0, "style":"regular"}}!hey lived happy and had many children, blabla bla blablabla...';
+		sample = new TextSample(str, true);
+		this._texts.set("test", sample);
 		
 		var textWidth:Float = this.editView.displayRect.width;
 		var textHeight:Float = this.editView.displayRect.height;
@@ -397,7 +400,7 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		ValEditor.edit(this._display, this._displayCollection, this.editView.getEditContainer("MassiveDisplay"));
 		//\MassiveDisplay collection
 		
-		showText("data");
+		showText("img_and_clip");
 	}
 	
 	private function showText(id:String):Void
