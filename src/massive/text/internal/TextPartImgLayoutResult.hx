@@ -70,8 +70,8 @@ class TextPartImgLayoutResult extends TextPartLayoutResult
 			img = datas[dataIndex + i];
 			location.imgConfig.toImg(img);
 			img.textureIndex = this.textureIndex;
-			img.x = location.x;
-			img.y = location.y;
+			img.x = location.x + (img.frame.leftWidth * location.scale);
+			img.y = location.y + (img.frame.topHeight * location.scale);
 			img.scale *= location.scale;
 			imgStorage[imgStorage.length] = img;
 		}
