@@ -1,4 +1,5 @@
 package massive.text.internal;
+import massive.data.Frame;
 import massive.display.Clip;
 import massive.display.Img;
 import massive.display.MassiveDisplay;
@@ -41,12 +42,12 @@ class TextPartClipLayoutResult extends TextPartLayoutResult
 		if (this.elementLocations.length == 0) return;
 		
 		var clip:Clip;
-		var location:ClipLocation;
+		var location:ClipLocation = cast this.elementLocations[0];
+		var frame:Frame = location.clipConfig.animation.referenceFrame;
 		
 		if (this.textureIndex == -1) 
 		{
-			location = cast this.elementLocations[0];
-			var texture:Texture = location.clipConfig.animation.referenceFrame.rootTexture;
+			var texture:Texture = frame.rootTexture;
 			this.textureIndex = display.getTextureIndex(texture);
 			if (this.textureIndex == -1)
 			{
@@ -70,10 +71,9 @@ class TextPartClipLayoutResult extends TextPartLayoutResult
 			location = cast this.elementLocations[i];
 			clip = clipStorage[clipIndex + i];
 			location.clipConfig.toClip(clip);
-			//clip.play(location.animation);
 			clip.textureIndex = this.textureIndex;
-			clip.x = location.x;
-			clip.y = location.y;
+			clip.x = location.x + (frame.leftWidth * location.scale);
+			clip.y = location.y + (frame.topHeight * location.scale);
 			clip.scale *= location.scale;
 			datas[datas.length] = clip;
 		}
