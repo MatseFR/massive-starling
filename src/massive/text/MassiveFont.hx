@@ -3,6 +3,7 @@ package massive.text;
 import openfl.Vector;
 #end
 import starling.textures.Texture;
+import starling.utils.Align;
 
 /**
  * ...
@@ -60,9 +61,9 @@ class MassiveFont
 		this.name = name;
 	}
 	
-	public function createFontStyle(name:String = "default", texture:Texture = null, fontData:Dynamic = null, adjustIfOutline:Bool = true):FontStyle
+	public function createFontStyle(name:String = "default", texture:Texture = null, fontData:Dynamic = null, hAlign:String = Align.CENTER, vAlign:String = Align.CENTER, adjustIfOutline:Bool = true):FontStyle
 	{
-		var fontStyle:FontStyle = new FontStyle(name, texture, fontData, adjustIfOutline);
+		var fontStyle:FontStyle = new FontStyle(name, texture, fontData, hAlign, vAlign, adjustIfOutline);
 		addFontStyle(fontStyle);
 		return fontStyle;
 	}
