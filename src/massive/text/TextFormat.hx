@@ -21,6 +21,8 @@ class TextFormat extends EventDispatcher
 	public var font(get, set):String;
 	public var kerning(get, set):Bool;
 	public var letterSpacing(get, set):Float;
+	public var restrictImgHeightToFontSize(get, set):Bool;
+	public var restrictImgHeightOverflow(get, set):Float;
 	public var size(get, set):Float;
 	public var style(get, set):String;
 	
@@ -104,6 +106,26 @@ class TextFormat extends EventDispatcher
 		this._letterSpacing = value;
 		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
 		return this._letterSpacing;
+	}
+	
+	private var _restrictImgHeightToFontSize:Bool = true;
+	private inline function get_restrictImgHeightToFontSize():Bool { return this._restrictImgHeightToFontSize; }
+	private function set_restrictImgHeightToFontSize(value:Bool):Bool
+	{
+		if (this._restrictImgHeightToFontSize == value) return value;
+		this._restrictImgHeightToFontSize = value;
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
+		return this._restrictImgHeightToFontSize;
+	}
+	
+	private var _restrictImgHeightOverflow:Float = 0.0;
+	private inline function get_restrictImgHeightOverflow():Float { return this._restrictImgHeightOverflow; }
+	private function set_restrictImgHeightOverflow(value:Float):Float
+	{
+		if (this._restrictImgHeightOverflow == value) return value;
+		this._restrictImgHeightOverflow = value;
+		if (this._eventsEnabled) dispatchEventWith(Event.CHANGE);
+		return this._restrictImgHeightOverflow;
 	}
 	
 	private var _size:Float;
@@ -228,6 +250,8 @@ class TextFormat extends EventDispatcher
 		this._colorOffset = 0x000000;
 		this._letterSpacing = 0.0;
 		this._kerning = true;
+		this._restrictImgHeightToFontSize = true;
+		this._restrictImgHeightOverflow = 0.0;
 		this._red = this._green = this._blue = this._alpha = 1.0;
 		this._redOffset = this._greenOffset = this._blueOffset = this._alphaOffset = 0.0;
 		
@@ -242,44 +266,6 @@ class TextFormat extends EventDispatcher
 		_POOL[_POOL.length] = this;
 	}
 	
-	public function loadJson(json:Dynamic, dispatchChangeEvent:Bool = true):Void
-	{
-		this._eventsEnabled = false;
-		
-		if (json.font != null) this.font = json.font;
-		if (json.style != null) this.style = json.style;
-		if (json.size != null) this.size = json.size;
-		if (json.kerning != null) this.kerning = json.kerning;
-		if (json.letterSpacing != null) this.letterSpacing = json.letterSpacing;
-		
-		if (json.color != null)
-		{
-			this.color = json.color;
-		}
-		else
-		{
-			if (json.red != null) this.red = json.red;
-			if (json.green != null) this.green = json.green;
-			if (json.blue != null) this.blue = json.blue;
-		}
-		if (json.alpha != null) this.alpha = json.alpha;
-		if (json.colorOffset != null)
-		{
-			this.colorOffset = json.colorOffset;
-		}
-		else
-		{
-			if (json.redOffset != null) this.redOffset = json.redOffset;
-			if (json.greenOffset != null) this.greenOffset = json.greenOffset;
-			if (json.blueOffset != null) this.blueOffset = json.blueOffset;
-		}
-		if (json.alphaOffset != null) this._alphaOffset = json.alphaOffset;
-		
-		this._eventsEnabled = true;
-		
-		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
-	}
-	
 	public function clone(toFormat:TextFormat = null, dispatchChangeEvent:Bool = true):TextFormat
 	{
 		if (toFormat == null)
@@ -290,6 +276,8 @@ class TextFormat extends EventDispatcher
 			
 			toFormat.kerning = this.kerning;
 			toFormat.letterSpacing = this.letterSpacing;
+			toFormat.restrictImgHeightToFontSize = this.restrictImgHeightToFontSize;
+			toFormat.restrictImgHeightOverflow = this.restrictImgHeightOverflow;
 			toFormat.red = this.red;
 			toFormat.green = this.green;
 			toFormat.blue = this.blue;
@@ -318,6 +306,8 @@ class TextFormat extends EventDispatcher
 		this.size = format._size;
 		this.kerning = format._kerning;
 		this.letterSpacing = format._letterSpacing;
+		this.restrictImgHeightToFontSize = format.restrictImgHeightToFontSize;
+		this.restrictImgHeightOverflow = format.restrictImgHeightOverflow;
 		
 		this.red = format._red;
 		this.green = format._green;
@@ -380,6 +370,110 @@ class TextFormat extends EventDispatcher
 	{
 		setTo(font, style, size, color, false);
 		return this;
+	}
+	
+	public function isSameAs(format:TextFormat):Bool
+	{
+		if (this._font != format._font) return false;
+		if (this._style != format._style) return false;
+		if (this._size != format._size) return false;
+		if (this._kerning != format._kerning) return false;
+		if (this._letterSpacing != format._letterSpacing) return false;
+		if (this._restrictImgHeightToFontSize != format._restrictImgHeightToFontSize) return false;
+		if (this._restrictImgHeightOverflow != format._restrictImgHeightOverflow) return false;
+		if (this._red != format._red) return false;
+		if (this._green != format._green) return false;
+		if (this._blue != format._blue) return false;
+		if (this._alpha != format._alpha) return false;
+		if (this._redOffset != format._redOffset) return false;
+		if (this._greenOffset != format._greenOffset) return false;
+		if (this._blueOffset != format._blueOffset) return false;
+		if (this._alphaOffset != format._alphaOffset) return false;
+		return true;
+	}
+	
+	public function loadJson(json:Dynamic, dispatchChangeEvent:Bool = true):Void
+	{
+		this._eventsEnabled = false;
+		
+		if (json.font != null) this.font = json.font;
+		if (json.style != null) this.style = json.style;
+		if (json.size != null) this.size = json.size;
+		if (json.kerning != null) this.kerning = json.kerning;
+		if (json.letterSpacing != null) this.letterSpacing = json.letterSpacing;
+		if (json.restrictImgHeightToFontSize != null) this._restrictImgHeightToFontSize = json.restrictImgHeightToFontSize;
+		if (json.restrictImgHeightOverflow != null) this._restrictImgHeightOverflow = json.restrictImgHeightOverflow;
+		
+		if (json.color != null)
+		{
+			this.color = json.color;
+		}
+		else
+		{
+			if (json.red != null) this.red = json.red;
+			if (json.green != null) this.green = json.green;
+			if (json.blue != null) this.blue = json.blue;
+		}
+		if (json.alpha != null) this.alpha = json.alpha;
+		if (json.colorOff != null)
+		{
+			this.colorOffset = json.colorOff;
+		}
+		else
+		{
+			if (json.redOff != null) this.redOffset = json.redOff;
+			if (json.greenOff != null) this.greenOffset = json.greenOff;
+			if (json.blueOff != null) this.blueOffset = json.blueOff;
+		}
+		if (json.alphaOff != null) this._alphaOffset = json.alphaOff;
+		
+		this._eventsEnabled = true;
+		
+		if (dispatchChangeEvent) dispatchEventWith(Event.CHANGE);
+	}
+	
+	public function toJson(relativeTo:TextFormat = null):Dynamic
+	{
+		var json:Dynamic = {};
+		
+		if (relativeTo != null)
+		{
+			if (this._font != relativeTo._font) json.font = this._font;
+			if (this._style != relativeTo._style) json.style = this._style;
+			if (this._size != relativeTo._size) json.size = this._size;
+			if (this._kerning != relativeTo._kerning) json.kerning = this._kerning;
+			if (this._letterSpacing != relativeTo._letterSpacing) json.letterSpacing = this._letterSpacing;
+			if (this._restrictImgHeightToFontSize != relativeTo._restrictImgHeightToFontSize) json.restrictImgHeightToFontSize = this._restrictImgHeightToFontSize;
+			if (this._restrictImgHeightOverflow != relativeTo._restrictImgHeightOverflow) json.restrictImgHeightOverflow = this._restrictImgHeightOverflow;
+			if (this._red != relativeTo._red) json.red = this._red;
+			if (this._green != relativeTo._green) json.green = this._green;
+			if (this._blue != relativeTo._blue) json.blue = this._blue;
+			if (this._alpha != relativeTo._alpha) json.alpha = this._alpha;
+			if (this._redOffset != relativeTo._redOffset) json.redOff = this._redOffset;
+			if (this._greenOffset != relativeTo._greenOffset) json.greenOff = this._greenOffset;
+			if (this._blueOffset != relativeTo._blueOffset) json.blueOff = this._blueOffset;
+			if (this._alphaOffset != relativeTo._alphaOffset) json.alphaOff = this._alphaOffset;
+		}
+		else
+		{
+			json.font = this._font;
+			json.style = this._style;
+			json.size = this._size;
+			json.kerning = this._kerning;
+			json.letterSpacing = this._letterSpacing;
+			json.restrictImgHeightToFontSize = this._restrictImgHeightToFontSize;
+			json.restrictImgHeightOverflow = this._restrictImgHeightOverflow;
+			json.red = this._red;
+			json.green = this._green;
+			json.blue = this._blue;
+			json.alpha = this._alpha;
+			json.redOff = this._redOffset;
+			json.greenOff = this._greenOffset;
+			json.blueOff = this._blueOffset;
+			json.alphaOff = this._alphaOffset;
+		}
+		
+		return json;
 	}
 	
 }
