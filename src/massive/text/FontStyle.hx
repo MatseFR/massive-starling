@@ -4,6 +4,7 @@ import openfl.errors.ArgumentError;
 import openfl.geom.Rectangle;
 import starling.text.MiniBitmapFont;
 import starling.textures.Texture;
+import starling.utils.Align;
 
 /**
  * ...
@@ -26,7 +27,7 @@ class FontStyle
 	public var spaceWidth(default, null):Float = 0.0;
 	public var texture(default, null):Texture;
 
-	public function new(name:String, texture:Texture = null, fontData:Dynamic = null, adjustIfOutline:Bool = true) 
+	public function new(name:String, texture:Texture = null, fontData:Dynamic = null, hAlign:String = Align.CENTER, vAlign:String = Align.CENTER, adjustIfOutline:Bool = true) 
 	{
 		this.name = name;
 		
@@ -43,7 +44,7 @@ class FontStyle
 		
 		this.missingGlyph = new Glyph(MassiveText.CHAR_MISSING, null, 0, 0, 0);
 		addGlyph(MassiveText.CHAR_MISSING, this.missingGlyph);
-		parseFontData(fontData, adjustIfOutline);
+		parseFontData(fontData, hAlign, vAlign, adjustIfOutline);
 		
 		this.hyphenGlyph = getGlyph(MassiveText.CHAR_MINUS);
 		if (this.hyphenGlyph == null)
@@ -106,7 +107,7 @@ class FontStyle
 		return true;
 	}
 	
-	private function parseFontData(data:Dynamic, adjustIfOutline:Bool):Void
+	private function parseFontData(data:Dynamic, hAlign:String, vAlign:String, adjustIfOutline:Bool):Void
 	{
 		try
         {
@@ -120,7 +121,7 @@ class FontStyle
                 fontXml = Xml.parse((data : flash.xml.XML).toString()).firstElement();
             #end
                 
-            parseFontXml(fontXml, adjustIfOutline);
+            parseFontXml(fontXml, hAlign, vAlign, adjustIfOutline);
         }
         catch (error:Dynamic)
         {
@@ -128,7 +129,7 @@ class FontStyle
         }
 	}
 	
-	private function parseFontXml(fontXml:Xml, adjustIfOutline:Bool):Void
+	private function parseFontXml(fontXml:Xml, hAlign:String, vAlign:String, adjustIfOutline:Bool):Void
 	{
 		var scale:Float = this.texture.scale;
 		var frameRect:Rectangle = this.texture.frame;
