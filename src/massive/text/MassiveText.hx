@@ -468,7 +468,7 @@ class MassiveText
 		var options:TextOptions = text.options;
 		var hyphenation:Bool = options.hyphenation && langRules != null;
 		var hyphenationMinLength:Int = options.hyphenationMinLength;
-		var hyphenationMinRatio:Float = options.hyphenationSpaceRatio;
+		var hyphenationSpaceRatio:Float = options.hyphenationSpaceRatio;
 		var intPositions:Bool = options.intPositions;
 		_leading = options.leading;
 		var letterSpreading:Bool = options.letterSpreading;
@@ -480,8 +480,6 @@ class MassiveText
 		var paddingY:Float = options.paddingTop + options.paddingBottom;
 		var paddingLeft:Float = options.paddingLeft;
 		var paddingTop:Float = options.paddingTop;
-		//var restrictImageHeightToFontSize:Bool = options.restrictImageHeightToFontSize;
-		//var restrictImageHeightOverFlow:Float = options.restrictImageHeightOverflow;
 		var wordWrap:Bool = options.wordWrap;
 		
 		var charID:Int;
@@ -497,7 +495,6 @@ class MassiveText
 		var hyphenationOccured:Bool;
 		var letterSpreadingOccured:Bool = false;
 		var index:Int;
-		var ratio:Float;
 		var remainingWidth:Float = 0.0;
 		var testLocation:ElementLocation;
 		var testWord:Array<ElementLocation> = ElementLocation.arrayFromPool();
@@ -622,7 +619,7 @@ class MassiveText
 					
 					if (location.x + location.width > containerWidth)
 					{
-						hyphenationAllowed = _isText && wordWrap && hyphenation && !location.isSpace;
+						hyphenationAllowed = _isText && wordWrap && hyphenation;
 						
 						if (hyphenationAllowed)
 						{
@@ -647,8 +644,11 @@ class MassiveText
 									}
 									++j;
 								}
-								ratio = remainingWidth / containerWidth;
-								hyphenationAllowed = ratio >= hyphenationMinRatio;
+								// we want to prioritize increasing spaces rather than cutting words
+								// we plan to increase spaces based on hyphenationSpaceRatio
+								// and if there is enough space left we try to cut it because the size of the spaces needed to fill the line would be uglier than a splitted word
+								spaceWidth = _lineObject.getMinSpaceWidth() * (_numSpaces - 1) * (hyphenationSpaceRatio - 1.0);
+								hyphenationAllowed = remainingWidth - spaceWidth > 0;
 							}
 						}
 						
