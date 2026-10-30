@@ -98,8 +98,8 @@ class TextPartStringLayoutResult extends TextPartLayoutResult
 			img = datas[dataIndex + i];
 			img.frame = location.frame;
 			img.textureIndex = this.textureIndex;
-			img.x = location.x;
-			img.y = location.y;
+			img.x = location.x + (img.frame.leftWidth * location.scale);
+			img.y = location.y + (img.frame.topHeight * location.scale);
 			img.red = red;
 			img.green = green;
 			img.blue = blue;
@@ -109,7 +109,7 @@ class TextPartStringLayoutResult extends TextPartLayoutResult
 			img.blueOffset = blueOffset;
 			img.alphaOffset = alphaOffset;
 			img.scale = location.scale;
-			imgStorage[imgStorage.length];
+			imgStorage[imgStorage.length] = img;
 		}
 	}
 	
