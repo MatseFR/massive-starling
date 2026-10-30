@@ -471,11 +471,11 @@ class MassiveText
 		var hyphenationSpaceRatio:Float = options.hyphenationSpaceRatio;
 		var intPositions:Bool = options.intPositions;
 		_leading = options.leading;
-		var letterSpreading:Bool = options.letterSpreading;
-		var letterSpreadingAllowIrregular:Bool = options.letterSpreadingAllowIrregular;
-		var letterSpreadingMax:Float = options.letterSpreadingMax;
+		var letterSpreading:Bool = options.charSpreading;
+		var letterSpreadingAllowIrregular:Bool = options.charSpreadingAllowIrregular;
+		var letterSpreadingMax:Float = options.charSpreadingMax;
 		var useLetterSpreadingMax:Bool = letterSpreadingMax > 0.0;
-		var letterSpreadingSpaceRatio:Float = options.letterSpreadingSpaceRatio;
+		var letterSpreadingSpaceRatio:Float = options.charSpreadingSpaceRatio;
 		var paddingX:Float = options.paddingLeft + options.paddingRight;
 		var paddingY:Float = options.paddingTop + options.paddingBottom;
 		var paddingLeft:Float = options.paddingLeft;

@@ -18,16 +18,16 @@ class TextOptions extends EventDispatcher
 	}
 	
 	public var autoSize(get, set):String;
+	public var charSpreading(get, set):Bool;
+	public var charSpreadingAllowIrregular(get, set):Bool;
+	public var charSpreadingMax(get, set):Float;
+	public var charSpreadingSpaceRatio(get, set):Float;
 	public var horizontalAlign(get, set):String;
 	public var hyphenation(get, set):Bool;
 	public var hyphenationMinLength(get, set):Int;
 	public var hyphenationSpaceRatio(get, set):Float;
 	public var intPositions(get, set):Bool;
 	public var leading(get, set):Float;
-	public var letterSpreading(get, set):Bool;
-	public var letterSpreadingAllowIrregular(get, set):Bool;
-	public var letterSpreadingMax(get, set):Float;
-	public var letterSpreadingSpaceRatio(get, set):Float;
 	public var padding(get, set):Float;
 	public var paddingLeft(get, set):Float;
 	public var paddingRight(get, set):Float;
@@ -45,6 +45,46 @@ class TextOptions extends EventDispatcher
 		this._autoSize = value;
 		dispatchEventWith(Event.CHANGE);
 		return this._autoSize;
+	}
+	
+	private var _charSpreading:Bool;
+	private inline function get_charSpreading():Bool { return this._charSpreading; }
+	private function set_charSpreading(value:Bool):Bool
+	{
+		if (this._charSpreading == value) return value;
+		this._charSpreading = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._charSpreading;
+	}
+	
+	private var _charSpreadingAllowIrregular:Bool;
+	private inline function get_charSpreadingAllowIrregular():Bool { return this._charSpreadingAllowIrregular; }
+	private function set_charSpreadingAllowIrregular(value:Bool):Bool
+	{
+		if (this._charSpreadingAllowIrregular == value) return value;
+		this._charSpreadingAllowIrregular = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._charSpreadingAllowIrregular;
+	}
+	
+	private var _charSpreadingMax:Float = 0.0;
+	private inline function get_charSpreadingMax():Float { return this._charSpreadingMax; }
+	private function set_charSpreadingMax(value:Float):Float
+	{
+		if (this._charSpreadingMax == value) return value;
+		this._charSpreadingMax = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._charSpreadingMax;
+	}
+	
+	private var _charSpreadingSpaceRatio:Float = 4.0;
+	private inline function get_charSpreadingSpaceRatio():Float { return this._charSpreadingSpaceRatio; }
+	private function set_charSpreadingSpaceRatio(value:Float):Float
+	{
+		if (this._charSpreadingSpaceRatio == value) return value;
+		this._charSpreadingSpaceRatio = value;
+		dispatchEventWith(Event.CHANGE);
+		return this._charSpreadingSpaceRatio;
 	}
 	
 	private var _horizontalAlign:String;
@@ -105,46 +145,6 @@ class TextOptions extends EventDispatcher
 		this._leading = value;
 		dispatchEventWith(Event.CHANGE);
 		return this._leading;
-	}
-	
-	private var _letterSpreading:Bool;
-	private inline function get_letterSpreading():Bool { return this._letterSpreading; }
-	private function set_letterSpreading(value:Bool):Bool
-	{
-		if (this._letterSpreading == value) return value;
-		this._letterSpreading = value;
-		dispatchEventWith(Event.CHANGE);
-		return this._letterSpreading;
-	}
-	
-	private var _letterSpreadingAllowIrregular:Bool;
-	private inline function get_letterSpreadingAllowIrregular():Bool { return this._letterSpreadingAllowIrregular; }
-	private function set_letterSpreadingAllowIrregular(value:Bool):Bool
-	{
-		if (this._letterSpreadingAllowIrregular == value) return value;
-		this._letterSpreadingAllowIrregular = value;
-		dispatchEventWith(Event.CHANGE);
-		return this._letterSpreadingAllowIrregular;
-	}
-	
-	private var _letterSpreadingMax:Float = 0.0;
-	private inline function get_letterSpreadingMax():Float { return this._letterSpreadingMax; }
-	private function set_letterSpreadingMax(value:Float):Float
-	{
-		if (this._letterSpreadingMax == value) return value;
-		this._letterSpreadingMax = value;
-		dispatchEventWith(Event.CHANGE);
-		return this._letterSpreadingMax;
-	}
-	
-	private var _letterSpreadingSpaceRatio:Float = 4.0;
-	private inline function get_letterSpreadingSpaceRatio():Float { return this._letterSpreadingSpaceRatio; }
-	private function set_letterSpreadingSpaceRatio(value:Float):Float
-	{
-		if (this._letterSpreadingSpaceRatio == value) return value;
-		this._letterSpreadingSpaceRatio = value;
-		dispatchEventWith(Event.CHANGE);
-		return this._letterSpreadingSpaceRatio;
 	}
 	
 	private inline function get_padding():Float { return this._paddingLeft; }
@@ -233,19 +233,19 @@ class TextOptions extends EventDispatcher
 		this._verticalAlign = vAlign;
 		this._wordWrap = wordWrap;
 		this._hyphenation = hyphenation;
-		this._letterSpreading = letterSpreading;
+		this._charSpreading = letterSpreading;
 	}
 	
 	public function clear():Void
 	{
 		this._autoSize = TextFieldAutoSize.NONE;
+		this._charSpreadingAllowIrregular = false;
+		this._charSpreadingMax = 0.0;
+		this._charSpreadingSpaceRatio = 4.0;
 		this._hyphenationMinLength = 7;
 		this._hyphenationSpaceRatio = 4.0;
 		this._intPositions = true;
 		this._leading = 0.0;
-		this._letterSpreadingAllowIrregular = false;
-		this._letterSpreadingMax = 0.0;
-		this._letterSpreadingSpaceRatio = 4.0;
 		this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = 0.0;
 		this._uniformLineHeight = true;
 	}
@@ -260,15 +260,15 @@ class TextOptions extends EventDispatcher
 	{
 		if (toOptions == null)
 		{
-			toOptions = fromPool(this._horizontalAlign, this._verticalAlign, this._wordWrap, this._hyphenation, this._letterSpreading);
+			toOptions = fromPool(this._horizontalAlign, this._verticalAlign, this._wordWrap, this._hyphenation, this._charSpreading);
 			toOptions._autoSize = this._autoSize;
+			toOptions._charSpreadingAllowIrregular = this._charSpreadingAllowIrregular;
+			toOptions._charSpreadingMax = this._charSpreadingMax;
+			toOptions._charSpreadingSpaceRatio = this._charSpreadingSpaceRatio;
 			toOptions._hyphenationMinLength = this._hyphenationMinLength;
 			toOptions._hyphenationSpaceRatio = this._hyphenationSpaceRatio;
 			toOptions._intPositions = this._intPositions;
 			toOptions._leading = this._leading;
-			toOptions._letterSpreadingAllowIrregular = this._letterSpreadingAllowIrregular;
-			toOptions._letterSpreadingMax = this._letterSpreadingMax;
-			toOptions._letterSpreadingSpaceRatio = this._letterSpreadingSpaceRatio;
 			toOptions._paddingLeft = this._paddingLeft;
 			toOptions._paddingRight = this._paddingRight;
 			toOptions._paddingTop = this._paddingTop;
@@ -286,16 +286,16 @@ class TextOptions extends EventDispatcher
 	public function copyFrom(options:TextOptions, dispatchChangeEvent:Bool = true):Void
 	{
 		this._autoSize = options._autoSize;
+		this._charSpreading = options._charSpreading;
+		this._charSpreadingAllowIrregular = options._charSpreadingAllowIrregular;
+		this._charSpreadingMax = options._charSpreadingMax;
+		this._charSpreadingSpaceRatio = options._charSpreadingSpaceRatio;
 		this._horizontalAlign = options._horizontalAlign;
 		this._hyphenation = options._hyphenation;
 		this._hyphenationMinLength = options._hyphenationMinLength;
 		this._hyphenationSpaceRatio = options._hyphenationSpaceRatio;
 		this._intPositions = options._intPositions;
 		this._leading = options._leading;
-		this._letterSpreading = options._letterSpreading;
-		this._letterSpreadingAllowIrregular = options._letterSpreadingAllowIrregular;
-		this._letterSpreadingMax = options._letterSpreadingMax;
-		this._letterSpreadingSpaceRatio = options._letterSpreadingSpaceRatio;
 		this._paddingLeft = options._paddingLeft;
 		this._paddingRight = options._paddingRight;
 		this._paddingTop = options._paddingTop;
@@ -313,13 +313,17 @@ class TextOptions extends EventDispatcher
 		this._verticalAlign = vAlign;
 		this._wordWrap = wordWrap;
 		this._hyphenation = hyphenation;
-		this._letterSpreading = letterSpreading;
+		this._charSpreading = letterSpreading;
 		return this;
 	}
 	
 	public function isSameAs(options:TextOptions):Bool
 	{
 		if (this._autoSize != options._autoSize) return false;
+		if (this._charSpreading != options._charSpreading) return false;
+		if (this._charSpreadingAllowIrregular != options._charSpreadingAllowIrregular) return false;
+		if (this._charSpreadingMax != options._charSpreadingMax) return false;
+		if (this._charSpreadingSpaceRatio != options._charSpreadingSpaceRatio) return false;
 		if (this._horizontalAlign != options._horizontalAlign) return false;
 		if (this._verticalAlign != options._verticalAlign) return false;
 		if (this._hyphenation != options._hyphenation) return false;
@@ -327,10 +331,6 @@ class TextOptions extends EventDispatcher
 		if (this._hyphenationSpaceRatio != options._hyphenationSpaceRatio) return false;
 		if (this._intPositions != options._intPositions) return false;
 		if (this._leading != options._leading) return false;
-		if (this._letterSpreading != options._letterSpreading) return false;
-		if (this._letterSpreadingAllowIrregular != options._letterSpreadingAllowIrregular) return false;
-		if (this._letterSpreadingMax != options._letterSpreadingMax) return false;
-		if (this._letterSpreadingSpaceRatio != options._letterSpreadingSpaceRatio) return false;
 		if (this._paddingLeft != options._paddingLeft) return false;
 		if (this._paddingRight != options._paddingRight) return false;
 		if (this._paddingTop != options._paddingTop) return false;
@@ -343,16 +343,16 @@ class TextOptions extends EventDispatcher
 	public function loadJson(json:Dynamic, dispatchChangeEvent:Bool = true):Void
 	{
 		if (json.autoSize != null) this._autoSize = json.autoSize;
+		if (json.charSpreading != null) this._charSpreading = json.charSpreading;
+		if (json.charSpreadingAllowIrregular != null) this._charSpreadingAllowIrregular = json.charSpreadingAllowIrregular;
+		if (json.charSpreadingMax != null) this._charSpreadingMax = json.charSpreadingMax;
+		if (json.charSpreadingSpaceRatio != null) this._charSpreadingSpaceRatio = json.charSpreadingSpaceRatio;
 		if (json.hAlign != null) this._horizontalAlign = json.hAlign;
 		if (json.hyphenation != null) this._hyphenation = json.hyphenation;
 		if (json.hyphenationMinLength != null) this._hyphenationMinLength = json.hyphenationMinLength;
 		if (json.hyphenationSpaceRatio != null) this._hyphenationSpaceRatio = json.hyphenationSpaceRatio;
 		if (json.intPositions != null) this._intPositions = json.intPositions;
 		if (json.leading != null) this._leading = json.leading;
-		if (json.letterSpreading != null) this._letterSpreading = json.letterSpreading;
-		if (json.letterSpreadingAllowIrregular != null) this._letterSpreadingAllowIrregular = json.letterSpreadingAllowIrregular;
-		if (json.letterSpreadingMax != null) this._letterSpreadingMax = json.letterSpreadingMax;
-		if (json.letterSpreadingSpaceRatio != null) this._letterSpreadingSpaceRatio = json.letterSpreadingSpaceRatio;
 		if (json.padding != null)
 		{
 			this._paddingLeft = this._paddingRight = this._paddingTop = this._paddingBottom = json.padding;
@@ -378,17 +378,16 @@ class TextOptions extends EventDispatcher
 		if (relativeTo != null)
 		{
 			if (this._autoSize != relativeTo._autoSize) json.autoSize = this._autoSize;
+			if (this._charSpreading != relativeTo._charSpreading) json.charSpreading = this._charSpreading;
+			if (this._charSpreadingAllowIrregular != relativeTo._charSpreadingAllowIrregular) json.charSpreadingAllowIrregular = this._charSpreadingAllowIrregular;
+			if (this._charSpreadingMax != relativeTo._charSpreadingMax) json.charSpreadingMax = this._charSpreadingMax;
+			if (this._charSpreadingSpaceRatio != relativeTo._charSpreadingSpaceRatio) json.charSpreadingSpaceRatio = this._charSpreadingSpaceRatio;
 			if (this._horizontalAlign != relativeTo._horizontalAlign) json.hAlign = this._horizontalAlign;
-			if (this._verticalAlign != relativeTo._verticalAlign) json.vAlign = this._verticalAlign;
 			if (this._hyphenation != relativeTo._hyphenation) json.hyphenation = this._hyphenation;
 			if (this._hyphenationMinLength != relativeTo._hyphenationMinLength) json.hyphenationMinLength = this._hyphenationMinLength;
 			if (this._hyphenationSpaceRatio != relativeTo._hyphenationSpaceRatio) json.hyphenationSpaceRatio = this._hyphenationSpaceRatio;
 			if (this._intPositions != relativeTo._intPositions) json.intPositions = this._intPositions;
 			if (this._leading != relativeTo._leading) json.leading = this._leading;
-			if (this._letterSpreading != relativeTo._letterSpreading) json.letterSpreading = this._letterSpreading;
-			if (this._letterSpreadingAllowIrregular != relativeTo._letterSpreadingAllowIrregular) json.letterSpreadingAllowIrregular = this._letterSpreadingAllowIrregular;
-			if (this._letterSpreadingMax != relativeTo._letterSpreadingMax) json.letterSpreadingMax = this._letterSpreadingMax;
-			if (this._letterSpreadingSpaceRatio != relativeTo._letterSpreadingSpaceRatio) json.letterSpreadingSpaceRatio = this._letterSpreadingSpaceRatio;
 			if (this._paddingLeft != relativeTo._paddingLeft || this._paddingRight != relativeTo._paddingRight || this._paddingTop != relativeTo._paddingTop || this._paddingBottom != relativeTo._paddingBottom)
 			{
 				if (this._paddingLeft == this._paddingRight && this._paddingLeft == this._paddingTop && this._paddingLeft == this._paddingBottom)
@@ -404,22 +403,22 @@ class TextOptions extends EventDispatcher
 				}
 			}
 			if (this._uniformLineHeight != relativeTo._uniformLineHeight) json.uniformLineHeight = this._uniformLineHeight;
+			if (this._verticalAlign != relativeTo._verticalAlign) json.vAlign = this._verticalAlign;
 			if (this._wordWrap != relativeTo._wordWrap) json.wordWrap = this._wordWrap;
 		}
 		else
 		{
 			json.autoSize = this._autoSize;
+			json.charSpreading = this._charSpreading;
+			json.charSpreadingAllowIrregular = this._charSpreadingAllowIrregular;
+			json.charSpreadingMax = this._charSpreadingMax;
+			json.charSpreadingSpaceRatio = this._charSpreadingSpaceRatio;
 			json.hAlign = this._horizontalAlign;
-			json.vAlign = this._verticalAlign;
 			json.hyphenation = this._hyphenation;
 			json.hyphenationMinLength = this._hyphenationMinLength;
 			json.hyphenationSpaceRatio = this._hyphenationSpaceRatio;
 			json.intPositions = this._intPositions;
 			json.leading = this._leading;
-			json.letterSpreading = this._letterSpreading;
-			json.letterSpreadingAllowIrregular = this._letterSpreadingAllowIrregular;
-			json.letterSpreadingMax = this._letterSpreadingMax;
-			json.letterSpreadingSpaceRatio = this._letterSpreadingSpaceRatio;
 			if (this._paddingLeft == this._paddingRight && this._paddingLeft == this._paddingTop && this._paddingLeft == this._paddingBottom)
 			{
 				json.padding = this._paddingLeft;
@@ -432,6 +431,7 @@ class TextOptions extends EventDispatcher
 				json.paddingBottom = this._paddingBottom;
 			}
 			json.uniformLineHeight = this._uniformLineHeight;
+			json.vAlign = this._verticalAlign;
 			json.wordWrap = this._wordWrap;
 		}
 		
