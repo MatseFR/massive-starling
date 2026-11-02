@@ -3,6 +3,7 @@ package massive.text;
 import lime.utils.Float32Array;
 #end
 import massive.animation.Animator;
+import massive.core.Massive;
 import massive.display.Clip;
 import massive.display.Img;
 import massive.display.MassiveDisplay;
@@ -12,6 +13,7 @@ import massive.text.internal.ElementLocation;
 import massive.text.internal.TextLayoutResult;
 import massive.text.lang.LangRules;
 import massive.util.MathUtils;
+import massive.core.validation.IValidating;
 import openfl.Vector;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
@@ -23,7 +25,7 @@ import starling.textures.Texture;
  * ...
  * @author Matse
  */
-class TextField extends ContainerBase 
+class TextField extends ContainerBase implements IValidating
 {
 	private static var _POOL:Array<TextField> = new Array<TextField>();
 	
@@ -34,8 +36,10 @@ class TextField extends ContainerBase
 	}
 	
 	public var animator(get, set):Animator;
+	public var display(get, set):MassiveDisplay;
 	public var format(get, set):TextFormat;
 	public var height(get, set):Float;
+	public var isOnValidationQueue(default, null):Bool;
 	public var langRules(get, set):LangRules;
 	public var options(get, set):TextOptions;
 	public var text(get, set):String;
@@ -60,6 +64,27 @@ class TextField extends ContainerBase
 		return this._animator = value;
 	}
 	
+	private var _display:MassiveDisplay;
+	private function get_display():MassiveDisplay { return this._display; }
+	private function set_display(value:MassiveDisplay):MassiveDisplay
+	{
+		if (this._display == value) return value;
+		if (this._lastDisplay != null)
+		{
+			if (this._addedTextures.length != 0)
+			{
+				this._lastDisplay.removeTextures(this._addedTextures);
+				#if flash
+				this._addedTextures.length = 0;
+				#else
+				this._addedTextures.resize(0);
+				#end
+			}
+		}
+		this._display = value;
+		return this._display;
+	}
+	
 	private var _format:TextFormat = new TextFormat();
 	private function get_format():TextFormat { return this._format; }
 	private function set_format(value:TextFormat):TextFormat
@@ -78,7 +103,7 @@ class TextField extends ContainerBase
 	private function set_height(value:Float):Float
 	{
 		if (this._height == value) return value;
-		this._requiresRecomposition = this._textObject != null;
+		this.requiresRecomposition = this._textObject != null;
 		return this._height = value;
 	}
 	
@@ -87,7 +112,7 @@ class TextField extends ContainerBase
 	private function set_langRules(value:LangRules):LangRules
 	{
 		if (this._langRules == value) return value;
-		this._requiresRecomposition = this._textObject != null;
+		this.requiresRecomposition = this._textObject != null;
 		return this._langRules = value;
 	}
 	
@@ -115,7 +140,7 @@ class TextField extends ContainerBase
 			var part:TextPartString = TextPartString.fromPool();
 			part.text = value;
 			this._textObject.addPart(part);
-			this._requiresRecomposition = true;
+			this.requiresRecomposition = true;
 		}
 		return this._text = value;
 	}
@@ -136,7 +161,7 @@ class TextField extends ContainerBase
 			{
 				MassiveText.parseText(value, this._textObject);
 			}
-			this._requiresRecomposition = true;
+			this.requiresRecomposition = true;
 		}
 		return this._textData = value;
 	}
@@ -150,7 +175,7 @@ class TextField extends ContainerBase
 		if (value != null)
 		{
 			this._isTextObjectExternal = true;
-			this._requiresRecomposition = true;
+			this.requiresRecomposition = true;
 		}
 		return this._textObject = value;
 	}
@@ -160,8 +185,26 @@ class TextField extends ContainerBase
 	private function set_width(value:Float):Float
 	{
 		if (this._width == value) return value;
-		this._requiresRecomposition = this._textObject != null;
+		this.requiresRecomposition = this._textObject != null;
 		return this._width = value;
+	}
+	
+	private var requiresRecomposition(get, set):Bool;
+	
+	private var _requiresRecomposition:Bool;
+	private function get_requiresRecomposition():Bool { return this._requiresRecomposition; }
+	private function set_requiresRecomposition(value:Bool):Bool
+	{
+		if (this._requiresRecomposition) return value;
+		if (value)
+		{
+			Massive.validationQueue.add(this);
+		}
+		else
+		{
+			Massive.validationQueue.remove(this);
+		}
+		return this._requiresRecomposition = value;
 	}
 	
 	private var _bounds:Rectangle = new Rectangle();
@@ -181,7 +224,7 @@ class TextField extends ContainerBase
 	private var _lastDisplay:MassiveDisplay;
 	private var _isTextObjectExternal:Bool;
 	private var _requiresBounds:Bool;
-	private var _requiresRecomposition:Bool;
+	//private var _requiresRecomposition:Bool;
 	
 	private var _isAutoSize:Bool;
 	private var _isHorizontalAutoSize:Bool;
@@ -206,6 +249,7 @@ class TextField extends ContainerBase
 		this.animator = null;
 		this._format.clear();
 		this._options.clear();
+		if (this.isOnValidationQueue) Massive.validationQueue.remove(this);
 	}
 	
 	public function pool():Void
@@ -290,7 +334,7 @@ class TextField extends ContainerBase
 		if (this._textObject != null)
 		{
 			this._textObject.format = this._format;
-			this._requiresRecomposition = true;
+			this.requiresRecomposition = true;
 		}
 	}
 	
@@ -319,8 +363,13 @@ class TextField extends ContainerBase
 		if (this._textObject != null)
 		{
 			this._textObject.options = this._options;
-			this._requiresRecomposition = true;
+			this.requiresRecomposition = true;
 		}
+	}
+	
+	public function validate():Void
+	{
+		recompose(this._display);
 	}
 	
 	private function recompose(display:MassiveDisplay):Void
@@ -431,7 +480,7 @@ class TextField extends ContainerBase
 	{
 		if (this._datas == null) return;
 		
-		if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
+		//if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
@@ -465,7 +514,7 @@ class TextField extends ContainerBase
 	{
 		if (this._datas == null) return;
 		
-		if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
+		//if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
@@ -501,7 +550,7 @@ class TextField extends ContainerBase
 	{
 		if (this._datas == null) return;
 		
-		if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
+		//if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
@@ -536,7 +585,7 @@ class TextField extends ContainerBase
 	{
 		if (this._datas == null) return;
 		
-		if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
+		//if (this._requiresRecomposition || renderData.display != this._lastDisplay) recompose(renderData.display);
 		
 		if (this.autoHandleNumDatas) this.numDatas = this._datas.length;
 		
