@@ -7,6 +7,7 @@ import inputAction.controllers.KeyAction;
 import inputAction.events.InputActionEvent;
 import massive.animation.Animation;
 import massive.animation.Animator;
+import massive.core.Massive;
 import massive.data.Frame;
 import massive.display.ImgContainer;
 import massive.display.MassiveDisplay;
@@ -32,7 +33,6 @@ import starling.core.Starling;
 import starling.display.BlendMode;
 import starling.events.Event;
 import starling.textures.Texture;
-import starling.textures.TextureSmoothing;
 import starling.utils.Align;
 import valedit.ExposedCollection;
 import valedit.value.ExposedFloatDrag;
@@ -53,7 +53,6 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 	private var _display:MassiveDisplay;
 	private var _displayCollection:ExposedCollection;
 	private var _container:ImgContainer;
-	private var _animator:Animator;
 	private var _font:MassiveFont;
 	private var _format:TextFormat;
 	private var _options:TextOptions;
@@ -195,13 +194,10 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 	{
 		initInputActions();
 		
-		MassiveDisplay.init();
+		Massive.init();
 		
 		this._display = new MassiveDisplay();
 		addChild(this._display);
-		
-		this._animator = new Animator();
-		Starling.currentJuggler.add(this._animator);
 		
 		var font:MassiveFont;
 		
@@ -212,8 +208,6 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		font.createFontStyle("outline", this._assetManager.getTexture("arial_16_outline_2px"), this._assetManager.getXml("arial_16_outline_2px"));
 		MassiveText.registerFont(font);
 		
-		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
-		
 		font = new MassiveFont("arial 20");
 		font.createFontStyle("regular", this._assetManager.getTexture("arial_20"), this._assetManager.getXml("arial_20"));
 		font.createFontStyle("bold", this._assetManager.getTexture("arial_20_bold"), this._assetManager.getXml("arial_20_bold"));
@@ -221,16 +215,12 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		font.createFontStyle("outline", this._assetManager.getTexture("arial_20_outline_2px"), this._assetManager.getXml("arial_20_outline_2px"));
 		MassiveText.registerFont(font);
 		
-		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
-		
 		font = new MassiveFont("arial 24");
 		font.createFontStyle("regular", this._assetManager.getTexture("arial_24"), this._assetManager.getXml("arial_24"));
 		font.createFontStyle("bold", this._assetManager.getTexture("arial_24_bold"), this._assetManager.getXml("arial_24_bold"));
 		font.createFontStyle("italic", this._assetManager.getTexture("arial_24_italic"), this._assetManager.getXml("arial_24_italic"));
 		font.createFontStyle("outline", this._assetManager.getTexture("arial_24_outline_2px"), this._assetManager.getXml("arial_24_outline_2px"));
 		MassiveText.registerFont(font);
-		
-		this._display.addTextures(font.textures, true, TextureSmoothing.NONE);
 		
 		this._format = new TextFormat(font.name, "regular", 0.0, 0xffffff);
 		this._format.restrictImgHeightOverflow = 8.0;
@@ -246,7 +236,6 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		var texture:Texture;
 		
 		texture = this._assetManager.getTexture("controller_xbox360");
-		this._display.addTexture(texture.root);
 		frame = Frame.fromTextureWithAlign(texture, Align.CENTER, Align.CENTER);
 		MassiveText.frames.add("controller_xbox360", frame);
 		texture = this._assetManager.getTexture("xbox_button_color_y");
@@ -332,7 +321,8 @@ class MassiveTextDemo extends ValEditorSimpleStarling
 		var textWidth:Float = this.editView.displayRect.width;
 		var textHeight:Float = this.editView.displayRect.height;
 		this._tf = new TextField(null, this._format, this._options, textWidth, textHeight);
-		this._tf.animator = this._animator;
+		this._tf.animator = Massive.animator;
+		this._tf.display = this._display;
 		this._tf.textDataSafeMode = true;
 		this._tf.x = this.editView.displayRect.x;
 		this._tf.y = this.editView.displayRect.y;
