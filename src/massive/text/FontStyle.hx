@@ -4,6 +4,7 @@ import openfl.errors.ArgumentError;
 import openfl.geom.Rectangle;
 import starling.text.MiniBitmapFont;
 import starling.textures.Texture;
+import starling.textures.TextureSmoothing;
 import starling.utils.Align;
 
 /**
@@ -26,8 +27,9 @@ class FontStyle
 	public var spaceGlyph(default, null):Glyph;
 	public var spaceWidth(default, null):Float = 0.0;
 	public var texture(default, null):Texture;
+	public var textureSmoothing:String;
 
-	public function new(name:String, texture:Texture = null, fontData:Dynamic = null, hAlign:String = Align.CENTER, vAlign:String = Align.CENTER, adjustIfOutline:Bool = true) 
+	public function new(name:String, texture:Texture = null, fontData:Dynamic = null, hAlign:String = Align.CENTER, vAlign:String = Align.CENTER, textureSmoothing:String = TextureSmoothing.NONE, adjustIfOutline:Bool = true) 
 	{
 		this.name = name;
 		
@@ -41,6 +43,7 @@ class FontStyle
 		this.lineHeight = this.size = this.baseline = 14.0;
 		this.offsetX = this.offsetY = 0.0;
 		this.texture = texture;
+		this.textureSmoothing = textureSmoothing;
 		
 		this.missingGlyph = new Glyph(MassiveText.CHAR_MISSING, null, 0, 0, 0);
 		addGlyph(MassiveText.CHAR_MISSING, this.missingGlyph);
