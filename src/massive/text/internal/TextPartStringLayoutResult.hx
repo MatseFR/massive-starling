@@ -68,7 +68,7 @@ class TextPartStringLayoutResult extends TextPartLayoutResult
 			this.textureIndex = display.getTextureIndex(texture);
 			if (this.textureIndex == -1)
 			{
-				this.textureIndex = display.addTexture(texture);
+				this.textureIndex = display.addTexture(texture, this.style.textureSmoothing);
 				addedTextures[addedTextures.length] = texture;
 			}
 		}
