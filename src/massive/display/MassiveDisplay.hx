@@ -1,5 +1,7 @@
 package massive.display;
 
+import massive.core.Massive;
+import massive.core.validation.IValidating;
 import massive.data.MassiveConstants;
 import massive.display.Img;
 import massive.display.base.ContainerBase;
@@ -52,7 +54,7 @@ import openfl.Memory;
  * in order to display anything you need to add at least a layer to it, and then add data to that layer
  * @author Matse
  */
-class MassiveDisplay extends DisplayObject implements IAnimatable
+class MassiveDisplay extends DisplayObject implements IAnimatable implements IValidating
 {
 	static public function clearProgramCache():Void
 	{
@@ -228,6 +230,10 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	   How many 32bit values per vertex
 	**/
 	public var elementsPerVertex(get, never):Int;
+	/**
+	   
+	**/
+	public var isOnValidationQueue(default, null):Bool;
 	/**
 	   The Juggler instance that this MassiveDisplay instance will use if autoHandleJuggler is true.
 	   If null, MassiveDisplay.defaultJuggler will be used.
@@ -812,6 +818,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	private var _forceBuffer:Bool;
 	private var _painter:Painter;
 	
+	private var _textureDirtyFlag:Bool;
+	
 	/**
 	   
 	   @param	textureOrTextures	either a Texture or an Array<Texture> (Vector<Texture> on flash target)
@@ -938,6 +946,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this._textureIndexMap.clear();
 		this._textureIndexMap = null;
 		
+		if (this.isOnValidationQueue) Massive.validationQueue.remove(this);
+		
 		super.dispose();
 	}
 	
@@ -959,6 +969,8 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		this.renderOffsetX = this.renderOffsetY = 0.0;
 		this._textureRepeat = false;
 		this._textureSmoothing = defaultTextureSmoothing;
+		
+		if (this.isOnValidationQueue) Massive.validationQueue.remove(this);
 	}
 	
 	public function pool():Void
@@ -1006,48 +1018,91 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		updateBuffers();
 	}
 	
-	public function addTexture(texture:Texture, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Int
+	/**
+	   
+	   @param	texture
+	   @param	textureSmoothing
+	   @param	textureRepeat
+	   @param	forceUpdate
+	   @return
+	**/
+	public function addTexture(texture:Texture, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Int
 	{
 		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
+		this._textureIndexMap.set(texture, this._textures.length);
 		this._textures[this._textures.length] = texture;
 		this._textureKeys[this._textureKeys.length] = Std.string(getTextureKey(texture));
 		this._textureSmoothings[this._textureSmoothings.length] = textureSmoothing;
 		this._textureRepeats[this._textureRepeats.length] = textureRepeat;
-		if (update) updateTextures();
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 		return this._textures.length - 1;
 	}
 	
-	public function addTextureAt(texture:Texture, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	/**
+	   
+	   @param	texture
+	   @param	index
+	   @param	textureSmoothing
+	   @param	textureRepeat
+	   @param	forceUpdate
+	**/
+	public function addTextureAt(texture:Texture, index:Int, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	{
 		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		this._textures.insert(index, texture);
 		this._textureKeys.insert(index, Std.string(getTextureKey(texture)));
 		this._textureSmoothings.insert(index, textureSmoothing);
 		this._textureRepeats.insert(index, textureRepeat);
-		if (update) updateTextures();
+		rebuildTextureMap();
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 	}
 	
 	#if (flash||SWC)
-	public function addTextures(textures:Vector<Texture>, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function addTextures(textures:Vector<Texture>, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	#else
-	public function addTextures(textures:Array<Texture>, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function addTextures(textures:Array<Texture>, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	#end
 	{
 		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
 		for (i in 0...textures.length)
 		{
+			this._textureIndexMap.set(textures[i], this._textures.length);
 			this._textures[this._textures.length] = textures[i];
 			this._textureKeys[this._textureKeys.length] = Std.string(getTextureKey(textures[i]));
 			this._textureSmoothings[this._textureSmoothings.length] = textureSmoothing;
 			this._textureRepeats[this._textureRepeats.length] = textureRepeat;
 		}
-		if (update) updateTextures();
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 	}
 	
 	#if (flash||SWC)
-	public function addTexturesAt(textures:Vector<Texture>, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function addTexturesAt(textures:Vector<Texture>, index:Int, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	#else
-	public function addTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function addTexturesAt(textures:Array<Texture>, index:Int, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	#end
 	{
 		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
@@ -1058,16 +1113,34 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._textureSmoothings.insert(index + i, textureSmoothing);
 			this._textureRepeats.insert(index + i, textureRepeat);
 		}
-		if (update) updateTextures();
+		rebuildTextureMap();
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 	}
 	
-	public function clearTextures(update:Bool = true):Void
+	public function clearTextures(forceUpdate:Bool = false):Void
 	{
 		this._textures.resize(0);
 		this._textureKeys.resize(0);
 		this._textureSmoothings.resize(0);
 		this._textureRepeats.resize(0);
-		if (update) updateTextures();
+		this._textureIndexMap.clear();
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 	}
 	
 	public function getTextureAt(index:Int):Texture
@@ -1109,7 +1182,7 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 	}
 	
-	public function removeTexture(texture:Texture, update:Bool = true):Void
+	public function removeTexture(texture:Texture, forceUpdate:Bool = false):Void
 	{
 		var index:Int = this._textures.indexOf(texture);
 		if (index != -1)
@@ -1118,23 +1191,41 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 			this._textureKeys.splice(index, 1);
 			this._textureSmoothings.splice(index, 1);
 			this._textureRepeats.splice(index, 1);
-			if (update) updateTextures();
+			this._textureIndexMap.remove(texture);
+			if (forceUpdate) 
+			{
+				updateTextures();
+			}
+			else
+			{
+				_textureDirtyFlag = true;
+				Massive.validationQueue.add(this);
+			}
 		}
 	}
 	
-	public function removeTextureAt(index:Int, update:Bool = true):Void
+	public function removeTextureAt(index:Int, forceUpdate:Bool = false):Void
 	{
 		this._textures.splice(index, 1);
 		this._textureKeys.splice(index, 1);
 		this._textureSmoothings.splice(index, 1);
 		this._textureRepeats.splice(index, 1);
-		if (update) updateTextures();
+		this._textureIndexMap.remove(texture);
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 	}
 	
 	#if (flash || SWC)
-	public function removeTextures(textures:Vector<Texture>, update:Bool = true):Void
+	public function removeTextures(textures:Vector<Texture>, forceUpdate:Bool = false):Void
 	#else
-	public function removeTextures(textures:Array<Texture>, update:Bool = true):Void
+	public function removeTextures(textures:Array<Texture>, forceUpdate:Bool = false):Void
 	#end
 	{
 		var index:Int;
@@ -1147,49 +1238,82 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				this._textureKeys.splice(index, 1);
 				this._textureSmoothings.splice(index, 1);
 				this._textureRepeats.splice(index, 1);
+				this._textureIndexMap.remove(textures[i]);
 			}
 		}
-		if (update) updateTextures();
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 	}
 	
-	public function setTextureAt(texture:Texture, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function setTextureAt(texture:Texture, index:Int, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	{
 		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
+		var previousTexture:Texture = this._textures[index];
+		if (previousTexture != null) this._textureIndexMap.remove(previousTexture);
 		this._textures[index] = texture;
+		this._textureIndexMap.set(texture, index);
 		this._textureKeys[index] = Std.string(getTextureKey(texture));
 		this._textureSmoothings[index] = textureSmoothing;
 		this._textureRepeats[index] = textureRepeat;
-		if (update) updateTextures();
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 	}
 	
 	#if (flash||SWC)
-	public function setTextures(textures:Vector<Texture>, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function setTextures(textures:Vector<Texture>, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	#else
-	public function setTextures(textures:Array<Texture>, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function setTextures(textures:Array<Texture>, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	#end
 	{
 		this._textures.resize(0);
 		this._textureKeys.resize(0);
 		this._textureSmoothings.resize(0);
 		this._textureRepeats.resize(0);
-		addTextures(textures, update, textureSmoothing, textureRepeat);
+		this._textureIndexMap.clear();
+		addTextures(textures, textureSmoothing, textureRepeat, forceUpdate);
 	}
 	
 	#if (flash||SWC)
-	public function setTexturesAt(textures:Vector<Texture>, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function setTexturesAt(textures:Vector<Texture>, index:Int, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	#else
-	public function setTexturesAt(textures:Array<Texture>, index:Int, update:Bool = true, textureSmoothing:String = null, textureRepeat:Bool = false):Void
+	public function setTexturesAt(textures:Array<Texture>, index:Int, textureSmoothing:String = null, textureRepeat:Bool = false, forceUpdate:Bool = false):Void
 	#end
 	{
 		if (textureSmoothing == null) textureSmoothing = this._textureSmoothing;
+		var previousTexture:Texture;
 		for (i in 0...textures.length)
 		{
+			previousTexture = this._textures[index + i];
+			if (previousTexture != null) this._textureIndexMap.remove(previousTexture);
 			this._textures[index + i] = textures[i];
+			this._textureIndexMap.set(textures[i], index + i);
 			this._textureKeys[index + i] = Std.string(getTextureKey(textures[i]));
 			this._textureSmoothings[index + i] = textureSmoothing;
 			this._textureRepeats[index + i] = textureRepeat;
 		}
-		if (update) updateTextures();
+		if (forceUpdate) 
+		{
+			updateTextures();
+		}
+		else
+		{
+			_textureDirtyFlag = true;
+			Massive.validationQueue.add(this);
+		}
 	}
 	
 	public function setTextureRepeatAt(index:Int, textureRepeat:Bool):Void
@@ -1200,6 +1324,11 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 	public function setTextureSmoothingAt(index:Int, textureSmoothing:String):Void
 	{
 		this._textureSmoothings[index] = textureSmoothing;
+	}
+	
+	public function validate():Void
+	{
+		if (this._textureDirtyFlag) updateTextures();
 	}
 	
 	/**
@@ -1549,6 +1678,26 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 				}
 			}
 		}
+	}
+	
+	private function updateTextures():Void
+	{
+		this._numTextures = this._textures.length;
+		this._multiTexturing = this._numTextures > 1;
+		this._renderData.multiTexturing = this._multiTexturing;
+		this._textureProgramKey = this._textureKeys.join("");
+		
+		//rebuildTextureMap();
+		
+		this.pma = this._numTextures == 0 ? true : this._textures[0].premultipliedAlpha;
+		this._renderData.pma = this.pma;
+		
+		updateElements();
+		if (this._buffersCreated) updateBuffers();
+		updateData();
+		if (this._program != null) updateProgram();
+		
+		this._textureDirtyFlag = false;
 	}
 	
 	private function createProgramWithoutTexture():Program
@@ -2004,24 +2153,6 @@ class MassiveDisplay extends DisplayObject implements IAnimatable
 		}
 		
 		data[data.length] = "ifl " + textureIndexSource + constant;
-	}
-	
-	private function updateTextures():Void
-	{
-		this._numTextures = this._textures.length;
-		this._multiTexturing = this._numTextures > 1;
-		this._renderData.multiTexturing = this._multiTexturing;
-		this._textureProgramKey = this._textureKeys.join("");
-		
-		rebuildTextureMap();
-		
-		this.pma = this._numTextures == 0 ? true : this._textures[0].premultipliedAlpha;
-		this._renderData.pma = this.pma;
-		
-		updateElements();
-		if (this._buffersCreated) updateBuffers();
-		updateData();
-		if (this._program != null) updateProgram();
 	}
 	
 	/**
