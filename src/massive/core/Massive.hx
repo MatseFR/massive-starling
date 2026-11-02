@@ -31,6 +31,8 @@ class Massive
 		
 		animator = new Animator();
 		juggler.add(animator);
+		
+		_initDone = true;
 	}
 	
 }
